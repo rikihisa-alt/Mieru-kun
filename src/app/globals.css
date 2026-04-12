@@ -1,62 +1,123 @@
 @import "tailwindcss";
 
+/* ============================================
+   てんぽみえるくん デザインシステム
+   方針: 日本の業務SaaS品質
+   参考: キャムマックス / ラクシフ / デクセコ
+   ============================================ */
+
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-light: #dbeafe;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --border: #e2e8f0;
-  --card: #ffffff;
-  --success: #16a34a;
-  --success-light: #dcfce7;
-  --warning: #d97706;
-  --warning-light: #fef3c7;
-  --danger: #dc2626;
-  --danger-light: #fee2e2;
-  --info: #0284c7;
-  --info-light: #e0f2fe;
-  --radius: 0.5rem;
+  /* ベースカラー */
+  --bg: #f5f6f8;
+  --bg-white: #ffffff;
+  --bg-hover: #f0f1f3;
+  --bg-active: #e8eaed;
+
+  /* テキスト */
+  --text-primary: #1a1a1a;
+  --text-secondary: #5f6368;
+  --text-tertiary: #9aa0a6;
+  --text-inverse: #ffffff;
+
+  /* アクセント (青系1色) */
+  --accent: #1a73e8;
+  --accent-hover: #1557b0;
+  --accent-light: #e8f0fe;
+  --accent-bg: #f0f6ff;
+
+  /* ボーダー */
+  --border: #dadce0;
+  --border-light: #e8eaed;
+  --border-focus: #1a73e8;
+
+  /* ステータス */
+  --status-success: #188038;
+  --status-success-bg: #e6f4ea;
+  --status-warning: #e37400;
+  --status-warning-bg: #fef7e0;
+  --status-danger: #d93025;
+  --status-danger-bg: #fce8e6;
+  --status-info: #1a73e8;
+  --status-info-bg: #e8f0fe;
+
+  /* 角丸 */
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+
+  /* フォント */
+  --font-base: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", -apple-system, sans-serif;
+  --font-mono: "SF Mono", "Consolas", monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-primary-light: var(--primary-light);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-bg: var(--bg);
+  --color-bg-white: var(--bg-white);
+  --color-bg-hover: var(--bg-hover);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
   --color-border: var(--border);
-  --color-card: var(--card);
-  --color-success: var(--success);
-  --color-success-light: var(--success-light);
-  --color-warning: var(--warning);
-  --color-warning-light: var(--warning-light);
-  --color-danger: var(--danger);
-  --color-danger-light: var(--danger-light);
-  --color-info: var(--info);
-  --color-info-light: var(--info-light);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-border-light: var(--border-light);
+  --color-status-success: var(--status-success);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-bg: var(--status-danger-bg);
+  --font-sans: var(--font-base);
+  --font-mono: var(--font-mono);
 }
+
+* { box-sizing: border-box; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-base);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* テーブル共通 */
+table { border-collapse: collapse; }
+th { font-weight: 600; text-align: left; }
+
 /* スクロールバー */
-::-webkit-scrollbar {
-  width: 6px;
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* フォーカスリング */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+/* 入力フィールド共通 */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+input[type="password"],
+select,
+textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-white);
+  transition: border-color 0.15s;
+  width: 100%;
 }
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(26,115,232,0.15);
+  outline: none;
 }

@@ -1,27 +1,17 @@
 import Link from "next/link";
-import { Store, BarChart3, Users, ShoppingCart, ArrowRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen bg-bg flex flex-col">
       {/* Header */}
-      <header className="border-b border-border bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="bg-bg-white border-b border-border">
+        <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
+          <span className="text-[15px] font-bold text-text-primary">てんぽみえるくん</span>
           <div className="flex items-center gap-2">
-            <Store className="w-6 h-6 text-primary" />
-            <span className="text-xl font-bold">てんぽみえるくん</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
-            >
+            <Link href="/login" className="px-3 py-[7px] text-[13px] font-medium text-text-secondary hover:text-text-primary transition-colors">
               ログイン
             </Link>
-            <Link
-              href="/signup"
-              className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
-            >
+            <Link href="/signup" className="px-3 py-[7px] text-[13px] font-medium text-accent bg-accent-light rounded-[var(--radius)] hover:bg-[#d4e4fc] transition-colors">
               無料で始める
             </Link>
           </div>
@@ -30,83 +20,50 @@ export default function Home() {
 
       {/* Hero */}
       <main className="flex-1">
-        <section className="max-w-6xl mx-auto px-4 py-24 text-center">
-          <p className="text-sm font-medium text-primary mb-4">
-            アミューズメントカジノ店舗向け 運営管理システム
-          </p>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-            店舗の「いま」が
-            <br />
-            <span className="text-primary">ひと目でわかる</span>
+        <section className="max-w-4xl mx-auto px-6 py-20">
+          <p className="text-[12px] font-medium text-accent mb-3">アミューズメントカジノ向け店舗管理</p>
+          <h1 className="text-[28px] md:text-[36px] font-bold text-text-primary leading-tight mb-4">
+            店舗の運営を、<br />ひとつの画面で。
           </h1>
-          <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
-            入退店・注文・売上・顧客をリアルタイムに管理。
-            <br />
-            LINE連携で現場オペレーションをもっとスマートに。
+          <p className="text-[15px] text-text-secondary leading-relaxed mb-8 max-w-lg">
+            入退店・卓管理・注文精算・勤怠・顧客管理。<br />
+            現場のオペレーションをシンプルに統合します。
           </p>
-          <Link
-            href="/signup"
-            className="inline-flex items-center gap-2 px-8 py-3 text-lg font-medium bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
-          >
-            無料で始める
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+          <div className="flex gap-3">
+            <Link href="/dashboard" className="px-5 py-2.5 text-[14px] font-medium bg-accent text-text-inverse rounded-[var(--radius)] hover:bg-accent-hover transition-colors">
+              デモを見る
+            </Link>
+            <Link href="/my" className="px-5 py-2.5 text-[14px] font-medium border border-border text-text-secondary rounded-[var(--radius)] hover:bg-bg-hover transition-colors">
+              顧客マイページ
+            </Link>
+          </div>
         </section>
 
         {/* Features */}
-        <section className="bg-white py-20 border-y border-border">
-          <div className="max-w-6xl mx-auto px-4">
-            <h2 className="text-2xl font-bold text-center mb-12">主な機能</h2>
-            <div className="grid md:grid-cols-4 gap-6">
-              <FeatureCard
-                icon={<Store className="w-7 h-7 text-primary" />}
-                title="入退店管理"
-                description="来店から精算まで、顧客の滞在をリアルタイムに追跡します。"
-              />
-              <FeatureCard
-                icon={<ShoppingCart className="w-7 h-7 text-primary" />}
-                title="注文管理"
-                description="タッチ操作で素早く注文。卓・顧客に紐づけて売上を自動集計。"
-              />
-              <FeatureCard
-                icon={<BarChart3 className="w-7 h-7 text-primary" />}
-                title="売上分析"
-                description="日別・商品別・顧客別の売上をグラフで可視化。KPIも一目瞭然。"
-              />
-              <FeatureCard
-                icon={<Users className="w-7 h-7 text-primary" />}
-                title="顧客管理"
-                description="来店履歴・チップ・ポイント・ランクを一元管理。VIP対応も万全。"
-              />
+        <section className="border-t border-border bg-bg-white py-16">
+          <div className="max-w-4xl mx-auto px-6">
+            <h2 className="text-[16px] font-bold text-text-primary mb-8">主な機能</h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <Feature title="入店管理" desc="人数管理、エントランス料、未払確認をリアルタイムに" />
+              <Feature title="卓管理" desc="トナメ・サイド・リングの卓配置とディーラー管理" />
+              <Feature title="注文 / 精算" desc="注文から精算まで、一連の流れを1画面で完結" />
             </div>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-8 bg-white">
-        <div className="max-w-6xl mx-auto px-4 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} てんぽみえるくん All rights reserved.
-        </div>
+      <footer className="border-t border-border py-6">
+        <p className="text-center text-[11px] text-text-tertiary">&copy; {new Date().getFullYear()} てんぽみえるくん</p>
       </footer>
     </div>
   );
 }
 
-function FeatureCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
+function Feature({ title, desc }: { title: string; desc: string }) {
   return (
-    <div className="rounded-xl p-5 border border-border hover:shadow-sm transition-shadow">
-      <div className="mb-3">{icon}</div>
-      <h3 className="text-base font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+    <div className="border border-border rounded-[var(--radius-lg)] p-4">
+      <h3 className="text-[14px] font-semibold text-text-primary mb-1">{title}</h3>
+      <p className="text-[12px] text-text-secondary leading-relaxed">{desc}</p>
     </div>
   );
 }
