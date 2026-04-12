@@ -1,97 +1,436 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { DEMO_STORE_ID, formatTime } from "@/lib/utils";
-import type { VisitWithCustomer } from "@/types/database";
-import { Plus, UserCheck, Clock, CreditCard } from "lucide-react";
+import { useState } from "react";
+import {
+  Users,
+  Clock,
+  CreditCard,
+  Plus,
+  UserPlus,
+  ChevronDown,
+  AlertCircle,
+  MapPin,
+} from "lucide-react";
+
+type Rank = "regular" | "silver" | "gold" | "vip";
+
+interface Visitor {
+  id: string;
+  name: string;
+  rank: Rank;
+  checkInAt: string;
+  table: string | null;
+  amount: number;
+  status: "active" | "unpaid" | "assigned";
+}
+
+const RANK_LABELS: Record<Rank, string> = {
+  regular: "レギュラー",
+  silver: "シルバー",
+  gold: "ゴールド",
+  vip: "VIP",
+};
+
+const RANK_DOT_COLORS: Record<Rank, string> = {
+  regular: "#9aa0a6",
+  silver: "#5f6368",
+  gold: "#f59e0b",
+  vip: "#7c3aed",
+};
+
+const PRESET_CUSTOMERS = [
+  { name: "田中 太郎", rank: "gold" as Rank },
+  { name: "佐藤 花子", rank: "vip" as Rank },
+  { name: "鈴木 一郎", rank: "regular" as Rank },
+  { name: "高橋 美咲", rank: "silver" as Rank },
+  { name: "渡辺 健太", rank: "regular" as Rank },
+  { name: "伊藤 誠", rank: "gold" as Rank },
+  { name: "山本 さくら", rank: "vip" as Rank },
+  { name: "中村 大輔", rank: "silver" as Rank },
+];
+
+function now() {
+  return new Date().toISOString();
+}
+
+function timeAgo(isoStr: string): string {
+  const diff = Math.round((Date.now() - new Date(isoStr).getTime()) / 60000);
+  const h = Math.floor(diff / 60);
+  const m = diff % 60;
+  if (h > 0) return `${h}h${m}m`;
+  return `${m}m`;
+}
+
+function formatTimeOnly(isoStr: string): string {
+  const d = new Date(isoStr);
+  return d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+}
+
+const INITIAL_VISITORS: Visitor[] = [
+  { id: "v1", name: "田中 太郎", rank: "gold", checkInAt: new Date(Date.now() - 90 * 60000).toISOString(), table: "VIP-1", amount: 45000, status: "active" },
+  { id: "v2", name: "佐藤 花子", rank: "vip", checkInAt: new Date(Date.now() - 120 * 60000).toISOString(), table: "VIP-2", amount: 82000, status: "active" },
+  { id: "v3", name: "鈴木 一郎", rank: "regular", checkInAt: new Date(Date.now() - 45 * 60000).toISOString(), table: "A-3", amount: 12000, status: "active" },
+  { id: "v4", name: "高橋 美咲", rank: "silver", checkInAt: new Date(Date.now() - 30 * 60000).toISOString(), table: "B-1", amount: 8500, status: "active" },
+  { id: "v5", name: "渡辺 健太", rank: "regular", checkInAt: new Date(Date.now() - 60 * 60000).toISOString(), table: null, amount: 0, status: "unpaid" },
+  { id: "v6", name: "伊藤 誠", rank: "gold", checkInAt: new Date(Date.now() - 15 * 60000).toISOString(), table: null, amount: 0, status: "active" },
+  { id: "v7", name: "山本 さくら", rank: "vip", checkInAt: new Date(Date.now() - 10 * 60000).toISOString(), table: null, amount: 0, status: "active" },
+  { id: "v8", name: "中村 大輔", rank: "silver", checkInAt: new Date(Date.now() - 5 * 60000).toISOString(), table: null, amount: 0, status: "active" },
+];
 
 export default function FloorPage() {
-  const [visits, setVisits] = useState<VisitWithCustomer[]>([]);
-  const [count, setCount] = useState(0);
+  const [visitors, setVisitors] = useState<Visitor[]>(INITIAL_VISITORS);
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newRank, setNewRank] = useState<Rank>("regular");
+  const [recentEntries, setRecentEntries] = useState<{ name: string; time: string }[]>([
+    { name: "中村 大輔", time: formatTimeOnly(new Date(Date.now() - 5 * 60000).toISOString()) },
+    { name: "山本 さくら", time: formatTimeOnly(new Date(Date.now() - 10 * 60000).toISOString()) },
+    { name: "伊藤 誠", time: formatTimeOnly(new Date(Date.now() - 15 * 60000).toISOString()) },
+  ]);
 
-  useEffect(() => { loadVisits(); }, []);
+  const activeCount = visitors.filter((v) => v.status === "active" || v.status === "assigned").length;
+  const unassignedCount = visitors.filter((v) => v.table === null && v.status !== "unpaid").length;
+  const unpaidCount = visitors.filter((v) => v.status === "unpaid").length;
 
-  async function loadVisits() {
-    try {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("visits")
-        .select("*, customer:customers(*)")
-        .eq("store_id", DEMO_STORE_ID)
-        .eq("status", "active")
-        .order("check_in_at", { ascending: false });
-      const v = (data as VisitWithCustomer[]) ?? [];
-      setVisits(v);
-      setCount(v.length);
-    } catch { /* demo */ }
+  const assignedVisitors = visitors.filter((v) => v.table !== null);
+  const unassignedVisitors = visitors.filter((v) => v.table === null && v.status !== "unpaid");
+
+  function handleCheckIn() {
+    let name = "";
+    let rank: Rank = "regular";
+
+    if (showNewForm) {
+      if (!newName.trim()) return;
+      name = newName.trim();
+      rank = newRank;
+    } else {
+      if (!selectedPreset) return;
+      const preset = PRESET_CUSTOMERS.find((c) => c.name === selectedPreset);
+      if (!preset) return;
+      name = preset.name;
+      rank = preset.rank;
+    }
+
+    const existing = visitors.find((v) => v.name === name);
+    if (existing) return;
+
+    const newVisitor: Visitor = {
+      id: `v${Date.now()}`,
+      name,
+      rank,
+      checkInAt: now(),
+      table: null,
+      amount: 0,
+      status: "active",
+    };
+
+    setVisitors((prev) => [newVisitor, ...prev]);
+    setRecentEntries((prev) => [
+      { name, time: formatTimeOnly(now()) },
+      ...prev.slice(0, 2),
+    ]);
+    setSelectedPreset("");
+    setNewName("");
+    setNewRank("regular");
+    setShowNewForm(false);
+  }
+
+  function handleSettle(id: string) {
+    setVisitors((prev) => prev.filter((v) => v.id !== id));
+  }
+
+  function handleAssign(id: string) {
+    const tables = ["A-1", "A-2", "A-3", "B-1", "B-2", "VIP-1", "VIP-2"];
+    const usedTables = visitors.filter((v) => v.table).map((v) => v.table);
+    const available = tables.filter((t) => !usedTables.includes(t));
+    const nextTable = available[0] || "A-1";
+
+    setVisitors((prev) =>
+      prev.map((v) =>
+        v.id === id ? { ...v, table: nextTable, status: "assigned" as const } : v
+      )
+    );
+  }
+
+  function statusBadge(status: string) {
+    switch (status) {
+      case "active":
+        return "bg-[#e6f4ea] text-[#1e7e34]";
+      case "unpaid":
+        return "bg-[#fce8e6] text-[#c5221f]";
+      case "assigned":
+        return "bg-[#e8f0fe] text-[#1a73e8]";
+      default:
+        return "bg-[#f5f6f8] text-[#5f6368]";
+    }
+  }
+
+  function statusLabel(status: string) {
+    switch (status) {
+      case "active":
+        return "来店中";
+      case "unpaid":
+        return "未払";
+      case "assigned":
+        return "配置済";
+      default:
+        return status;
+    }
+  }
+
+  function isVipRow(rank: Rank) {
+    return rank === "gold" || rank === "vip";
   }
 
   return (
-    <div className="space-y-4 max-w-4xl">
-      {/* ツールバー */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-[13px] text-text-secondary">
-            現在 <strong className="text-text-primary">{count}名</strong> 来店中
-          </span>
+    <div className="flex gap-4 max-w-full" style={{ minHeight: "calc(100vh - 120px)" }}>
+      {/* Left side - Main content */}
+      <div className="flex-1 space-y-4 min-w-0">
+        {/* Top bar: counts */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#dadce0] rounded-[6px] px-4 py-2.5">
+            <Users className="w-4 h-4 text-[#1a73e8]" />
+            <span className="text-[13px] text-[#5f6368]">来店</span>
+            <span className="text-[20px] font-bold text-[#1a1a1a] ml-1">{activeCount + unpaidCount}名</span>
+          </div>
+          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#dadce0] rounded-[6px] px-4 py-2.5">
+            <MapPin className="w-4 h-4 text-[#f59e0b]" />
+            <span className="text-[13px] text-[#5f6368]">未配置</span>
+            <span className="text-[20px] font-bold text-[#1a1a1a] ml-1">{unassignedCount}名</span>
+          </div>
+          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#dadce0] rounded-[6px] px-4 py-2.5">
+            <AlertCircle className="w-4 h-4 text-[#c5221f]" />
+            <span className="text-[13px] text-[#5f6368]">未払</span>
+            <span className="text-[20px] font-bold text-[#c5221f] ml-1">{unpaidCount}名</span>
+          </div>
         </div>
-        <button className="flex items-center gap-1.5 px-3 py-[7px] bg-accent text-text-inverse text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors">
-          <Plus className="w-3.5 h-3.5" />
-          入店登録
-        </button>
+
+        {/* Section A: Checked-in visitors */}
+        <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] overflow-hidden">
+          <div className="px-4 py-3 border-b border-[#dadce0] bg-[#f5f6f8]">
+            <h2 className="text-[14px] font-semibold text-[#1a1a1a]">来店中</h2>
+          </div>
+          <table className="w-full text-[13px]">
+            <thead>
+              <tr className="border-b border-[#dadce0] bg-[#f5f6f8]">
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">顧客名</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">ランク</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">入店</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">卓</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">金額</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">状態</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assignedVisitors.length === 0 && visitors.filter((v) => v.status === "unpaid").length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-8 text-center text-[#9aa0a6] text-[13px]">
+                    配置済の来店客はいません
+                  </td>
+                </tr>
+              )}
+              {[...assignedVisitors, ...visitors.filter((v) => v.status === "unpaid")].map((v) => (
+                <tr
+                  key={v.id}
+                  className={`border-b border-[#f0f0f0] hover:bg-[#f8f9fa] transition-colors ${
+                    isVipRow(v.rank) ? "bg-[#fffbeb]/30" : ""
+                  }`}
+                >
+                  <td className="px-4 py-2.5 font-medium text-[#1a1a1a]">
+                    <div className="flex items-center gap-2">
+                      {v.name}
+                      {(v.rank === "vip" || v.rank === "gold") && (
+                        <span className={`inline px-1.5 py-0.5 text-[10px] font-medium rounded-[4px] ${
+                          v.rank === "vip" ? "bg-[#f3e8fd] text-[#7c3aed]" : "bg-[#fef3c7] text-[#d97706]"
+                        }`}>
+                          {RANK_LABELS[v.rank]}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span
+                      className="inline-block w-[8px] h-[8px] rounded-full"
+                      style={{ backgroundColor: RANK_DOT_COLORS[v.rank] }}
+                      title={RANK_LABELS[v.rank]}
+                    />
+                  </td>
+                  <td className="px-4 py-2.5 text-[#5f6368]">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3 h-3 opacity-50" />
+                      {formatTimeOnly(v.checkInAt)}
+                      <span className="text-[11px] text-[#9aa0a6] ml-1">({timeAgo(v.checkInAt)})</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    {v.table ? (
+                      <span className="inline-block px-2 py-0.5 bg-[#f5f6f8] rounded-[4px] text-[12px] font-medium text-[#1a1a1a]">
+                        {v.table}
+                      </span>
+                    ) : (
+                      <span className="text-[#9aa0a6]">--</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2.5 font-medium text-[#1a1a1a]">
+                    {v.amount > 0 ? `¥${v.amount.toLocaleString()}` : "--"}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className={`inline px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${statusBadge(v.status)}`}>
+                      {statusLabel(v.status)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleSettle(v.id)}
+                        className="flex items-center gap-1 px-2 py-1 text-[12px] text-[#1a73e8] hover:bg-[#e8f0fe] rounded-[4px] transition-colors"
+                      >
+                        <CreditCard className="w-3 h-3" />
+                        精算
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Section B: Unassigned */}
+        {unassignedVisitors.length > 0 && (
+          <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[#dadce0] bg-[#f5f6f8]">
+              <h2 className="text-[14px] font-semibold text-[#1a1a1a]">未配置 ({unassignedVisitors.length}名)</h2>
+            </div>
+            <div className="divide-y divide-[#f0f0f0]">
+              {unassignedVisitors.map((v) => (
+                <div
+                  key={v.id}
+                  className="flex items-center justify-between px-4 py-3 border-l-2 border-l-[#1a73e8] hover:bg-[#f8f9fa] transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="inline-block w-[8px] h-[8px] rounded-full"
+                      style={{ backgroundColor: RANK_DOT_COLORS[v.rank] }}
+                    />
+                    <span className="text-[13px] font-medium text-[#1a1a1a]">{v.name}</span>
+                    {(v.rank === "vip" || v.rank === "gold") && (
+                      <span className={`inline px-1.5 py-0.5 text-[10px] font-medium rounded-[4px] ${
+                        v.rank === "vip" ? "bg-[#f3e8fd] text-[#7c3aed]" : "bg-[#fef3c7] text-[#d97706]"
+                      }`}>
+                        {RANK_LABELS[v.rank]}
+                      </span>
+                    )}
+                    <span className="text-[12px] text-[#9aa0a6]">
+                      {formatTimeOnly(v.checkInAt)} 入店
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleAssign(v.id)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors"
+                  >
+                    <MapPin className="w-3 h-3" />
+                    配置
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* テーブル */}
-      <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] overflow-hidden">
-        <table className="w-full text-[13px]">
-          <thead>
-            <tr className="border-b border-border bg-bg">
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">顧客名</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">入店時刻</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">卓</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">滞在</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">金額</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visits.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-text-tertiary">
-                  <UserCheck className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  <p>来店中の顧客はいません</p>
-                </td>
-              </tr>
-            ) : (
-              visits.map((v) => {
-                const stayMin = Math.round((Date.now() - new Date(v.check_in_at).getTime()) / 60000);
-                const h = Math.floor(stayMin / 60);
-                const m = stayMin % 60;
-                return (
-                  <tr key={v.id} className="border-b border-border-light hover:bg-bg-hover transition-colors">
-                    <td className="px-4 py-2.5 font-medium">{v.customer?.name ?? "—"}</td>
-                    <td className="px-4 py-2.5 text-text-secondary">{formatTime(v.check_in_at)}</td>
-                    <td className="px-4 py-2.5">
-                      {v.table_number ? (
-                        <span className="inline-block px-2 py-0.5 bg-bg rounded text-[12px] font-medium">{v.table_number}</span>
-                      ) : "—"}
-                    </td>
-                    <td className="px-4 py-2.5 text-text-secondary font-mono text-[12px]">
-                      <Clock className="w-3 h-3 inline mr-1 opacity-50" />{h > 0 ? `${h}h` : ""}{m}m
-                    </td>
-                    <td className="px-4 py-2.5 font-medium">¥{v.total_amount.toLocaleString()}</td>
-                    <td className="px-4 py-2.5">
-                      <button className="flex items-center gap-1 px-2.5 py-1 text-[12px] text-accent hover:bg-accent-light rounded-[var(--radius)] transition-colors">
-                        <CreditCard className="w-3 h-3" />精算
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+      {/* Right side - Action Panel */}
+      <div className="w-[280px] flex-shrink-0 space-y-4">
+        {/* Check-in section */}
+        <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] p-4">
+          <h3 className="text-[14px] font-semibold text-[#1a1a1a] mb-3 flex items-center gap-2">
+            <UserPlus className="w-4 h-4 text-[#1a73e8]" />
+            入店登録
+          </h3>
+
+          {!showNewForm ? (
+            <div className="space-y-3">
+              <div className="relative">
+                <select
+                  value={selectedPreset}
+                  onChange={(e) => setSelectedPreset(e.target.value)}
+                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#dadce0] rounded-[6px] appearance-none text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                >
+                  <option value="">顧客を選択...</option>
+                  {PRESET_CUSTOMERS.filter((c) => !visitors.find((v) => v.name === c.name)).map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name} ({RANK_LABELS[c.rank]})
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9aa0a6] pointer-events-none" />
+              </div>
+              <button
+                onClick={() => setShowNewForm(true)}
+                className="w-full text-left px-3 py-2 text-[12px] text-[#1a73e8] hover:bg-[#e8f0fe] rounded-[6px] transition-colors flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" />
+                新規顧客
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="顧客名"
+                className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+              />
+              <div className="relative">
+                <select
+                  value={newRank}
+                  onChange={(e) => setNewRank(e.target.value as Rank)}
+                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#dadce0] rounded-[6px] appearance-none text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                >
+                  <option value="regular">レギュラー</option>
+                  <option value="silver">シルバー</option>
+                  <option value="gold">ゴールド</option>
+                  <option value="vip">VIP</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9aa0a6] pointer-events-none" />
+              </div>
+              <button
+                onClick={() => {
+                  setShowNewForm(false);
+                  setNewName("");
+                  setNewRank("regular");
+                }}
+                className="text-[12px] text-[#5f6368] hover:text-[#1a1a1a]"
+              >
+                キャンセル
+              </button>
+            </div>
+          )}
+
+          <button
+            onClick={handleCheckIn}
+            className="w-full mt-3 px-3 py-2.5 text-[13px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors flex items-center justify-center gap-1.5"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            入店する
+          </button>
+        </div>
+
+        {/* Recent entries */}
+        <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] p-4">
+          <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-3">最近の入店</h3>
+          <div className="space-y-2">
+            {recentEntries.map((e, i) => (
+              <div key={i} className="flex items-center justify-between text-[12px]">
+                <span className="text-[#1a1a1a]">{e.name}</span>
+                <span className="text-[#9aa0a6]">{e.time}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

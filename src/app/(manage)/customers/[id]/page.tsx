@@ -1,164 +1,603 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getCustomerById } from "@/lib/db/customers";
-import { getVisitsByCustomer } from "@/lib/db/visits";
-import { getAuthContext } from "@/lib/auth";
-import { DEMO_STORE_ID, formatCurrency, formatDate, formatTime, formatMinutes, rankLabel, visitStatusLabel } from "@/lib/utils";
-import { ArrowLeft, Phone, Mail, Trophy, DollarSign, Coins, Star } from "lucide-react";
-import type { Customer, Visit } from "@/types/database";
+import {
+  ArrowLeft,
+  Phone,
+  Mail,
+  Trophy,
+  DollarSign,
+  Coins,
+  Star,
+  Save,
+  CheckCircle,
+  Plus,
+  Gift,
+  AlertTriangle,
+} from "lucide-react";
 
-export default async function CustomerDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const ctx = await getAuthContext();
-  const storeId = ctx?.storeId ?? DEMO_STORE_ID;
+type Rank = "regular" | "silver" | "gold" | "vip";
 
-  let customer: Customer | null = null;
-  let visits: Visit[] = [];
+const RANK_LABELS: Record<Rank, string> = {
+  regular: "レギュラー",
+  silver: "シルバー",
+  gold: "ゴールド",
+  vip: "VIP",
+};
 
-  try {
-    customer = await getCustomerById(id);
-    if (customer) {
-      visits = await getVisitsByCustomer(id);
-    }
-  } catch {
-    /* demo */
+function rankBadgeClass(rank: Rank): string {
+  switch (rank) {
+    case "gold":
+      return "bg-[#fef3c7] text-[#d97706]";
+    case "vip":
+      return "bg-[#f3e8fd] text-[#7c3aed]";
+    case "silver":
+      return "bg-[#e2e8f0] text-[#475569]";
+    default:
+      return "bg-[#f5f6f8] text-[#5f6368]";
+  }
+}
+
+interface ChipPointEntry {
+  id: string;
+  date: string;
+  amount: number;
+  reason: string;
+  balanceAfter: number;
+}
+
+interface VisitEntry {
+  id: string;
+  date: string;
+  table: string;
+  amount: number;
+  stayMinutes: number;
+  status: "active" | "settled";
+}
+
+interface PrizeEntry {
+  id: string;
+  date: string;
+  name: string;
+}
+
+interface UnpaidEntry {
+  id: string;
+  date: string;
+  amount: number;
+  note: string;
+}
+
+const TABS = ["基本情報", "来店履歴", "チップ・ポイント", "プライズ", "未払"] as const;
+type Tab = (typeof TABS)[number];
+
+const PRIZE_OPTIONS = [
+  "特製ウイスキー",
+  "VIPルーム利用券",
+  "フードセット無料券",
+  "ドリンク10杯チケット",
+  "記念品ギフトセット",
+];
+
+export default function CustomerDetailPage() {
+  const [activeTab, setActiveTab] = useState<Tab>("基本情報");
+
+  // Basic info state
+  const [name, setName] = useState("田中 太郎");
+  const [phone, setPhone] = useState("090-1234-5678");
+  const [email, setEmail] = useState("tanaka@example.com");
+  const [rank, setRank] = useState<Rank>("gold");
+  const [notes, setNotes] = useState("常連客。ウイスキーがお好み。誕生日: 3/15");
+  const [saveMsg, setSaveMsg] = useState(false);
+
+  // Stats
+  const [visits, setVisits] = useState(25);
+  const [totalSpent] = useState(150000);
+  const [chipBalance, setChipBalance] = useState(5000);
+  const [pointBalance, setPointBalance] = useState(1200);
+
+  // Visit history
+  const [visitHistory] = useState<VisitEntry[]>([
+    { id: "vh1", date: "2026-04-11 20:30", table: "VIP-1", amount: 32000, stayMinutes: 180, status: "settled" },
+    { id: "vh2", date: "2026-04-09 19:00", table: "A-2", amount: 15000, stayMinutes: 120, status: "settled" },
+    { id: "vh3", date: "2026-04-05 21:15", table: "VIP-2", amount: 48000, stayMinutes: 240, status: "settled" },
+    { id: "vh4", date: "2026-04-01 18:45", table: "B-1", amount: 22000, stayMinutes: 150, status: "settled" },
+    { id: "vh5", date: "2026-03-28 20:00", table: "VIP-1", amount: 38000, stayMinutes: 210, status: "settled" },
+  ]);
+
+  // Chip history
+  const [chipHistory, setChipHistory] = useState<ChipPointEntry[]>([
+    { id: "ch1", date: "2026-04-11", amount: 2000, reason: "来店ボーナス", balanceAfter: 5000 },
+    { id: "ch2", date: "2026-04-09", amount: -500, reason: "ドリンク交換", balanceAfter: 3000 },
+    { id: "ch3", date: "2026-04-05", amount: 1000, reason: "イベント参加", balanceAfter: 3500 },
+    { id: "ch4", date: "2026-04-01", amount: 1500, reason: "VIPボーナス", balanceAfter: 2500 },
+    { id: "ch5", date: "2026-03-28", amount: -200, reason: "景品交換", balanceAfter: 1000 },
+  ]);
+  const [chipAmount, setChipAmount] = useState("");
+  const [chipReason, setChipReason] = useState("");
+
+  // Point history
+  const [pointHistory, setPointHistory] = useState<ChipPointEntry[]>([
+    { id: "ph1", date: "2026-04-11", amount: 320, reason: "利用額ポイント", balanceAfter: 1200 },
+    { id: "ph2", date: "2026-04-09", amount: 150, reason: "利用額ポイント", balanceAfter: 880 },
+    { id: "ph3", date: "2026-04-05", amount: -300, reason: "景品交換", balanceAfter: 730 },
+    { id: "ph4", date: "2026-04-01", amount: 220, reason: "利用額ポイント", balanceAfter: 1030 },
+    { id: "ph5", date: "2026-03-28", amount: 380, reason: "利用額ポイント", balanceAfter: 810 },
+  ]);
+  const [pointAmount, setPointAmount] = useState("");
+  const [pointReason, setPointReason] = useState("");
+
+  // Prize
+  const [prizes, setPrizes] = useState<PrizeEntry[]>([
+    { id: "pr1", date: "2026-04-10", name: "特製ウイスキー" },
+    { id: "pr2", date: "2026-03-25", name: "VIPルーム利用券" },
+    { id: "pr3", date: "2026-03-10", name: "フードセット無料券" },
+  ]);
+  const [showPrizeForm, setShowPrizeForm] = useState(false);
+  const [selectedPrize, setSelectedPrize] = useState(PRIZE_OPTIONS[0]);
+
+  // Unpaid
+  const [hasUnpaid, setHasUnpaid] = useState(false);
+  const [unpaidAmount, setUnpaidAmount] = useState("");
+  const [unpaidHistory, setUnpaidHistory] = useState<UnpaidEntry[]>([
+    { id: "up1", date: "2026-03-15", amount: 5000, note: "精算忘れ - 翌日回収済" },
+  ]);
+
+  function handleSave() {
+    setSaveMsg(true);
+    setTimeout(() => setSaveMsg(false), 2000);
   }
 
-  if (!customer) {
-    notFound();
+  function handleChipGrant() {
+    const amt = parseInt(chipAmount);
+    if (isNaN(amt) || amt === 0 || !chipReason.trim()) return;
+    const newBalance = chipBalance + amt;
+    setChipBalance(newBalance);
+    setChipHistory((prev) => [
+      { id: `ch${Date.now()}`, date: new Date().toISOString().split("T")[0], amount: amt, reason: chipReason, balanceAfter: newBalance },
+      ...prev,
+    ]);
+    setChipAmount("");
+    setChipReason("");
   }
 
-  function rankBadgeClass(rank: string): string {
-    switch (rank) {
-      case "gold":
-        return "bg-status-warning-bg text-status-warning";
-      case "vip":
-        return "bg-[#f3e8fd] text-[#7c3aed]";
-      default:
-        return "bg-bg text-text-secondary";
-    }
+  function handlePointGrant() {
+    const amt = parseInt(pointAmount);
+    if (isNaN(amt) || amt === 0 || !pointReason.trim()) return;
+    const newBalance = pointBalance + amt;
+    setPointBalance(newBalance);
+    setPointHistory((prev) => [
+      { id: `ph${Date.now()}`, date: new Date().toISOString().split("T")[0], amount: amt, reason: pointReason, balanceAfter: newBalance },
+      ...prev,
+    ]);
+    setPointAmount("");
+    setPointReason("");
   }
 
-  function statusBadgeClass(status: string): string {
-    switch (status) {
-      case "active":
-        return "bg-status-success-bg text-status-success";
-      case "settled":
-        return "bg-[#e8f0fe] text-accent";
-      default:
-        return "bg-bg text-text-secondary";
-    }
+  function handlePrizeGrant() {
+    setPrizes((prev) => [
+      { id: `pr${Date.now()}`, date: new Date().toISOString().split("T")[0], name: selectedPrize },
+      ...prev,
+    ]);
+    setShowPrizeForm(false);
+    setSelectedPrize(PRIZE_OPTIONS[0]);
   }
 
   const stats = [
-    { icon: <Trophy className="w-4 h-4" />, label: "来店回数", value: `${customer.total_visits}回` },
-    { icon: <DollarSign className="w-4 h-4" />, label: "累計利用額", value: formatCurrency(customer.total_spent) },
-    { icon: <Coins className="w-4 h-4" />, label: "チップ残高", value: customer.chip_balance.toLocaleString() },
-    { icon: <Star className="w-4 h-4" />, label: "ポイント残高", value: customer.point_balance.toLocaleString() },
+    { icon: <Trophy className="w-4 h-4" />, label: "来店回数", value: `${visits}回` },
+    { icon: <DollarSign className="w-4 h-4" />, label: "累計利用額", value: `¥${totalSpent.toLocaleString()}` },
+    { icon: <Coins className="w-4 h-4" />, label: "チップ残高", value: chipBalance.toLocaleString() },
+    { icon: <Star className="w-4 h-4" />, label: "ポイント残高", value: pointBalance.toLocaleString() },
   ];
 
   return (
     <div className="space-y-4 max-w-4xl">
-      {/* 戻るリンク */}
-      <Link href="/customers" className="inline-flex items-center gap-1 text-[13px] text-text-secondary hover:text-text-primary transition-colors">
+      {/* Back link */}
+      <Link
+        href="/customers"
+        className="inline-flex items-center gap-1 text-[13px] text-[#5f6368] hover:text-[#1a1a1a] transition-colors"
+      >
         <ArrowLeft className="w-3.5 h-3.5" />
         顧客一覧
       </Link>
 
-      {/* 顧客情報カード */}
-      <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-5">
+      {/* Customer header */}
+      <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] p-5">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-[18px] font-bold text-text-primary">{customer.name}</h1>
-              <span className={`inline px-2 py-0.5 text-[11px] font-medium rounded-[var(--radius-sm)] ${rankBadgeClass(customer.rank)}`}>
-                {rankLabel(customer.rank)}
+              <h1 className="text-[18px] font-bold text-[#1a1a1a]">{name}</h1>
+              <span className={`inline px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${rankBadgeClass(rank)}`}>
+                {RANK_LABELS[rank]}
               </span>
             </div>
-            <div className="flex items-center gap-4 mt-2 text-[13px] text-text-secondary">
-              {customer.phone && (
-                <span className="flex items-center gap-1">
-                  <Phone className="w-3.5 h-3.5 text-text-tertiary" />
-                  {customer.phone}
-                </span>
-              )}
-              {customer.email && (
-                <span className="flex items-center gap-1">
-                  <Mail className="w-3.5 h-3.5 text-text-tertiary" />
-                  {customer.email}
-                </span>
-              )}
+            <div className="flex items-center gap-4 mt-2 text-[13px] text-[#5f6368]">
+              <span className="flex items-center gap-1">
+                <Phone className="w-3.5 h-3.5 text-[#9aa0a6]" />
+                {phone}
+              </span>
+              <span className="flex items-center gap-1">
+                <Mail className="w-3.5 h-3.5 text-[#9aa0a6]" />
+                {email}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 統計行 */}
+      {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s) => (
-          <div key={s.label} className="bg-bg-white border border-border rounded-[var(--radius-lg)] px-4 py-3">
+          <div key={s.label} className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] px-4 py-3">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-text-tertiary">{s.icon}</span>
-              <span className="text-[11px] text-text-tertiary font-medium">{s.label}</span>
+              <span className="text-[#9aa0a6]">{s.icon}</span>
+              <span className="text-[11px] text-[#9aa0a6] font-medium">{s.label}</span>
             </div>
-            <p className="text-[18px] font-bold text-text-primary tracking-tight">{s.value}</p>
+            <p className="text-[18px] font-bold text-[#1a1a1a] tracking-tight">{s.value}</p>
           </div>
         ))}
       </div>
 
-      {/* 来店履歴 */}
-      <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] overflow-hidden">
-        <div className="px-4 py-3 border-b border-border-light">
-          <h2 className="text-[13px] font-semibold text-text-primary">来店履歴</h2>
+      {/* Tabs */}
+      <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] overflow-hidden">
+        <div className="flex border-b border-[#dadce0]">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 ${
+                activeTab === tab
+                  ? "text-[#1a73e8] border-[#1a73e8]"
+                  : "text-[#5f6368] border-transparent hover:text-[#1a1a1a] hover:bg-[#f5f6f8]"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
-        <table className="w-full text-[13px]">
-          <thead>
-            <tr className="border-b border-border bg-bg">
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">日時</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">卓</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">金額</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">滞在時間</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">ステータス</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visits.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-text-tertiary text-[13px]">
-                  来店履歴はありません
-                </td>
-              </tr>
-            ) : (
-              visits.map((v) => (
-                <tr key={v.id} className="border-b border-border-light hover:bg-bg-hover transition-colors">
-                  <td className="px-4 py-2.5 text-text-secondary">
-                    {formatDate(v.check_in_at)} {formatTime(v.check_in_at)}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    {v.table_number ? (
-                      <span className="inline-block px-2 py-0.5 bg-bg rounded text-[12px] font-medium">{v.table_number}</span>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="px-4 py-2.5 font-medium">{formatCurrency(v.total_amount)}</td>
-                  <td className="px-4 py-2.5 text-text-secondary">
-                    {v.stay_minutes != null ? formatMinutes(v.stay_minutes) : "—"}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <span className={`inline px-2 py-0.5 text-[11px] font-medium rounded-[var(--radius-sm)] ${statusBadgeClass(v.status)}`}>
-                      {visitStatusLabel(v.status)}
-                    </span>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+
+        <div className="p-5">
+          {/* Tab 1: Basic Info */}
+          {activeTab === "基本情報" && (
+            <div className="space-y-4 max-w-lg">
+              <div>
+                <label className="block text-[11px] font-medium text-[#9aa0a6] mb-1">氏名</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-[#9aa0a6] mb-1">電話番号</label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-[#9aa0a6] mb-1">メールアドレス</label>
+                <input
+                  type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-[#9aa0a6] mb-1">ランク</label>
+                <select
+                  value={rank}
+                  onChange={(e) => setRank(e.target.value as Rank)}
+                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                >
+                  <option value="regular">レギュラー</option>
+                  <option value="silver">シルバー</option>
+                  <option value="gold">ゴールド</option>
+                  <option value="vip">VIP</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-[#9aa0a6] mb-1">備考</label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] resize-none"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleSave}
+                  className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  保存
+                </button>
+                {saveMsg && (
+                  <span className="flex items-center gap-1 text-[12px] text-[#1e7e34]">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    保存しました
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Tab 2: Visit History */}
+          {activeTab === "来店履歴" && (
+            <div>
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="border-b border-[#dadce0]">
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">日時</th>
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">卓</th>
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">金額</th>
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">滞在時間</th>
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">ステータス</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visitHistory.map((v) => {
+                    const h = Math.floor(v.stayMinutes / 60);
+                    const m = v.stayMinutes % 60;
+                    const stayStr = h > 0 ? `${h}時間${m}分` : `${m}分`;
+                    return (
+                      <tr key={v.id} className="border-b border-[#f0f0f0] hover:bg-[#f8f9fa] transition-colors">
+                        <td className="px-3 py-2.5 text-[#5f6368]">{v.date}</td>
+                        <td className="px-3 py-2.5">
+                          <span className="inline-block px-2 py-0.5 bg-[#f5f6f8] rounded-[4px] text-[12px] font-medium">
+                            {v.table}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 font-medium text-[#1a1a1a]">¥{v.amount.toLocaleString()}</td>
+                        <td className="px-3 py-2.5 text-[#5f6368]">{stayStr}</td>
+                        <td className="px-3 py-2.5">
+                          <span className="inline px-2 py-0.5 text-[11px] font-medium rounded-[4px] bg-[#e8f0fe] text-[#1a73e8]">
+                            精算済
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Tab 3: Chips & Points */}
+          {activeTab === "チップ・ポイント" && (
+            <div className="space-y-6">
+              {/* Balances */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-[#f5f6f8] rounded-[6px] p-4">
+                  <div className="text-[11px] text-[#9aa0a6] font-medium mb-1">チップ残高</div>
+                  <div className="text-[22px] font-bold text-[#1a1a1a]">{chipBalance.toLocaleString()}</div>
+                </div>
+                <div className="bg-[#f5f6f8] rounded-[6px] p-4">
+                  <div className="text-[11px] text-[#9aa0a6] font-medium mb-1">ポイント残高</div>
+                  <div className="text-[22px] font-bold text-[#1a1a1a]">{pointBalance.toLocaleString()}</div>
+                </div>
+              </div>
+
+              {/* Chip Grant */}
+              <div>
+                <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-2">チップ付与</h3>
+                <div className="flex items-end gap-2">
+                  <div className="flex-1">
+                    <label className="block text-[11px] text-[#9aa0a6] mb-1">数量</label>
+                    <input
+                      type="number"
+                      value={chipAmount}
+                      onChange={(e) => setChipAmount(e.target.value)}
+                      placeholder="例: 500"
+                      className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-[11px] text-[#9aa0a6] mb-1">理由</label>
+                    <input
+                      type="text"
+                      value={chipReason}
+                      onChange={(e) => setChipReason(e.target.value)}
+                      placeholder="例: 来店ボーナス"
+                      className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                    />
+                  </div>
+                  <button
+                    onClick={handleChipGrant}
+                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors whitespace-nowrap"
+                  >
+                    付与
+                  </button>
+                </div>
+                {/* Chip History */}
+                <div className="mt-3 space-y-1">
+                  {chipHistory.map((e) => (
+                    <div key={e.id} className="flex items-center justify-between py-1.5 px-2 text-[12px] rounded hover:bg-[#f5f6f8]">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#9aa0a6]">{e.date}</span>
+                        <span className={`font-medium ${e.amount >= 0 ? "text-[#1e7e34]" : "text-[#c5221f]"}`}>
+                          {e.amount >= 0 ? "+" : ""}{e.amount.toLocaleString()}
+                        </span>
+                        <span className="text-[#5f6368]">{e.reason}</span>
+                      </div>
+                      <span className="text-[#9aa0a6]">残: {e.balanceAfter.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Point Grant */}
+              <div>
+                <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-2">ポイント付与</h3>
+                <div className="flex items-end gap-2">
+                  <div className="flex-1">
+                    <label className="block text-[11px] text-[#9aa0a6] mb-1">数量</label>
+                    <input
+                      type="number"
+                      value={pointAmount}
+                      onChange={(e) => setPointAmount(e.target.value)}
+                      placeholder="例: 100"
+                      className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-[11px] text-[#9aa0a6] mb-1">理由</label>
+                    <input
+                      type="text"
+                      value={pointReason}
+                      onChange={(e) => setPointReason(e.target.value)}
+                      placeholder="例: 利用額ポイント"
+                      className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                    />
+                  </div>
+                  <button
+                    onClick={handlePointGrant}
+                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors whitespace-nowrap"
+                  >
+                    付与
+                  </button>
+                </div>
+                {/* Point History */}
+                <div className="mt-3 space-y-1">
+                  {pointHistory.map((e) => (
+                    <div key={e.id} className="flex items-center justify-between py-1.5 px-2 text-[12px] rounded hover:bg-[#f5f6f8]">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#9aa0a6]">{e.date}</span>
+                        <span className={`font-medium ${e.amount >= 0 ? "text-[#1e7e34]" : "text-[#c5221f]"}`}>
+                          {e.amount >= 0 ? "+" : ""}{e.amount.toLocaleString()}
+                        </span>
+                        <span className="text-[#5f6368]">{e.reason}</span>
+                      </div>
+                      <span className="text-[#9aa0a6]">残: {e.balanceAfter.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 4: Prizes */}
+          {activeTab === "プライズ" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-[13px] font-semibold text-[#1a1a1a]">付与済みプライズ</h3>
+                {!showPrizeForm && (
+                  <button
+                    onClick={() => setShowPrizeForm(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors"
+                  >
+                    <Plus className="w-3 h-3" />
+                    プライズ付与
+                  </button>
+                )}
+              </div>
+
+              {showPrizeForm && (
+                <div className="flex items-end gap-2 p-3 bg-[#f5f6f8] rounded-[6px]">
+                  <div className="flex-1">
+                    <label className="block text-[11px] text-[#9aa0a6] mb-1">プライズ選択</label>
+                    <select
+                      value={selectedPrize}
+                      onChange={(e) => setSelectedPrize(e.target.value)}
+                      className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8]"
+                    >
+                      {PRIZE_OPTIONS.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <button
+                    onClick={handlePrizeGrant}
+                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors whitespace-nowrap"
+                  >
+                    付与
+                  </button>
+                  <button
+                    onClick={() => setShowPrizeForm(false)}
+                    className="px-3 py-2 text-[12px] text-[#5f6368] hover:text-[#1a1a1a]"
+                  >
+                    キャンセル
+                  </button>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                {prizes.map((p) => (
+                  <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 border border-[#dadce0] rounded-[6px] hover:bg-[#f8f9fa]">
+                    <Gift className="w-4 h-4 text-[#7c3aed]" />
+                    <span className="text-[13px] font-medium text-[#1a1a1a]">{p.name}</span>
+                    <span className="text-[12px] text-[#9aa0a6] ml-auto">{p.date}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tab 5: Unpaid */}
+          {activeTab === "未払" && (
+            <div className="space-y-4">
+              {/* Toggle */}
+              <div className="flex items-center gap-3">
+                <span className="text-[13px] text-[#1a1a1a]">未払あり</span>
+                <button
+                  onClick={() => setHasUnpaid(!hasUnpaid)}
+                  className={`relative w-[44px] h-[24px] rounded-full transition-colors ${
+                    hasUnpaid ? "bg-[#c5221f]" : "bg-[#dadce0]"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-[2px] w-[20px] h-[20px] rounded-full bg-[#ffffff] shadow transition-transform ${
+                      hasUnpaid ? "left-[22px]" : "left-[2px]"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {hasUnpaid && (
+                <div className="p-4 bg-[#fce8e6] border border-[#c5221f]/20 rounded-[6px]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <AlertTriangle className="w-4 h-4 text-[#c5221f]" />
+                    <span className="text-[13px] font-medium text-[#c5221f]">未払いが発生しています</span>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-[#c5221f]/70 mb-1">未払金額</label>
+                    <input
+                      type="number"
+                      value={unpaidAmount}
+                      onChange={(e) => setUnpaidAmount(e.target.value)}
+                      placeholder="金額を入力"
+                      className="w-full max-w-[200px] px-3 py-2 text-[13px] border border-[#c5221f]/30 rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#c5221f] bg-[#ffffff]"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Unpaid history */}
+              <div>
+                <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-2">未払履歴</h3>
+                <div className="space-y-2">
+                  {unpaidHistory.map((u) => (
+                    <div key={u.id} className="flex items-center justify-between px-3 py-2.5 border border-[#dadce0] rounded-[6px]">
+                      <div className="flex items-center gap-3">
+                        <span className="text-[12px] text-[#9aa0a6]">{u.date}</span>
+                        <span className="text-[13px] font-medium text-[#c5221f]">¥{u.amount.toLocaleString()}</span>
+                        <span className="text-[12px] text-[#5f6368]">{u.note}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
