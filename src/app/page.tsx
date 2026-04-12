@@ -1,9 +1,15 @@
+"use client";
+
 import Link from "next/link";
 
 export default function Home() {
+  function handleDemo() {
+    document.cookie = "demo_mode=true; path=/; max-age=86400; SameSite=Lax";
+    window.location.href = "/dashboard";
+  }
+
   return (
     <div className="min-h-screen bg-bg flex flex-col">
-      {/* Header */}
       <header className="bg-bg-white border-b border-border">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
           <span className="text-[15px] font-bold text-text-primary">てんぽみえるくん</span>
@@ -11,14 +17,10 @@ export default function Home() {
             <Link href="/login" className="px-3 py-[7px] text-[13px] font-medium text-text-secondary hover:text-text-primary transition-colors">
               ログイン
             </Link>
-            <Link href="/signup" className="px-3 py-[7px] text-[13px] font-medium text-accent bg-accent-light rounded-[var(--radius)] hover:bg-[#d4e4fc] transition-colors">
-              無料で始める
-            </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
       <main className="flex-1">
         <section className="max-w-4xl mx-auto px-6 py-20">
           <p className="text-[12px] font-medium text-accent mb-3">アミューズメントカジノ向け店舗管理</p>
@@ -30,16 +32,15 @@ export default function Home() {
             現場のオペレーションをシンプルに統合します。
           </p>
           <div className="flex gap-3">
-            <Link href="/dashboard" className="px-5 py-2.5 text-[14px] font-medium bg-accent text-text-inverse rounded-[var(--radius)] hover:bg-accent-hover transition-colors">
+            <button onClick={handleDemo} className="px-5 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[var(--radius)] hover:bg-accent-hover transition-colors">
               デモを見る
-            </Link>
+            </button>
             <Link href="/my" className="px-5 py-2.5 text-[14px] font-medium border border-border text-text-secondary rounded-[var(--radius)] hover:bg-bg-hover transition-colors">
               顧客マイページ
             </Link>
           </div>
         </section>
 
-        {/* Features */}
         <section className="border-t border-border bg-bg-white py-16">
           <div className="max-w-4xl mx-auto px-6">
             <h2 className="text-[16px] font-bold text-text-primary mb-8">主な機能</h2>

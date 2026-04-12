@@ -4,7 +4,6 @@ import { NextResponse, type NextRequest } from "next/server";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-/** Supabaseが本番接続可能かどうか */
 function isSupabaseReady(): boolean {
   return !!(
     supabaseUrl &&
@@ -16,10 +15,23 @@ function isSupabaseReady(): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  // Supabase未接続 → 全ルートを通す（デモモード）
+  const { pathname } = request.nextUrl;
+
+  // デモモードcookieがある → 全ルートを通す
+  if (request.cookies.get("demo_mode")?.value === "true") {
+    return NextResponse.next();
+  }
+
+  // Supabase未接続 → 全ルートを通す
   if (!isSupabaseReady()) {
     return NextResponse.next();
   }
+
+  // 公開パス
+  const publicPaths = ["/", "/login", "/signup", "/auth", "/my"];
+  const isPublic = publicPaths.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
 
   let supabaseResponse = NextResponse.next({ request });
 
@@ -41,16 +53,7 @@ export async function middleware(request: NextRequest) {
   });
 
   try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const { pathname } = request.nextUrl;
-
-    const publicPaths = ["/", "/login", "/signup", "/auth", "/my"];
-    const isPublic = publicPaths.some(
-      (p) => pathname === p || pathname.startsWith(p + "/")
-    );
+    const { data: { user } } = await supabase.auth.getUser();
 
     if (!user && !isPublic) {
       const url = request.nextUrl.clone();
@@ -64,7 +67,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
   } catch {
-    // Supabase接続エラー → そのまま通す
+    // エラー時はそのまま通す
   }
 
   return supabaseResponse;

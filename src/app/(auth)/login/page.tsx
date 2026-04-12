@@ -23,6 +23,12 @@ export default function LoginPage() {
     router.push("/dashboard");
   }
 
+  function handleDemo() {
+    // デモモードcookieを設定してからダッシュボードへ
+    document.cookie = "demo_mode=true; path=/; max-age=86400; SameSite=Lax";
+    window.location.href = "/dashboard";
+  }
+
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
@@ -48,13 +54,13 @@ export default function LoginPage() {
               <label className="block text-[12px] font-medium text-text-secondary mb-1">パスワード</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" minLength={6} />
             </div>
-            <button type="submit" disabled={loading} className="w-full py-2.5 bg-accent text-text-inverse text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors disabled:opacity-50">
+            <button type="submit" disabled={loading} className="w-full py-2.5 bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors disabled:opacity-50">
               {loading ? "ログイン中..." : "ログイン"}
             </button>
           </form>
 
           <div className="mt-4">
-            <button onClick={() => router.push("/dashboard")} className="w-full py-2.5 bg-bg border border-border text-[13px] font-medium text-text-secondary rounded-[var(--radius)] hover:bg-bg-hover transition-colors">
+            <button onClick={handleDemo} className="w-full py-2.5 bg-bg border border-border text-[13px] font-medium text-text-secondary rounded-[var(--radius)] hover:bg-bg-hover transition-colors">
               デモモードで入る
             </button>
           </div>
