@@ -68,6 +68,11 @@
   --color-status-warning-bg: var(--status-warning-bg);
   --color-status-danger: var(--status-danger);
   --color-status-danger-bg: var(--status-danger-bg);
+  --color-text-inverse: var(--text-inverse);
+  --color-bg-active: var(--bg-active);
+  --color-accent-bg: var(--accent-bg);
+  --color-status-info: var(--status-info);
+  --color-status-info-bg: var(--status-info-bg);
   --font-sans: var(--font-base);
   --font-mono: var(--font-mono);
 }
