@@ -4,15 +4,26 @@ import { NextResponse, type NextRequest } from "next/server";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+/** Supabaseが本番接続可能かどうか */
+function isSupabaseReady(): boolean {
+  return !!(
+    supabaseUrl &&
+    supabaseKey &&
+    !supabaseUrl.includes("placeholder") &&
+    supabaseUrl.startsWith("https://") &&
+    supabaseKey.length > 30
+  );
+}
+
 export async function middleware(request: NextRequest) {
-  // Supabase未設定時は認証チェックをスキップ（デモモード）
-  if (!supabaseUrl || !supabaseKey || supabaseUrl.includes("placeholder")) {
+  // Supabase未接続 → 全ルートを通す（デモモード）
+  if (!isSupabaseReady()) {
     return NextResponse.next();
   }
 
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient(supabaseUrl, supabaseKey, {
+  const supabase = createServerClient(supabaseUrl!, supabaseKey!, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -36,31 +47,24 @@ export async function middleware(request: NextRequest) {
 
     const { pathname } = request.nextUrl;
 
-    // 公開パス（認証不要）
-    const publicPaths = ["/", "/login", "/signup", "/auth"];
+    const publicPaths = ["/", "/login", "/signup", "/auth", "/my"];
     const isPublic = publicPaths.some(
       (p) => pathname === p || pathname.startsWith(p + "/")
     );
 
-    // 顧客ポータルパス
-    const isCustomerPath = pathname.startsWith("/mypage");
-
-    // 未認証ユーザーを認証ページへリダイレクト
     if (!user && !isPublic) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       return NextResponse.redirect(url);
     }
 
-    // 認証済みユーザーがauth系ページにアクセスしたらホームへ
     if (user && (pathname === "/login" || pathname === "/signup")) {
       const url = request.nextUrl.clone();
-      // 顧客ユーザーはマイページへ、それ以外はスタッフホームへ
-      url.pathname = isCustomerPath ? "/mypage" : "/home";
+      url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
   } catch {
-    // Supabase接続エラー時はそのまま通す
+    // Supabase接続エラー → そのまま通す
   }
 
   return supabaseResponse;
