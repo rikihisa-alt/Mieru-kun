@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Store } from "lucide-react";
+import { Store, Play } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -18,20 +18,28 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError("メールアドレスまたはパスワードが正しくありません");
-      setLoading(false);
-      return;
+      if (error) {
+        setError("メールアドレスまたはパスワードが正しくありません");
+        setLoading(false);
+        return;
+      }
+    } catch {
+      // Supabase未接続時はそのまま進む
     }
 
-    router.push("/dashboard");
+    router.push("/home");
     router.refresh();
+  }
+
+  function handleDemoLogin() {
+    router.push("/home");
   }
 
   return (
@@ -63,7 +71,6 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
                 className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                 placeholder="you@example.com"
               />
@@ -81,7 +88,6 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
                 minLength={6}
                 className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                 placeholder="••••••••"
@@ -96,6 +102,16 @@ export default function LoginPage() {
               {loading ? "ログイン中..." : "ログイン"}
             </button>
           </form>
+
+          <div className="mt-4">
+            <button
+              onClick={handleDemoLogin}
+              className="w-full py-2.5 bg-success text-white font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <Play className="w-4 h-4" />
+              デモモードで入る
+            </button>
+          </div>
 
           <p className="mt-6 text-center text-sm text-gray-600">
             アカウントをお持ちでない方は{" "}
