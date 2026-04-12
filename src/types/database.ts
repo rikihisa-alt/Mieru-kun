@@ -4,7 +4,7 @@
 
 // --- Enums ---
 
-export type StaffRole = "admin" | "manager" | "staff";
+export type StaffRole = "admin" | "owner" | "manager" | "staff" | "accounting";
 export type CustomerRank = "regular" | "silver" | "gold" | "vip";
 export type VisitStatus = "active" | "settled" | "cancelled";
 export type OrderStatus = "pending" | "confirmed" | "cancelled";

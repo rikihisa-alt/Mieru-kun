@@ -1,8 +1,14 @@
 import { z } from "zod";
 
+// --- 共通バリデーション ---
+const uuidSchema = z.string().uuid("不正なIDです");
+const positiveInt = z.number().int().min(0, "0以上の値を入力してください");
+const requiredString = (field: string) =>
+  z.string().min(1, `${field}は必須です`).max(200);
+
 // --- Customer ---
 export const customerCreateSchema = z.object({
-  name: z.string().min(1, "名前は必須です").max(100),
+  name: requiredString("名前"),
   phone: z.string().max(20).optional().or(z.literal("")),
   email: z.string().email("メールアドレスの形式が不正です").optional().or(z.literal("")),
   rank: z.enum(["regular", "silver", "gold", "vip"]).default("regular"),
@@ -12,41 +18,50 @@ export type CustomerCreateInput = z.infer<typeof customerCreateSchema>;
 
 // --- Visit (Check-in) ---
 export const checkinSchema = z.object({
-  customer_id: z.string().uuid("顧客を選択してください"),
+  customer_id: uuidSchema,
   table_number: z.string().max(20).optional().or(z.literal("")),
 });
 export type CheckinInput = z.infer<typeof checkinSchema>;
 
+// --- Checkout ---
+export const checkoutSchema = z.object({
+  visit_id: uuidSchema,
+  total_amount: positiveInt,
+  method: z.enum(["cash", "card", "electronic"]),
+  customer_id: uuidSchema.optional(),
+});
+export type CheckoutInput = z.infer<typeof checkoutSchema>;
+
 // --- Order ---
 export const orderItemSchema = z.object({
-  product_id: z.string().uuid(),
-  product_name: z.string(),
+  product_id: uuidSchema,
+  product_name: z.string().min(1),
   quantity: z.number().int().min(1, "数量は1以上"),
-  unit_price: z.number().int().min(0),
+  unit_price: positiveInt,
 });
 
 export const orderCreateSchema = z.object({
-  visit_id: z.string().uuid("来店を選択してください"),
-  customer_id: z.string().uuid().optional(),
+  visit_id: uuidSchema,
+  customer_id: uuidSchema.optional(),
   items: z.array(orderItemSchema).min(1, "商品を1つ以上選択してください"),
 });
 export type OrderCreateInput = z.infer<typeof orderCreateSchema>;
 
 // --- Payment ---
 export const paymentSchema = z.object({
-  visit_id: z.string().uuid(),
-  customer_id: z.string().uuid().optional(),
-  amount: z.number().int().min(0, "金額は0以上"),
+  visit_id: uuidSchema,
+  customer_id: uuidSchema.optional(),
+  amount: positiveInt,
   method: z.enum(["cash", "card", "electronic"]),
 });
 export type PaymentInput = z.infer<typeof paymentSchema>;
 
 // --- Product ---
 export const productCreateSchema = z.object({
-  name: z.string().min(1, "商品名は必須です").max(100),
+  name: requiredString("商品名"),
   category: z.enum(["drink", "food", "chip", "other"]),
-  price: z.number().int().min(0, "価格は0以上"),
-  cost: z.number().int().min(0, "原価は0以上").default(0),
+  price: positiveInt,
+  cost: positiveInt.default(0),
   is_active: z.boolean().default(true),
   sort_order: z.number().int().default(0),
 });
@@ -64,3 +79,25 @@ export const closingSchema = z.object({
   notes: z.string().max(500).optional().or(z.literal("")),
 });
 export type ClosingInput = z.infer<typeof closingSchema>;
+
+// --- Chip / Point ---
+export const chipChangeSchema = z.object({
+  customer_id: uuidSchema,
+  change: z.number().int().refine((v) => v !== 0, "0は指定できません"),
+  reason: requiredString("理由"),
+});
+export type ChipChangeInput = z.infer<typeof chipChangeSchema>;
+
+export const pointChangeSchema = z.object({
+  customer_id: uuidSchema,
+  change: z.number().int().refine((v) => v !== 0, "0は指定できません"),
+  reason: requiredString("理由"),
+});
+export type PointChangeInput = z.infer<typeof pointChangeSchema>;
+
+// --- Role Change ---
+export const roleChangeSchema = z.object({
+  target_user_id: uuidSchema,
+  new_role: z.enum(["staff", "manager", "owner", "accounting"]),
+});
+export type RoleChangeInput = z.infer<typeof roleChangeSchema>;
