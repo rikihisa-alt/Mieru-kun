@@ -101,3 +101,75 @@ export const roleChangeSchema = z.object({
   new_role: z.enum(["staff", "manager", "owner", "accounting"]),
 });
 export type RoleChangeInput = z.infer<typeof roleChangeSchema>;
+
+// --- Prize Grant ---
+export const prizeGrantSchema = z.object({
+  customer_id: uuidSchema,
+  prize_master_id: uuidSchema,
+});
+export type PrizeGrantInput = z.infer<typeof prizeGrantSchema>;
+
+// --- Coupon ---
+export const couponIssueSchema = z.object({
+  coupon_id: uuidSchema,
+  customer_id: uuidSchema,
+});
+export type CouponIssueInput = z.infer<typeof couponIssueSchema>;
+
+// --- Event ---
+export const eventCreateSchema = z.object({
+  title: requiredString("イベント名"),
+  event_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "日付形式が不正です")
+    .optional()
+    .or(z.literal("")),
+  capacity: z.number().int().min(1, "定員は1以上").optional(),
+  event_type: z.enum(["tournament", "campaign", "other"]).optional(),
+  entry_fee: z.number().int().min(0, "参加費は0以上").optional(),
+});
+export type EventCreateInput = z.infer<typeof eventCreateSchema>;
+
+export const eventEntrySchema = z.object({
+  event_id: uuidSchema,
+  customer_id: uuidSchema,
+});
+export type EventEntryInput = z.infer<typeof eventEntrySchema>;
+
+// --- Announcement ---
+export const announcementCreateSchema = z.object({
+  title: requiredString("タイトル"),
+  body: z.string().max(2000).optional().or(z.literal("")),
+  target: z.enum(["all", "staff", "customers"]),
+});
+export type AnnouncementCreateInput = z.infer<typeof announcementCreateSchema>;
+
+// --- Inventory ---
+export const inventoryAdjustSchema = z.object({
+  product_id: uuidSchema,
+  change: z.number().int().refine((v) => v !== 0, "0は指定できません"),
+  reason: requiredString("理由"),
+});
+export type InventoryAdjustInput = z.infer<typeof inventoryAdjustSchema>;
+
+// --- Store Settings ---
+export const storeSettingSchema = z.object({
+  key: requiredString("設定キー"),
+  value: z.string(),
+});
+export type StoreSettingInput = z.infer<typeof storeSettingSchema>;
+
+export const storeInfoSchema = z.object({
+  name: z.string().max(200).optional().or(z.literal("")),
+  display_name: z.string().max(200).optional().or(z.literal("")),
+  address: z.string().max(500).optional().or(z.literal("")),
+  phone: z.string().max(20).optional().or(z.literal("")),
+});
+export type StoreInfoInput = z.infer<typeof storeInfoSchema>;
+
+// --- Export ---
+export const exportDateRangeSchema = z.object({
+  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "開始日の形式が不正です"),
+  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "終了日の形式が不正です"),
+});
+export type ExportDateRangeInput = z.infer<typeof exportDateRangeSchema>;

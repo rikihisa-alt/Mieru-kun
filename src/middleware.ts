@@ -36,20 +36,27 @@ export async function middleware(request: NextRequest) {
 
     const { pathname } = request.nextUrl;
 
+    // 公開パス（認証不要）
     const publicPaths = ["/", "/login", "/signup", "/auth"];
     const isPublic = publicPaths.some(
       (p) => pathname === p || pathname.startsWith(p + "/")
     );
 
+    // 顧客ポータルパス
+    const isCustomerPath = pathname.startsWith("/mypage");
+
+    // 未認証ユーザーを認証ページへリダイレクト
     if (!user && !isPublic) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       return NextResponse.redirect(url);
     }
 
+    // 認証済みユーザーがauth系ページにアクセスしたらホームへ
     if (user && (pathname === "/login" || pathname === "/signup")) {
       const url = request.nextUrl.clone();
-      url.pathname = "/home";
+      // 顧客ユーザーはマイページへ、それ以外はスタッフホームへ
+      url.pathname = isCustomerPath ? "/mypage" : "/home";
       return NextResponse.redirect(url);
     }
   } catch {

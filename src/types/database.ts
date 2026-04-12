@@ -54,6 +54,9 @@ export interface Customer {
   chip_balance: number;
   point_balance: number;
   notes: string | null;
+  last_visit_at: string | null;
+  birthday: string | null;
+  gender: "male" | "female" | "other" | null;
   created_at: string;
 }
 
@@ -88,6 +91,8 @@ export interface Product {
   cost: number;
   is_active: boolean;
   sort_order: number;
+  stock: number;
+  category_id: string | null;
   created_at: string;
 }
 
@@ -298,4 +303,131 @@ export interface CustomerAnalytics {
   total_spent: number;
   last_visit: string | null;
   avg_spend: number;
+}
+
+// ============================================================
+// v2 追加型定義
+// ============================================================
+
+// --- Tag ---
+export interface CustomerTagMaster {
+  id: string; store_id: string; name: string; color: string | null;
+  sort_order: number; is_active: boolean; created_at: string;
+}
+export interface CustomerTag {
+  id: string; customer_id: string; tag_id: string; created_at: string;
+}
+
+// --- Rank Master ---
+export interface CustomerRankMaster {
+  id: string; store_id: string; rank_code: string; rank_name: string;
+  min_visits: number; min_spent: number; point_multiplier: number;
+  sort_order: number; created_at: string;
+}
+
+// --- Customer Status Log ---
+export interface CustomerStatusLog {
+  id: string; store_id: string; customer_id: string;
+  from_rank: string | null; to_rank: string; reason: string | null;
+  changed_by: string; created_at: string;
+}
+
+// --- Product Category ---
+export interface ProductCategoryRecord {
+  id: string; store_id: string; name: string;
+  sort_order: number; is_active: boolean; created_at: string;
+}
+
+// --- Payment Method Master ---
+export interface PaymentMethodMaster {
+  id: string; store_id: string; code: string; name: string;
+  is_active: boolean; sort_order: number; created_at: string;
+}
+
+// --- Store Settings ---
+export interface StoreSetting {
+  id: string; store_id: string; key: string;
+  value: Record<string, unknown> | null; updated_at: string;
+}
+
+// --- Wage Settings ---
+export interface WageSetting {
+  id: string; store_id: string; staff_id: string;
+  base_hourly_wage: number; night_multiplier: number;
+  holiday_multiplier: number;
+  effective_from: string | null; effective_to: string | null;
+  created_at: string;
+}
+
+// --- Prize Master ---
+export interface PrizeMaster {
+  id: string; store_id: string; name: string;
+  description: string | null; points_required: number;
+  stock: number; image_url: string | null;
+  is_active: boolean; sort_order: number; created_at: string;
+}
+
+// --- Coupon Master ---
+export interface CouponMaster {
+  id: string; store_id: string; code: string; name: string;
+  description: string | null;
+  discount_type: "fixed" | "percent" | "free_item";
+  discount_value: number; min_purchase: number;
+  max_uses: number | null; current_uses: number;
+  valid_from: string | null; valid_until: string | null;
+  target_rank: string | null; is_active: boolean; created_at: string;
+}
+
+// --- Customer Coupon ---
+export interface CustomerCoupon {
+  id: string; coupon_id: string; customer_id: string;
+  status: "active" | "used" | "expired" | "revoked";
+  used_at: string | null; visit_id: string | null; created_at: string;
+}
+export interface CustomerCouponWithMaster extends CustomerCoupon {
+  coupon: CouponMaster;
+}
+
+// --- Visit Status Log ---
+export interface VisitStatusLog {
+  id: string; visit_id: string; from_status: string;
+  to_status: string; changed_by: string; created_at: string;
+}
+
+// --- Closing Adjustment ---
+export interface ClosingAdjustmentLog {
+  id: string; closing_id: string; field_name: string;
+  old_value: number; new_value: number; reason: string;
+  adjusted_by: string; created_at: string;
+}
+
+// --- Event Result ---
+export interface EventResultLog {
+  id: string; event_id: string; customer_id: string;
+  ranking: number | null; prize_name: string | null;
+  points_awarded: number; notes: string | null;
+  created_by: string; created_at: string;
+}
+
+// --- Staff Role History ---
+export interface StaffRoleHistory {
+  id: string; store_id: string; staff_id: string;
+  from_role: string | null; to_role: string;
+  changed_by: string; reason: string | null; created_at: string;
+}
+
+// --- Extended existing types ---
+export interface CustomerWithTags extends Customer {
+  tags?: CustomerTagMaster[];
+}
+
+// --- HR Analytics ---
+export interface StaffLabor {
+  staff_id: string;
+  staff_name: string;
+  total_work_minutes: number;
+  total_break_minutes: number;
+  hourly_wage: number;
+  total_cost: number;
+  days_worked: number;
 }

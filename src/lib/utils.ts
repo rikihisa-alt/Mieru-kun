@@ -1,8 +1,9 @@
 import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-/** Tailwind class merge utility */
+/** Tailwind class merge (shadcn/ui互換) */
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }
 
 /** 金額フォーマット (例: ¥1,200) */
@@ -106,6 +107,17 @@ export function categoryLabel(category: string): string {
     other: "その他",
   };
   return map[category] ?? category;
+}
+
+/** 支払方法の日本語ラベル */
+export function paymentMethodLabel(method: string): string {
+  const map: Record<string, string> = {
+    cash: "現金",
+    card: "カード",
+    electronic: "電子マネー",
+    chip: "チップ",
+  };
+  return map[method] ?? method;
 }
 
 /** MVPではstore_idを固定で返す */

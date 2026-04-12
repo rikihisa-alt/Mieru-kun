@@ -31,7 +31,7 @@ export async function getCustomerById(id: string): Promise<Customer | null> {
 }
 
 export async function createCustomer(
-  input: Omit<Customer, "id" | "store_id" | "created_at" | "total_visits" | "total_spent" | "chip_balance" | "point_balance">
+  input: Omit<Customer, "id" | "store_id" | "created_at" | "total_visits" | "total_spent" | "chip_balance" | "point_balance" | "last_visit_at" | "birthday" | "gender">
 ): Promise<Customer> {
   const supabase = await createClient();
   const { data, error } = await supabase

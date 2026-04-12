@@ -33,7 +33,15 @@ export type AuditAction =
   | "order.cancel"
   | "event.result"
   | "product.create"
-  | "product.update";
+  | "product.update"
+  | "coupon.issue"
+  | "coupon.use"
+  | "event.create"
+  | "event.register"
+  | "announcement.create"
+  | "settings.update"
+  | "store.update"
+  | "export.sales";
 
 interface AuditLogInput {
   ctx: AuthContext;
