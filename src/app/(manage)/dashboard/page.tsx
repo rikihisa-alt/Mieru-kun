@@ -104,42 +104,64 @@ export default function DashboardPage() {
   // --- セクション描画マップ ---
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     kpi: () => (
-      <div>
-        {/* メインKPI: 来店数 */}
-        <div className="flex items-baseline gap-3 mb-4 cursor-pointer" onClick={() => router.push("/floor")}>
-          <span className="text-[36px] font-bold text-[#2c3e50] tracking-tight">{kpis.visitors}</span>
-          <span className="text-[14px] text-[#8e9baa] font-medium">名 来店中</span>
-          <ChevronRight className="w-4 h-4 text-[#d8d3cc] ml-1" />
-        </div>
+      <div className="bg-white border border-[#e8e4df] rounded-[8px] overflow-hidden">
+        <div className="grid grid-cols-5 divide-x divide-[#e8e4df]">
+          {/* 売上 - メイン */}
+          <div className="col-span-2 p-5 cursor-pointer hover:bg-[#faf8f5] transition-colors" onClick={() => router.push("/floor")}>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full bg-[#3a8f7c]" />
+              <span className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">本日売上</span>
+            </div>
+            <div className="flex items-baseline gap-1.5 mb-1">
+              <span className="text-[28px] font-bold text-[#2c3e50] tracking-tight">¥{kpis.sales.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-[12px] text-[#8e9baa]">来店 <strong className="text-[#2c3e50]">{kpis.visitors}</strong>名</span>
+              <span className="text-[12px] text-[#8e9baa]">客単価 <strong className="text-[#2c3e50]">¥{kpis.avgSpend.toLocaleString()}</strong></span>
+            </div>
+            {/* 目標バー */}
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-[10px] mb-1">
+                <span className="text-[#8e9baa]">目標 ¥{kpis.targetSales.toLocaleString()}</span>
+                <span className="font-bold text-[#3a8f7c]">{progressPercent}%</span>
+              </div>
+              <div className="w-full h-1.5 bg-[#e8e4df] rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-[#3a8f7c]" style={{ width: `${progressPercent}%`, transition: "width 0.6s ease" }} />
+              </div>
+            </div>
+          </div>
 
-        {/* サブKPI: テキスト横並び */}
-        <div className="flex items-center gap-0 text-[13px] mb-4">
-          <span className="cursor-pointer hover:opacity-70 transition-opacity" onClick={() => router.push("/orders")}>
-            <span className="text-[#8e9baa]">未払 </span>
-            <span className={`font-bold ${kpis.unpaid > 0 ? "text-[#c0392b]" : "text-[#2c3e50]"}`}>{kpis.unpaid}件</span>
-          </span>
-          <span className="mx-3 text-[#d8d3cc]">|</span>
-          <span className="cursor-pointer hover:opacity-70 transition-opacity" onClick={() => router.push("/tables")}>
-            <span className="text-[#8e9baa]">稼働 </span>
-            <span className="font-bold text-[#2c3e50]">{kpis.activeTables}/{kpis.totalTables}</span>
-          </span>
-          <span className="mx-3 text-[#d8d3cc]">|</span>
-          <span className="cursor-pointer hover:opacity-70 transition-opacity" onClick={() => router.push("/attendance")}>
-            <span className="text-[#8e9baa]">出勤 </span>
-            <span className="font-bold text-[#2c3e50]">{kpis.onDuty}名</span>
-          </span>
-          <span className="mx-3 text-[#d8d3cc]">|</span>
-          <span className="cursor-pointer hover:opacity-70 transition-opacity" onClick={() => router.push("/tables")}>
-            <span className="text-[#8e9baa]">イベント </span>
-            <span className="font-bold text-[#2c3e50]">{kpis.todayEvents}件</span>
-          </span>
-        </div>
+          {/* 右3つ - サブKPI */}
+          <div className="p-4 flex flex-col justify-center cursor-pointer hover:bg-[#faf8f5] transition-colors" onClick={() => router.push("/tables")}>
+            <span className="text-[10px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">稼働卓</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-[22px] font-bold text-[#2c3e50]">{kpis.activeTables}</span>
+              <span className="text-[12px] text-[#8e9baa]">/ {kpis.totalTables}</span>
+            </div>
+            <div className="flex gap-0.5 mt-2">
+              {Array.from({ length: kpis.totalTables }).map((_, i) => (
+                <div key={i} className={`h-1.5 flex-1 rounded-full ${i < kpis.activeTables ? "bg-[#3a8f7c]" : "bg-[#e8e4df]"}`} />
+              ))}
+            </div>
+          </div>
 
-        {/* ダッシュライン: 状態可視化 */}
-        <div className="flex gap-4">
-          <StatusLine label="卓稼働率" value={tableOccupancy} color={tableOccupancy >= 1 ? "#c0392b" : tableOccupancy > 0.7 ? "#c87b1a" : "#2e7d5b"} />
-          <StatusLine label="出勤率" value={kpis.onDuty / 10} color="#2e7d5b" />
-          {kpis.unpaid > 0 && <StatusLine label="未精算" value={kpis.unpaid / kpis.visitors} color="#c0392b" />}
+          <div className="p-4 flex flex-col justify-center cursor-pointer hover:bg-[#faf8f5] transition-colors" onClick={() => router.push("/orders")}>
+            <span className="text-[10px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">未精算</span>
+            <div className="flex items-baseline gap-1">
+              <span className={`text-[22px] font-bold ${kpis.unpaid > 0 ? "text-[#c0392b]" : "text-[#2c3e50]"}`}>{kpis.unpaid}</span>
+              <span className="text-[12px] text-[#8e9baa]">件</span>
+            </div>
+            {kpis.unpaid > 0 && <div className="mt-2 h-1.5 rounded-full bg-[#c0392b]/20"><div className="h-full rounded-full bg-[#c0392b] animate-pulse" style={{ width: "100%" }} /></div>}
+          </div>
+
+          <div className="p-4 flex flex-col justify-center cursor-pointer hover:bg-[#faf8f5] transition-colors" onClick={() => router.push("/attendance")}>
+            <span className="text-[10px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">出勤</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-[22px] font-bold text-[#2c3e50]">{kpis.onDuty}</span>
+              <span className="text-[12px] text-[#8e9baa]">名</span>
+            </div>
+            <span className="text-[10px] text-[#8e9baa] mt-1">イベント {kpis.todayEvents}件</span>
+          </div>
         </div>
       </div>
     ),
