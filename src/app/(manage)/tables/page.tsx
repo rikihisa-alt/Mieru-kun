@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
   DndContext,
@@ -13,7 +13,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { Dice5, X, Plus, Pencil, Trash2 } from "lucide-react";
+import { Dice5, X, Plus, Pencil, Trash2, ChevronDown, ChevronUp, User } from "lucide-react";
 
 // --- 型 ---
 interface Player {
@@ -51,22 +51,27 @@ export default function TablesPage() {
   const [tables, setTables] = useState<TableDef[]>(INIT_TABLES);
   const [players, setPlayers] = useState<Player[]>(INIT_PLAYERS);
   const [activePlayer, setActivePlayer] = useState<Player | null>(null);
-  const [selectedTable, setSelectedTable] = useState<string | null>(null);
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [expandedTable, setExpandedTable] = useState<string | null>(null);
 
-  // 卓編集
+  // 卓編集モーダル
   const [editingTable, setEditingTable] = useState<TableDef | null>(null);
+
+  // 卓追加
   const [showAddTable, setShowAddTable] = useState(false);
   const [newTableName, setNewTableName] = useState("");
   const [newTableType, setNewTableType] = useState<"トナメ" | "リング" | "サイド">("トナメ");
   const [newTableSeats, setNewTableSeats] = useState(9);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
+  // プレイヤーポップオーバー
+  const [popoverPlayer, setPopoverPlayer] = useState<{ player: Player; x: number; y: number } | null>(null);
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const waitingPlayers = players.filter(p => p.tableId === null);
   const getTablePlayers = useCallback((tid: string) => players.filter(p => p.tableId === tid), [players]);
 
   function handleDragStart(e: DragStartEvent) {
     setActivePlayer(players.find(p => p.id === e.active.id) ?? null);
+    setPopoverPlayer(null);
   }
 
   function handleDragEnd(e: DragEndEvent) {
@@ -88,9 +93,8 @@ export default function TablesPage() {
         const seatIdx = parseInt(parts[2], 10);
         const table = tables.find(t => t.id === tableId);
         if (!table) return p;
-        // 席が空いているか
         const occupant = prev.find(x => x.tableId === tableId && x.seatIndex === seatIdx && x.id !== pid);
-        if (occupant) return p; // 席が埋まっている
+        if (occupant) return p;
         return { ...p, tableId, seatIndex: seatIdx };
       }
 
@@ -127,170 +131,224 @@ export default function TablesPage() {
     }
     setPlayers(prev => prev.map(p => p.tableId === tid ? { ...p, tableId: null, seatIndex: null } : p));
     setTables(prev => prev.filter(t => t.id !== tid));
-    if (selectedTable === tid) setSelectedTable(null);
+    if (expandedTable === tid) setExpandedTable(null);
   }
   function updateTable(tid: string, updates: Partial<TableDef>) {
     setTables(prev => prev.map(t => t.id === tid ? { ...t, ...updates } : t));
     setEditingTable(null);
   }
 
-  const selTable = selectedTable ? tables.find(t => t.id === selectedTable) : null;
-  const selTablePlayers = selectedTable ? getTablePlayers(selectedTable) : [];
+  function handlePlayerChipClick(player: Player, event: React.MouseEvent) {
+    event.stopPropagation();
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    setPopoverPlayer({ player, x: rect.left + rect.width / 2, y: rect.top });
+  }
+
+  // ページクリックでポップオーバー閉じる
+  function handlePageClick() {
+    if (popoverPlayer) setPopoverPlayer(null);
+  }
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 h-[calc(100vh-7rem)]">
-        {/* ===== メインエリア ===== */}
-        <div className="flex-1 flex flex-col gap-3 overflow-hidden min-w-0">
-          {/* ヘッダー行 */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Image src="/logo-icon.png" alt="みえるくん" width={20} height={20} />
-              <span className="text-[13px] text-[#5a6977]">
-                稼働 <strong className="text-[#2c3e50]">{tables.filter(t => getTablePlayers(t.id).length > 0).length}</strong> / {tables.length} 卓
-              </span>
-            </div>
-            <button onClick={() => setShowAddTable(true)}
-              className="flex items-center gap-1 px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors">
-              <Plus className="w-3.5 h-3.5" />卓を追加
-            </button>
+      <div className="flex flex-col h-[calc(100vh-7rem)]" onClick={handlePageClick}>
+        {/* ヘッダー行 */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Image src="/logo-icon.png" alt="みえるくん" width={20} height={20} />
+            <span className="text-[13px] text-[#5a6977]">
+              稼働 <strong className="text-[#2c3e50]">{tables.filter(t => getTablePlayers(t.id).length > 0).length}</strong> / {tables.length} 卓
+            </span>
           </div>
-
-          {/* 卓追加フォーム */}
-          {showAddTable && (
-            <div className="bg-white border border-[#3a8f7c]/30 rounded-[8px] p-4 flex items-end gap-3">
-              <div className="flex-1">
-                <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">卓名</label>
-                <input type="text" value={newTableName} onChange={e => setNewTableName(e.target.value)} placeholder="テーブル5" className="mt-1 text-[13px]" />
-              </div>
-              <div className="w-28">
-                <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">種別</label>
-                <select value={newTableType} onChange={e => setNewTableType(e.target.value as typeof newTableType)} className="mt-1 text-[13px]">
-                  <option>トナメ</option><option>リング</option><option>サイド</option>
-                </select>
-              </div>
-              <div className="w-20">
-                <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">席数</label>
-                <input type="number" min={2} max={12} value={newTableSeats} onChange={e => setNewTableSeats(parseInt(e.target.value) || 6)} className="mt-1 text-[13px]" />
-              </div>
-              <button onClick={addTable} className="px-4 py-2 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">追加</button>
-              <button onClick={() => setShowAddTable(false)} className="px-3 py-2 border border-[#d8d3cc] text-[13px] rounded-[6px] hover:bg-[#f3f0ec]">取消</button>
-            </div>
-          )}
-
-          {/* 待機エリア */}
-          <WaitingArea players={waitingPlayers} />
-
-          {/* 卓エリア - 縦並び・全幅 */}
-          <div className="flex-1 overflow-y-auto space-y-4 pb-4">
-            {tables.map(table => (
-              <TableCard
-                key={table.id}
-                table={table}
-                players={getTablePlayers(table.id)}
-                selected={selectedTable === table.id}
-                onSelect={() => setSelectedTable(table.id)}
-                onEdit={() => setEditingTable(table)}
-                onDelete={() => deleteTable(table.id)}
-              />
-            ))}
-          </div>
+          <button onClick={() => setShowAddTable(true)}
+            className="flex items-center gap-1 px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors">
+            <Plus className="w-3.5 h-3.5" />卓を追加
+          </button>
         </div>
 
-        {/* ===== 右パネル ===== */}
-        <div className="w-72 bg-white border border-[#d8d3cc] rounded-[8px] flex flex-col overflow-hidden flex-shrink-0">
-          {editingTable ? (
-            /* 卓編集 */
-            <div className="p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[14px] font-semibold">卓を編集</span>
-                <button onClick={() => setEditingTable(null)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><X className="w-4 h-4 text-[#5a6977]" /></button>
-              </div>
-              <div>
-                <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">卓名</label>
-                <input type="text" defaultValue={editingTable.name} id="edit-name" className="mt-1 text-[13px]" />
-              </div>
-              <div>
-                <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">種別</label>
-                <select defaultValue={editingTable.type} id="edit-type" className="mt-1 text-[13px]">
-                  <option>トナメ</option><option>リング</option><option>サイド</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">席数</label>
-                <input type="number" min={2} max={12} defaultValue={editingTable.maxSeats} id="edit-seats" className="mt-1 text-[13px]" />
-              </div>
-              <div>
-                <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">ディーラー</label>
-                <select defaultValue={editingTable.dealer} id="edit-dealer" className="mt-1 text-[13px]">
-                  <option>山田</option><option>鈴木</option><option>佐藤</option><option>高橋</option><option>—</option>
-                </select>
-              </div>
-              <button onClick={() => {
-                const name = (document.getElementById("edit-name") as HTMLInputElement)?.value || editingTable.name;
-                const type = (document.getElementById("edit-type") as HTMLSelectElement)?.value as TableDef["type"];
-                const maxSeats = parseInt((document.getElementById("edit-seats") as HTMLInputElement)?.value) || editingTable.maxSeats;
-                const dealer = (document.getElementById("edit-dealer") as HTMLSelectElement)?.value || editingTable.dealer;
-                updateTable(editingTable.id, { name, type, maxSeats, dealer });
-              }} className="w-full py-2 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">保存</button>
+        {/* 卓追加フォーム */}
+        {showAddTable && (
+          <div className="bg-white border border-[#3a8f7c]/30 rounded-[8px] p-4 flex items-end gap-3 mb-3">
+            <div className="flex-1">
+              <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">卓名</label>
+              <input type="text" value={newTableName} onChange={e => setNewTableName(e.target.value)} placeholder="テーブル5" className="mt-1 text-[13px]" />
             </div>
-          ) : selTable ? (
-            <>
-              <div className="px-4 py-3 border-b border-[#e8e4df]">
-                <div className="flex items-center justify-between">
-                  <span className="text-[14px] font-semibold">{selTable.name}</span>
-                  <TypeBadge type={selTable.type} />
-                </div>
-                <div className="flex items-center gap-3 mt-2 text-[11px] text-[#8e9baa]">
-                  <span>{selTablePlayers.length}/{selTable.maxSeats} 席</span>
-                  <span>D: {selTable.dealer}</span>
-                </div>
-              </div>
-              <div className="flex-1 overflow-y-auto p-3 space-y-1">
-                {selTablePlayers.length === 0 ? (
-                  <p className="text-[12px] text-[#8e9baa] text-center py-4">プレイヤーなし</p>
-                ) : selTablePlayers.map(p => (
-                  <div key={p.id}
-                    className={`flex items-center justify-between px-3 py-2 rounded-[6px] cursor-pointer transition-colors ${selectedPlayer?.id === p.id ? "bg-[#e8f5f0]" : "hover:bg-[#f3f0ec]"}`}
-                    onClick={() => setSelectedPlayer(p)}>
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: RANK_COLORS[p.rank] }}>
-                        {p.name.charAt(0)}
-                      </div>
-                      <span className="text-[12px] font-medium">{p.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-[#8e9baa]">{p.chips.toLocaleString()}</span>
-                      <button onClick={ev => { ev.stopPropagation(); removeFromTable(p.id); }} className="p-0.5 hover:bg-[#fce8e6] rounded text-[#c5221f]"><X className="w-3 h-3" /></button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="px-4 py-3 border-t border-[#e8e4df] flex gap-2">
-                <button onClick={() => setEditingTable(selTable)} className="flex-1 flex items-center justify-center gap-1 py-1.5 text-[12px] text-[#3a8f7c] bg-[#e8f5f0] rounded-[6px] hover:bg-[#d0ebe4]"><Pencil className="w-3 h-3" />編集</button>
-                <button onClick={() => deleteTable(selTable.id)} className="flex items-center justify-center gap-1 px-3 py-1.5 text-[12px] text-[#c5221f] bg-[#fce8e6] rounded-[6px] hover:bg-[#f8d7d4]"><Trash2 className="w-3 h-3" /></button>
-              </div>
-            </>
-          ) : selectedPlayer ? (
-            <PlayerDetail player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <Image src="/logo-icon.png" alt="みえるくん" width={32} height={32} className="mx-auto mb-2 opacity-40" />
-                <p className="text-[12px] text-[#8e9baa]">卓を選択して操作</p>
-              </div>
+            <div className="w-28">
+              <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">種別</label>
+              <select value={newTableType} onChange={e => setNewTableType(e.target.value as typeof newTableType)} className="mt-1 text-[13px]">
+                <option>トナメ</option><option>リング</option><option>サイド</option>
+              </select>
             </div>
-          )}
+            <div className="w-20">
+              <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">席数</label>
+              <input type="number" min={2} max={12} value={newTableSeats} onChange={e => setNewTableSeats(parseInt(e.target.value) || 6)} className="mt-1 text-[13px]" />
+            </div>
+            <button onClick={addTable} className="px-4 py-2 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">追加</button>
+            <button onClick={() => setShowAddTable(false)} className="px-3 py-2 border border-[#d8d3cc] text-[13px] rounded-[6px] hover:bg-[#f3f0ec]">取消</button>
+          </div>
+        )}
+
+        {/* 待機エリア */}
+        <WaitingArea players={waitingPlayers} onPlayerClick={handlePlayerChipClick} />
+
+        {/* 卓エリア - 縦並び・全幅 */}
+        <div className="flex-1 overflow-y-auto space-y-4 pb-4 mt-3">
+          {tables.map(table => (
+            <TableCard
+              key={table.id}
+              table={table}
+              players={getTablePlayers(table.id)}
+              expanded={expandedTable === table.id}
+              onToggleExpand={() => setExpandedTable(expandedTable === table.id ? null : table.id)}
+              onEdit={() => setEditingTable(table)}
+              onDelete={() => deleteTable(table.id)}
+              onRemovePlayer={removeFromTable}
+              onPlayerClick={handlePlayerChipClick}
+            />
+          ))}
         </div>
       </div>
 
+      {/* ドラッグオーバーレイ */}
       <DragOverlay>{activePlayer && <PlayerChip player={activePlayer} isDragging />}</DragOverlay>
+
+      {/* 編集モーダル */}
+      {editingTable && (
+        <EditModal
+          table={editingTable}
+          onSave={(updates) => updateTable(editingTable.id, updates)}
+          onClose={() => setEditingTable(null)}
+        />
+      )}
+
+      {/* プレイヤーポップオーバー */}
+      {popoverPlayer && (
+        <PlayerPopover
+          player={popoverPlayer.player}
+          x={popoverPlayer.x}
+          y={popoverPlayer.y}
+          onRemove={() => { removeFromTable(popoverPlayer.player.id); setPopoverPlayer(null); }}
+          onClose={() => setPopoverPlayer(null)}
+        />
+      )}
     </DndContext>
   );
 }
 
+// ==================== 編集モーダル ====================
+function EditModal({ table, onSave, onClose }: {
+  table: TableDef;
+  onSave: (updates: Partial<TableDef>) => void;
+  onClose: () => void;
+}) {
+  const [name, setName] = useState(table.name);
+  const [type, setType] = useState(table.type);
+  const [maxSeats, setMaxSeats] = useState(table.maxSeats);
+  const [dealer, setDealer] = useState(table.dealer);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px]" onClick={onClose}>
+      <div className="bg-white rounded-[8px] border border-[#d8d3cc] shadow-xl w-[380px] p-5 space-y-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <span className="text-[15px] font-semibold text-[#2c3e50]">卓を編集</span>
+          <button onClick={onClose} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]">
+            <X className="w-4 h-4 text-[#5a6977]" />
+          </button>
+        </div>
+        <div>
+          <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider block mb-1">卓名</label>
+          <input type="text" value={name} onChange={e => setName(e.target.value)}
+            className="w-full text-[13px] border border-[#d8d3cc] rounded-[6px] px-3 py-2 focus:outline-none focus:border-[#3a8f7c]" />
+        </div>
+        <div>
+          <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider block mb-1">種別</label>
+          <select value={type} onChange={e => setType(e.target.value as TableDef["type"])}
+            className="w-full text-[13px] border border-[#d8d3cc] rounded-[6px] px-3 py-2 focus:outline-none focus:border-[#3a8f7c]">
+            <option>トナメ</option><option>リング</option><option>サイド</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider block mb-1">席数</label>
+          <input type="number" min={2} max={12} value={maxSeats} onChange={e => setMaxSeats(parseInt(e.target.value) || 6)}
+            className="w-full text-[13px] border border-[#d8d3cc] rounded-[6px] px-3 py-2 focus:outline-none focus:border-[#3a8f7c]" />
+        </div>
+        <div>
+          <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider block mb-1">ディーラー</label>
+          <select value={dealer} onChange={e => setDealer(e.target.value)}
+            className="w-full text-[13px] border border-[#d8d3cc] rounded-[6px] px-3 py-2 focus:outline-none focus:border-[#3a8f7c]">
+            <option>山田</option><option>鈴木</option><option>佐藤</option><option>高橋</option><option>—</option>
+          </select>
+        </div>
+        <div className="flex gap-2 pt-1">
+          <button onClick={() => onSave({ name, type, maxSeats, dealer })}
+            className="flex-1 py-2 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors">
+            保存
+          </button>
+          <button onClick={onClose}
+            className="px-4 py-2 border border-[#d8d3cc] text-[13px] text-[#5a6977] rounded-[6px] hover:bg-[#f3f0ec] transition-colors">
+            取消
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==================== プレイヤーポップオーバー ====================
+function PlayerPopover({ player, x, y, onRemove, onClose }: {
+  player: Player; x: number; y: number; onRemove: () => void; onClose: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ left: x, top: y });
+
+  useEffect(() => {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      let left = x - rect.width / 2;
+      let top = y - rect.height - 8;
+      // 画面外補正
+      if (left < 8) left = 8;
+      if (left + rect.width > window.innerWidth - 8) left = window.innerWidth - rect.width - 8;
+      if (top < 8) top = y + 40;
+      setPos({ left, top });
+    }
+  }, [x, y]);
+
+  return (
+    <div ref={ref} className="fixed z-50 bg-white border border-[#d8d3cc] rounded-[8px] shadow-lg p-3 min-w-[180px]"
+      style={{ left: pos.left, top: pos.top }}
+      onClick={e => e.stopPropagation()}>
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold"
+          style={{ backgroundColor: RANK_COLORS[player.rank] }}>
+          {player.name.charAt(0)}
+        </div>
+        <div>
+          <div className="text-[13px] font-semibold text-[#2c3e50]">{player.name}</div>
+          <div className="text-[10px] text-[#8e9baa]">{RANK_LABELS[player.rank] || "Regular"}</div>
+        </div>
+        <button onClick={onClose} className="ml-auto p-0.5 hover:bg-[#f3f0ec] rounded-[4px]">
+          <X className="w-3.5 h-3.5 text-[#8e9baa]" />
+        </button>
+      </div>
+      <div className="text-[12px] text-[#5a6977] mb-2">
+        チップ: <strong className="text-[#2c3e50]">{player.chips.toLocaleString()}枚</strong>
+      </div>
+      {player.tableId && (
+        <button onClick={onRemove}
+          className="w-full flex items-center justify-center gap-1 py-1.5 text-[12px] text-[#c5221f] bg-[#fce8e6] rounded-[6px] hover:bg-[#f8d7d4] transition-colors">
+          <X className="w-3 h-3" />卓から外す
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ==================== 待機エリア ====================
-function WaitingArea({ players }: { players: Player[] }) {
+function WaitingArea({ players, onPlayerClick }: {
+  players: Player[];
+  onPlayerClick: (player: Player, event: React.MouseEvent) => void;
+}) {
   const { setNodeRef, isOver } = useDroppable({ id: "waiting" });
   return (
     <div ref={setNodeRef} className={`bg-white border rounded-[8px] px-4 py-3 transition-colors ${isOver ? "border-[#3a8f7c] bg-[#e8f5f0]" : "border-[#d8d3cc]"}`}>
@@ -300,17 +358,22 @@ function WaitingArea({ players }: { players: Player[] }) {
       </div>
       <div className="flex flex-wrap gap-1.5 min-h-[36px]">
         {players.length === 0 ? <span className="text-[11px] text-[#8e9baa]">待機中の顧客はいません</span>
-        : players.map(p => <DraggablePlayer key={p.id} player={p} />)}
+        : players.map(p => <DraggablePlayer key={p.id} player={p} onChipClick={onPlayerClick} />)}
       </div>
     </div>
   );
 }
 
 // ==================== ドラッグ可能な顧客 ====================
-function DraggablePlayer({ player }: { player: Player }) {
+function DraggablePlayer({ player, onChipClick }: {
+  player: Player;
+  onChipClick?: (player: Player, event: React.MouseEvent) => void;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: player.id });
   return (
-    <div ref={setNodeRef} {...listeners} {...attributes} style={{ opacity: isDragging ? 0.3 : 1, touchAction: "none" }}>
+    <div ref={setNodeRef} {...listeners} {...attributes}
+      style={{ opacity: isDragging ? 0.3 : 1, touchAction: "none" }}
+      onClick={e => { if (!isDragging && onChipClick) onChipClick(player, e); }}>
       <PlayerChip player={player} />
     </div>
   );
@@ -331,24 +394,25 @@ function PlayerChip({ player, isDragging }: { player: Player; isDragging?: boole
   );
 }
 
-// ==================== 卓カード（全幅・横長楕円） ====================
-function TableCard({ table, players, selected, onSelect, onEdit, onDelete }: {
-  table: TableDef; players: Player[]; selected: boolean;
-  onSelect: () => void; onEdit: () => void; onDelete: () => void;
+// ==================== 卓カード（全幅・横長楕円 + インライン詳細） ====================
+function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete, onRemovePlayer, onPlayerClick }: {
+  table: TableDef; players: Player[]; expanded: boolean;
+  onToggleExpand: () => void; onEdit: () => void; onDelete: () => void;
+  onRemovePlayer: (pid: string) => void;
+  onPlayerClick: (player: Player, event: React.MouseEvent) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: table.id });
   const occupancy = table.maxSeats > 0 ? players.length / table.maxSeats : 0;
-  const borderColor = isOver ? "border-[#3a8f7c] bg-[#e8f5f0]/20" : selected ? "border-[#3a8f7c]" : occupancy >= 1 ? "border-[#c5221f]/40" : "border-[#d8d3cc]";
+  const borderColor = isOver ? "border-[#3a8f7c] bg-[#e8f5f0]/20" : expanded ? "border-[#3a8f7c]" : occupancy >= 1 ? "border-[#c5221f]/40" : "border-[#d8d3cc]";
 
-  // 席の高さ: 席数に応じて調整
   const tableHeight = Math.max(180, table.maxSeats > 8 ? 220 : 180);
 
   return (
-    <div ref={setNodeRef} onClick={onSelect}
-      className={`bg-white border rounded-[8px] p-5 cursor-pointer ${borderColor}`}
+    <div ref={setNodeRef}
+      className={`bg-white border rounded-[8px] cursor-pointer ${borderColor}`}
       style={{ transition: "transform 0.1s, border-color 0.15s, box-shadow 0.15s" }}>
       {/* ヘッダー */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between p-5 pb-0" onClick={onToggleExpand}>
         <div className="flex items-center gap-3">
           <Dice5 className={`w-4 h-4 ${players.length > 0 ? "text-[#3a8f7c]" : "text-[#8e9baa]"}`} />
           <span className="text-[15px] font-semibold">{table.name}</span>
@@ -366,12 +430,14 @@ function TableCard({ table, players, selected, onSelect, onEdit, onDelete }: {
         <div className="flex items-center gap-1">
           <button onClick={e => { e.stopPropagation(); onEdit(); }} className="p-1.5 hover:bg-[#f3f0ec] rounded-[4px]"><Pencil className="w-3.5 h-3.5 text-[#8e9baa]" /></button>
           <button onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1.5 hover:bg-[#fce8e6] rounded-[4px]"><Trash2 className="w-3.5 h-3.5 text-[#c5221f]/50" /></button>
+          {expanded
+            ? <ChevronUp className="w-4 h-4 text-[#8e9baa] ml-1" />
+            : <ChevronDown className="w-4 h-4 text-[#8e9baa] ml-1" />}
         </div>
       </div>
 
       {/* テーブル: 全幅の横長楕円 */}
-      <div className="relative w-full" style={{ height: `${tableHeight}px` }}>
-        {/* テーブル本体（横長楕円） */}
+      <div className="relative w-full p-5 pt-4" style={{ height: `${tableHeight + 40}px` }} onClick={onToggleExpand}>
         <div className="absolute rounded-[50%] bg-[#1a5c3a] border-[3px] border-[#2d7a4f]"
           style={{ left: "12%", top: "20%", right: "12%", bottom: "20%" }}>
           <div className="flex items-center justify-center h-full">
@@ -382,28 +448,84 @@ function TableCard({ table, players, selected, onSelect, onEdit, onDelete }: {
           </div>
         </div>
 
-        {/* 席 - 楕円の周囲に配置、十分な間隔 */}
+        {/* 席 - 楕円の周囲に配置 */}
         {Array.from({ length: table.maxSeats }).map((_, i) => {
           const angle = (360 / table.maxSeats) * i - 90;
           const rad = (angle * Math.PI) / 180;
-          // 横に広く、縦はコンパクト
           const rx = 44;
           const ry = 42;
           const cx = 50 + rx * Math.cos(rad);
           const cy = 50 + ry * Math.sin(rad);
           const player = players.find(p => p.seatIndex === i);
           return (
-            <SeatSlot key={i} tableId={table.id} seatIndex={i} cx={cx} cy={cy} player={player} />
+            <SeatSlot key={i} tableId={table.id} seatIndex={i} cx={cx} cy={cy} player={player} onPlayerClick={onPlayerClick} />
           );
         })}
       </div>
+
+      {/* インライン詳細パネル（展開時） */}
+      {expanded && (
+        <div className="border-t border-[#e8e4df] px-5 py-3" onClick={e => e.stopPropagation()}>
+          {/* プレイヤーリスト */}
+          <div className="mb-3">
+            <span className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">配置プレイヤー</span>
+            {players.length === 0 ? (
+              <p className="text-[12px] text-[#8e9baa] mt-1">プレイヤーなし</p>
+            ) : (
+              <div className="mt-1 space-y-1">
+                {players.map(p => (
+                  <div key={p.id} className="flex items-center justify-between px-3 py-1.5 rounded-[6px] hover:bg-[#f3f0ec] transition-colors">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold"
+                        style={{ backgroundColor: RANK_COLORS[p.rank] }}>
+                        {p.name.charAt(0)}
+                      </div>
+                      <span className="text-[12px] font-medium text-[#2c3e50]">{p.name}</span>
+                      {RANK_LABELS[p.rank] && (
+                        <span className="text-[9px] px-1 py-0.5 rounded-[4px] bg-[#faf8f5] text-[#5a6977]">{RANK_LABELS[p.rank]}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-[#8e9baa]">{p.chips.toLocaleString()}枚</span>
+                      <button onClick={() => onRemovePlayer(p.id)}
+                        className="p-0.5 hover:bg-[#fce8e6] rounded text-[#c5221f]">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* ディーラー情報 */}
+          <div className="flex items-center gap-3 mb-3 text-[12px] text-[#5a6977]">
+            <User className="w-3.5 h-3.5 text-[#8e9baa]" />
+            <span>ディーラー: <strong className="text-[#2c3e50]">{table.dealer}</strong></span>
+            {table.dealerMinutes > 0 && <span>({table.dealerMinutes}分)</span>}
+          </div>
+
+          {/* アクションボタン */}
+          <div className="flex gap-2">
+            <button onClick={onEdit}
+              className="flex-1 flex items-center justify-center gap-1 py-1.5 text-[12px] text-[#3a8f7c] bg-[#e8f5f0] rounded-[6px] hover:bg-[#d0ebe4] transition-colors">
+              <Pencil className="w-3 h-3" />編集
+            </button>
+            <button onClick={onDelete}
+              className="flex items-center justify-center gap-1 px-3 py-1.5 text-[12px] text-[#c5221f] bg-[#fce8e6] rounded-[6px] hover:bg-[#f8d7d4] transition-colors">
+              <Trash2 className="w-3 h-3" />削除
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ==================== 席スロット（ドロップ対応） ====================
-function SeatSlot({ tableId, seatIndex, cx, cy, player }: {
+function SeatSlot({ tableId, seatIndex, cx, cy, player, onPlayerClick }: {
   tableId: string; seatIndex: number; cx: number; cy: number; player?: Player;
+  onPlayerClick?: (player: Player, event: React.MouseEvent) => void;
 }) {
   const seatId = `seat-${tableId}-${seatIndex}`;
   const { setNodeRef, isOver } = useDroppable({ id: seatId });
@@ -415,7 +537,7 @@ function SeatSlot({ tableId, seatIndex, cx, cy, player }: {
       style={{ left: `${cx}%`, top: `${cy}%` }}
     >
       {player ? (
-        <DraggablePlayer player={player} />
+        <DraggablePlayer player={player} onChipClick={onPlayerClick} />
       ) : (
         <div className={`w-10 h-10 rounded-full border-2 border-dashed flex items-center justify-center ${
           isOver ? "drop-target-active" : "border-[#d8d3cc] hover:border-[#3a8f7c]/50 hover:bg-[#f0f9f6]"
@@ -423,23 +545,6 @@ function SeatSlot({ tableId, seatIndex, cx, cy, player }: {
           <span className={`text-[10px] font-medium ${isOver ? "text-[#3a8f7c]" : "text-[#8e9baa]"}`}>{seatIndex + 1}</span>
         </div>
       )}
-    </div>
-  );
-}
-
-// ==================== プレイヤー詳細 ====================
-function PlayerDetail({ player, onClose }: { player: Player; onClose: () => void }) {
-  return (
-    <div className="flex flex-col h-full">
-      <div className="px-4 py-3 border-b border-[#e8e4df] flex items-center justify-between">
-        <span className="text-[14px] font-semibold">{player.name}</span>
-        <button onClick={onClose} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><X className="w-4 h-4 text-[#5a6977]" /></button>
-      </div>
-      <div className="p-4 space-y-3 text-[12px]">
-        <div className="flex justify-between"><span className="text-[#8e9baa]">ランク</span><span className="font-medium">{RANK_LABELS[player.rank] || "Regular"}</span></div>
-        <div className="flex justify-between"><span className="text-[#8e9baa]">チップ</span><span className="font-bold">{player.chips.toLocaleString()}枚</span></div>
-        <div className="flex justify-between"><span className="text-[#8e9baa]">配置</span><span>{player.tableId ?? "待機中"}</span></div>
-      </div>
     </div>
   );
 }

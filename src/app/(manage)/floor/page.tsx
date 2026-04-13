@@ -83,6 +83,7 @@ export default function FloorPage() {
   const [selectedPreset, setSelectedPreset] = useState("");
   const [newName, setNewName] = useState("");
   const [newRank, setNewRank] = useState<Rank>("regular");
+  const [showCheckinModal, setShowCheckinModal] = useState(false);
   const [recentEntries, setRecentEntries] = useState<{ name: string; time: string }[]>([
     { name: "中村 大輔", time: formatTimeOnly(new Date(Date.now() - 5 * 60000).toISOString()) },
     { name: "山本 さくら", time: formatTimeOnly(new Date(Date.now() - 10 * 60000).toISOString()) },
@@ -184,9 +185,7 @@ export default function FloorPage() {
   }
 
   return (
-    <div className="flex gap-4 max-w-full" style={{ minHeight: "calc(100vh - 120px)" }}>
-      {/* Left side - Main content */}
-      <div className="flex-1 space-y-4 min-w-0">
+    <div className="space-y-4">
         {/* Top bar: counts */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] px-4 py-2.5">
@@ -204,6 +203,10 @@ export default function FloorPage() {
             <span className="text-[13px] text-[#5a6977]">未払</span>
             <span className="text-[20px] font-bold text-[#c5221f] ml-1">{unpaidCount}名</span>
           </div>
+          <button onClick={() => { setShowNewForm(false); setSelectedPreset(""); setShowCheckinModal(true); }}
+            className="ml-auto flex items-center gap-1 px-4 py-2.5 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">
+            <UserPlus className="w-3.5 h-3.5" />入店登録
+          </button>
         </div>
 
         {/* Section A: Checked-in visitors */}
@@ -339,99 +342,42 @@ export default function FloorPage() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Right side - Action Panel */}
-      <div className="w-[280px] flex-shrink-0 space-y-4">
-        {/* Check-in section */}
-        <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] p-4">
-          <h3 className="text-[14px] font-semibold text-[#2c3e50] mb-3 flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-[#3a8f7c]" />
-            入店登録
-          </h3>
-
-          {!showNewForm ? (
-            <div className="space-y-3">
-              <div className="relative">
-                <select
-                  value={selectedPreset}
-                  onChange={(e) => setSelectedPreset(e.target.value)}
-                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] appearance-none text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
-                >
+      {/* 入店登録モーダル */}
+      {showCheckinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setShowCheckinModal(false)}>
+          <div className="bg-white rounded-[8px] w-full max-w-sm p-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[14px] font-semibold flex items-center gap-2"><UserPlus className="w-4 h-4 text-[#3a8f7c]" />入店登録</h3>
+              <button onClick={() => setShowCheckinModal(false)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><span className="text-[#8e9baa] text-[14px]">✕</span></button>
+            </div>
+            {!showNewForm ? (
+              <div className="space-y-3">
+                <select value={selectedPreset} onChange={e => setSelectedPreset(e.target.value)} className="text-[13px]">
                   <option value="">顧客を選択...</option>
-                  {PRESET_CUSTOMERS.filter((c) => !visitors.find((v) => v.name === c.name)).map((c) => (
-                    <option key={c.name} value={c.name}>
-                      {c.name} ({RANK_LABELS[c.rank]})
-                    </option>
+                  {PRESET_CUSTOMERS.filter(c => !visitors.find(v => v.name === c.name)).map(c => (
+                    <option key={c.name} value={c.name}>{c.name} ({RANK_LABELS[c.rank]})</option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8e9baa] pointer-events-none" />
+                <button onClick={() => setShowNewForm(true)} className="w-full text-left px-3 py-2 text-[12px] text-[#3a8f7c] hover:bg-[#e8f5f0] rounded-[6px] flex items-center gap-1">
+                  <Plus className="w-3 h-3" />新規顧客
+                </button>
               </div>
-              <button
-                onClick={() => setShowNewForm(true)}
-                className="w-full text-left px-3 py-2 text-[12px] text-[#3a8f7c] hover:bg-[#e8f5f0] rounded-[6px] transition-colors flex items-center gap-1"
-              >
-                <Plus className="w-3 h-3" />
-                新規顧客
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <input
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="顧客名"
-                className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
-              />
-              <div className="relative">
-                <select
-                  value={newRank}
-                  onChange={(e) => setNewRank(e.target.value as Rank)}
-                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] appearance-none text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
-                >
-                  <option value="regular">レギュラー</option>
-                  <option value="silver">シルバー</option>
-                  <option value="gold">ゴールド</option>
-                  <option value="vip">VIP</option>
+            ) : (
+              <div className="space-y-3">
+                <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="顧客名" className="text-[13px]" />
+                <select value={newRank} onChange={e => setNewRank(e.target.value as Rank)} className="text-[13px]">
+                  <option value="regular">レギュラー</option><option value="silver">シルバー</option><option value="gold">ゴールド</option><option value="vip">VIP</option>
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8e9baa] pointer-events-none" />
+                <button onClick={() => { setShowNewForm(false); setNewName(""); }} className="text-[12px] text-[#5a6977]">キャンセル</button>
               </div>
-              <button
-                onClick={() => {
-                  setShowNewForm(false);
-                  setNewName("");
-                  setNewRank("regular");
-                }}
-                className="text-[12px] text-[#5a6977] hover:text-[#2c3e50]"
-              >
-                キャンセル
-              </button>
-            </div>
-          )}
-
-          <button
-            onClick={handleCheckIn}
-            className="w-full mt-3 px-3 py-2.5 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors flex items-center justify-center gap-1.5"
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            入店する
-          </button>
-        </div>
-
-        {/* Recent entries */}
-        <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] p-4">
-          <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-3">最近の入店</h3>
-          <div className="space-y-2">
-            {recentEntries.map((e, i) => (
-              <div key={i} className="flex items-center justify-between text-[12px]">
-                <span className="text-[#2c3e50]">{e.name}</span>
-                <span className="text-[#8e9baa]">{e.time}</span>
-              </div>
-            ))}
+            )}
+            <button onClick={() => { handleCheckIn(); setShowCheckinModal(false); }}
+              className="w-full mt-3 py-2.5 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] flex items-center justify-center gap-1.5">
+              <UserPlus className="w-3.5 h-3.5" />入店する
+            </button>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
