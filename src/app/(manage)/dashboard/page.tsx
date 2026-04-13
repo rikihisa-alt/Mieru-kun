@@ -223,7 +223,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-4 max-w-5xl relative">
+    <div className="space-y-4 relative">
       {/* 設定ボタン */}
       <div className="flex items-center justify-between">
         <div />
@@ -232,17 +232,45 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* セクション（順序通り） */}
-      {sections.filter(s => s.visible).map(s => {
-        const renderer = sectionRenderers[s.id];
-        if (!renderer) return null;
-        const content = renderer();
-        if (!content) return null;
-        if (s.id === "business" || s.id === "tables" || s.id === "recent" || s.id === "events") {
-          // 2カラムグループは個別処理不要、下でまとめる
+      {/* セクション描画 */}
+      {(() => {
+        const visible = sections.filter(s => s.visible);
+        const elements: React.ReactNode[] = [];
+        let i = 0;
+        while (i < visible.length) {
+          const s = visible[i];
+          const renderer = sectionRenderers[s.id];
+          if (!renderer) { i++; continue; }
+          const content = renderer();
+          if (!content) { i++; continue; }
+
+          // business+tables, recent+events を2カラムにペアリング
+          const pairIds = [["business", "tables"], ["recent", "events"]];
+          const pair = pairIds.find(p => p[0] === s.id);
+          if (pair) {
+            const nextS = visible.find(x => x.id === pair[1]);
+            const nextContent = nextS ? sectionRenderers[nextS.id]?.() : null;
+            elements.push(
+              <div key={s.id} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div>{content}</div>
+                {nextContent && <div>{nextContent}</div>}
+              </div>
+            );
+            // ペア相手をスキップ
+            if (nextS) {
+              const skipIdx = visible.findIndex(x => x.id === nextS.id);
+              if (skipIdx > i) {
+                visible.splice(skipIdx, 1);
+              }
+            }
+          } else if (!pairIds.some(p => p[1] === s.id)) {
+            // ペア右側として既に描画済みでなければ描画
+            elements.push(<div key={s.id}>{content}</div>);
+          }
+          i++;
         }
-        return <div key={s.id}>{content}</div>;
-      })}
+        return elements;
+      })()}
 
       {/* 設定パネル（オーバーレイ） */}
       {showSettings && (

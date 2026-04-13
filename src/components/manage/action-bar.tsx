@@ -1,0 +1,51 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Plus, Grid3X3, Coins, CreditCard, X, ChevronUp } from "lucide-react";
+
+export function ActionBar() {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+
+  const actions = [
+    { icon: <Plus />, label: "入店", color: "#1a73e8", onClick: () => router.push("/floor") },
+    { icon: <Grid3X3 />, label: "卓配置", color: "#16a34a", onClick: () => router.push("/tables") },
+    { icon: <Coins />, label: "チップ", color: "#d97706", onClick: () => router.push("/customers") },
+    { icon: <CreditCard />, label: "精算", color: "#7c3aed", onClick: () => router.push("/orders") },
+  ];
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+      {/* 展開メニュー */}
+      {open && (
+        <div className="flex flex-col gap-1.5 mb-1">
+          {actions.map((a, i) => (
+            <button
+              key={i}
+              onClick={() => { a.onClick(); setOpen(false); }}
+              className="flex items-center gap-2.5 pl-4 pr-5 py-2.5 bg-white border border-[#dadce0] rounded-[8px] shadow-lg hover:shadow-xl transition-all text-[13px] font-medium text-[#1a1a1a] group"
+            >
+              <span className="w-7 h-7 rounded-[6px] flex items-center justify-center text-white [&>svg]:w-3.5 [&>svg]:h-3.5" style={{ backgroundColor: a.color }}>
+                {a.icon}
+              </span>
+              {a.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* FABボタン */}
+      <button
+        onClick={() => setOpen(!open)}
+        className={`w-12 h-12 rounded-[12px] flex items-center justify-center shadow-lg transition-all [&>svg]:w-5 [&>svg]:h-5 ${
+          open
+            ? "bg-[#1a1a1a] text-white rotate-0"
+            : "bg-[#1a73e8] text-white hover:bg-[#1557b0]"
+        }`}
+      >
+        {open ? <X /> : <ChevronUp />}
+      </button>
+    </div>
+  );
+}

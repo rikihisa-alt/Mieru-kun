@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/manage/sidebar";
 import { Header } from "@/components/manage/header";
+import { ActionBar } from "@/components/manage/action-bar";
 
 export default function ManageLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export default function ManageLayout({ children }: { children: React.ReactNode }
           {children}
         </main>
       </div>
+      <ActionBar />
     </div>
   );
 }

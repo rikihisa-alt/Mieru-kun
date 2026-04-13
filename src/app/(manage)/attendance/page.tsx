@@ -49,7 +49,7 @@ export default function AttendancePage() {
   const pending = staff.filter(s => s.needsApproval).length;
 
   return (
-    <div className="space-y-4 max-w-5xl">
+    <div className="space-y-4">
       <div className="flex items-center gap-1">
         <button onClick={() => setTab("today")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "today" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
           <Clock className="w-3 h-3 inline mr-1" />本日の勤怠

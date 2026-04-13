@@ -34,7 +34,7 @@ export default async function CustomersPage({
   }
 
   return (
-    <div className="space-y-4 max-w-5xl">
+    <div className="space-y-4">
       {/* 検索 */}
       <form className="flex items-center gap-2">
         <div className="relative flex-1 max-w-sm">

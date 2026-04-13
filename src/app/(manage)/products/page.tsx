@@ -78,7 +78,7 @@ export default function ProductsPage() {
   ];
 
   return (
-    <div className="space-y-4 max-w-5xl">
+    <div className="space-y-4">
       {/* ツールバー */}
       <div className="flex items-center justify-between">
         <span className="text-[13px] text-text-secondary">
