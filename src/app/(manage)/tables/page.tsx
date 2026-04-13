@@ -319,7 +319,7 @@ function DraggablePlayer({ player }: { player: Player }) {
 function PlayerChip({ player, isDragging }: { player: Player; isDragging?: boolean }) {
   const label = RANK_LABELS[player.rank];
   return (
-    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 bg-white border rounded-[6px] text-[11px] font-medium cursor-grab select-none snap-in ${
+    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 bg-white border rounded-[6px] text-[11px] font-medium cursor-grab select-none ${
       isDragging ? "dragging border-[#3a8f7c]" : "border-[#d8d3cc] hover:border-[#3a8f7c]/60 hover:bg-[#f0f9f6]"
     }`} style={{ transition: "transform 0.1s, box-shadow 0.1s, border-color 0.1s" }}>
       <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold" style={{ backgroundColor: RANK_COLORS[player.rank] }}>
@@ -415,7 +415,7 @@ function SeatSlot({ tableId, seatIndex, cx, cy, player }: {
       style={{ left: `${cx}%`, top: `${cy}%` }}
     >
       {player ? (
-        <div className="snap-in"><DraggablePlayer player={player} /></div>
+        <DraggablePlayer player={player} />
       ) : (
         <div className={`w-10 h-10 rounded-full border-2 border-dashed flex items-center justify-center ${
           isOver ? "drop-target-active" : "border-[#d8d3cc] hover:border-[#3a8f7c]/50 hover:bg-[#f0f9f6]"
