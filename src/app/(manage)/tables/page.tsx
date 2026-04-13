@@ -177,22 +177,19 @@ export default function TablesPage() {
           {/* 待機エリア */}
           <WaitingArea players={waitingPlayers} />
 
-          {/* 卓エリア - 横スクロール、1卓を大きく */}
-          <div className="flex-1 overflow-y-auto overflow-x-auto">
-            <div className="flex gap-5 pb-4" style={{ minWidth: `${tables.length * 380}px` }}>
-              {tables.map(table => (
-                <div key={table.id} className="w-[360px] flex-shrink-0">
-                  <TableCard
-                    table={table}
-                    players={getTablePlayers(table.id)}
-                    selected={selectedTable === table.id}
-                    onSelect={() => setSelectedTable(table.id)}
-                    onEdit={() => setEditingTable(table)}
-                    onDelete={() => deleteTable(table.id)}
-                  />
-                </div>
-              ))}
-            </div>
+          {/* 卓エリア - 縦並び・全幅 */}
+          <div className="flex-1 overflow-y-auto space-y-4 pb-4">
+            {tables.map(table => (
+              <TableCard
+                key={table.id}
+                table={table}
+                players={getTablePlayers(table.id)}
+                selected={selectedTable === table.id}
+                onSelect={() => setSelectedTable(table.id)}
+                onEdit={() => setEditingTable(table)}
+                onDelete={() => deleteTable(table.id)}
+              />
+            ))}
           </div>
         </div>
 
@@ -330,49 +327,63 @@ function PlayerChip({ player, isDragging }: { player: Player; isDragging?: boole
   );
 }
 
-// ==================== 卓カード ====================
+// ==================== 卓カード（全幅・横長楕円） ====================
 function TableCard({ table, players, selected, onSelect, onEdit, onDelete }: {
   table: TableDef; players: Player[]; selected: boolean;
   onSelect: () => void; onEdit: () => void; onDelete: () => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: table.id });
   const occupancy = table.maxSeats > 0 ? players.length / table.maxSeats : 0;
-  const borderColor = isOver ? "border-[#1a73e8] bg-[#e8f0fe]/30" : selected ? "border-[#1a73e8]" : occupancy >= 1 ? "border-[#c5221f]/40" : "border-[#dadce0]";
+  const borderColor = isOver ? "border-[#1a73e8] bg-[#e8f0fe]/20" : selected ? "border-[#1a73e8]" : occupancy >= 1 ? "border-[#c5221f]/40" : "border-[#dadce0]";
+
+  // 席の高さ: 席数に応じて調整
+  const tableHeight = Math.max(180, table.maxSeats > 8 ? 220 : 180);
 
   return (
     <div ref={setNodeRef} onClick={onSelect}
       className={`bg-white border rounded-[8px] p-5 cursor-pointer transition-all ${borderColor}`}>
       {/* ヘッダー */}
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Dice5 className={`w-4 h-4 ${players.length > 0 ? "text-[#1a73e8]" : "text-[#9aa0a6]"}`} />
-          <span className="text-[14px] font-semibold">{table.name}</span>
+          <span className="text-[15px] font-semibold">{table.name}</span>
           <TypeBadge type={table.type} />
+          <span className={`text-[12px] font-semibold ${occupancy >= 1 ? "text-[#c5221f]" : occupancy > 0.7 ? "text-[#d97706]" : players.length > 0 ? "text-[#188038]" : "text-[#9aa0a6]"}`}>
+            {players.length}/{table.maxSeats}席
+          </span>
+          {table.dealer !== "—" && (
+            <span className="text-[11px] text-[#5f6368]">D: {table.dealer}</span>
+          )}
+          {table.dealerMinutes > 0 && (
+            <span className="text-[11px] text-[#9aa0a6]">{table.dealerMinutes}分</span>
+          )}
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={e => { e.stopPropagation(); onEdit(); }} className="p-1 hover:bg-[#f0f1f3] rounded-[4px]"><Pencil className="w-3 h-3 text-[#9aa0a6]" /></button>
-          <button onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1 hover:bg-[#fce8e6] rounded-[4px]"><Trash2 className="w-3 h-3 text-[#c5221f]/50" /></button>
+          <button onClick={e => { e.stopPropagation(); onEdit(); }} className="p-1.5 hover:bg-[#f0f1f3] rounded-[4px]"><Pencil className="w-3.5 h-3.5 text-[#9aa0a6]" /></button>
+          <button onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1.5 hover:bg-[#fce8e6] rounded-[4px]"><Trash2 className="w-3.5 h-3.5 text-[#c5221f]/50" /></button>
         </div>
       </div>
 
-      {/* 楕円テーブル */}
-      <div className="relative mx-auto" style={{ width: "320px", height: "200px" }}>
-        {/* テーブル本体 */}
+      {/* テーブル: 全幅の横長楕円 */}
+      <div className="relative w-full" style={{ height: `${tableHeight}px` }}>
+        {/* テーブル本体（横長楕円） */}
         <div className="absolute rounded-[50%] bg-[#1a5c3a] border-[3px] border-[#2d7a4f]"
-          style={{ left: "15%", top: "18%", right: "15%", bottom: "18%" }}>
+          style={{ left: "12%", top: "20%", right: "12%", bottom: "20%" }}>
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <span className="text-[11px] text-white/80 font-medium block">{table.dealer !== "—" ? table.dealer : ""}</span>
-              <span className="text-[9px] text-white/40 uppercase">Dealer</span>
+              <span className="text-[12px] text-white/90 font-medium block">{table.dealer !== "—" ? table.dealer : ""}</span>
+              <span className="text-[10px] text-white/40 uppercase tracking-wider">Dealer</span>
             </div>
           </div>
         </div>
 
-        {/* 席 */}
+        {/* 席 - 楕円の周囲に配置、十分な間隔 */}
         {Array.from({ length: table.maxSeats }).map((_, i) => {
           const angle = (360 / table.maxSeats) * i - 90;
           const rad = (angle * Math.PI) / 180;
-          const rx = 48; const ry = 44;
+          // 横に広く、縦はコンパクト
+          const rx = 44;
+          const ry = 42;
           const cx = 50 + rx * Math.cos(rad);
           const cy = 50 + ry * Math.sin(rad);
           const player = players.find(p => p.seatIndex === i);
@@ -380,14 +391,6 @@ function TableCard({ table, players, selected, onSelect, onEdit, onDelete }: {
             <SeatSlot key={i} tableId={table.id} seatIndex={i} cx={cx} cy={cy} player={player} />
           );
         })}
-      </div>
-
-      {/* フッター */}
-      <div className="flex items-center justify-between mt-3 text-[11px]">
-        <span className={`font-semibold ${occupancy >= 1 ? "text-[#c5221f]" : occupancy > 0.7 ? "text-[#d97706]" : players.length > 0 ? "text-[#188038]" : "text-[#9aa0a6]"}`}>
-          {players.length}/{table.maxSeats} 席
-        </span>
-        <span className="text-[#9aa0a6]">{table.dealerMinutes > 0 ? `${table.dealerMinutes}分` : ""}</span>
       </div>
     </div>
   );
@@ -409,10 +412,10 @@ function SeatSlot({ tableId, seatIndex, cx, cy, player }: {
       {player ? (
         <DraggablePlayer player={player} />
       ) : (
-        <div className={`w-8 h-8 rounded-full border-2 border-dashed flex items-center justify-center transition-colors ${
-          isOver ? "border-[#1a73e8] bg-[#e8f0fe]" : "border-[#dadce0] hover:border-[#9aa0a6]"
+        <div className={`w-10 h-10 rounded-full border-2 border-dashed flex items-center justify-center transition-colors ${
+          isOver ? "border-[#1a73e8] bg-[#e8f0fe] scale-110" : "border-[#dadce0] hover:border-[#9aa0a6]"
         }`}>
-          <span className="text-[9px] text-[#9aa0a6]">{seatIndex + 1}</span>
+          <span className="text-[10px] text-[#9aa0a6] font-medium">{seatIndex + 1}</span>
         </div>
       )}
     </div>
