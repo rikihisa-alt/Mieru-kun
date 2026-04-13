@@ -73,7 +73,7 @@ function makeInitShifts(): ShiftBar[] {
 
 export default function AttendancePage() {
   const [staff, setStaff] = useState(ATTENDANCE);
-  const [tab, setTab] = useState<"today" | "shift" | "create" | "history">("today");
+  const [tab, setTab] = useState<"today" | "shift" | "create" | "calendar" | "history">("today");
   const [historyMonth, setHistoryMonth] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; });
   const [editId, setEditId] = useState<string | null>(null);
   const [editTime, setEditTime] = useState("");
@@ -88,6 +88,7 @@ export default function AttendancePage() {
   const [dragging, setDragging] = useState<{ staffId: string; startQ: number; currentQ: number } | null>(null);
   const [resizing, setResizing] = useState<{ staffId: string; edge: "start" | "end"; origBar: ShiftBar } | null>(null);
   const [breakDragging, setBreakDragging] = useState<{ staffId: string; startQ: number; currentQ: number } | null>(null);
+  const [breakMode, setBreakMode] = useState(false); // ダブルクリックで休憩モードON
   const timelineRef = useRef<HTMLDivElement>(null);
 
   function approve(id: string) {
@@ -272,6 +273,9 @@ export default function AttendancePage() {
         <button onClick={() => setTab("create")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "create" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
           <Plus className="w-3 h-3 inline mr-1" />シフト作成
         </button>
+        <button onClick={() => setTab("calendar")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "calendar" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
+          <Calendar className="w-3 h-3 inline mr-1" />カレンダー
+        </button>
         <button onClick={() => setTab("history")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "history" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
           <FileDown className="w-3 h-3 inline mr-1" />履歴・出勤簿
         </button>
@@ -282,7 +286,7 @@ export default function AttendancePage() {
             {pending > 0 && <span className="flex items-center gap-1 text-[#d93025]"><AlertCircle className="w-3 h-3" />承認待ち {pending}</span>}
           </div>
         )}
-        {(tab === "shift" || tab === "create") && (
+        {(tab === "shift" || tab === "create" || tab === "calendar") && (
           <button onClick={exportPDF} className="ml-auto flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#5f6368] hover:bg-[#f0f1f3] rounded-[6px]">
             <FileDown className="w-3.5 h-3.5" />PDF出力
           </button>
@@ -401,11 +405,15 @@ export default function AttendancePage() {
                         style={{ left: `${barLeft}%`, width: `${barWidth}%` }}
                         onClick={e => e.stopPropagation()}
                         onMouseDown={tab === "create" ? (e) => {
-                          if (e.altKey || e.metaKey) {
+                          if (breakMode) {
                             e.stopPropagation();
                             const q = getQFromMouse(e);
                             setBreakDragging({ staffId: s.id, startQ: q, currentQ: q });
                           }
+                        } : undefined}
+                        onDoubleClick={tab === "create" ? (e) => {
+                          e.stopPropagation();
+                          setBreakMode(prev => !prev);
                         } : undefined}>
 
                         {/* 休憩帯（オレンジ） */}
@@ -478,11 +486,75 @@ export default function AttendancePage() {
           {tab === "create" && (
             <div className="px-4 py-2.5 bg-[#f5f6f8] border-t border-[#e8eaed] flex items-center gap-3 text-[11px] text-[#9aa0a6]">
               <Image src="/logo-icon.png" alt="" width={16} height={16} className="opacity-30" />
-              <span>空白ドラッグ→シフト作成 | 端ドラッグ→リサイズ | <strong className="text-[#e37400]">Alt+バー内ドラッグ→休憩</strong> | 15分単位</span>
+              <span>空白ドラッグ→シフト作成 | 端ドラッグ→リサイズ | <strong className={breakMode ? "text-[#e37400]" : "text-[#9aa0a6]"}>バーをダブルクリック→休憩モード{breakMode ? " ON ✓" : ""}</strong> | 15分単位</span>
+              {breakMode && <span className="ml-2 px-2 py-0.5 bg-[#e37400] text-white text-[10px] rounded-[4px] font-medium">休憩モード: バー内をドラッグして休憩を設定</span>}
             </div>
           )}
         </div>
       )}
+
+      {/* ===== カレンダー（横:日付, 縦:スタッフ） ===== */}
+      {tab === "calendar" && (() => {
+        const [calY, calM] = historyMonth.split("-").map(Number);
+        const daysInMonth = new Date(calY, calM, 0).getDate();
+        const dayNames = ["日","月","火","水","木","金","土"];
+        const allDates = Array.from({ length: daysInMonth }, (_, i) => {
+          const d = new Date(calY, calM - 1, i + 1);
+          return { day: i + 1, dow: d.getDay(), dateStr: d.toISOString().split("T")[0] };
+        });
+        return (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <button onClick={() => { const d = new Date(calY, calM - 2, 1); setHistoryMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); }} className="p-1 hover:bg-[#f0f1f3] rounded-[4px]"><ChevronLeft className="w-4 h-4" /></button>
+              <span className="text-[14px] font-semibold">{calY}年{calM}月</span>
+              <button onClick={() => { const d = new Date(calY, calM, 1); setHistoryMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); }} className="p-1 hover:bg-[#f0f1f3] rounded-[4px]"><ChevronRight className="w-4 h-4" /></button>
+            </div>
+            <div className="bg-white border border-[#dadce0] rounded-[8px] overflow-auto">
+              <table className="w-full text-[11px]">
+                <thead>
+                  <tr className="border-b border-[#dadce0] bg-[#f5f6f8]">
+                    <th className="px-3 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left sticky left-0 bg-[#f5f6f8] z-10 min-w-[80px]">スタッフ</th>
+                    {allDates.map(d => (
+                      <th key={d.day} className={`px-1 py-2 text-center min-w-[36px] ${d.dow === 0 ? "text-[#c5221f]" : d.dow === 6 ? "text-[#1a73e8]" : "text-[#9aa0a6]"}`}>
+                        <div className="text-[9px]">{dayNames[d.dow]}</div>
+                        <div className="text-[11px] font-semibold">{d.day}</div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {STAFF_LIST.map(staff => (
+                    <tr key={staff.id} className="border-b border-[#e8eaed]">
+                      <td className="px-3 py-2 font-medium text-[12px] sticky left-0 bg-white z-10">{staff.name}</td>
+                      {allDates.map(d => {
+                        const shift = shifts.find(s => s.staffId === staff.id && s.date === d.dateStr);
+                        const totalBreak = shift ? shift.breaks.reduce((sum, b) => sum + (b.endQ - b.startQ) * 15, 0) : 0;
+                        return (
+                          <td key={d.day} className={`px-0.5 py-1 text-center ${d.dow === 0 || d.dow === 6 ? "bg-[#fafafa]" : ""}`}>
+                            {shift ? (
+                              <div className="flex flex-col items-center">
+                                <span className="inline-block px-1.5 py-0.5 bg-[#1a73e8] text-white text-[9px] font-medium rounded-[3px] leading-tight">
+                                  {qToTime(shift.startQ).replace(":00","")}-{qToTime(shift.endQ).replace(":00","")}
+                                </span>
+                                {totalBreak > 0 && (
+                                  <span className="text-[8px] text-[#e37400] mt-0.5">休{totalBreak}m</span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-[#dadce0]">—</span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[11px] text-[#9aa0a6]">※「シフト作成」タブで設定したシフトが反映されます</p>
+          </div>
+        );
+      })()}
 
       {/* ===== 履歴・出勤簿 ===== */}
       {tab === "history" && (
