@@ -3,41 +3,26 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Users,
-  AlertTriangle,
-  DollarSign,
-  LayoutGrid,
-  UserCheck,
-  CalendarDays,
-  TrendingUp,
-  ShoppingBag,
-  Clock,
-  Settings2,
-  X,
-  GripVertical,
-  ChevronRight,
-} from "lucide-react";
+import { Settings2, X, GripVertical, AlertTriangle, Clock, Users, ChevronRight } from "lucide-react";
 
-// --- 型 ---
-interface TableInfo { name: string; occupied: number; max: number; type: "vip" | "regular" | "semi-vip"; }
-interface RecentEntry { name: string; time: string; rank: "regular" | "silver" | "gold" | "vip"; }
-interface EventItem { title: string; time: string; status: "準備中" | "進行中" | "完了"; participants: number; }
+const RANK_DOT: Record<string, string> = { regular: "#8e9baa", silver: "#5a6977", gold: "#d97706", vip: "#7c3aed" };
+
+interface TableInfo { name: string; occupied: number; max: number; }
+interface RecentEntry { name: string; time: string; rank: string; }
+interface EventItem { title: string; time: string; status: string; participants: number; }
 interface DashSection { id: string; label: string; visible: boolean; }
 interface AlertSetting { id: string; label: string; enabled: boolean; color: string; }
-
-const RANK_DOT: Record<string, string> = { regular: "#9aa0a6", silver: "#5f6368", gold: "#f59e0b", vip: "#7c3aed" };
 
 export default function DashboardPage() {
   const router = useRouter();
 
-  // --- KPI ---
   const kpis = { visitors: 23, unpaid: 2, activeTables: 6, totalTables: 8, onDuty: 8, todayEvents: 2, sales: 185000, avgSpend: 8043, orders: 47, targetSales: 250000 };
+  const progressPct = Math.min(100, Math.round((kpis.sales / kpis.targetSales) * 100));
   const tables: TableInfo[] = [
-    { name: "VIP-1", occupied: 4, max: 6, type: "vip" }, { name: "VIP-2", occupied: 6, max: 6, type: "vip" },
-    { name: "A-1", occupied: 3, max: 4, type: "regular" }, { name: "A-2", occupied: 0, max: 4, type: "regular" },
-    { name: "A-3", occupied: 2, max: 4, type: "regular" }, { name: "B-1", occupied: 4, max: 4, type: "regular" },
-    { name: "B-2", occupied: 0, max: 4, type: "regular" }, { name: "S-1", occupied: 3, max: 4, type: "semi-vip" },
+    { name: "VIP-1", occupied: 4, max: 6 }, { name: "VIP-2", occupied: 6, max: 6 },
+    { name: "A-1", occupied: 3, max: 4 }, { name: "A-2", occupied: 0, max: 4 },
+    { name: "A-3", occupied: 2, max: 4 }, { name: "B-1", occupied: 4, max: 4 },
+    { name: "B-2", occupied: 0, max: 4 }, { name: "S-1", occupied: 3, max: 4 },
   ];
   const recentEntries: RecentEntry[] = [
     { name: "田中 太郎", time: "21:30", rank: "gold" }, { name: "佐藤 花子", time: "21:15", rank: "vip" },
@@ -45,324 +30,195 @@ export default function DashboardPage() {
     { name: "渡辺 健太", time: "20:10", rank: "regular" },
   ];
   const events: EventItem[] = [
-    { title: "VIPナイト", time: "20:00-24:00", status: "進行中", participants: 12 },
-    { title: "新作カクテル試飲会", time: "22:00-23:00", status: "準備中", participants: 8 },
+    { title: "VIPナイト", time: "20:00〜24:00", status: "進行中", participants: 12 },
+    { title: "新作カクテル試飲会", time: "22:00〜23:00", status: "準備中", participants: 8 },
   ];
 
-  // --- 設定パネル ---
   const [showSettings, setShowSettings] = useState(false);
   const [sections, setSections] = useState<DashSection[]>([
-    { id: "kpi", label: "KPIパネル", visible: true },
-    { id: "alerts", label: "アラート", visible: true },
-    { id: "business", label: "営業状況", visible: true },
-    { id: "tables", label: "卓稼働", visible: true },
-    { id: "recent", label: "最近の入店", visible: true },
-    { id: "events", label: "本日のイベント", visible: true },
+    { id: "status", label: "営業ステータス", visible: true },
+    { id: "tables", label: "卓 & 入店", visible: true },
+    { id: "events", label: "イベント", visible: true },
   ]);
   const [alertSettings, setAlertSettings] = useState<AlertSetting[]>([
-    { id: "unpaid", label: "未精算アラート", enabled: true, color: "#c5221f" },
-    { id: "full_table", label: "満席アラート", enabled: true, color: "#e37400" },
-    { id: "overtime", label: "長時間滞在アラート", enabled: false, color: "#3a8f7c" },
+    { id: "unpaid", label: "未精算アラート", enabled: true, color: "#c0392b" },
+    { id: "full_table", label: "満席アラート", enabled: true, color: "#c87b1a" },
   ]);
 
-  function toggleSection(id: string) {
-    setSections(prev => prev.map(s => s.id === id ? { ...s, visible: !s.visible } : s));
+  function toggleSection(id: string) { setSections(p => p.map(s => s.id === id ? { ...s, visible: !s.visible } : s)); }
+  function toggleAlert(id: string) { setAlertSettings(p => p.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a)); }
+  function moveSection(id: string, dir: -1|1) {
+    setSections(p => { const i = p.findIndex(s => s.id === id); if (i < 0) return p; const n = i+dir; if (n<0||n>=p.length) return p; const a=[...p]; [a[i],a[n]]=[a[n],a[i]]; return a; });
   }
-  function toggleAlert(id: string) {
-    setAlertSettings(prev => prev.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a));
-  }
-  function moveSection(id: string, dir: -1 | 1) {
-    setSections(prev => {
-      const idx = prev.findIndex(s => s.id === id);
-      if (idx < 0) return prev;
-      const newIdx = idx + dir;
-      if (newIdx < 0 || newIdx >= prev.length) return prev;
-      const arr = [...prev];
-      [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
-      return arr;
-    });
-  }
-
-  const isVisible = (id: string) => sections.find(s => s.id === id)?.visible ?? true;
-  const progressPercent = Math.min(100, Math.round((kpis.sales / kpis.targetSales) * 100));
 
   const fullTables = tables.filter(t => t.occupied >= t.max).length;
-  const unpaidAlert = alertSettings.find(a => a.id === "unpaid");
-  const fullTableAlert = alertSettings.find(a => a.id === "full_table");
-
-  // --- KPIクリックで遷移 ---
-  const kpiItems = [
-    { label: "来店数", value: `${kpis.visitors}名`, icon: <Users />, href: "/floor", color: "#3a8f7c" },
-    { label: "未払", value: `${kpis.unpaid}件`, icon: <AlertTriangle />, href: "/orders", color: kpis.unpaid > 0 ? "#c5221f" : "#1a1a1a", iconColor: kpis.unpaid > 0 ? "#c5221f" : "#9aa0a6" },
-    { label: "稼働卓", value: `${kpis.activeTables}/${kpis.totalTables}卓`, icon: <LayoutGrid />, href: "/tables", color: "#1a1a1a" },
-    { label: "出勤", value: `${kpis.onDuty}名`, icon: <UserCheck />, href: "/attendance", color: "#1a1a1a" },
-    { label: "本日イベント", value: `${kpis.todayEvents}件`, icon: <CalendarDays />, href: "/tables", color: "#1a1a1a" },
-  ];
-
-  const tableOccupancy = kpis.totalTables > 0 ? kpis.activeTables / kpis.totalTables : 0;
-
-  // --- セクション描画マップ ---
-  const sectionRenderers: Record<string, () => React.ReactNode> = {
-    kpi: () => (
-      <div className="space-y-5">
-        {/* 売上ヒーロー - 背景なし、数字だけで語る */}
-        <div className="cursor-pointer group" onClick={() => router.push("/floor")}>
-          <div className="flex items-end gap-4">
-            <div>
-              <p className="text-[11px] font-medium text-[#8e9baa] mb-1">本日の売上</p>
-              <p className="text-[40px] font-extrabold text-[#2c3e50] leading-none tracking-tighter">
-                ¥{kpis.sales.toLocaleString()}
-              </p>
-            </div>
-            <div className="pb-2 flex items-center gap-4 text-[13px]">
-              <span className="text-[#8e9baa]">{kpis.visitors}名来店</span>
-              <span className="text-[#8e9baa]">¥{kpis.avgSpend.toLocaleString()}/人</span>
-              <span className="text-[#3a8f7c] font-semibold">{progressPercent}%達成</span>
-            </div>
-          </div>
-          {/* 達成ライン - 極薄 */}
-          <div className="w-full h-[3px] bg-[#e8e4df] rounded-full mt-3 overflow-hidden">
-            <div className="h-full rounded-full bg-[#3a8f7c]" style={{ width: `${progressPercent}%`, transition: "width 0.8s cubic-bezier(0.4,0,0.2,1)" }} />
-          </div>
-        </div>
-
-        {/* ステータスドット行 - 枠なし、ドット+数字+ラベル */}
-        <div className="flex items-stretch gap-6 pt-1">
-          <StatusDot
-            label="稼働卓"
-            value={`${kpis.activeTables}/${kpis.totalTables}`}
-            color="#3a8f7c"
-            sub={kpis.activeTables >= kpis.totalTables ? "満席" : `空き${kpis.totalTables - kpis.activeTables}`}
-            subColor={kpis.activeTables >= kpis.totalTables ? "#c0392b" : "#8e9baa"}
-            onClick={() => router.push("/tables")}
-          />
-          <div className="w-px bg-[#e8e4df]" />
-          <StatusDot
-            label="未精算"
-            value={`${kpis.unpaid}`}
-            color={kpis.unpaid > 0 ? "#c0392b" : "#8e9baa"}
-            sub={kpis.unpaid > 0 ? "要対応" : "—"}
-            subColor={kpis.unpaid > 0 ? "#c0392b" : "#8e9baa"}
-            pulse={kpis.unpaid > 0}
-            onClick={() => router.push("/orders")}
-          />
-          <div className="w-px bg-[#e8e4df]" />
-          <StatusDot
-            label="出勤中"
-            value={`${kpis.onDuty}`}
-            color="#2c3e50"
-            sub={`${kpis.todayEvents}件のイベント`}
-            onClick={() => router.push("/attendance")}
-          />
-          <div className="w-px bg-[#e8e4df]" />
-          <StatusDot
-            label="注文"
-            value={`${kpis.orders}`}
-            color="#2c3e50"
-            sub={`¥${kpis.avgSpend.toLocaleString()}/人`}
-            onClick={() => router.push("/orders")}
-          />
-        </div>
-      </div>
-    ),
-    alerts: () => {
-      const alerts: { msg: string; color: string; href: string }[] = [];
-      if (unpaidAlert?.enabled && kpis.unpaid > 0) alerts.push({ msg: `未精算 ${kpis.unpaid}件 — 精算処理が必要です`, color: unpaidAlert.color, href: "/orders" });
-      if (fullTableAlert?.enabled && fullTables > 0) alerts.push({ msg: `満席卓 ${fullTables}卓 — 卓管理を確認してください`, color: fullTableAlert.color, href: "/tables" });
-      if (alerts.length === 0) return null;
-      return (
-        <div className="space-y-2">
-          {alerts.map((a, i) => (
-            <div key={i} onClick={() => router.push(a.href)}
-              className="flex items-center gap-2 px-4 py-3 rounded-[8px] text-[13px] cursor-pointer hover:opacity-80 transition-opacity"
-              style={{ backgroundColor: a.color + "15", border: `1px solid ${a.color}30` }}>
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: a.color }} />
-              <span className="font-medium" style={{ color: a.color }}>{a.msg}</span>
-              <ChevronRight className="w-3.5 h-3.5 ml-auto" style={{ color: a.color }} />
-            </div>
-          ))}
-        </div>
-      );
-    },
-    business: () => (
-      <div className="bg-white border border-[#d8d3cc] rounded-[8px] p-4">
-        <h2 className="text-[14px] font-semibold mb-4">営業状況</h2>
-        <div className="space-y-3">
-          <Row icon={<DollarSign />} label="売上" value={`¥${kpis.sales.toLocaleString()}`} bold />
-          <Row icon={<Users />} label="来店" value={`${kpis.visitors}名`} />
-          <Row icon={<TrendingUp />} label="客単価" value={`¥${kpis.avgSpend.toLocaleString()}`} />
-          <Row icon={<ShoppingBag />} label="注文" value={`${kpis.orders}件`} />
-          <div className="pt-2 mt-1 border-t border-[#e8e4df]">
-            <div className="flex items-center justify-between text-[12px] mb-1.5">
-              <span className="text-[#8e9baa]">目標達成率</span>
-              <span className="font-bold text-[#3a8f7c]">{progressPercent}%</span>
-            </div>
-            <div className="w-full h-2 bg-[#e8e4df] rounded-full overflow-hidden">
-              <div className="h-full bg-[#3a8f7c] rounded-full transition-all" style={{ width: `${progressPercent}%` }} />
-            </div>
-            <p className="text-[11px] text-[#8e9baa] mt-1">目標 ¥{kpis.targetSales.toLocaleString()}</p>
-          </div>
-        </div>
-      </div>
-    ),
-    tables: () => (
-      <div className="bg-white border border-[#d8d3cc] rounded-[8px] p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[14px] font-semibold">卓稼働</h2>
-          <button onClick={() => router.push("/tables")} className="text-[12px] text-[#3a8f7c] hover:underline">詳細 →</button>
-        </div>
-        <div className="space-y-2">
-          {tables.map(t => {
-            const pct = t.max > 0 ? t.occupied / t.max : 0;
-            const c = pct >= 1 ? "#c5221f" : pct >= 0.75 ? "#f59e0b" : t.occupied > 0 ? "#188038" : "#9aa0a6";
-            return (
-              <div key={t.name} className="flex items-center gap-2 text-[12px]">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} />
-                <span className="font-medium w-12">{t.name}</span>
-                <div className="flex-1 h-1.5 bg-[#e8e4df] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: c }} />
-                </div>
-                <span className="text-[#5a6977] w-10 text-right">{t.occupied}/{t.max}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-[4px] font-medium ${t.type === "vip" ? "bg-[#f3e8fd] text-[#7c3aed]" : t.type === "semi-vip" ? "bg-[#fef3c7] text-[#d97706]" : "bg-[#faf8f5] text-[#5a6977]"}`}>
-                  {t.type === "vip" ? "VIP" : t.type === "semi-vip" ? "S-VIP" : "一般"}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    ),
-    recent: () => (
-      <div className="bg-white border border-[#d8d3cc] rounded-[8px] p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[14px] font-semibold">最近の入店</h2>
-          <button onClick={() => router.push("/floor")} className="text-[12px] text-[#3a8f7c] hover:underline">入店管理 →</button>
-        </div>
-        <div className="space-y-2">
-          {recentEntries.map((e, i) => (
-            <div key={i} className="flex items-center gap-2.5 text-[12px]">
-              <span className="text-[#8e9baa] font-mono w-10">{e.time}</span>
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: RANK_DOT[e.rank] }} />
-              <span className="font-medium">{e.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-    events: () => (
-      <div className="bg-white border border-[#d8d3cc] rounded-[8px] p-4">
-        <h2 className="text-[14px] font-semibold mb-3">本日のイベント</h2>
-        <div className="space-y-2">
-          {events.map((ev, i) => (
-            <div key={i} className="border border-[#e8e4df] rounded-[6px] px-3 py-2.5">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[13px] font-medium">{ev.title}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-[4px] font-medium ${ev.status === "進行中" ? "bg-[#e6f4ea] text-[#188038]" : ev.status === "準備中" ? "bg-[#fef3c7] text-[#d97706]" : "bg-[#e8f5f0] text-[#3a8f7c]"}`}>{ev.status}</span>
-              </div>
-              <div className="flex items-center gap-3 text-[11px] text-[#8e9baa]">
-                <span><Clock className="w-3 h-3 inline mr-0.5" />{ev.time}</span>
-                <span><Users className="w-3 h-3 inline mr-0.5" />{ev.participants}名</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-  };
+  const hasUnpaidAlert = alertSettings.find(a => a.id === "unpaid")?.enabled && kpis.unpaid > 0;
+  const hasFullAlert = alertSettings.find(a => a.id === "full_table")?.enabled && fullTables > 0;
 
   return (
-    <div className="space-y-4 relative">
-      {/* 設定ボタン */}
-      <div className="flex items-center justify-between">
-        <div />
-        <button onClick={() => setShowSettings(true)} className="flex items-center gap-1 px-2.5 py-1.5 text-[12px] text-[#5a6977] hover:bg-[#f3f0ec] rounded-[6px] transition-colors">
-          <Settings2 className="w-3.5 h-3.5" />表示設定
+    <div className="space-y-5 relative">
+      <div className="flex items-center justify-end">
+        <button onClick={() => setShowSettings(true)} className="flex items-center gap-1 px-2 py-1 text-[11px] text-[#8e9baa] hover:bg-[#f3f0ec] rounded-[4px]">
+          <Settings2 className="w-3 h-3" />設定
         </button>
       </div>
 
-      {/* セクション描画 */}
-      {(() => {
-        const visible = sections.filter(s => s.visible);
-        const elements: React.ReactNode[] = [];
-        let i = 0;
-        while (i < visible.length) {
-          const s = visible[i];
-          const renderer = sectionRenderers[s.id];
-          if (!renderer) { i++; continue; }
-          const content = renderer();
-          if (!content) { i++; continue; }
+      {/* ===== アラート ===== */}
+      {(hasUnpaidAlert || hasFullAlert) && (
+        <div className="flex gap-2">
+          {hasUnpaidAlert && (
+            <button onClick={() => router.push("/orders")} className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-[6px] text-[#c0392b] bg-[#c0392b]/8 hover:bg-[#c0392b]/15 transition-colors">
+              <AlertTriangle className="w-3.5 h-3.5" />未精算 {kpis.unpaid}件
+            </button>
+          )}
+          {hasFullAlert && (
+            <button onClick={() => router.push("/tables")} className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-[6px] text-[#c87b1a] bg-[#c87b1a]/8 hover:bg-[#c87b1a]/15 transition-colors">
+              <AlertTriangle className="w-3.5 h-3.5" />満席 {fullTables}卓
+            </button>
+          )}
+        </div>
+      )}
 
-          // business+tables, recent+events を2カラムにペアリング
-          const pairIds = [["business", "tables"], ["recent", "events"]];
-          const pair = pairIds.find(p => p[0] === s.id);
-          if (pair) {
-            const nextS = visible.find(x => x.id === pair[1]);
-            const nextContent = nextS ? sectionRenderers[nextS.id]?.() : null;
-            elements.push(
-              <div key={s.id} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div>{content}</div>
-                {nextContent && <div>{nextContent}</div>}
+      {/* ===== セクション描画 ===== */}
+      {sections.filter(s => s.visible).map(s => {
+        if (s.id === "status") return (
+          <div key={s.id}>
+            {/* 営業ステータス: 左=売上、右=指標テーブル */}
+            <div className="flex gap-8 items-start">
+              {/* 左: 売上ヒーロー */}
+              <div className="cursor-pointer" onClick={() => router.push("/floor")}>
+                <p className="text-[11px] text-[#8e9baa] font-medium mb-1">TODAY</p>
+                <p className="text-[42px] font-black text-[#2c3e50] leading-none tracking-tighter">
+                  ¥{kpis.sales.toLocaleString()}
+                </p>
+                <div className="flex items-center gap-1 mt-2">
+                  <div className="flex-1 h-1 bg-[#e8e4df] rounded-full overflow-hidden" style={{ maxWidth: 160 }}>
+                    <div className="h-full rounded-full bg-[#3a8f7c]" style={{ width: `${progressPct}%` }} />
+                  </div>
+                  <span className="text-[10px] text-[#3a8f7c] font-bold">{progressPct}%</span>
+                </div>
               </div>
-            );
-            // ペア相手をスキップ
-            if (nextS) {
-              const skipIdx = visible.findIndex(x => x.id === nextS.id);
-              if (skipIdx > i) {
-                visible.splice(skipIdx, 1);
-              }
-            }
-          } else if (!pairIds.some(p => p[1] === s.id)) {
-            // ペア右側として既に描画済みでなければ描画
-            elements.push(<div key={s.id}>{content}</div>);
-          }
-          i++;
-        }
-        return elements;
-      })()}
 
-      {/* 設定パネル（オーバーレイ） */}
-      {showSettings && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/20" onClick={() => setShowSettings(false)}>
-          <div className="w-80 bg-white h-full shadow-lg overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#d8d3cc]">
-              <span className="text-[14px] font-semibold">ダッシュボード設定</span>
-              <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><X className="w-4 h-4 text-[#5a6977]" /></button>
+              {/* 右: 指標テーブル（枠なし、行だけ） */}
+              <div className="flex-1 pt-1">
+                <table className="w-full text-[13px]">
+                  <tbody>
+                    <Metric label="来店" value={`${kpis.visitors}名`} onClick={() => router.push("/floor")} />
+                    <Metric label="客単価" value={`¥${kpis.avgSpend.toLocaleString()}`} />
+                    <Metric label="注文" value={`${kpis.orders}件`} onClick={() => router.push("/orders")} />
+                    <Metric label="出勤" value={`${kpis.onDuty}名`} onClick={() => router.push("/attendance")} />
+                    <Metric label="未精算" value={`${kpis.unpaid}件`} color={kpis.unpaid > 0 ? "#c0392b" : undefined} onClick={() => router.push("/orders")} />
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+
+        if (s.id === "tables") return (
+          <div key={s.id} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 卓稼働 */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">卓稼働 {kpis.activeTables}/{kpis.totalTables}</p>
+                <button onClick={() => router.push("/tables")} className="text-[11px] text-[#3a8f7c] hover:underline">詳細→</button>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5">
+                {tables.map(t => {
+                  const full = t.occupied >= t.max;
+                  const empty = t.occupied === 0;
+                  return (
+                    <div key={t.name} onClick={() => router.push("/tables")}
+                      className={`rounded-[6px] px-2.5 py-2 cursor-pointer transition-colors text-center ${
+                        full ? "bg-[#c0392b]/8 hover:bg-[#c0392b]/15" : empty ? "bg-[#faf8f5] hover:bg-[#f3f0ec]" : "bg-[#e8f5f0] hover:bg-[#d0ebe4]"
+                      }`}>
+                      <p className={`text-[11px] font-medium ${full ? "text-[#c0392b]" : empty ? "text-[#8e9baa]" : "text-[#2c3e50]"}`}>{t.name}</p>
+                      <p className={`text-[15px] font-bold ${full ? "text-[#c0392b]" : empty ? "text-[#8e9baa]" : "text-[#2c3e50]"}`}>{t.occupied}<span className="text-[10px] font-normal text-[#8e9baa]">/{t.max}</span></p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* セクション表示/非表示 + 順序 */}
-            <div className="p-4">
-              <p className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-2">表示セクション</p>
-              <div className="space-y-1.5">
-                {sections.map((s, idx) => (
-                  <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 rounded-[4px] hover:bg-[#faf8f5]">
-                    <GripVertical className="w-3 h-3 text-[#d8d3cc]" />
-                    <label className="flex items-center gap-2 flex-1 cursor-pointer">
-                      <input type="checkbox" checked={s.visible} onChange={() => toggleSection(s.id)} className="accent-[#3a8f7c]" />
-                      <span className="text-[12px]">{s.label}</span>
-                    </label>
-                    <div className="flex gap-0.5">
-                      <button onClick={() => moveSection(s.id, -1)} disabled={idx === 0} className="text-[10px] px-1 text-[#8e9baa] disabled:opacity-30">↑</button>
-                      <button onClick={() => moveSection(s.id, 1)} disabled={idx === sections.length - 1} className="text-[10px] px-1 text-[#8e9baa] disabled:opacity-30">↓</button>
+            {/* 最近の入店 */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">最近の入店</p>
+                <button onClick={() => router.push("/floor")} className="text-[11px] text-[#3a8f7c] hover:underline">入店管理→</button>
+              </div>
+              <div className="space-y-0">
+                {recentEntries.map((e, i) => (
+                  <div key={i} className="flex items-center gap-3 py-1.5 border-b border-[#e8e4df] last:border-0">
+                    <span className="text-[11px] text-[#8e9baa] font-mono w-10">{e.time}</span>
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: RANK_DOT[e.rank] }} />
+                    <span className="text-[12px] font-medium text-[#2c3e50]">{e.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+        if (s.id === "events") return (
+          <div key={s.id}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">本日のイベント</p>
+            </div>
+            <div className="flex gap-3">
+              {events.map((ev, i) => (
+                <div key={i} className="flex items-center gap-3 flex-1 py-2 px-3 rounded-[6px] bg-white border border-[#e8e4df] hover:border-[#d8d3cc] transition-colors cursor-pointer">
+                  <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[13px] font-semibold text-[#2c3e50]">{ev.title}</span>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-[3px] font-semibold uppercase ${
+                        ev.status === "進行中" ? "bg-[#e8f5f0] text-[#2e7d5b]" : "bg-[#fdf4e8] text-[#c87b1a]"
+                      }`}>{ev.status}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-[#8e9baa]">
+                      <Clock className="w-3 h-3" />{ev.time}
+                      <Users className="w-3 h-3 ml-1" />{ev.participants}名
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
+          </div>
+        );
 
-            {/* アラート設定 */}
-            <div className="p-4 border-t border-[#e8e4df]">
-              <p className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-2">アラート設定</p>
-              <div className="space-y-2">
-                {alertSettings.map(a => (
-                  <div key={a.id} className="flex items-center gap-2 px-2 py-1.5 rounded-[4px] hover:bg-[#faf8f5]">
-                    <label className="flex items-center gap-2 flex-1 cursor-pointer">
-                      <input type="checkbox" checked={a.enabled} onChange={() => toggleAlert(a.id)} className="accent-[#3a8f7c]" />
-                      <span className="text-[12px]">{a.label}</span>
-                    </label>
-                    <div className="w-4 h-4 rounded-[3px] border border-[#d8d3cc]" style={{ backgroundColor: a.color }} />
+        return null;
+      })}
+
+      {/* 設定パネル */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/20" onClick={() => setShowSettings(false)}>
+          <div className="w-72 bg-white h-full shadow-lg overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#e8e4df]">
+              <span className="text-[13px] font-semibold">表示設定</span>
+              <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><X className="w-4 h-4 text-[#8e9baa]" /></button>
+            </div>
+            <div className="p-4 space-y-1">
+              {sections.map((s, idx) => (
+                <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 rounded-[4px] hover:bg-[#faf8f5]">
+                  <GripVertical className="w-3 h-3 text-[#d8d3cc]" />
+                  <label className="flex items-center gap-2 flex-1 cursor-pointer">
+                    <input type="checkbox" checked={s.visible} onChange={() => toggleSection(s.id)} className="accent-[#3a8f7c]" />
+                    <span className="text-[12px]">{s.label}</span>
+                  </label>
+                  <div className="flex gap-0.5">
+                    <button onClick={() => moveSection(s.id, -1)} disabled={idx === 0} className="text-[10px] px-1 text-[#8e9baa] disabled:opacity-30">↑</button>
+                    <button onClick={() => moveSection(s.id, 1)} disabled={idx === sections.length - 1} className="text-[10px] px-1 text-[#8e9baa] disabled:opacity-30">↓</button>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 border-t border-[#e8e4df] space-y-1">
+              <p className="text-[10px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-1">アラート</p>
+              {alertSettings.map(a => (
+                <label key={a.id} className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-[#faf8f5] rounded-[4px]">
+                  <input type="checkbox" checked={a.enabled} onChange={() => toggleAlert(a.id)} className="accent-[#3a8f7c]" />
+                  <span className="text-[12px]">{a.label}</span>
+                </label>
+              ))}
             </div>
           </div>
         </div>
@@ -371,41 +227,12 @@ export default function DashboardPage() {
   );
 }
 
-function StatusDot({ label, value, color, sub, subColor, pulse, onClick }: {
-  label: string; value: string; color: string; sub?: string; subColor?: string; pulse?: boolean; onClick?: () => void;
-}) {
+function Metric({ label, value, color, onClick }: { label: string; value: string; color?: string; onClick?: () => void }) {
   return (
-    <div className="flex-1 cursor-pointer group" onClick={onClick}>
-      <div className="flex items-center gap-1.5 mb-1">
-        <div className={`w-2 h-2 rounded-full ${pulse ? "animate-pulse" : ""}`} style={{ backgroundColor: color }} />
-        <span className="text-[10px] font-semibold text-[#8e9baa] uppercase tracking-wider group-hover:text-[#5a6977] transition-colors">{label}</span>
-      </div>
-      <p className="text-[24px] font-bold tracking-tight leading-none" style={{ color }}>{value}</p>
-      {sub && <p className="text-[11px] mt-1" style={{ color: subColor ?? "#8e9baa" }}>{sub}</p>}
-    </div>
-  );
-}
-
-function StatusLine({ label, value, color }: { label: string; value: number; color: string }) {
-  const pct = Math.min(100, Math.round(value * 100));
-  return (
-    <div className="flex-1">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-[10px] text-[#8e9baa] font-medium">{label}</span>
-        <span className="text-[10px] font-bold" style={{ color }}>{pct}%</span>
-      </div>
-      <div className="w-full h-1 bg-[#e8e4df] rounded-full overflow-hidden">
-        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color, transition: "width 0.6s ease" }} />
-      </div>
-    </div>
-  );
-}
-
-function Row({ icon, label, value, bold }: { icon: React.ReactNode; label: string; value: string; bold?: boolean }) {
-  return (
-    <div className="flex items-center justify-between text-[13px]">
-      <span className="text-[#5a6977] flex items-center gap-2"><span className="[&>svg]:w-3.5 [&>svg]:h-3.5 text-[#8e9baa]">{icon}</span>{label}</span>
-      <span className={bold ? "font-bold" : "font-medium"}>{value}</span>
-    </div>
+    <tr className={onClick ? "cursor-pointer hover:bg-[#f3f0ec] transition-colors" : ""} onClick={onClick}>
+      <td className="py-1.5 pr-4 text-[#8e9baa] text-[12px]">{label}</td>
+      <td className="py-1.5 text-right font-semibold" style={{ color: color ?? "#2c3e50" }}>{value}</td>
+      {onClick && <td className="py-1.5 pl-2 w-4"><ChevronRight className="w-3 h-3 text-[#d8d3cc]" /></td>}
+    </tr>
   );
 }
