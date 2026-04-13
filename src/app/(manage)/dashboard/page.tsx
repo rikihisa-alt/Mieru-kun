@@ -99,23 +99,48 @@ export default function DashboardPage() {
     { label: "本日イベント", value: `${kpis.todayEvents}件`, icon: <CalendarDays />, href: "/tables", color: "#1a1a1a" },
   ];
 
+  const tableOccupancy = kpis.totalTables > 0 ? kpis.activeTables / kpis.totalTables : 0;
+
   // --- セクション描画マップ ---
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     kpi: () => (
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        {kpiItems.map((k, i) => (
-          <div key={i} onClick={() => router.push(k.href)}
-            className="bg-white border border-[#d8d3cc] rounded-[8px] px-4 py-3.5 cursor-pointer hover:border-[#3a8f7c]/40 transition-colors group">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 mb-1">
-                <span style={{ color: k.iconColor ?? "#9aa0a6" }} className="[&>svg]:w-[14px] [&>svg]:h-[14px]">{k.icon}</span>
-                <span className="text-[11px] text-[#8e9baa] font-medium">{k.label}</span>
-              </div>
-              <ChevronRight className="w-3 h-3 text-[#d8d3cc] group-hover:text-[#3a8f7c] transition-colors" />
-            </div>
-            <p className="text-[20px] font-bold tracking-tight" style={{ color: k.color }}>{k.value}</p>
-          </div>
-        ))}
+      <div>
+        {/* メインKPI: 来店数 */}
+        <div className="flex items-baseline gap-3 mb-4 cursor-pointer" onClick={() => router.push("/floor")}>
+          <span className="text-[36px] font-bold text-[#2c3e50] tracking-tight">{kpis.visitors}</span>
+          <span className="text-[14px] text-[#8e9baa] font-medium">名 来店中</span>
+          <ChevronRight className="w-4 h-4 text-[#d8d3cc] ml-1" />
+        </div>
+
+        {/* サブKPI: テキスト横並び */}
+        <div className="flex items-center gap-0 text-[13px] mb-4">
+          <span className="cursor-pointer hover:opacity-70 transition-opacity" onClick={() => router.push("/orders")}>
+            <span className="text-[#8e9baa]">未払 </span>
+            <span className={`font-bold ${kpis.unpaid > 0 ? "text-[#c0392b]" : "text-[#2c3e50]"}`}>{kpis.unpaid}件</span>
+          </span>
+          <span className="mx-3 text-[#d8d3cc]">|</span>
+          <span className="cursor-pointer hover:opacity-70 transition-opacity" onClick={() => router.push("/tables")}>
+            <span className="text-[#8e9baa]">稼働 </span>
+            <span className="font-bold text-[#2c3e50]">{kpis.activeTables}/{kpis.totalTables}</span>
+          </span>
+          <span className="mx-3 text-[#d8d3cc]">|</span>
+          <span className="cursor-pointer hover:opacity-70 transition-opacity" onClick={() => router.push("/attendance")}>
+            <span className="text-[#8e9baa]">出勤 </span>
+            <span className="font-bold text-[#2c3e50]">{kpis.onDuty}名</span>
+          </span>
+          <span className="mx-3 text-[#d8d3cc]">|</span>
+          <span className="cursor-pointer hover:opacity-70 transition-opacity" onClick={() => router.push("/tables")}>
+            <span className="text-[#8e9baa]">イベント </span>
+            <span className="font-bold text-[#2c3e50]">{kpis.todayEvents}件</span>
+          </span>
+        </div>
+
+        {/* ダッシュライン: 状態可視化 */}
+        <div className="flex gap-4">
+          <StatusLine label="卓稼働率" value={tableOccupancy} color={tableOccupancy >= 1 ? "#c0392b" : tableOccupancy > 0.7 ? "#c87b1a" : "#2e7d5b"} />
+          <StatusLine label="出勤率" value={kpis.onDuty / 10} color="#2e7d5b" />
+          {kpis.unpaid > 0 && <StatusLine label="未精算" value={kpis.unpaid / kpis.visitors} color="#c0392b" />}
+        </div>
       </div>
     ),
     alerts: () => {
@@ -320,6 +345,21 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function StatusLine({ label, value, color }: { label: string; value: number; color: string }) {
+  const pct = Math.min(100, Math.round(value * 100));
+  return (
+    <div className="flex-1">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] text-[#8e9baa] font-medium">{label}</span>
+        <span className="text-[10px] font-bold" style={{ color }}>{pct}%</span>
+      </div>
+      <div className="w-full h-1 bg-[#e8e4df] rounded-full overflow-hidden">
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color, transition: "width 0.6s ease" }} />
+      </div>
     </div>
   );
 }
