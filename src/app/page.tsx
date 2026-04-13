@@ -41,14 +41,11 @@ export default function Home() {
         </div>
 
         <div className="relative w-full px-8 md:px-16 py-16 md:py-24">
-          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
+          <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 items-start">
             {/* 左: メインコピー */}
-            <div className="flex-1 max-w-xl">
+            <div className="w-full lg:w-[42%] lg:pl-8">
               <Image src="/logo-full.png" alt="てんぽみえるくん" width={280} height={70} className="mb-6" />
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#3a8f7c]/10 border border-[#3a8f7c]/20 rounded-full mb-5">
-                <div className="w-1.5 h-1.5 bg-[#3a8f7c] rounded-full animate-pulse" />
-                <span className="text-[12px] font-medium text-[#3a8f7c]">アミューズメントカジノ向け店舗管理</span>
-              </div>
+              <p className="text-[12px] font-medium text-[#3a8f7c] mb-4 tracking-wide">アミューズメントカジノ向け店舗管理</p>
               <h1 className="text-[30px] md:text-[40px] font-bold text-[#2c3e50] leading-[1.2] mb-4 tracking-tight">
                 店舗の運営を、
                 <br />
@@ -70,8 +67,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 右: 運営フロー紹介 */}
-            <div className="flex-1 max-w-md w-full">
+            {/* 右: 運営フロー紹介（横長） */}
+            <div className="w-full lg:w-[58%]">
               <div className="bg-white border border-[#e8e4df] rounded-[12px] p-6 shadow-sm">
                 <p className="text-[11px] font-semibold text-[#3a8f7c] uppercase tracking-wider mb-4">Operation Flow</p>
                 <h3 className="text-[16px] font-bold text-[#2c3e50] mb-5">店舗運営の一連の流れ</h3>
