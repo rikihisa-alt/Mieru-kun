@@ -3,17 +3,12 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Settings2, X, GripVertical, AlertTriangle, Clock, Users, ChevronRight, ArrowUpRight } from "lucide-react";
+import { Settings2, X, GripVertical, AlertTriangle, ArrowUpRight, DoorOpen, LogIn, LogOut as LogOutIcon, CalendarDays, Clock } from "lucide-react";
 
 const RANK_DOT: Record<string, string> = { regular: "#8e9baa", silver: "#5a6977", gold: "#d97706", vip: "#7c3aed" };
-const STATUS_MAP: Record<string, { bg: string; text: string }> = {
-  "進行中": { bg: "#e8f5f0", text: "#2e7d5b" },
-  "準備中": { bg: "#fdf4e8", text: "#c87b1a" },
-  "完了": { bg: "#f3f0ec", text: "#5a6977" },
-};
 
 interface TableInfo { name: string; occupied: number; max: number; type: string; }
-interface RecentEntry { name: string; time: string; rank: string; status: string; }
+interface TimelineEvent { time: string; type: "入店" | "退店" | "出勤" | "退勤" | "イベント"; name: string; detail?: string; rank?: string; }
 interface EventItem { title: string; time: string; status: string; participants: number; }
 interface DashSection { id: string; label: string; visible: boolean; }
 interface AlertSetting { id: string; label: string; enabled: boolean; color: string; }
@@ -30,16 +25,23 @@ export default function DashboardPage() {
     { name: "A-3", occupied: 2, max: 4, type: "一般" }, { name: "B-1", occupied: 4, max: 4, type: "一般" },
     { name: "B-2", occupied: 0, max: 4, type: "一般" }, { name: "S-1", occupied: 3, max: 4, type: "S-VIP" },
   ];
-  const recentEntries: RecentEntry[] = [
-    { name: "田中 太郎", time: "21:30", rank: "gold", status: "滞在中" },
-    { name: "佐藤 花子", time: "21:15", rank: "vip", status: "滞在中" },
-    { name: "鈴木 一郎", time: "20:45", rank: "regular", status: "滞在中" },
-    { name: "高橋 美咲", time: "20:30", rank: "silver", status: "退店済" },
-    { name: "渡辺 健太", time: "20:10", rank: "regular", status: "退店済" },
-  ];
   const events: EventItem[] = [
     { title: "VIPナイト", time: "20:00-24:00", status: "進行中", participants: 12 },
     { title: "新作カクテル試飲会", time: "22:00-23:00", status: "準備中", participants: 8 },
+  ];
+  // タイムライン: 入店・退店・出勤・退勤・イベントを時系列で
+  const timeline: TimelineEvent[] = [
+    { time: "21:30", type: "入店", name: "田中 太郎", rank: "gold" },
+    { time: "21:15", type: "入店", name: "佐藤 花子", rank: "vip" },
+    { time: "21:00", type: "出勤", name: "山田 太郎", detail: "ディーラー" },
+    { time: "20:45", type: "入店", name: "鈴木 一郎", rank: "regular" },
+    { time: "20:30", type: "退店", name: "高橋 美咲", rank: "silver" },
+    { time: "20:15", type: "退勤", name: "伊藤 美咲", detail: "フロア" },
+    { time: "20:10", type: "入店", name: "渡辺 健太", rank: "regular" },
+    { time: "20:00", type: "イベント", name: "VIPナイト", detail: "開始" },
+    { time: "18:00", type: "出勤", name: "鈴木 一郎", detail: "ディーラー" },
+    { time: "18:00", type: "出勤", name: "佐藤 花", detail: "フロア" },
+    { time: "17:30", type: "出勤", name: "高橋 健", detail: "ディーラー" },
   ];
 
   const [showSettings, setShowSettings] = useState(false);
@@ -47,7 +49,7 @@ export default function DashboardPage() {
     { id: "summary", label: "本日集計", visible: true },
     { id: "alerts", label: "要対応", visible: true },
     { id: "tables", label: "卓稼働", visible: true },
-    { id: "bottom", label: "入店 & イベント", visible: true },
+    { id: "timeline", label: "タイムライン", visible: true },
   ]);
   const [alertSettings, setAlertSettings] = useState<AlertSetting[]>([
     { id: "unpaid", label: "未精算アラート", enabled: true, color: "#c0392b" },
@@ -61,31 +63,34 @@ export default function DashboardPage() {
   }
 
   const fullTables = tables.filter(t => t.occupied >= t.max).length;
-  const emptyTables = tables.filter(t => t.occupied === 0).length;
   const isVisible = (id: string) => sections.find(s => s.id === id)?.visible ?? true;
   const hasUnpaidAlert = alertSettings.find(a => a.id === "unpaid")?.enabled && kpis.unpaid > 0;
   const hasFullAlert = alertSettings.find(a => a.id === "full_table")?.enabled && fullTables > 0;
 
+  const TYPE_ICON: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
+    "入店": { icon: <DoorOpen className="w-3 h-3" />, color: "#3a8f7c", bg: "#e8f5f0" },
+    "退店": { icon: <LogOutIcon className="w-3 h-3" />, color: "#8e9baa", bg: "#f3f0ec" },
+    "出勤": { icon: <LogIn className="w-3 h-3" />, color: "#2c3e50", bg: "#e8e4df" },
+    "退勤": { icon: <LogOutIcon className="w-3 h-3" />, color: "#5a6977", bg: "#f3f0ec" },
+    "イベント": { icon: <CalendarDays className="w-3 h-3" />, color: "#7c3aed", bg: "#f3e8fd" },
+  };
+
   return (
-    <div className="space-y-6 relative">
-      {/* 設定ボタン（右上） */}
+    <div className="space-y-5 relative">
       <div className="absolute top-0 right-0">
-        <button onClick={() => setShowSettings(true)} className="flex items-center gap-1 px-2 py-1 text-[11px] text-[#8e9baa] hover:bg-[#f3f0ec] rounded-[4px]">
-          <Settings2 className="w-3 h-3" />
-        </button>
+        <button onClick={() => setShowSettings(true)} className="flex items-center gap-1 px-2 py-1 text-[11px] text-[#8e9baa] hover:bg-[#f3f0ec] rounded-[4px]"><Settings2 className="w-3 h-3" /></button>
       </div>
 
-      {/* ===== 本日集計バー ===== */}
+      {/* ===== 本日集計 ===== */}
       {isVisible("summary") && (
         <div className="flex items-center gap-2 flex-wrap text-[14px] pb-4 border-b border-[#e8e4df]">
           <span className="text-[#8e9baa] text-[13px] mr-1">本日集計：</span>
-          <SummaryChip label="来店" value={`${kpis.visitors}名`} color="#3a8f7c" onClick={() => router.push("/floor")} />
-          <SummaryChip label="売上" value={`¥${kpis.sales.toLocaleString()}`} />
-          <SummaryChip label="客単価" value={`¥${kpis.avgSpend.toLocaleString()}`} />
-          <SummaryChip label="達成率" value={`${progressPct}%`} color="#3a8f7c" />
-          {kpis.unpaid > 0 && (
-            <SummaryChip label="未払" value={`${kpis.unpaid}件`} color="#c0392b" onClick={() => router.push("/orders")} />
-          )}
+          <Chip label="来店" value={`${kpis.visitors}名`} color="#3a8f7c" onClick={() => router.push("/floor")} />
+          <Chip label="売上" value={`¥${kpis.sales.toLocaleString()}`} />
+          <Chip label="客単価" value={`¥${kpis.avgSpend.toLocaleString()}`} />
+          <Chip label="達成率" value={`${progressPct}%`} color="#3a8f7c" />
+          <Chip label="出勤" value={`${kpis.onDuty}名`} onClick={() => router.push("/attendance")} />
+          {kpis.unpaid > 0 && <Chip label="未払" value={`${kpis.unpaid}件`} color="#c0392b" onClick={() => router.push("/orders")} />}
         </div>
       )}
 
@@ -94,133 +99,100 @@ export default function DashboardPage() {
         <div>
           <p className="text-[13px] font-semibold text-[#2c3e50] mb-2">要対応</p>
           <div className="space-y-1.5">
-            {hasUnpaidAlert && (
-              <AlertRow icon={<AlertTriangle />} color="#c0392b" text={`未精算 ${kpis.unpaid}件 — 精算処理が必要です`} onClick={() => router.push("/orders")} />
-            )}
-            {hasFullAlert && (
-              <AlertRow icon={<AlertTriangle />} color="#c87b1a" text={`満席卓 ${fullTables}卓 — 卓管理を確認してください`} onClick={() => router.push("/tables")} />
-            )}
+            {hasUnpaidAlert && <AlertRow color="#c0392b" text={`未精算 ${kpis.unpaid}件 — 精算処理が必要です`} onClick={() => router.push("/orders")} />}
+            {hasFullAlert && <AlertRow color="#c87b1a" text={`満席卓 ${fullTables}卓 — 卓管理を確認してください`} onClick={() => router.push("/tables")} />}
           </div>
         </div>
       )}
 
-      {/* ===== 卓稼働 ===== */}
+      {/* ===== 卓稼働 + イベント (2カラム) ===== */}
       {isVisible("tables") && (
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[13px] font-semibold text-[#2c3e50]">卓稼働</p>
-            <button onClick={() => router.push("/tables")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">
-              卓管理<ArrowUpRight className="w-3 h-3" />
-            </button>
-          </div>
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-[#e8e4df]">
-                <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left w-8"></th>
-                <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">卓</th>
-                <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">席数</th>
-                <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">種別</th>
-                <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">状況</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tables.map(t => {
-                const pct = t.max > 0 ? t.occupied / t.max : 0;
-                const full = pct >= 1;
-                const empty = t.occupied === 0;
-                const dotColor = full ? "#c0392b" : empty ? "#d8d3cc" : pct > 0.7 ? "#c87b1a" : "#3a8f7c";
-                const barColor = full ? "#c0392b" : empty ? "#d8d3cc" : pct > 0.7 ? "#c87b1a" : "#3a8f7c";
-                return (
-                  <tr key={t.name} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer transition-colors" onClick={() => router.push("/tables")}>
-                    <td className="py-2"><div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: dotColor }} /></td>
-                    <td className="py-2 font-medium">{t.name}</td>
-                    <td className="py-2 text-[#5a6977]">{t.occupied}/{t.max}</td>
-                    <td className="py-2 text-[#5a6977]">{t.type}</td>
-                    <td className="py-2 w-40">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-[6px] bg-[#f3f0ec] rounded-full overflow-hidden">
-                          <div className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: barColor, transition: "width 0.4s ease" }} />
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ===== 最近の入店 & イベント ===== */}
-      {isVisible("bottom") && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* 最近の入店 */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[13px] font-semibold text-[#2c3e50]">最近の入店</p>
-              <button onClick={() => router.push("/floor")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">
-                入店管理<ArrowUpRight className="w-3 h-3" />
-              </button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* 卓稼働: 2列コンパクト */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[13px] font-semibold text-[#2c3e50]">卓稼働 <span className="font-normal text-[#8e9baa]">{kpis.activeTables}/{kpis.totalTables}</span></p>
+              <button onClick={() => router.push("/tables")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">卓管理<ArrowUpRight className="w-3 h-3" /></button>
             </div>
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-[#e8e4df]">
-                  <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">時間</th>
-                  <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">顧客名</th>
-                  <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">滞在状況</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentEntries.map((e, i) => (
-                  <tr key={i} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer transition-colors" onClick={() => router.push("/floor")}>
-                    <td className="py-1.5 text-[12px] text-[#8e9baa] font-mono">{e.time}</td>
-                    <td className="py-1.5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: RANK_DOT[e.rank] }} />
-                        <span className="font-medium">{e.name}</span>
-                      </div>
-                    </td>
-                    <td className="py-1.5">
-                      <span className={`text-[12px] font-medium ${e.status === "滞在中" ? "text-[#3a8f7c]" : "text-[#8e9baa]"}`}>
-                        {e.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="grid grid-cols-2 gap-x-6">
+              {[tables.slice(0, 4), tables.slice(4)].map((half, hi) => (
+                <table key={hi} className="w-full text-[12px]">
+                  <tbody>
+                    {half.map(t => {
+                      const pct = t.max > 0 ? t.occupied / t.max : 0;
+                      const full = pct >= 1; const empty = t.occupied === 0;
+                      const c = full ? "#c0392b" : empty ? "#d8d3cc" : pct > 0.7 ? "#c87b1a" : "#3a8f7c";
+                      return (
+                        <tr key={t.name} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer" onClick={() => router.push("/tables")}>
+                          <td className="py-1.5 w-4"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} /></td>
+                          <td className="py-1.5 font-medium w-14">{t.name}</td>
+                          <td className="py-1.5 text-[#5a6977] w-10">{t.occupied}/{t.max}</td>
+                          <td className="py-1.5 text-[#8e9baa] w-10">{t.type}</td>
+                          <td className="py-1.5">
+                            <div className="h-[5px] bg-[#f3f0ec] rounded-full overflow-hidden">
+                              <div className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: c }} />
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ))}
+            </div>
           </div>
 
           {/* 本日のイベント */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[13px] font-semibold text-[#2c3e50]">本日のイベント</p>
+            <p className="text-[13px] font-semibold text-[#2c3e50] mb-2">本日のイベント</p>
+            <div className="space-y-2">
+              {events.map((ev, i) => {
+                const st = ev.status === "進行中" ? { bg: "#e8f5f0", text: "#2e7d5b" } : { bg: "#fdf4e8", text: "#c87b1a" };
+                return (
+                  <div key={i} className="flex items-start justify-between py-2 border-b border-[#f3f0ec] last:border-0">
+                    <div>
+                      <p className="text-[13px] font-medium text-[#2c3e50]">{ev.title}</p>
+                      <p className="text-[11px] text-[#8e9baa] mt-0.5"><Clock className="w-3 h-3 inline mr-0.5" />{ev.time} · {ev.participants}名</p>
+                    </div>
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-[3px] mt-0.5" style={{ backgroundColor: st.bg, color: st.text }}>{ev.status}</span>
+                  </div>
+                );
+              })}
             </div>
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-[#e8e4df]">
-                  <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">イベント名</th>
-                  <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">時間</th>
-                  <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">参加者</th>
-                  <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">状況</th>
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((ev, i) => {
-                  const st = STATUS_MAP[ev.status] ?? STATUS_MAP["準備中"];
-                  return (
-                    <tr key={i} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer transition-colors">
-                      <td className="py-2 font-medium">{ev.title}</td>
-                      <td className="py-2 text-[12px] text-[#5a6977]">{ev.time}</td>
-                      <td className="py-2 text-[12px] text-[#5a6977]">{ev.participants}名</td>
-                      <td className="py-2">
-                        <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-[3px]" style={{ backgroundColor: st.bg, color: st.text }}>{ev.status}</span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ===== タイムライン (入店・退店・出勤・退勤・イベントを時系列) ===== */}
+      {isVisible("timeline") && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[13px] font-semibold text-[#2c3e50]">タイムライン</p>
+            <button onClick={() => router.push("/floor")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">入店管理<ArrowUpRight className="w-3 h-3" /></button>
+          </div>
+          <div className="relative">
+            {/* 縦線 */}
+            <div className="absolute left-[39px] top-0 bottom-0 w-px bg-[#e8e4df]" />
+            <div className="space-y-0">
+              {timeline.map((ev, i) => {
+                const t = TYPE_ICON[ev.type];
+                return (
+                  <div key={i} className="flex items-start gap-3 py-1.5 hover:bg-[#faf8f5] rounded-[4px] transition-colors cursor-pointer relative"
+                    onClick={() => router.push(ev.type === "入店" || ev.type === "退店" ? "/floor" : ev.type === "イベント" ? "/tables" : "/attendance")}>
+                    <span className="text-[11px] text-[#8e9baa] font-mono w-8 text-right pt-0.5 flex-shrink-0">{ev.time}</span>
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10" style={{ backgroundColor: t.bg, color: t.color }}>
+                      {t.icon}
+                    </div>
+                    <div className="flex items-center gap-2 pt-0.5 min-w-0">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: t.color }}>{ev.type}</span>
+                      {ev.rank && <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: RANK_DOT[ev.rank] }} />}
+                      <span className="text-[12px] font-medium text-[#2c3e50] truncate">{ev.name}</span>
+                      {ev.detail && <span className="text-[11px] text-[#8e9baa] flex-shrink-0">{ev.detail}</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -264,25 +236,21 @@ export default function DashboardPage() {
   );
 }
 
-/* ===== サマリーチップ ===== */
-function SummaryChip({ label, value, color, onClick }: { label: string; value: string; color?: string; onClick?: () => void }) {
+function Chip({ label, value, color, onClick }: { label: string; value: string; color?: string; onClick?: () => void }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 ${onClick ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}`} onClick={onClick}>
+    <span className={`inline-flex items-center gap-1.5 ${onClick ? "cursor-pointer hover:opacity-70" : ""}`} onClick={onClick}>
       <span className="text-[#8e9baa] text-[13px]">{label}</span>
       <span className="text-[15px] font-bold" style={{ color: color ?? "#2c3e50" }}>{value}</span>
     </span>
   );
 }
 
-/* ===== アラート行 ===== */
-function AlertRow({ icon, color, text, onClick }: { icon: React.ReactNode; color: string; text: string; onClick?: () => void }) {
+function AlertRow({ color, text, onClick }: { color: string; text: string; onClick?: () => void }) {
   return (
-    <div onClick={onClick}
-      className="flex items-center gap-2 py-2 px-3 rounded-[6px] cursor-pointer hover:opacity-80 transition-opacity"
-      style={{ backgroundColor: `${color}0a` }}>
-      <span className="[&>svg]:w-4 [&>svg]:h-4" style={{ color }}>{icon}</span>
+    <div onClick={onClick} className="flex items-center gap-2 py-2 px-3 rounded-[6px] cursor-pointer hover:opacity-80" style={{ backgroundColor: `${color}0a` }}>
+      <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color }} />
       <span className="text-[13px]" style={{ color }}>{text}</span>
-      <ChevronRight className="w-3.5 h-3.5 ml-auto" style={{ color }} />
+      <ArrowUpRight className="w-3.5 h-3.5 ml-auto" style={{ color }} />
     </div>
   );
 }
