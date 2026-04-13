@@ -8,6 +8,7 @@ import {
   Grid3X3,
   ShoppingBag,
   Users,
+  UserPlus,
   Clock,
   Lock,
   Package,
@@ -23,6 +24,7 @@ const NAV = [
   ]},
   { section: "管理", items: [
     { href: "/customers", label: "顧客管理", icon: Users },
+    { href: "/customers/new", label: "顧客登録", icon: UserPlus },
     { href: "/attendance", label: "勤怠管理", icon: Clock },
     { href: "/closing", label: "締め処理", icon: Lock },
   ]},
@@ -37,14 +39,12 @@ export function Sidebar() {
 
   return (
     <aside className="w-56 bg-bg-white border-r border-border flex flex-col h-full">
-      {/* ロゴ */}
       <div className="h-14 flex items-center px-4 border-b border-border">
-        <span className="text-[15px] font-bold text-text-primary tracking-tight">
+        <Link href="/dashboard" className="text-[15px] font-bold text-text-primary tracking-tight">
           てんぽみえるくん
-        </span>
+        </Link>
       </div>
 
-      {/* ナビ */}
       <nav className="flex-1 py-2 overflow-y-auto">
         {NAV.map((section) => (
           <div key={section.section} className="mb-1">
@@ -54,7 +54,12 @@ export function Sidebar() {
               </span>
             </div>
             {section.items.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(item.href + "/");
+              // customers/new は customers とは別の完全一致で判定
+              const active = item.href === "/customers/new"
+                ? pathname === "/customers/new"
+                : item.href === "/customers"
+                  ? pathname === "/customers" || (pathname.startsWith("/customers/") && pathname !== "/customers/new")
+                  : pathname === item.href || pathname.startsWith(item.href + "/");
               const Icon = item.icon;
               return (
                 <Link
@@ -75,7 +80,6 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* フッタ */}
       <div className="px-4 py-3 border-t border-border-light">
         <div className="text-[11px] text-text-tertiary">Come On Casino</div>
       </div>

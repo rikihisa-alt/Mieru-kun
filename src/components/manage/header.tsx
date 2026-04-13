@@ -9,6 +9,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/floor": "入店管理",
   "/tables": "卓管理",
   "/orders": "注文 / 精算",
+  "/customers/new": "顧客新規登録",
   "/customers": "顧客管理",
   "/attendance": "勤怠管理",
   "/closing": "締め処理",
