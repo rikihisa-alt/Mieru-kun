@@ -105,60 +105,38 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ===== 卓稼働 + イベント (2カラム) ===== */}
+      {/* ===== 卓稼働 (全幅2列) ===== */}
       {isVisible("tables") && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* 卓稼働: 2列コンパクト */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[13px] font-semibold text-[#2c3e50]">卓稼働 <span className="font-normal text-[#8e9baa]">{kpis.activeTables}/{kpis.totalTables}</span></p>
-              <button onClick={() => router.push("/tables")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">卓管理<ArrowUpRight className="w-3 h-3" /></button>
-            </div>
-            <div className="grid grid-cols-2 gap-x-6">
-              {[tables.slice(0, 4), tables.slice(4)].map((half, hi) => (
-                <table key={hi} className="w-full text-[12px]">
-                  <tbody>
-                    {half.map(t => {
-                      const pct = t.max > 0 ? t.occupied / t.max : 0;
-                      const full = pct >= 1; const empty = t.occupied === 0;
-                      const c = full ? "#c0392b" : empty ? "#d8d3cc" : pct > 0.7 ? "#c87b1a" : "#3a8f7c";
-                      return (
-                        <tr key={t.name} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer" onClick={() => router.push("/tables")}>
-                          <td className="py-1.5 w-4"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} /></td>
-                          <td className="py-1.5 font-medium w-14">{t.name}</td>
-                          <td className="py-1.5 text-[#5a6977] w-10">{t.occupied}/{t.max}</td>
-                          <td className="py-1.5 text-[#8e9baa] w-10">{t.type}</td>
-                          <td className="py-1.5">
-                            <div className="h-[5px] bg-[#f3f0ec] rounded-full overflow-hidden">
-                              <div className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: c }} />
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              ))}
-            </div>
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[13px] font-semibold text-[#2c3e50]">卓稼働 <span className="font-normal text-[#8e9baa]">{kpis.activeTables}/{kpis.totalTables}</span></p>
+            <button onClick={() => router.push("/tables")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">卓管理<ArrowUpRight className="w-3 h-3" /></button>
           </div>
-
-          {/* 本日のイベント */}
-          <div>
-            <p className="text-[13px] font-semibold text-[#2c3e50] mb-2">本日のイベント</p>
-            <div className="space-y-2">
-              {events.map((ev, i) => {
-                const st = ev.status === "進行中" ? { bg: "#e8f5f0", text: "#2e7d5b" } : { bg: "#fdf4e8", text: "#c87b1a" };
-                return (
-                  <div key={i} className="flex items-start justify-between py-2 border-b border-[#f3f0ec] last:border-0">
-                    <div>
-                      <p className="text-[13px] font-medium text-[#2c3e50]">{ev.title}</p>
-                      <p className="text-[11px] text-[#8e9baa] mt-0.5"><Clock className="w-3 h-3 inline mr-0.5" />{ev.time} · {ev.participants}名</p>
-                    </div>
-                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-[3px] mt-0.5" style={{ backgroundColor: st.bg, color: st.text }}>{ev.status}</span>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="grid grid-cols-2 gap-x-8">
+            {[tables.slice(0, 4), tables.slice(4)].map((half, hi) => (
+              <table key={hi} className="w-full text-[12px]">
+                <tbody>
+                  {half.map(t => {
+                    const pct = t.max > 0 ? t.occupied / t.max : 0;
+                    const full = pct >= 1; const empty = t.occupied === 0;
+                    const c = full ? "#c0392b" : empty ? "#d8d3cc" : pct > 0.7 ? "#c87b1a" : "#3a8f7c";
+                    return (
+                      <tr key={t.name} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer" onClick={() => router.push("/tables")}>
+                        <td className="py-1.5 w-4"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} /></td>
+                        <td className="py-1.5 font-medium w-14">{t.name}</td>
+                        <td className="py-1.5 text-[#5a6977] w-10">{t.occupied}/{t.max}</td>
+                        <td className="py-1.5 text-[#8e9baa] w-10">{t.type}</td>
+                        <td className="py-1.5">
+                          <div className="h-[5px] bg-[#f3f0ec] rounded-full overflow-hidden">
+                            <div className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: c }} />
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ))}
           </div>
         </div>
       )}
@@ -194,6 +172,26 @@ export default function DashboardPage() {
               })}
             </div>
           </div>
+
+          {/* イベント: タイムラインの下に横並び */}
+          {events.length > 0 && (
+            <div className="mt-4 pt-3 border-t border-[#e8e4df]">
+              <p className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-2">本日のイベント</p>
+              <div className="flex gap-3 overflow-x-auto pb-1">
+                {events.map((ev, i) => {
+                  const st = ev.status === "進行中" ? { bg: "#e8f5f0", text: "#2e7d5b" } : ev.status === "準備中" ? { bg: "#fdf4e8", text: "#c87b1a" } : { bg: "#f3f0ec", text: "#5a6977" };
+                  return (
+                    <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-[6px] border border-[#e8e4df] hover:border-[#d8d3cc] cursor-pointer flex-shrink-0 whitespace-nowrap transition-colors">
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-[3px]" style={{ backgroundColor: st.bg, color: st.text }}>{ev.status}</span>
+                      <span className="text-[13px] font-medium text-[#2c3e50]">{ev.title}</span>
+                      <span className="text-[11px] text-[#8e9baa]">{ev.time}</span>
+                      <span className="text-[11px] text-[#8e9baa]">{ev.participants}名</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
