@@ -82,7 +82,8 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="px-4 py-3 border-t border-border-light">
+      <div className="px-4 py-3 border-t border-border-light flex items-center gap-2">
+        <Image src="/logo-icon.png" alt="みえるくん" width={20} height={20} className="opacity-40" />
         <div className="text-[11px] text-text-tertiary">Come On Casino</div>
       </div>
     </aside>

@@ -43,9 +43,9 @@ export default function CustomersPage() {
       {/* ツールバー */}
       <div className="flex items-center justify-between">
         <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9aa0a6]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9aa0a6] pointer-events-none" />
           <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="顧客名・電話番号で検索" className="pl-9 pr-3 py-[7px] text-[13px]" />
+            placeholder="顧客名・電話番号で検索" className="w-full pl-10 pr-3 py-[7px] text-[13px] border border-[#dadce0] rounded-[6px] focus:outline-none focus:border-[#1a73e8]" />
         </div>
         <Link href="/customers/new"
           className="flex items-center gap-1 px-3 py-[7px] bg-[#1a73e8] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#1557b0] transition-colors">
