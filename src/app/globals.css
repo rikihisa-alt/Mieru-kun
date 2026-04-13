@@ -1,35 +1,26 @@
 @import "tailwindcss";
 
 /* ============================================
-   てんぽみえるくん デザインシステム v2
-   カラー: LP準拠 クリーム + ティール
+   てんぽみえるくん デザインシステム v3
+   UX重視: 軽快・即時反応・直感操作
    ============================================ */
 
 :root {
-  /* ベース - クリーム系 */
   --bg: #faf8f5;
   --bg-white: #ffffff;
   --bg-hover: #f3f0ec;
   --bg-active: #ebe7e2;
-
-  /* テキスト - ダークネイビー系 */
   --text-primary: #2c3e50;
   --text-secondary: #5a6977;
   --text-tertiary: #8e9baa;
   --text-inverse: #ffffff;
-
-  /* アクセント - ティール */
   --accent: #3a8f7c;
   --accent-hover: #2f7a69;
   --accent-light: #e8f5f0;
   --accent-bg: #f0f9f6;
-
-  /* ボーダー - 暖かいグレー */
   --border: #d8d3cc;
   --border-light: #e8e4df;
   --border-focus: #3a8f7c;
-
-  /* ステータス */
   --status-success: #2e7d5b;
   --status-success-bg: #e8f5f0;
   --status-warning: #c87b1a;
@@ -38,21 +29,20 @@
   --status-danger-bg: #fce8e6;
   --status-info: #3a8f7c;
   --status-info-bg: #e8f5f0;
-
-  /* 角丸 */
   --radius-sm: 4px;
   --radius: 6px;
   --radius-lg: 8px;
-
-  /* フォント */
   --font-base: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", -apple-system, sans-serif;
   --font-mono: "SF Mono", "Consolas", monospace;
+  --transition-fast: 0.1s ease;
+  --transition: 0.15s ease;
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-white: var(--bg-white);
   --color-bg-hover: var(--bg-hover);
+  --color-bg-active: var(--bg-active);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-tertiary: var(--text-tertiary);
@@ -61,7 +51,6 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-light: var(--accent-light);
   --color-accent-bg: var(--accent-bg);
-  --color-bg-active: var(--bg-active);
   --color-border: var(--border);
   --color-border-light: var(--border-light);
   --color-status-success: var(--status-success);
@@ -83,14 +72,14 @@ body {
   color: var(--text-primary);
   font-family: var(--font-base);
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
 table { border-collapse: collapse; }
 th { font-weight: 600; text-align: left; }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
@@ -99,6 +88,7 @@ th { font-weight: 600; text-align: left; }
   outline-offset: 1px;
 }
 
+/* ===== 入力フィールド ===== */
 input[type="text"],
 input[type="email"],
 input[type="tel"],
@@ -111,15 +101,103 @@ select,
 textarea {
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 7px 10px;
+  padding: 6px 10px;
   font-size: 13px;
   color: var(--text-primary);
   background: var(--bg-white);
-  transition: border-color 0.15s;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   width: 100%;
 }
 input:focus, select:focus, textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(58,143,124,0.15);
+  box-shadow: 0 0 0 2px rgba(58,143,124,0.12);
   outline: none;
+}
+
+/* ===== マイクロインタラクション ===== */
+
+/* ボタン: 押下時に軽く縮む */
+button {
+  transition: transform var(--transition-fast), background-color var(--transition), opacity var(--transition-fast);
+}
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* テーブル行: ホバーで左ボーダー */
+tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+/* カード: ホバー時に軽く浮く */
+.card-hover {
+  transition: border-color var(--transition), transform var(--transition);
+}
+.card-hover:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* 数値更新アニメーション */
+@keyframes flash-update {
+  0% { background-color: var(--accent-light); }
+  100% { background-color: transparent; }
+}
+.animate-update {
+  animation: flash-update 0.6s ease;
+}
+
+/* ドラッグ中: 影+拡大 */
+.dragging {
+  box-shadow: 0 8px 24px rgba(44,62,80,0.15);
+  transform: scale(1.08);
+  z-index: 100;
+  opacity: 0.95;
+}
+
+/* ドロップターゲット: 光る */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(58,143,124,0); }
+  50% { box-shadow: 0 0 0 4px rgba(58,143,124,0.2); }
+}
+.drop-target-active {
+  border-color: var(--accent) !important;
+  background-color: var(--accent-light) !important;
+  animation: pulse-glow 1s ease infinite;
+}
+
+/* スナップアニメーション */
+@keyframes snap-in {
+  0% { transform: scale(1.1); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.snap-in {
+  animation: snap-in 0.2s ease;
+}
+
+/* ステータスバッジ: 軽い点滅(稼働中) */
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.status-live {
+  animation: status-pulse 2s ease infinite;
+}
+
+/* トースト */
+@keyframes slide-up {
+  0% { transform: translateY(8px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.toast-in {
+  animation: slide-up 0.2s ease;
+}
+
+/* フェードイン */
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.fade-in {
+  animation: fade-in 0.15s ease;
 }

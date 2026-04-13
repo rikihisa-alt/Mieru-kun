@@ -319,9 +319,9 @@ function DraggablePlayer({ player }: { player: Player }) {
 function PlayerChip({ player, isDragging }: { player: Player; isDragging?: boolean }) {
   const label = RANK_LABELS[player.rank];
   return (
-    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 bg-white border rounded-[6px] text-[11px] font-medium cursor-grab select-none transition-all ${
-      isDragging ? "border-[#3a8f7c] shadow-lg scale-110 z-50" : "border-[#d8d3cc] hover:border-[#3a8f7c]/40"
-    }`}>
+    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 bg-white border rounded-[6px] text-[11px] font-medium cursor-grab select-none snap-in ${
+      isDragging ? "dragging border-[#3a8f7c]" : "border-[#d8d3cc] hover:border-[#3a8f7c]/60 hover:bg-[#f0f9f6]"
+    }`} style={{ transition: "transform 0.1s, box-shadow 0.1s, border-color 0.1s" }}>
       <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold" style={{ backgroundColor: RANK_COLORS[player.rank] }}>
         {player.name.charAt(0)}
       </div>
@@ -345,7 +345,8 @@ function TableCard({ table, players, selected, onSelect, onEdit, onDelete }: {
 
   return (
     <div ref={setNodeRef} onClick={onSelect}
-      className={`bg-white border rounded-[8px] p-5 cursor-pointer transition-all ${borderColor}`}>
+      className={`bg-white border rounded-[8px] p-5 cursor-pointer ${borderColor}`}
+      style={{ transition: "transform 0.1s, border-color 0.15s, box-shadow 0.15s" }}>
       {/* ヘッダー */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -414,12 +415,12 @@ function SeatSlot({ tableId, seatIndex, cx, cy, player }: {
       style={{ left: `${cx}%`, top: `${cy}%` }}
     >
       {player ? (
-        <DraggablePlayer player={player} />
+        <div className="snap-in"><DraggablePlayer player={player} /></div>
       ) : (
-        <div className={`w-10 h-10 rounded-full border-2 border-dashed flex items-center justify-center transition-colors ${
-          isOver ? "border-[#3a8f7c] bg-[#e8f5f0] scale-110" : "border-[#d8d3cc] hover:border-[#9aa0a6]"
-        }`}>
-          <span className="text-[10px] text-[#8e9baa] font-medium">{seatIndex + 1}</span>
+        <div className={`w-10 h-10 rounded-full border-2 border-dashed flex items-center justify-center ${
+          isOver ? "drop-target-active" : "border-[#d8d3cc] hover:border-[#3a8f7c]/50 hover:bg-[#f0f9f6]"
+        }`} style={{ transition: "transform 0.1s, border-color 0.1s, background-color 0.1s" }}>
+          <span className={`text-[10px] font-medium ${isOver ? "text-[#3a8f7c]" : "text-[#8e9baa]"}`}>{seatIndex + 1}</span>
         </div>
       )}
     </div>
