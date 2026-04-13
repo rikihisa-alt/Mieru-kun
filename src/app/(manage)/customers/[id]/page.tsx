@@ -35,7 +35,7 @@ function rankBadgeClass(rank: Rank): string {
     case "silver":
       return "bg-[#e2e8f0] text-[#475569]";
     default:
-      return "bg-[#f5f6f8] text-[#5f6368]";
+      return "bg-[#faf8f5] text-[#5a6977]";
   }
 }
 
@@ -196,29 +196,29 @@ export default function CustomerDetailPage() {
       {/* Back link */}
       <Link
         href="/customers"
-        className="inline-flex items-center gap-1 text-[13px] text-[#5f6368] hover:text-[#1a1a1a] transition-colors"
+        className="inline-flex items-center gap-1 text-[13px] text-[#5a6977] hover:text-[#2c3e50] transition-colors"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
         顧客一覧
       </Link>
 
       {/* Customer header */}
-      <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] p-5">
+      <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] p-5">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-[18px] font-bold text-[#1a1a1a]">{name}</h1>
+              <h1 className="text-[18px] font-bold text-[#2c3e50]">{name}</h1>
               <span className={`inline px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${rankBadgeClass(rank)}`}>
                 {RANK_LABELS[rank]}
               </span>
             </div>
-            <div className="flex items-center gap-4 mt-2 text-[13px] text-[#5f6368]">
+            <div className="flex items-center gap-4 mt-2 text-[13px] text-[#5a6977]">
               <span className="flex items-center gap-1">
-                <Phone className="w-3.5 h-3.5 text-[#9aa0a6]" />
+                <Phone className="w-3.5 h-3.5 text-[#8e9baa]" />
                 {phone}
               </span>
               <span className="flex items-center gap-1">
-                <Mail className="w-3.5 h-3.5 text-[#9aa0a6]" />
+                <Mail className="w-3.5 h-3.5 text-[#8e9baa]" />
                 {email}
               </span>
             </div>
@@ -229,27 +229,27 @@ export default function CustomerDetailPage() {
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s) => (
-          <div key={s.label} className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] px-4 py-3">
+          <div key={s.label} className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] px-4 py-3">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[#9aa0a6]">{s.icon}</span>
-              <span className="text-[11px] text-[#9aa0a6] font-medium">{s.label}</span>
+              <span className="text-[#8e9baa]">{s.icon}</span>
+              <span className="text-[11px] text-[#8e9baa] font-medium">{s.label}</span>
             </div>
-            <p className="text-[18px] font-bold text-[#1a1a1a] tracking-tight">{s.value}</p>
+            <p className="text-[18px] font-bold text-[#2c3e50] tracking-tight">{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] overflow-hidden">
-        <div className="flex border-b border-[#dadce0]">
+      <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] overflow-hidden">
+        <div className="flex border-b border-[#d8d3cc]">
           {TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 ${
                 activeTab === tab
-                  ? "text-[#1a73e8] border-[#1a73e8]"
-                  : "text-[#5f6368] border-transparent hover:text-[#1a1a1a] hover:bg-[#f5f6f8]"
+                  ? "text-[#3a8f7c] border-[#3a8f7c]"
+                  : "text-[#5a6977] border-transparent hover:text-[#2c3e50] hover:bg-[#faf8f5]"
               }`}
             >
               {tab}
@@ -262,38 +262,38 @@ export default function CustomerDetailPage() {
           {activeTab === "基本情報" && (
             <div className="space-y-4 max-w-lg">
               <div>
-                <label className="block text-[11px] font-medium text-[#9aa0a6] mb-1">氏名</label>
+                <label className="block text-[11px] font-medium text-[#8e9baa] mb-1">氏名</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-[#9aa0a6] mb-1">電話番号</label>
+                <label className="block text-[11px] font-medium text-[#8e9baa] mb-1">電話番号</label>
                 <input
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-[#9aa0a6] mb-1">メールアドレス</label>
+                <label className="block text-[11px] font-medium text-[#8e9baa] mb-1">メールアドレス</label>
                 <input
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-[#9aa0a6] mb-1">ランク</label>
+                <label className="block text-[11px] font-medium text-[#8e9baa] mb-1">ランク</label>
                 <select
                   value={rank}
                   onChange={(e) => setRank(e.target.value as Rank)}
-                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
                 >
                   <option value="regular">レギュラー</option>
                   <option value="silver">シルバー</option>
@@ -302,18 +302,18 @@ export default function CustomerDetailPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-[#9aa0a6] mb-1">備考</label>
+                <label className="block text-[11px] font-medium text-[#8e9baa] mb-1">備考</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] resize-none"
+                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c] resize-none"
                 />
               </div>
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleSave}
-                  className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors"
                 >
                   <Save className="w-3.5 h-3.5" />
                   保存
@@ -333,12 +333,12 @@ export default function CustomerDetailPage() {
             <div>
               <table className="w-full text-[13px]">
                 <thead>
-                  <tr className="border-b border-[#dadce0]">
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">日時</th>
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">卓</th>
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">金額</th>
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">滞在時間</th>
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">ステータス</th>
+                  <tr className="border-b border-[#d8d3cc]">
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">日時</th>
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">卓</th>
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">金額</th>
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">滞在時間</th>
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -348,16 +348,16 @@ export default function CustomerDetailPage() {
                     const stayStr = h > 0 ? `${h}時間${m}分` : `${m}分`;
                     return (
                       <tr key={v.id} className="border-b border-[#f0f0f0] hover:bg-[#f8f9fa] transition-colors">
-                        <td className="px-3 py-2.5 text-[#5f6368]">{v.date}</td>
+                        <td className="px-3 py-2.5 text-[#5a6977]">{v.date}</td>
                         <td className="px-3 py-2.5">
-                          <span className="inline-block px-2 py-0.5 bg-[#f5f6f8] rounded-[4px] text-[12px] font-medium">
+                          <span className="inline-block px-2 py-0.5 bg-[#faf8f5] rounded-[4px] text-[12px] font-medium">
                             {v.table}
                           </span>
                         </td>
-                        <td className="px-3 py-2.5 font-medium text-[#1a1a1a]">¥{v.amount.toLocaleString()}</td>
-                        <td className="px-3 py-2.5 text-[#5f6368]">{stayStr}</td>
+                        <td className="px-3 py-2.5 font-medium text-[#2c3e50]">¥{v.amount.toLocaleString()}</td>
+                        <td className="px-3 py-2.5 text-[#5a6977]">{stayStr}</td>
                         <td className="px-3 py-2.5">
-                          <span className="inline px-2 py-0.5 text-[11px] font-medium rounded-[4px] bg-[#e8f0fe] text-[#1a73e8]">
+                          <span className="inline px-2 py-0.5 text-[11px] font-medium rounded-[4px] bg-[#e8f5f0] text-[#3a8f7c]">
                             精算済
                           </span>
                         </td>
@@ -374,43 +374,43 @@ export default function CustomerDetailPage() {
             <div className="space-y-6">
               {/* Balances */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#f5f6f8] rounded-[6px] p-4">
-                  <div className="text-[11px] text-[#9aa0a6] font-medium mb-1">チップ残高</div>
-                  <div className="text-[22px] font-bold text-[#1a1a1a]">{chipBalance.toLocaleString()}</div>
+                <div className="bg-[#faf8f5] rounded-[6px] p-4">
+                  <div className="text-[11px] text-[#8e9baa] font-medium mb-1">チップ残高</div>
+                  <div className="text-[22px] font-bold text-[#2c3e50]">{chipBalance.toLocaleString()}</div>
                 </div>
-                <div className="bg-[#f5f6f8] rounded-[6px] p-4">
-                  <div className="text-[11px] text-[#9aa0a6] font-medium mb-1">ポイント残高</div>
-                  <div className="text-[22px] font-bold text-[#1a1a1a]">{pointBalance.toLocaleString()}</div>
+                <div className="bg-[#faf8f5] rounded-[6px] p-4">
+                  <div className="text-[11px] text-[#8e9baa] font-medium mb-1">ポイント残高</div>
+                  <div className="text-[22px] font-bold text-[#2c3e50]">{pointBalance.toLocaleString()}</div>
                 </div>
               </div>
 
               {/* Chip Grant */}
               <div>
-                <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-2">チップ付与</h3>
+                <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">チップ付与</h3>
                 <div className="flex items-end gap-2">
                   <div className="flex-1">
-                    <label className="block text-[11px] text-[#9aa0a6] mb-1">数量</label>
+                    <label className="block text-[11px] text-[#8e9baa] mb-1">数量</label>
                     <input
                       type="number"
                       value={chipAmount}
                       onChange={(e) => setChipAmount(e.target.value)}
                       placeholder="例: 500"
-                      className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                      className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-[11px] text-[#9aa0a6] mb-1">理由</label>
+                    <label className="block text-[11px] text-[#8e9baa] mb-1">理由</label>
                     <input
                       type="text"
                       value={chipReason}
                       onChange={(e) => setChipReason(e.target.value)}
                       placeholder="例: 来店ボーナス"
-                      className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                      className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
                     />
                   </div>
                   <button
                     onClick={handleChipGrant}
-                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors whitespace-nowrap"
+                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors whitespace-nowrap"
                   >
                     付与
                   </button>
@@ -418,15 +418,15 @@ export default function CustomerDetailPage() {
                 {/* Chip History */}
                 <div className="mt-3 space-y-1">
                   {chipHistory.map((e) => (
-                    <div key={e.id} className="flex items-center justify-between py-1.5 px-2 text-[12px] rounded hover:bg-[#f5f6f8]">
+                    <div key={e.id} className="flex items-center justify-between py-1.5 px-2 text-[12px] rounded hover:bg-[#faf8f5]">
                       <div className="flex items-center gap-2">
-                        <span className="text-[#9aa0a6]">{e.date}</span>
+                        <span className="text-[#8e9baa]">{e.date}</span>
                         <span className={`font-medium ${e.amount >= 0 ? "text-[#1e7e34]" : "text-[#c5221f]"}`}>
                           {e.amount >= 0 ? "+" : ""}{e.amount.toLocaleString()}
                         </span>
-                        <span className="text-[#5f6368]">{e.reason}</span>
+                        <span className="text-[#5a6977]">{e.reason}</span>
                       </div>
-                      <span className="text-[#9aa0a6]">残: {e.balanceAfter.toLocaleString()}</span>
+                      <span className="text-[#8e9baa]">残: {e.balanceAfter.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
@@ -434,31 +434,31 @@ export default function CustomerDetailPage() {
 
               {/* Point Grant */}
               <div>
-                <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-2">ポイント付与</h3>
+                <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">ポイント付与</h3>
                 <div className="flex items-end gap-2">
                   <div className="flex-1">
-                    <label className="block text-[11px] text-[#9aa0a6] mb-1">数量</label>
+                    <label className="block text-[11px] text-[#8e9baa] mb-1">数量</label>
                     <input
                       type="number"
                       value={pointAmount}
                       onChange={(e) => setPointAmount(e.target.value)}
                       placeholder="例: 100"
-                      className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                      className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-[11px] text-[#9aa0a6] mb-1">理由</label>
+                    <label className="block text-[11px] text-[#8e9baa] mb-1">理由</label>
                     <input
                       type="text"
                       value={pointReason}
                       onChange={(e) => setPointReason(e.target.value)}
                       placeholder="例: 利用額ポイント"
-                      className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                      className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
                     />
                   </div>
                   <button
                     onClick={handlePointGrant}
-                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors whitespace-nowrap"
+                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors whitespace-nowrap"
                   >
                     付与
                   </button>
@@ -466,15 +466,15 @@ export default function CustomerDetailPage() {
                 {/* Point History */}
                 <div className="mt-3 space-y-1">
                   {pointHistory.map((e) => (
-                    <div key={e.id} className="flex items-center justify-between py-1.5 px-2 text-[12px] rounded hover:bg-[#f5f6f8]">
+                    <div key={e.id} className="flex items-center justify-between py-1.5 px-2 text-[12px] rounded hover:bg-[#faf8f5]">
                       <div className="flex items-center gap-2">
-                        <span className="text-[#9aa0a6]">{e.date}</span>
+                        <span className="text-[#8e9baa]">{e.date}</span>
                         <span className={`font-medium ${e.amount >= 0 ? "text-[#1e7e34]" : "text-[#c5221f]"}`}>
                           {e.amount >= 0 ? "+" : ""}{e.amount.toLocaleString()}
                         </span>
-                        <span className="text-[#5f6368]">{e.reason}</span>
+                        <span className="text-[#5a6977]">{e.reason}</span>
                       </div>
-                      <span className="text-[#9aa0a6]">残: {e.balanceAfter.toLocaleString()}</span>
+                      <span className="text-[#8e9baa]">残: {e.balanceAfter.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
@@ -486,11 +486,11 @@ export default function CustomerDetailPage() {
           {activeTab === "プライズ" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-[13px] font-semibold text-[#1a1a1a]">付与済みプライズ</h3>
+                <h3 className="text-[13px] font-semibold text-[#2c3e50]">付与済みプライズ</h3>
                 {!showPrizeForm && (
                   <button
                     onClick={() => setShowPrizeForm(true)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors"
                   >
                     <Plus className="w-3 h-3" />
                     プライズ付与
@@ -499,13 +499,13 @@ export default function CustomerDetailPage() {
               </div>
 
               {showPrizeForm && (
-                <div className="flex items-end gap-2 p-3 bg-[#f5f6f8] rounded-[6px]">
+                <div className="flex items-end gap-2 p-3 bg-[#faf8f5] rounded-[6px]">
                   <div className="flex-1">
-                    <label className="block text-[11px] text-[#9aa0a6] mb-1">プライズ選択</label>
+                    <label className="block text-[11px] text-[#8e9baa] mb-1">プライズ選択</label>
                     <select
                       value={selectedPrize}
                       onChange={(e) => setSelectedPrize(e.target.value)}
-                      className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8]"
+                      className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c]"
                     >
                       {PRIZE_OPTIONS.map((p) => (
                         <option key={p} value={p}>
@@ -516,13 +516,13 @@ export default function CustomerDetailPage() {
                   </div>
                   <button
                     onClick={handlePrizeGrant}
-                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors whitespace-nowrap"
+                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors whitespace-nowrap"
                   >
                     付与
                   </button>
                   <button
                     onClick={() => setShowPrizeForm(false)}
-                    className="px-3 py-2 text-[12px] text-[#5f6368] hover:text-[#1a1a1a]"
+                    className="px-3 py-2 text-[12px] text-[#5a6977] hover:text-[#2c3e50]"
                   >
                     キャンセル
                   </button>
@@ -531,10 +531,10 @@ export default function CustomerDetailPage() {
 
               <div className="space-y-2">
                 {prizes.map((p) => (
-                  <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 border border-[#dadce0] rounded-[6px] hover:bg-[#f8f9fa]">
+                  <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 border border-[#d8d3cc] rounded-[6px] hover:bg-[#f8f9fa]">
                     <Gift className="w-4 h-4 text-[#7c3aed]" />
-                    <span className="text-[13px] font-medium text-[#1a1a1a]">{p.name}</span>
-                    <span className="text-[12px] text-[#9aa0a6] ml-auto">{p.date}</span>
+                    <span className="text-[13px] font-medium text-[#2c3e50]">{p.name}</span>
+                    <span className="text-[12px] text-[#8e9baa] ml-auto">{p.date}</span>
                   </div>
                 ))}
               </div>
@@ -546,11 +546,11 @@ export default function CustomerDetailPage() {
             <div className="space-y-4">
               {/* Toggle */}
               <div className="flex items-center gap-3">
-                <span className="text-[13px] text-[#1a1a1a]">未払あり</span>
+                <span className="text-[13px] text-[#2c3e50]">未払あり</span>
                 <button
                   onClick={() => setHasUnpaid(!hasUnpaid)}
                   className={`relative w-[44px] h-[24px] rounded-full transition-colors ${
-                    hasUnpaid ? "bg-[#c5221f]" : "bg-[#dadce0]"
+                    hasUnpaid ? "bg-[#c5221f]" : "bg-[#d8d3cc]"
                   }`}
                 >
                   <span
@@ -574,7 +574,7 @@ export default function CustomerDetailPage() {
                       value={unpaidAmount}
                       onChange={(e) => setUnpaidAmount(e.target.value)}
                       placeholder="金額を入力"
-                      className="w-full max-w-[200px] px-3 py-2 text-[13px] border border-[#c5221f]/30 rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#c5221f] bg-[#ffffff]"
+                      className="w-full max-w-[200px] px-3 py-2 text-[13px] border border-[#c5221f]/30 rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#c5221f] bg-[#ffffff]"
                     />
                   </div>
                 </div>
@@ -582,14 +582,14 @@ export default function CustomerDetailPage() {
 
               {/* Unpaid history */}
               <div>
-                <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-2">未払履歴</h3>
+                <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">未払履歴</h3>
                 <div className="space-y-2">
                   {unpaidHistory.map((u) => (
-                    <div key={u.id} className="flex items-center justify-between px-3 py-2.5 border border-[#dadce0] rounded-[6px]">
+                    <div key={u.id} className="flex items-center justify-between px-3 py-2.5 border border-[#d8d3cc] rounded-[6px]">
                       <div className="flex items-center gap-3">
-                        <span className="text-[12px] text-[#9aa0a6]">{u.date}</span>
+                        <span className="text-[12px] text-[#8e9baa]">{u.date}</span>
                         <span className="text-[13px] font-medium text-[#c5221f]">¥{u.amount.toLocaleString()}</span>
-                        <span className="text-[12px] text-[#5f6368]">{u.note}</span>
+                        <span className="text-[12px] text-[#5a6977]">{u.note}</span>
                       </div>
                     </div>
                   ))}

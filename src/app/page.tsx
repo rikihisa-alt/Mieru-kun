@@ -23,7 +23,7 @@ export default function Home() {
             <span className="text-[15px] font-bold text-[#2c3e50] tracking-tight">てんぽみえるくん</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="px-3 py-[7px] text-[13px] font-medium text-[#5f6368] hover:text-[#2c3e50] transition-colors">
+            <Link href="/login" className="px-3 py-[7px] text-[13px] font-medium text-[#5a6977] hover:text-[#2c3e50] transition-colors">
               ログイン
             </Link>
             <button onClick={handleDemo} className="px-4 py-[7px] text-[13px] font-medium bg-[#3a8f7c] text-white rounded-[6px] hover:bg-[#2f7a69] transition-colors">
@@ -61,7 +61,7 @@ export default function Home() {
                   デモを見る
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
-                <Link href="/my" className="px-6 py-3 text-[14px] font-medium border border-[#d1ccc5] text-[#5f6368] rounded-[6px] hover:bg-white hover:border-[#b8b3ab] transition-all">
+                <Link href="/my" className="px-6 py-3 text-[14px] font-medium border border-[#d1ccc5] text-[#5a6977] rounded-[6px] hover:bg-white hover:border-[#b8b3ab] transition-all">
                   顧客マイページ
                 </Link>
               </div>
@@ -127,7 +127,7 @@ export default function Home() {
       <footer className="bg-white border-t border-[#e8e4df] py-8">
         <div className="flex items-center justify-center gap-2">
           <Image src="/logo-icon.png" alt="みえるくん" width={20} height={20} />
-          <p className="text-[11px] text-[#9aa0a6]">&copy; {new Date().getFullYear()} てんぽみえるくん</p>
+          <p className="text-[11px] text-[#8e9baa]">&copy; {new Date().getFullYear()} てんぽみえるくん</p>
         </div>
       </footer>
     </div>
@@ -141,16 +141,16 @@ function FlowStep({ num, icon, title, desc, active, last }: {
   return (
     <div className={`flex items-start gap-3 p-3 rounded-[8px] transition-colors ${active ? "bg-[#f0f9f6] border border-[#3a8f7c]/15" : ""}`}>
       <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[12px] font-bold ${
-        active ? "bg-[#3a8f7c] text-white" : "bg-[#e8e4df] text-[#5f6368]"
+        active ? "bg-[#3a8f7c] text-white" : "bg-[#e8e4df] text-[#5a6977]"
       }`}>
         {num}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 mb-0.5">
-          <span className={`[&>svg]:w-3.5 [&>svg]:h-3.5 ${active ? "text-[#3a8f7c]" : "text-[#9aa0a6]"}`}>{icon}</span>
-          <span className={`text-[13px] font-semibold ${active ? "text-[#2c3e50]" : "text-[#5f6368]"}`}>{title}</span>
+          <span className={`[&>svg]:w-3.5 [&>svg]:h-3.5 ${active ? "text-[#3a8f7c]" : "text-[#8e9baa]"}`}>{icon}</span>
+          <span className={`text-[13px] font-semibold ${active ? "text-[#2c3e50]" : "text-[#5a6977]"}`}>{title}</span>
         </div>
-        <p className="text-[11px] text-[#9aa0a6] leading-relaxed">{desc}</p>
+        <p className="text-[11px] text-[#8e9baa] leading-relaxed">{desc}</p>
       </div>
     </div>
   );
@@ -159,7 +159,7 @@ function FlowStep({ num, icon, title, desc, active, last }: {
 function FlowConnector() {
   return (
     <div className="flex items-center pl-6 py-0.5">
-      <div className="w-px h-4 bg-[#dadce0]" />
+      <div className="w-px h-4 bg-[#d8d3cc]" />
     </div>
   );
 }

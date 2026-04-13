@@ -56,7 +56,7 @@ export default function ClockPage() {
           <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[var(--radius-sm)] ${
             isWorking ? "bg-status-success-bg text-status-success" :
             isBreak ? "bg-status-warning-bg text-status-warning" :
-            notStarted && att?.status === "finished" ? "bg-[#e8f0fe] text-accent" :
+            notStarted && att?.status === "finished" ? "bg-[#e8f5f0] text-accent" :
             "bg-bg text-text-tertiary"
           }`}>
             {isWorking ? "勤務中" : isBreak ? "休憩中" : att?.status === "finished" ? "退勤済" : "未出勤"}

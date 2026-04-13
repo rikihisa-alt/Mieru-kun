@@ -1,44 +1,43 @@
 @import "tailwindcss";
 
 /* ============================================
-   てんぽみえるくん デザインシステム
-   方針: 日本の業務SaaS品質
-   参考: キャムマックス / ラクシフ / デクセコ
+   てんぽみえるくん デザインシステム v2
+   カラー: LP準拠 クリーム + ティール
    ============================================ */
 
 :root {
-  /* ベースカラー */
-  --bg: #f5f6f8;
+  /* ベース - クリーム系 */
+  --bg: #faf8f5;
   --bg-white: #ffffff;
-  --bg-hover: #f0f1f3;
-  --bg-active: #e8eaed;
+  --bg-hover: #f3f0ec;
+  --bg-active: #ebe7e2;
 
-  /* テキスト */
-  --text-primary: #1a1a1a;
-  --text-secondary: #5f6368;
-  --text-tertiary: #9aa0a6;
+  /* テキスト - ダークネイビー系 */
+  --text-primary: #2c3e50;
+  --text-secondary: #5a6977;
+  --text-tertiary: #8e9baa;
   --text-inverse: #ffffff;
 
-  /* アクセント (青系1色) */
-  --accent: #1a73e8;
-  --accent-hover: #1557b0;
-  --accent-light: #e8f0fe;
-  --accent-bg: #f0f6ff;
+  /* アクセント - ティール */
+  --accent: #3a8f7c;
+  --accent-hover: #2f7a69;
+  --accent-light: #e8f5f0;
+  --accent-bg: #f0f9f6;
 
-  /* ボーダー */
-  --border: #dadce0;
-  --border-light: #e8eaed;
-  --border-focus: #1a73e8;
+  /* ボーダー - 暖かいグレー */
+  --border: #d8d3cc;
+  --border-light: #e8e4df;
+  --border-focus: #3a8f7c;
 
   /* ステータス */
-  --status-success: #188038;
-  --status-success-bg: #e6f4ea;
-  --status-warning: #e37400;
-  --status-warning-bg: #fef7e0;
-  --status-danger: #d93025;
+  --status-success: #2e7d5b;
+  --status-success-bg: #e8f5f0;
+  --status-warning: #c87b1a;
+  --status-warning-bg: #fdf4e8;
+  --status-danger: #c0392b;
   --status-danger-bg: #fce8e6;
-  --status-info: #1a73e8;
-  --status-info-bg: #e8f0fe;
+  --status-info: #3a8f7c;
+  --status-info-bg: #e8f5f0;
 
   /* 角丸 */
   --radius-sm: 4px;
@@ -57,9 +56,12 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-tertiary: var(--text-tertiary);
+  --color-text-inverse: var(--text-inverse);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-light: var(--accent-light);
+  --color-accent-bg: var(--accent-bg);
+  --color-bg-active: var(--bg-active);
   --color-border: var(--border);
   --color-border-light: var(--border-light);
   --color-status-success: var(--status-success);
@@ -68,9 +70,6 @@
   --color-status-warning-bg: var(--status-warning-bg);
   --color-status-danger: var(--status-danger);
   --color-status-danger-bg: var(--status-danger-bg);
-  --color-text-inverse: var(--text-inverse);
-  --color-bg-active: var(--bg-active);
-  --color-accent-bg: var(--accent-bg);
   --color-status-info: var(--status-info);
   --color-status-info-bg: var(--status-info-bg);
   --font-sans: var(--font-base);
@@ -88,27 +87,25 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* テーブル共通 */
 table { border-collapse: collapse; }
 th { font-weight: 600; text-align: left; }
 
-/* スクロールバー */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-/* フォーカスリング */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
 
-/* 入力フィールド共通 */
 input[type="text"],
 input[type="email"],
 input[type="tel"],
 input[type="number"],
 input[type="date"],
+input[type="time"],
+input[type="month"],
 input[type="password"],
 select,
 textarea {
@@ -123,6 +120,6 @@ textarea {
 }
 input:focus, select:focus, textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(26,115,232,0.15);
+  box-shadow: 0 0 0 2px rgba(58,143,124,0.15);
   outline: none;
 }

@@ -188,7 +188,7 @@ export default function AttendancePage() {
       h1{font-size:15px;margin-bottom:2px}p.sub{color:#888;font-size:10px;margin-bottom:12px}
       table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:5px 6px}
       th{background:#f5f5f5;font-size:9px;text-transform:uppercase}
-      .bar{background:#1a73e8;color:#fff;border-radius:3px;padding:1px 4px;font-size:9px;display:inline-block}</style></head>
+      .bar{background:#3a8f7c;color:#fff;border-radius:3px;padding:1px 4px;font-size:9px;display:inline-block}</style></head>
       <body><h1>シフト表 - ${dateLabelShort(selectedDate)}</h1><p class="sub">Come On Casino | てんぽみえるくん</p>
       <table><thead><tr><th style="width:80px">スタッフ</th><th>シフト</th></tr></thead><tbody>`;
     STAFF_LIST.forEach(s => {
@@ -264,30 +264,30 @@ export default function AttendancePage() {
     <div className="space-y-4">
       {/* タブ */}
       <div className="flex items-center gap-1">
-        <button onClick={() => setTab("today")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "today" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
+        <button onClick={() => setTab("today")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "today" ? "bg-[#3a8f7c] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"}`}>
           <Clock className="w-3 h-3 inline mr-1" />本日の勤怠
         </button>
-        <button onClick={() => setTab("shift")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "shift" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
+        <button onClick={() => setTab("shift")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "shift" ? "bg-[#3a8f7c] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"}`}>
           <Calendar className="w-3 h-3 inline mr-1" />シフト確認
         </button>
-        <button onClick={() => setTab("create")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "create" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
+        <button onClick={() => setTab("create")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "create" ? "bg-[#3a8f7c] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"}`}>
           <Plus className="w-3 h-3 inline mr-1" />シフト作成
         </button>
-        <button onClick={() => setTab("calendar")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "calendar" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
+        <button onClick={() => setTab("calendar")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "calendar" ? "bg-[#3a8f7c] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"}`}>
           <Calendar className="w-3 h-3 inline mr-1" />カレンダー
         </button>
-        <button onClick={() => setTab("history")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "history" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
+        <button onClick={() => setTab("history")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "history" ? "bg-[#3a8f7c] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"}`}>
           <FileDown className="w-3 h-3 inline mr-1" />履歴・出勤簿
         </button>
         {tab === "today" && (
           <div className="ml-auto flex items-center gap-3 text-[12px]">
-            <span className="text-[#5f6368]">出勤 <strong className="text-[#188038]">{working}</strong></span>
-            <span className="text-[#5f6368]">休憩 <strong className="text-[#e37400]">{onBreak}</strong></span>
+            <span className="text-[#5a6977]">出勤 <strong className="text-[#188038]">{working}</strong></span>
+            <span className="text-[#5a6977]">休憩 <strong className="text-[#e37400]">{onBreak}</strong></span>
             {pending > 0 && <span className="flex items-center gap-1 text-[#d93025]"><AlertCircle className="w-3 h-3" />承認待ち {pending}</span>}
           </div>
         )}
         {(tab === "shift" || tab === "create" || tab === "calendar") && (
-          <button onClick={exportPDF} className="ml-auto flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#5f6368] hover:bg-[#f0f1f3] rounded-[6px]">
+          <button onClick={exportPDF} className="ml-auto flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#5a6977] hover:bg-[#f3f0ec] rounded-[6px]">
             <FileDown className="w-3.5 h-3.5" />PDF出力
           </button>
         )}
@@ -296,44 +296,44 @@ export default function AttendancePage() {
       {/* ===== 本日の勤怠 ===== */}
       {tab === "today" && (
         <>
-          <div className="bg-white border border-[#dadce0] rounded-[8px] overflow-hidden">
+          <div className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-hidden">
             <table className="w-full text-[13px]">
-              <thead><tr className="border-b border-[#dadce0] bg-[#f5f6f8]">
+              <thead><tr className="border-b border-[#d8d3cc] bg-[#faf8f5]">
                 {["スタッフ","役割","出勤","退勤","休憩","勤務","状態","操作"].map(h => (
-                  <th key={h} className="px-4 py-2.5 text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider text-left">{h}</th>
+                  <th key={h} className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">{h}</th>
                 ))}
               </tr></thead>
               <tbody>{staff.map(s => (
-                <tr key={s.id} className={`border-b border-[#e8eaed] ${s.needsApproval ? "bg-[#fef7e0]/30" : ""}`}>
+                <tr key={s.id} className={`border-b border-[#e8e4df] ${s.needsApproval ? "bg-[#fef7e0]/30" : ""}`}>
                   <td className="px-4 py-2.5 font-medium">{s.name}</td>
-                  <td className="px-4 py-2.5 text-[#5f6368] text-[12px]">{s.role}</td>
+                  <td className="px-4 py-2.5 text-[#5a6977] text-[12px]">{s.role}</td>
                   <td className="px-4 py-2.5 font-mono text-[12px]">{s.clockIn ?? "—"}</td>
                   <td className="px-4 py-2.5 font-mono text-[12px]">{s.clockOut ?? "—"}</td>
                   <td className="px-4 py-2.5 text-[12px]">{s.breakMin > 0 ? `${s.breakMin}分` : "—"}</td>
                   <td className="px-4 py-2.5 text-[12px] font-medium">{s.workMin != null ? `${Math.floor(s.workMin/60)}h${s.workMin%60}m` : "—"}</td>
                   <td className="px-4 py-2.5">
                     <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${
-                      s.status==="working"?"bg-[#e6f4ea] text-[#188038]":s.status==="on_break"?"bg-[#fef7e0] text-[#e37400]":s.status==="finished"?"bg-[#e8f0fe] text-[#1a73e8]":"bg-[#f5f6f8] text-[#9aa0a6]"
+                      s.status==="working"?"bg-[#e6f4ea] text-[#188038]":s.status==="on_break"?"bg-[#fef7e0] text-[#e37400]":s.status==="finished"?"bg-[#e8f5f0] text-[#3a8f7c]":"bg-[#faf8f5] text-[#8e9baa]"
                     }`}>{s.status==="working"?"勤務中":s.status==="on_break"?"休憩中":s.status==="finished"?"退勤済":"未出勤"}</span>
                   </td>
                   <td className="px-4 py-2.5 space-x-1">
                     {s.needsApproval && <button onClick={()=>approve(s.id)} className="px-2 py-0.5 text-[11px] text-[#188038] bg-[#e6f4ea] rounded-[4px] hover:bg-green-200"><Check className="w-3 h-3 inline"/> 承認</button>}
-                    {s.status !== "off" && <button onClick={()=>{setEditId(s.id);setEditTime(s.clockOut??"");}} className="px-2 py-0.5 text-[11px] text-[#5f6368] hover:bg-[#f0f1f3] rounded-[4px]">修正</button>}
+                    {s.status !== "off" && <button onClick={()=>{setEditId(s.id);setEditTime(s.clockOut??"");}} className="px-2 py-0.5 text-[11px] text-[#5a6977] hover:bg-[#f3f0ec] rounded-[4px]">修正</button>}
                   </td>
                 </tr>
               ))}</tbody>
             </table>
           </div>
           {editId && (
-            <div className="bg-white border border-[#1a73e8]/30 rounded-[8px] p-4 space-y-3">
+            <div className="bg-white border border-[#3a8f7c]/30 rounded-[8px] p-4 space-y-3">
               <h3 className="text-[13px] font-semibold">勤怠修正: {staff.find(s=>s.id===editId)?.name}</h3>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="text-[11px] text-[#9aa0a6] font-semibold uppercase tracking-wider">退勤時刻</label><input type="time" value={editTime} onChange={e=>setEditTime(e.target.value)} className="mt-1"/></div>
-                <div><label className="text-[11px] text-[#9aa0a6] font-semibold uppercase tracking-wider">修正理由 *</label><input type="text" value={editReason} onChange={e=>setEditReason(e.target.value)} className="mt-1" placeholder="打刻忘れ修正など"/></div>
+                <div><label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">退勤時刻</label><input type="time" value={editTime} onChange={e=>setEditTime(e.target.value)} className="mt-1"/></div>
+                <div><label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">修正理由 *</label><input type="text" value={editReason} onChange={e=>setEditReason(e.target.value)} className="mt-1" placeholder="打刻忘れ修正など"/></div>
               </div>
               <div className="flex gap-2">
-                <button onClick={submitModify} disabled={!editReason} className="px-4 py-[7px] bg-[#1a73e8] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#1557b0] disabled:opacity-50">修正を申請</button>
-                <button onClick={()=>setEditId(null)} className="px-4 py-[7px] border border-[#dadce0] text-[13px] rounded-[6px] hover:bg-[#f0f1f3]">キャンセル</button>
+                <button onClick={submitModify} disabled={!editReason} className="px-4 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] disabled:opacity-50">修正を申請</button>
+                <button onClick={()=>setEditId(null)} className="px-4 py-[7px] border border-[#d8d3cc] text-[13px] rounded-[6px] hover:bg-[#f3f0ec]">キャンセル</button>
               </div>
             </div>
           )}
@@ -342,35 +342,35 @@ export default function AttendancePage() {
 
       {/* ===== シフト確認 / シフト作成 共通タイムライン ===== */}
       {(tab === "shift" || tab === "create") && (
-        <div className="bg-white border border-[#dadce0] rounded-[8px] overflow-hidden select-none"
+        <div className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-hidden select-none"
           onMouseMove={tab === "create" ? handleTimelineMouseMove : undefined}
           onMouseUp={tab === "create" ? handleTimelineMouseUp : undefined}
           onMouseLeave={tab === "create" ? handleTimelineMouseUp : undefined}>
 
           {/* 日付切替ヘッダー */}
-          <div className="flex items-center border-b border-[#e8eaed] px-2 py-2 gap-1 overflow-x-auto">
-            <button onClick={() => changeDate(-1)} className="p-1 hover:bg-[#f0f1f3] rounded-[4px] flex-shrink-0"><ChevronLeft className="w-4 h-4" /></button>
+          <div className="flex items-center border-b border-[#e8e4df] px-2 py-2 gap-1 overflow-x-auto">
+            <button onClick={() => changeDate(-1)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px] flex-shrink-0"><ChevronLeft className="w-4 h-4" /></button>
             {dates.map(d => (
               <button key={d} onClick={() => setSelectedDate(d)}
                 className={`px-3 py-1.5 text-[11px] font-medium rounded-[6px] flex-shrink-0 transition-colors ${
-                  selectedDate === d ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"
+                  selectedDate === d ? "bg-[#3a8f7c] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"
                 }`}>
                 {dateLabelShort(d)}
               </button>
             ))}
-            <button onClick={() => changeDate(1)} className="p-1 hover:bg-[#f0f1f3] rounded-[4px] flex-shrink-0"><ChevronRight className="w-4 h-4" /></button>
+            <button onClick={() => changeDate(1)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px] flex-shrink-0"><ChevronRight className="w-4 h-4" /></button>
           </div>
 
           {/* 時間ヘッダー（15分グリッド） */}
-          <div className="flex border-b border-[#e8eaed]">
-            <div className="w-28 flex-shrink-0 px-3 py-2 text-[11px] font-semibold text-[#9aa0a6] uppercase">スタッフ</div>
+          <div className="flex border-b border-[#e8e4df]">
+            <div className="w-28 flex-shrink-0 px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase">スタッフ</div>
             <div className="flex-1 flex" ref={timelineRef}>
               {hourLabels.map((h, i) => (
-                <div key={h} className="flex-1 text-center py-2 text-[10px] font-semibold text-[#9aa0a6] border-l border-[#e8eaed] relative">
+                <div key={h} className="flex-1 text-center py-2 text-[10px] font-semibold text-[#8e9baa] border-l border-[#e8e4df] relative">
                   {h}
                   {/* 15分刻みの薄いライン */}
                   {i < hourLabels.length - 1 && [1,2,3].map(q => (
-                    <div key={q} className="absolute top-0 bottom-0 border-l border-[#f0f1f3]" style={{ left: `${q * 25}%` }} />
+                    <div key={q} className="absolute top-0 bottom-0 border-l border-[#f3f0ec]" style={{ left: `${q * 25}%` }} />
                   ))}
                 </div>
               ))}
@@ -382,9 +382,9 @@ export default function AttendancePage() {
             const bar = getBar(s.id, selectedDate);
             const dragBar = dragging?.staffId === s.id ? dragging : null;
             return (
-              <div key={s.id} className="flex border-b border-[#e8eaed] hover:bg-[#fafafa] transition-colors">
+              <div key={s.id} className="flex border-b border-[#e8e4df] hover:bg-[#fafafa] transition-colors">
                 <div className="w-28 flex-shrink-0 px-3 py-3 text-[12px] font-medium flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#1a73e8]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#3a8f7c]" />
                   {s.name.split(" ")[0]}
                 </div>
                 <div className="flex-1 relative h-12 cursor-crosshair"
@@ -392,7 +392,7 @@ export default function AttendancePage() {
 
                   {/* 時間グリッド線 */}
                   {hourLabels.map((_, i) => (
-                    <div key={i} className="absolute top-0 bottom-0 border-l border-[#e8eaed]" style={{ left: `${(i / (hourLabels.length - 1)) * 100}%` }} />
+                    <div key={i} className="absolute top-0 bottom-0 border-l border-[#e8e4df]" style={{ left: `${(i / (hourLabels.length - 1)) * 100}%` }} />
                   ))}
 
                   {/* 既存バー */}
@@ -401,7 +401,7 @@ export default function AttendancePage() {
                     const barWidth = ((bar.endQ - bar.startQ) / TOTAL_Q) * 100;
                     const totalBreakMin = bar.breaks.reduce((sum, b) => sum + (b.endQ - b.startQ) * 15, 0);
                     return (
-                      <div className="absolute top-2 bottom-2 rounded-[4px] bg-[#1a73e8] group cursor-default overflow-hidden"
+                      <div className="absolute top-2 bottom-2 rounded-[4px] bg-[#3a8f7c] group cursor-default overflow-hidden"
                         style={{ left: `${barLeft}%`, width: `${barWidth}%` }}
                         onClick={e => e.stopPropagation()}
                         onMouseDown={tab === "create" ? (e) => {
@@ -450,9 +450,9 @@ export default function AttendancePage() {
                         {/* リサイズハンドル */}
                         {tab === "create" && (
                           <>
-                            <div className="w-2 h-full cursor-ew-resize absolute left-0 top-0 rounded-l-[4px] hover:bg-[#1557b0] z-10"
+                            <div className="w-2 h-full cursor-ew-resize absolute left-0 top-0 rounded-l-[4px] hover:bg-[#2f7a69] z-10"
                               onMouseDown={e => { e.stopPropagation(); setResizing({ staffId: s.id, edge: "start", origBar: bar }); }} />
-                            <div className="w-2 h-full cursor-ew-resize absolute right-0 top-0 rounded-r-[4px] hover:bg-[#1557b0] z-10"
+                            <div className="w-2 h-full cursor-ew-resize absolute right-0 top-0 rounded-r-[4px] hover:bg-[#2f7a69] z-10"
                               onMouseDown={e => { e.stopPropagation(); setResizing({ staffId: s.id, edge: "end", origBar: bar }); }} />
                           </>
                         )}
@@ -467,12 +467,12 @@ export default function AttendancePage() {
 
                   {/* ドラッグ中のプレビュー */}
                   {dragBar && (
-                    <div className="absolute top-2 bottom-2 rounded-[4px] bg-[#1a73e8]/40 border-2 border-[#1a73e8] border-dashed"
+                    <div className="absolute top-2 bottom-2 rounded-[4px] bg-[#3a8f7c]/40 border-2 border-[#3a8f7c] border-dashed"
                       style={{
                         left: `${(Math.min(dragBar.startQ, dragBar.currentQ) / TOTAL_Q) * 100}%`,
                         width: `${(Math.abs(dragBar.currentQ - dragBar.startQ) / TOTAL_Q) * 100}%`,
                       }}>
-                      <span className="text-[9px] text-[#1a73e8] font-medium px-1">
+                      <span className="text-[9px] text-[#3a8f7c] font-medium px-1">
                         {qToTime(Math.min(dragBar.startQ, dragBar.currentQ))}–{qToTime(Math.max(dragBar.startQ, dragBar.currentQ))}
                       </span>
                     </div>
@@ -484,9 +484,9 @@ export default function AttendancePage() {
 
           {/* フッター */}
           {tab === "create" && (
-            <div className="px-4 py-2.5 bg-[#f5f6f8] border-t border-[#e8eaed] flex items-center gap-3 text-[11px] text-[#9aa0a6]">
+            <div className="px-4 py-2.5 bg-[#faf8f5] border-t border-[#e8e4df] flex items-center gap-3 text-[11px] text-[#8e9baa]">
               <Image src="/logo-icon.png" alt="" width={16} height={16} className="opacity-30" />
-              <span>空白ドラッグ→シフト作成 | 端ドラッグ→リサイズ | <strong className={breakMode ? "text-[#e37400]" : "text-[#9aa0a6]"}>バーをダブルクリック→休憩モード{breakMode ? " ON ✓" : ""}</strong> | 15分単位</span>
+              <span>空白ドラッグ→シフト作成 | 端ドラッグ→リサイズ | <strong className={breakMode ? "text-[#e37400]" : "text-[#8e9baa]"}>バーをダブルクリック→休憩モード{breakMode ? " ON ✓" : ""}</strong> | 15分単位</span>
               {breakMode && <span className="ml-2 px-2 py-0.5 bg-[#e37400] text-white text-[10px] rounded-[4px] font-medium">休憩モード: バー内をドラッグして休憩を設定</span>}
             </div>
           )}
@@ -505,17 +505,17 @@ export default function AttendancePage() {
         return (
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <button onClick={() => { const d = new Date(calY, calM - 2, 1); setHistoryMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); }} className="p-1 hover:bg-[#f0f1f3] rounded-[4px]"><ChevronLeft className="w-4 h-4" /></button>
+              <button onClick={() => { const d = new Date(calY, calM - 2, 1); setHistoryMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); }} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><ChevronLeft className="w-4 h-4" /></button>
               <span className="text-[14px] font-semibold">{calY}年{calM}月</span>
-              <button onClick={() => { const d = new Date(calY, calM, 1); setHistoryMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); }} className="p-1 hover:bg-[#f0f1f3] rounded-[4px]"><ChevronRight className="w-4 h-4" /></button>
+              <button onClick={() => { const d = new Date(calY, calM, 1); setHistoryMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); }} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><ChevronRight className="w-4 h-4" /></button>
             </div>
-            <div className="bg-white border border-[#dadce0] rounded-[8px] overflow-auto">
+            <div className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-auto">
               <table className="w-full text-[11px]">
                 <thead>
-                  <tr className="border-b border-[#dadce0] bg-[#f5f6f8]">
-                    <th className="px-3 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left sticky left-0 bg-[#f5f6f8] z-10 min-w-[80px]">スタッフ</th>
+                  <tr className="border-b border-[#d8d3cc] bg-[#faf8f5]">
+                    <th className="px-3 py-2 text-[10px] font-semibold text-[#8e9baa] uppercase text-left sticky left-0 bg-[#faf8f5] z-10 min-w-[80px]">スタッフ</th>
                     {allDates.map(d => (
-                      <th key={d.day} className={`px-1 py-2 text-center min-w-[36px] ${d.dow === 0 ? "text-[#c5221f]" : d.dow === 6 ? "text-[#1a73e8]" : "text-[#9aa0a6]"}`}>
+                      <th key={d.day} className={`px-1 py-2 text-center min-w-[36px] ${d.dow === 0 ? "text-[#c5221f]" : d.dow === 6 ? "text-[#3a8f7c]" : "text-[#8e9baa]"}`}>
                         <div className="text-[9px]">{dayNames[d.dow]}</div>
                         <div className="text-[11px] font-semibold">{d.day}</div>
                       </th>
@@ -524,7 +524,7 @@ export default function AttendancePage() {
                 </thead>
                 <tbody>
                   {STAFF_LIST.map(staff => (
-                    <tr key={staff.id} className="border-b border-[#e8eaed]">
+                    <tr key={staff.id} className="border-b border-[#e8e4df]">
                       <td className="px-3 py-2 font-medium text-[12px] sticky left-0 bg-white z-10">{staff.name}</td>
                       {allDates.map(d => {
                         const shift = shifts.find(s => s.staffId === staff.id && s.date === d.dateStr);
@@ -533,7 +533,7 @@ export default function AttendancePage() {
                           <td key={d.day} className={`px-0.5 py-1 text-center ${d.dow === 0 || d.dow === 6 ? "bg-[#fafafa]" : ""}`}>
                             {shift ? (
                               <div className="flex flex-col items-center">
-                                <span className="inline-block px-1.5 py-0.5 bg-[#1a73e8] text-white text-[9px] font-medium rounded-[3px] leading-tight">
+                                <span className="inline-block px-1.5 py-0.5 bg-[#3a8f7c] text-white text-[9px] font-medium rounded-[3px] leading-tight">
                                   {qToTime(shift.startQ).replace(":00","")}-{qToTime(shift.endQ).replace(":00","")}
                                 </span>
                                 {totalBreak > 0 && (
@@ -541,7 +541,7 @@ export default function AttendancePage() {
                                 )}
                               </div>
                             ) : (
-                              <span className="text-[#dadce0]">—</span>
+                              <span className="text-[#d8d3cc]">—</span>
                             )}
                           </td>
                         );
@@ -551,7 +551,7 @@ export default function AttendancePage() {
                 </tbody>
               </table>
             </div>
-            <p className="text-[11px] text-[#9aa0a6]">※「シフト作成」タブで設定したシフトが反映されます</p>
+            <p className="text-[11px] text-[#8e9baa]">※「シフト作成」タブで設定したシフトが反映されます</p>
           </div>
         );
       })()}
@@ -561,32 +561,32 @@ export default function AttendancePage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <label className="text-[12px] text-[#5f6368]">対象月:</label>
-              <input type="month" value={historyMonth} onChange={e => setHistoryMonth(e.target.value)} className="text-[13px] py-1 px-2 border border-[#dadce0] rounded-[6px]" />
+              <label className="text-[12px] text-[#5a6977]">対象月:</label>
+              <input type="month" value={historyMonth} onChange={e => setHistoryMonth(e.target.value)} className="text-[13px] py-1 px-2 border border-[#d8d3cc] rounded-[6px]" />
             </div>
-            <button onClick={exportAttendancePDF} className="flex items-center gap-1 px-3 py-[7px] bg-[#1a73e8] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#1557b0]">
+            <button onClick={exportAttendancePDF} className="flex items-center gap-1 px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">
               <FileDown className="w-3.5 h-3.5" />出勤簿PDF出力
             </button>
           </div>
-          <p className="text-[11px] text-[#9aa0a6]">※勤務時間は分単位（秒切り捨て）で計算</p>
+          <p className="text-[11px] text-[#8e9baa]">※勤務時間は分単位（秒切り捨て）で計算</p>
 
           {/* スタッフ別履歴 */}
           {historyData.map(s => (
-            <div key={s.id} className="bg-white border border-[#dadce0] rounded-[8px] overflow-hidden">
-              <div className="px-4 py-2.5 bg-[#f5f6f8] border-b border-[#e8eaed] flex items-center justify-between">
+            <div key={s.id} className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-hidden">
+              <div className="px-4 py-2.5 bg-[#faf8f5] border-b border-[#e8e4df] flex items-center justify-between">
                 <span className="text-[13px] font-semibold">{s.name}</span>
-                <span className="text-[11px] text-[#9aa0a6]">{s.role} | 合計 {s.days.reduce((sum, d) => sum + d.workMin, 0)}分 ({Math.floor(s.days.reduce((sum, d) => sum + d.workMin, 0) / 60)}h{s.days.reduce((sum, d) => sum + d.workMin, 0) % 60}m)</span>
+                <span className="text-[11px] text-[#8e9baa]">{s.role} | 合計 {s.days.reduce((sum, d) => sum + d.workMin, 0)}分 ({Math.floor(s.days.reduce((sum, d) => sum + d.workMin, 0) / 60)}h{s.days.reduce((sum, d) => sum + d.workMin, 0) % 60}m)</span>
               </div>
               <table className="w-full text-[12px]">
-                <thead><tr className="border-b border-[#e8eaed]">
-                  <th className="px-4 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left">日付</th>
-                  <th className="px-4 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left">出勤</th>
-                  <th className="px-4 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left">退勤</th>
-                  <th className="px-4 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left">休憩</th>
-                  <th className="px-4 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left">勤務時間</th>
+                <thead><tr className="border-b border-[#e8e4df]">
+                  <th className="px-4 py-2 text-[10px] font-semibold text-[#8e9baa] uppercase text-left">日付</th>
+                  <th className="px-4 py-2 text-[10px] font-semibold text-[#8e9baa] uppercase text-left">出勤</th>
+                  <th className="px-4 py-2 text-[10px] font-semibold text-[#8e9baa] uppercase text-left">退勤</th>
+                  <th className="px-4 py-2 text-[10px] font-semibold text-[#8e9baa] uppercase text-left">休憩</th>
+                  <th className="px-4 py-2 text-[10px] font-semibold text-[#8e9baa] uppercase text-left">勤務時間</th>
                 </tr></thead>
                 <tbody>{s.days.map((d, i) => (
-                  <tr key={i} className="border-b border-[#e8eaed]">
+                  <tr key={i} className="border-b border-[#e8e4df]">
                     <td className="px-4 py-1.5">{d.date}</td>
                     <td className="px-4 py-1.5 font-mono">{d.clockIn}</td>
                     <td className="px-4 py-1.5 font-mono">{d.clockOut}</td>

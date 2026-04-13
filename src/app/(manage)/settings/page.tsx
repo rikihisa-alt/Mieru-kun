@@ -52,12 +52,12 @@ export default function SettingsPage() {
   function addChipPrice() { setChipSetting(prev => ({ ...prev, prices: [...prev.prices, { amount: 0, price: 0 }] })); }
   function addPointRule() { setPointRules(prev => [...prev, { id: `pr${Date.now()}`, trigger: "", amount: 0 }]); }
 
-  const L = "block text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider mb-1.5";
-  const Card = "bg-white border border-[#dadce0] rounded-[8px] p-5";
-  const SaveBtn = "px-4 py-[7px] bg-[#1a73e8] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#1557b0] transition-colors";
+  const L = "block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1.5";
+  const Card = "bg-white border border-[#d8d3cc] rounded-[8px] p-5";
+  const SaveBtn = "px-4 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="space-y-4">
       {/* 店舗情報 */}
       <div className={Card}>
         <h2 className="text-[13px] font-semibold mb-4">店舗情報</h2>
@@ -88,7 +88,7 @@ export default function SettingsPage() {
             <div className="flex gap-1.5">
               {["月","火","水","木","金","土","日"].map(d => (
                 <button key={d} onClick={() => toggleDay(d)} className={`w-9 h-9 rounded-[4px] text-[12px] font-medium border transition-colors ${
-                  closedDays.includes(d) ? "bg-[#1a73e8] text-white border-[#1a73e8]" : "border-[#dadce0] text-[#5f6368] hover:bg-[#f0f1f3]"
+                  closedDays.includes(d) ? "bg-[#3a8f7c] text-white border-[#3a8f7c]" : "border-[#d8d3cc] text-[#5a6977] hover:bg-[#f3f0ec]"
                 }`}>{d}</button>
               ))}
             </div>
@@ -112,12 +112,12 @@ export default function SettingsPage() {
             <label className={L}>ランク一覧</label>
             <div className="space-y-1.5">
               {ranks.map((r, i) => (
-                <div key={r.id} className="flex items-center gap-2 bg-[#f5f6f8] rounded-[6px] px-3 py-2">
+                <div key={r.id} className="flex items-center gap-2 bg-[#faf8f5] rounded-[6px] px-3 py-2">
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: r.color }} />
                   <input type="text" value={r.label} onChange={e => setRanks(prev => prev.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} className="text-[13px] bg-transparent border-none flex-1 px-0 py-0 focus:outline-none" />
-                  <span className="text-[11px] text-[#9aa0a6] w-16">≥</span>
-                  <input type="number" min={0} value={r.minVisits} onChange={e => setRanks(prev => prev.map((x, j) => j === i ? { ...x, minVisits: parseInt(e.target.value) || 0 } : x))} className="text-[12px] w-14 text-center bg-white border border-[#dadce0] rounded-[4px] py-0.5" />
-                  <span className="text-[11px] text-[#9aa0a6]">回来店</span>
+                  <span className="text-[11px] text-[#8e9baa] w-16">≥</span>
+                  <input type="number" min={0} value={r.minVisits} onChange={e => setRanks(prev => prev.map((x, j) => j === i ? { ...x, minVisits: parseInt(e.target.value) || 0 } : x))} className="text-[12px] w-14 text-center bg-white border border-[#d8d3cc] rounded-[4px] py-0.5" />
+                  <span className="text-[11px] text-[#8e9baa]">回来店</span>
                   <input type="color" value={r.color} onChange={e => setRanks(prev => prev.map((x, j) => j === i ? { ...x, color: e.target.value } : x))} className="w-6 h-6 rounded cursor-pointer border-0 p-0" />
                   {ranks.length > 1 && <button onClick={() => removeRank(r.id)} className="p-0.5 hover:bg-[#fce8e6] rounded"><X className="w-3 h-3 text-[#c5221f]" /></button>}
                 </div>
@@ -125,7 +125,7 @@ export default function SettingsPage() {
             </div>
             <div className="flex items-center gap-2 mt-2">
               <input type="text" value={newRankName} onChange={e => setNewRankName(e.target.value)} placeholder="新しいランク名" className="text-[13px] flex-1 max-w-[200px]" />
-              <button onClick={addRank} className="flex items-center gap-1 px-3 py-[6px] text-[12px] text-[#1a73e8] bg-[#e8f0fe] rounded-[6px] hover:bg-[#d4e4fc]"><Plus className="w-3 h-3" />追加</button>
+              <button onClick={addRank} className="flex items-center gap-1 px-3 py-[6px] text-[12px] text-[#3a8f7c] bg-[#e8f5f0] rounded-[6px] hover:bg-[#d0ebe4]"><Plus className="w-3 h-3" />追加</button>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -153,16 +153,16 @@ export default function SettingsPage() {
               {chipSetting.prices.map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <input type="number" min={0} value={p.amount} onChange={e => setChipSetting(prev => ({ ...prev, prices: prev.prices.map((x, j) => j === i ? { ...x, amount: parseInt(e.target.value) || 0 } : x) }))} className="text-[13px] w-24 text-right" />
-                  <span className="text-[12px] text-[#9aa0a6]">{chipSetting.unit} =</span>
-                  <span className="text-[12px] text-[#9aa0a6]">¥</span>
+                  <span className="text-[12px] text-[#8e9baa]">{chipSetting.unit} =</span>
+                  <span className="text-[12px] text-[#8e9baa]">¥</span>
                   <input type="number" min={0} value={p.price} onChange={e => setChipSetting(prev => ({ ...prev, prices: prev.prices.map((x, j) => j === i ? { ...x, price: parseInt(e.target.value) || 0 } : x) }))} className="text-[13px] w-24 text-right" />
                   <button onClick={() => setChipSetting(prev => ({ ...prev, prices: prev.prices.filter((_, j) => j !== i) }))} className="p-0.5 hover:bg-[#fce8e6] rounded"><X className="w-3 h-3 text-[#c5221f]" /></button>
                 </div>
               ))}
             </div>
-            <button onClick={addChipPrice} className="flex items-center gap-1 mt-2 px-3 py-[6px] text-[12px] text-[#1a73e8] bg-[#e8f0fe] rounded-[6px] hover:bg-[#d4e4fc]"><Plus className="w-3 h-3" />価格を追加</button>
+            <button onClick={addChipPrice} className="flex items-center gap-1 mt-2 px-3 py-[6px] text-[12px] text-[#3a8f7c] bg-[#e8f5f0] rounded-[6px] hover:bg-[#d0ebe4]"><Plus className="w-3 h-3" />価格を追加</button>
           </div>
-          <div><label className={L}>プレビュー</label><p className="text-[13px] text-[#5f6368]">{chipSetting.symbol} 5,000{chipSetting.unit}（{chipSetting.label}）</p></div>
+          <div><label className={L}>プレビュー</label><p className="text-[13px] text-[#5a6977]">{chipSetting.symbol} 5,000{chipSetting.unit}（{chipSetting.label}）</p></div>
           <div className="flex items-center gap-2">
             <button onClick={() => showSaved("chip")} className={SaveBtn}>保存</button>
             {saved === "chip" && <span className="text-[12px] text-[#188038] flex items-center gap-1"><Check className="w-3 h-3" />保存しました</span>}
@@ -173,7 +173,7 @@ export default function SettingsPage() {
       {/* ===== ポイント設定 ===== */}
       <div className={Card}>
         <div className="flex items-center gap-2 mb-4">
-          <Trophy className="w-4 h-4 text-[#1a73e8]" />
+          <Trophy className="w-4 h-4 text-[#3a8f7c]" />
           <h2 className="text-[13px] font-semibold">ポイント設定</h2>
         </div>
         <div className="space-y-3">
@@ -185,16 +185,16 @@ export default function SettingsPage() {
             <label className={L}>付与ルール</label>
             <div className="space-y-1.5">
               {pointRules.map((r, i) => (
-                <div key={r.id} className="flex items-center gap-2 bg-[#f5f6f8] rounded-[6px] px-3 py-2">
+                <div key={r.id} className="flex items-center gap-2 bg-[#faf8f5] rounded-[6px] px-3 py-2">
                   <input type="text" value={r.trigger} onChange={e => setPointRules(prev => prev.map((x, j) => j === i ? { ...x, trigger: e.target.value } : x))} className="text-[13px] bg-transparent border-none flex-1 px-0 py-0 focus:outline-none" placeholder="条件" />
-                  <span className="text-[11px] text-[#9aa0a6]">→</span>
-                  <input type="number" min={0} value={r.amount} onChange={e => setPointRules(prev => prev.map((x, j) => j === i ? { ...x, amount: parseInt(e.target.value) || 0 } : x))} className="text-[12px] w-16 text-center bg-white border border-[#dadce0] rounded-[4px] py-0.5" />
-                  <span className="text-[11px] text-[#9aa0a6]">{pointUnit}</span>
+                  <span className="text-[11px] text-[#8e9baa]">→</span>
+                  <input type="number" min={0} value={r.amount} onChange={e => setPointRules(prev => prev.map((x, j) => j === i ? { ...x, amount: parseInt(e.target.value) || 0 } : x))} className="text-[12px] w-16 text-center bg-white border border-[#d8d3cc] rounded-[4px] py-0.5" />
+                  <span className="text-[11px] text-[#8e9baa]">{pointUnit}</span>
                   <button onClick={() => setPointRules(prev => prev.filter((_, j) => j !== i))} className="p-0.5 hover:bg-[#fce8e6] rounded"><X className="w-3 h-3 text-[#c5221f]" /></button>
                 </div>
               ))}
             </div>
-            <button onClick={addPointRule} className="flex items-center gap-1 mt-2 px-3 py-[6px] text-[12px] text-[#1a73e8] bg-[#e8f0fe] rounded-[6px] hover:bg-[#d4e4fc]"><Plus className="w-3 h-3" />ルール追加</button>
+            <button onClick={addPointRule} className="flex items-center gap-1 mt-2 px-3 py-[6px] text-[12px] text-[#3a8f7c] bg-[#e8f5f0] rounded-[6px] hover:bg-[#d0ebe4]"><Plus className="w-3 h-3" />ルール追加</button>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => showSaved("point")} className={SaveBtn}>保存</button>
@@ -206,20 +206,20 @@ export default function SettingsPage() {
       {/* LINE連携 */}
       <div className={Card}>
         <div className="flex items-center gap-2 mb-4">
-          <MessageCircle className="w-4 h-4 text-[#9aa0a6]" />
+          <MessageCircle className="w-4 h-4 text-[#8e9baa]" />
           <h2 className="text-[13px] font-semibold">LINE連携</h2>
         </div>
         <div className="space-y-3">
-          <div><label className={L}>Channel ID</label><input type="text" placeholder="未設定" className="text-[13px] bg-[#f5f6f8]" disabled /></div>
-          <div><label className={L}>Channel Secret</label><input type="text" placeholder="未設定" className="text-[13px] bg-[#f5f6f8]" disabled /></div>
-          <p className="text-[11px] text-[#9aa0a6]">LINE連携は今後のアップデートで対応予定です。</p>
+          <div><label className={L}>Channel ID</label><input type="text" placeholder="未設定" className="text-[13px] bg-[#faf8f5]" disabled /></div>
+          <div><label className={L}>Channel Secret</label><input type="text" placeholder="未設定" className="text-[13px] bg-[#faf8f5]" disabled /></div>
+          <p className="text-[11px] text-[#8e9baa]">LINE連携は今後のアップデートで対応予定です。</p>
         </div>
       </div>
 
       {/* フッター */}
       <div className="flex items-center justify-center gap-2 py-4">
         <Image src="/logo-icon.png" alt="みえるくん" width={16} height={16} className="opacity-30" />
-        <span className="text-[11px] text-[#9aa0a6]">てんぽみえるくん 店舗設定</span>
+        <span className="text-[11px] text-[#8e9baa]">てんぽみえるくん 店舗設定</span>
       </div>
     </div>
   );

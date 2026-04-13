@@ -24,8 +24,8 @@ const DEMO: Customer[] = [
 ];
 
 const RANK_BADGE: Record<Rank, string> = {
-  regular: "bg-[#f5f6f8] text-[#5f6368]",
-  silver: "bg-[#f5f6f8] text-[#5f6368]",
+  regular: "bg-[#faf8f5] text-[#5a6977]",
+  silver: "bg-[#faf8f5] text-[#5a6977]",
   gold: "bg-[#fef7e0] text-[#d97706]",
   vip: "bg-[#f3e8fd] text-[#7c3aed]",
 };
@@ -43,49 +43,49 @@ export default function CustomersPage() {
       {/* ツールバー */}
       <div className="flex items-center justify-between">
         <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9aa0a6] pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8e9baa] pointer-events-none" />
           <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="顧客名・電話番号で検索" className="w-full pl-10 pr-3 py-[7px] text-[13px] border border-[#dadce0] rounded-[6px] focus:outline-none focus:border-[#1a73e8]" />
+            placeholder="顧客名・電話番号で検索" className="w-full pl-10 pr-3 py-[7px] text-[13px] border border-[#d8d3cc] rounded-[6px] focus:outline-none focus:border-[#3a8f7c]" />
         </div>
         <Link href="/customers/new"
-          className="flex items-center gap-1 px-3 py-[7px] bg-[#1a73e8] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#1557b0] transition-colors">
+          className="flex items-center gap-1 px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors">
           <Plus className="w-3.5 h-3.5" />顧客登録
         </Link>
       </div>
 
       {/* テーブル */}
-      <div className="bg-white border border-[#dadce0] rounded-[8px] overflow-hidden">
+      <div className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-hidden">
         <table className="w-full text-[13px]">
           <thead>
-            <tr className="border-b border-[#dadce0] bg-[#f5f6f8]">
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider text-left">顧客名</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider text-left">ランク</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider text-left">来店</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider text-left">累計利用額</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider text-left">チップ</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider text-left">ポイント</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider text-left">最終来店</th>
+            <tr className="border-b border-[#d8d3cc] bg-[#faf8f5]">
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">顧客名</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ランク</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">来店</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">累計利用額</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">チップ</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ポイント</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">最終来店</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan={7} className="px-4 py-10 text-center text-[#9aa0a6]">
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-[#8e9baa]">
                 <Image src="/logo-icon.png" alt="みえるくん" width={32} height={32} className="mx-auto mb-2 opacity-30" />
                 <p className="text-[13px]">該当する顧客がいません</p>
               </td></tr>
             ) : filtered.map(c => (
-              <tr key={c.id} className="border-b border-[#e8eaed] hover:bg-[#f0f1f3] transition-colors cursor-pointer" onClick={() => window.location.href = `/customers/${c.id}`}>
+              <tr key={c.id} className="border-b border-[#e8e4df] hover:bg-[#f3f0ec] transition-colors cursor-pointer" onClick={() => window.location.href = `/customers/${c.id}`}>
                 <td className="px-4 py-2.5">
-                  <Link href={`/customers/${c.id}`} className="font-medium text-[#1a73e8] hover:underline">{c.name}</Link>
+                  <Link href={`/customers/${c.id}`} className="font-medium text-[#3a8f7c] hover:underline">{c.name}</Link>
                 </td>
                 <td className="px-4 py-2.5">
                   <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${RANK_BADGE[c.rank]}`}>{RANK_LABEL[c.rank]}</span>
                 </td>
-                <td className="px-4 py-2.5 text-[#5f6368]">{c.totalVisits}回</td>
+                <td className="px-4 py-2.5 text-[#5a6977]">{c.totalVisits}回</td>
                 <td className="px-4 py-2.5 font-medium">¥{c.totalSpent.toLocaleString()}</td>
-                <td className="px-4 py-2.5 text-[#5f6368]">{c.chipBalance.toLocaleString()}</td>
-                <td className="px-4 py-2.5 text-[#5f6368]">{c.pointBalance.toLocaleString()}</td>
-                <td className="px-4 py-2.5 text-[#5f6368] text-[12px]">{c.lastVisit}</td>
+                <td className="px-4 py-2.5 text-[#5a6977]">{c.chipBalance.toLocaleString()}</td>
+                <td className="px-4 py-2.5 text-[#5a6977]">{c.pointBalance.toLocaleString()}</td>
+                <td className="px-4 py-2.5 text-[#5a6977] text-[12px]">{c.lastVisit}</td>
               </tr>
             ))}
           </tbody>

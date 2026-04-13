@@ -160,9 +160,9 @@ export default function FloorPage() {
       case "unpaid":
         return "bg-[#fce8e6] text-[#c5221f]";
       case "assigned":
-        return "bg-[#e8f0fe] text-[#1a73e8]";
+        return "bg-[#e8f5f0] text-[#3a8f7c]";
       default:
-        return "bg-[#f5f6f8] text-[#5f6368]";
+        return "bg-[#faf8f5] text-[#5a6977]";
     }
   }
 
@@ -189,44 +189,44 @@ export default function FloorPage() {
       <div className="flex-1 space-y-4 min-w-0">
         {/* Top bar: counts */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#dadce0] rounded-[6px] px-4 py-2.5">
-            <Users className="w-4 h-4 text-[#1a73e8]" />
-            <span className="text-[13px] text-[#5f6368]">来店</span>
-            <span className="text-[20px] font-bold text-[#1a1a1a] ml-1">{activeCount + unpaidCount}名</span>
+          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] px-4 py-2.5">
+            <Users className="w-4 h-4 text-[#3a8f7c]" />
+            <span className="text-[13px] text-[#5a6977]">来店</span>
+            <span className="text-[20px] font-bold text-[#2c3e50] ml-1">{activeCount + unpaidCount}名</span>
           </div>
-          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#dadce0] rounded-[6px] px-4 py-2.5">
+          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] px-4 py-2.5">
             <MapPin className="w-4 h-4 text-[#f59e0b]" />
-            <span className="text-[13px] text-[#5f6368]">未配置</span>
-            <span className="text-[20px] font-bold text-[#1a1a1a] ml-1">{unassignedCount}名</span>
+            <span className="text-[13px] text-[#5a6977]">未配置</span>
+            <span className="text-[20px] font-bold text-[#2c3e50] ml-1">{unassignedCount}名</span>
           </div>
-          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#dadce0] rounded-[6px] px-4 py-2.5">
+          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] px-4 py-2.5">
             <AlertCircle className="w-4 h-4 text-[#c5221f]" />
-            <span className="text-[13px] text-[#5f6368]">未払</span>
+            <span className="text-[13px] text-[#5a6977]">未払</span>
             <span className="text-[20px] font-bold text-[#c5221f] ml-1">{unpaidCount}名</span>
           </div>
         </div>
 
         {/* Section A: Checked-in visitors */}
-        <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] overflow-hidden">
-          <div className="px-4 py-3 border-b border-[#dadce0] bg-[#f5f6f8]">
-            <h2 className="text-[14px] font-semibold text-[#1a1a1a]">来店中</h2>
+        <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] overflow-hidden">
+          <div className="px-4 py-3 border-b border-[#d8d3cc] bg-[#faf8f5]">
+            <h2 className="text-[14px] font-semibold text-[#2c3e50]">来店中</h2>
           </div>
           <table className="w-full text-[13px]">
             <thead>
-              <tr className="border-b border-[#dadce0] bg-[#f5f6f8]">
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">顧客名</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">ランク</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">入店</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">卓</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">金額</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">状態</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] uppercase tracking-wider">操作</th>
+              <tr className="border-b border-[#d8d3cc] bg-[#faf8f5]">
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">顧客名</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">ランク</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">入店</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">卓</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">金額</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">状態</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">操作</th>
               </tr>
             </thead>
             <tbody>
               {assignedVisitors.length === 0 && visitors.filter((v) => v.status === "unpaid").length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-[#9aa0a6] text-[13px]">
+                  <td colSpan={7} className="px-4 py-8 text-center text-[#8e9baa] text-[13px]">
                     配置済の来店客はいません
                   </td>
                 </tr>
@@ -238,7 +238,7 @@ export default function FloorPage() {
                     isVipRow(v.rank) ? "bg-[#fffbeb]/30" : ""
                   }`}
                 >
-                  <td className="px-4 py-2.5 font-medium text-[#1a1a1a]">
+                  <td className="px-4 py-2.5 font-medium text-[#2c3e50]">
                     <div className="flex items-center gap-2">
                       {v.name}
                       {(v.rank === "vip" || v.rank === "gold") && (
@@ -257,23 +257,23 @@ export default function FloorPage() {
                       title={RANK_LABELS[v.rank]}
                     />
                   </td>
-                  <td className="px-4 py-2.5 text-[#5f6368]">
+                  <td className="px-4 py-2.5 text-[#5a6977]">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3 opacity-50" />
                       {formatTimeOnly(v.checkInAt)}
-                      <span className="text-[11px] text-[#9aa0a6] ml-1">({timeAgo(v.checkInAt)})</span>
+                      <span className="text-[11px] text-[#8e9baa] ml-1">({timeAgo(v.checkInAt)})</span>
                     </div>
                   </td>
                   <td className="px-4 py-2.5">
                     {v.table ? (
-                      <span className="inline-block px-2 py-0.5 bg-[#f5f6f8] rounded-[4px] text-[12px] font-medium text-[#1a1a1a]">
+                      <span className="inline-block px-2 py-0.5 bg-[#faf8f5] rounded-[4px] text-[12px] font-medium text-[#2c3e50]">
                         {v.table}
                       </span>
                     ) : (
-                      <span className="text-[#9aa0a6]">--</span>
+                      <span className="text-[#8e9baa]">--</span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 font-medium text-[#1a1a1a]">
+                  <td className="px-4 py-2.5 font-medium text-[#2c3e50]">
                     {v.amount > 0 ? `¥${v.amount.toLocaleString()}` : "--"}
                   </td>
                   <td className="px-4 py-2.5">
@@ -285,7 +285,7 @@ export default function FloorPage() {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleSettle(v.id)}
-                        className="flex items-center gap-1 px-2 py-1 text-[12px] text-[#1a73e8] hover:bg-[#e8f0fe] rounded-[4px] transition-colors"
+                        className="flex items-center gap-1 px-2 py-1 text-[12px] text-[#3a8f7c] hover:bg-[#e8f5f0] rounded-[4px] transition-colors"
                       >
                         <CreditCard className="w-3 h-3" />
                         精算
@@ -300,22 +300,22 @@ export default function FloorPage() {
 
         {/* Section B: Unassigned */}
         {unassignedVisitors.length > 0 && (
-          <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[#dadce0] bg-[#f5f6f8]">
-              <h2 className="text-[14px] font-semibold text-[#1a1a1a]">未配置 ({unassignedVisitors.length}名)</h2>
+          <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[#d8d3cc] bg-[#faf8f5]">
+              <h2 className="text-[14px] font-semibold text-[#2c3e50]">未配置 ({unassignedVisitors.length}名)</h2>
             </div>
             <div className="divide-y divide-[#f0f0f0]">
               {unassignedVisitors.map((v) => (
                 <div
                   key={v.id}
-                  className="flex items-center justify-between px-4 py-3 border-l-2 border-l-[#1a73e8] hover:bg-[#f8f9fa] transition-colors"
+                  className="flex items-center justify-between px-4 py-3 border-l-2 border-l-[#3a8f7c] hover:bg-[#f8f9fa] transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <span
                       className="inline-block w-[8px] h-[8px] rounded-full"
                       style={{ backgroundColor: RANK_DOT_COLORS[v.rank] }}
                     />
-                    <span className="text-[13px] font-medium text-[#1a1a1a]">{v.name}</span>
+                    <span className="text-[13px] font-medium text-[#2c3e50]">{v.name}</span>
                     {(v.rank === "vip" || v.rank === "gold") && (
                       <span className={`inline px-1.5 py-0.5 text-[10px] font-medium rounded-[4px] ${
                         v.rank === "vip" ? "bg-[#f3e8fd] text-[#7c3aed]" : "bg-[#fef3c7] text-[#d97706]"
@@ -323,13 +323,13 @@ export default function FloorPage() {
                         {RANK_LABELS[v.rank]}
                       </span>
                     )}
-                    <span className="text-[12px] text-[#9aa0a6]">
+                    <span className="text-[12px] text-[#8e9baa]">
                       {formatTimeOnly(v.checkInAt)} 入店
                     </span>
                   </div>
                   <button
                     onClick={() => handleAssign(v.id)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors"
                   >
                     <MapPin className="w-3 h-3" />
                     配置
@@ -344,9 +344,9 @@ export default function FloorPage() {
       {/* Right side - Action Panel */}
       <div className="w-[280px] flex-shrink-0 space-y-4">
         {/* Check-in section */}
-        <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] p-4">
-          <h3 className="text-[14px] font-semibold text-[#1a1a1a] mb-3 flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-[#1a73e8]" />
+        <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] p-4">
+          <h3 className="text-[14px] font-semibold text-[#2c3e50] mb-3 flex items-center gap-2">
+            <UserPlus className="w-4 h-4 text-[#3a8f7c]" />
             入店登録
           </h3>
 
@@ -356,7 +356,7 @@ export default function FloorPage() {
                 <select
                   value={selectedPreset}
                   onChange={(e) => setSelectedPreset(e.target.value)}
-                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#dadce0] rounded-[6px] appearance-none text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] appearance-none text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
                 >
                   <option value="">顧客を選択...</option>
                   {PRESET_CUSTOMERS.filter((c) => !visitors.find((v) => v.name === c.name)).map((c) => (
@@ -365,11 +365,11 @@ export default function FloorPage() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9aa0a6] pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8e9baa] pointer-events-none" />
               </div>
               <button
                 onClick={() => setShowNewForm(true)}
-                className="w-full text-left px-3 py-2 text-[12px] text-[#1a73e8] hover:bg-[#e8f0fe] rounded-[6px] transition-colors flex items-center gap-1"
+                className="w-full text-left px-3 py-2 text-[12px] text-[#3a8f7c] hover:bg-[#e8f5f0] rounded-[6px] transition-colors flex items-center gap-1"
               >
                 <Plus className="w-3 h-3" />
                 新規顧客
@@ -382,20 +382,20 @@ export default function FloorPage() {
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="顧客名"
-                className="w-full px-3 py-2 text-[13px] border border-[#dadce0] rounded-[6px] text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
               />
               <div className="relative">
                 <select
                   value={newRank}
                   onChange={(e) => setNewRank(e.target.value as Rank)}
-                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#dadce0] rounded-[6px] appearance-none text-[#1a1a1a] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
+                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] appearance-none text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
                 >
                   <option value="regular">レギュラー</option>
                   <option value="silver">シルバー</option>
                   <option value="gold">ゴールド</option>
                   <option value="vip">VIP</option>
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9aa0a6] pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8e9baa] pointer-events-none" />
               </div>
               <button
                 onClick={() => {
@@ -403,7 +403,7 @@ export default function FloorPage() {
                   setNewName("");
                   setNewRank("regular");
                 }}
-                className="text-[12px] text-[#5f6368] hover:text-[#1a1a1a]"
+                className="text-[12px] text-[#5a6977] hover:text-[#2c3e50]"
               >
                 キャンセル
               </button>
@@ -412,7 +412,7 @@ export default function FloorPage() {
 
           <button
             onClick={handleCheckIn}
-            className="w-full mt-3 px-3 py-2.5 text-[13px] font-medium text-[#ffffff] bg-[#1a73e8] hover:bg-[#1557b0] rounded-[6px] transition-colors flex items-center justify-center gap-1.5"
+            className="w-full mt-3 px-3 py-2.5 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors flex items-center justify-center gap-1.5"
           >
             <UserPlus className="w-3.5 h-3.5" />
             入店する
@@ -420,13 +420,13 @@ export default function FloorPage() {
         </div>
 
         {/* Recent entries */}
-        <div className="bg-[#ffffff] border border-[#dadce0] rounded-[8px] p-4">
-          <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-3">最近の入店</h3>
+        <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] p-4">
+          <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-3">最近の入店</h3>
           <div className="space-y-2">
             {recentEntries.map((e, i) => (
               <div key={i} className="flex items-center justify-between text-[12px]">
-                <span className="text-[#1a1a1a]">{e.name}</span>
-                <span className="text-[#9aa0a6]">{e.time}</span>
+                <span className="text-[#2c3e50]">{e.name}</span>
+                <span className="text-[#8e9baa]">{e.time}</span>
               </div>
             ))}
           </div>
