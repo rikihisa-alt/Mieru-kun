@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutGrid, Users, ShoppingBag, Clock, Coins, BarChart3, ArrowRight } from "lucide-react";
+import {
+  LayoutGrid, Users, ShoppingBag, Clock, Coins, BarChart3, ArrowRight,
+  DoorOpen, Grid3X3, CreditCard, ClipboardCheck, ChevronRight,
+} from "lucide-react";
 
 export default function Home() {
   function handleDemo() {
@@ -30,39 +33,64 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero */}
+      {/* Hero - 2カラム */}
       <section className="relative bg-[#faf8f5] overflow-hidden">
-        {/* 背景装飾 - パステル */}
         <div className="absolute inset-0">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#3a8f7c]/5 rounded-full blur-[100px] translate-x-1/4 -translate-y-1/4" />
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#e8c170]/8 rounded-full blur-[80px] -translate-x-1/4 translate-y-1/4" />
         </div>
 
-        <div className="relative w-full px-8 md:px-16 py-20 md:py-28">
-          <div className="max-w-3xl">
-            <Image src="/logo-full.png" alt="てんぽみえるくん" width={300} height={75} className="mb-8" />
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#3a8f7c]/10 border border-[#3a8f7c]/20 rounded-full mb-6">
-              <div className="w-1.5 h-1.5 bg-[#3a8f7c] rounded-full animate-pulse" />
-              <span className="text-[12px] font-medium text-[#3a8f7c]">アミューズメントカジノ向け店舗管理</span>
+        <div className="relative w-full px-8 md:px-16 py-16 md:py-24">
+          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
+            {/* 左: メインコピー */}
+            <div className="flex-1 max-w-xl">
+              <Image src="/logo-full.png" alt="てんぽみえるくん" width={280} height={70} className="mb-6" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#3a8f7c]/10 border border-[#3a8f7c]/20 rounded-full mb-5">
+                <div className="w-1.5 h-1.5 bg-[#3a8f7c] rounded-full animate-pulse" />
+                <span className="text-[12px] font-medium text-[#3a8f7c]">アミューズメントカジノ向け店舗管理</span>
+              </div>
+              <h1 className="text-[30px] md:text-[40px] font-bold text-[#2c3e50] leading-[1.2] mb-4 tracking-tight">
+                店舗の運営を、
+                <br />
+                <span className="text-[#3a8f7c]">ひとつの画面</span>で。
+              </h1>
+              <p className="text-[15px] text-[#6b7280] leading-relaxed mb-8">
+                入退店・卓管理・注文精算・勤怠・顧客管理。
+                <br />
+                現場のオペレーションをシンプルに統合します。
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button onClick={handleDemo} className="group flex items-center gap-2 px-6 py-3 text-[14px] font-medium bg-[#3a8f7c] text-white rounded-[6px] hover:bg-[#2f7a69] transition-all shadow-sm">
+                  デモを見る
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+                <Link href="/my" className="px-6 py-3 text-[14px] font-medium border border-[#d1ccc5] text-[#5f6368] rounded-[6px] hover:bg-white hover:border-[#b8b3ab] transition-all">
+                  顧客マイページ
+                </Link>
+              </div>
             </div>
-            <h1 className="text-[32px] md:text-[42px] font-bold text-[#2c3e50] leading-[1.2] mb-5 tracking-tight">
-              店舗の運営を、
-              <br />
-              <span className="text-[#3a8f7c]">ひとつの画面</span>で。
-            </h1>
-            <p className="text-[16px] text-[#6b7280] leading-relaxed mb-10 max-w-xl">
-              入退店・卓管理・注文精算・勤怠・顧客管理。
-              <br />
-              現場のオペレーションをシンプルに統合します。
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <button onClick={handleDemo} className="group flex items-center gap-2 px-6 py-3 text-[14px] font-medium bg-[#3a8f7c] text-white rounded-[6px] hover:bg-[#2f7a69] transition-all shadow-sm">
-                デモを見る
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-              <Link href="/my" className="px-6 py-3 text-[14px] font-medium border border-[#d1ccc5] text-[#5f6368] rounded-[6px] hover:bg-white hover:border-[#b8b3ab] transition-all">
-                顧客マイページ
-              </Link>
+
+            {/* 右: 運営フロー紹介 */}
+            <div className="flex-1 max-w-md w-full">
+              <div className="bg-white border border-[#e8e4df] rounded-[12px] p-6 shadow-sm">
+                <p className="text-[11px] font-semibold text-[#3a8f7c] uppercase tracking-wider mb-4">Operation Flow</p>
+                <h3 className="text-[16px] font-bold text-[#2c3e50] mb-5">店舗運営の一連の流れ</h3>
+                <div className="space-y-0">
+                  <FlowStep num={1} icon={<DoorOpen />} title="入店登録" desc="来店顧客を登録。VIP・常連を自動識別" active />
+                  <FlowConnector />
+                  <FlowStep num={2} icon={<Grid3X3 />} title="卓に配置" desc="ドラッグ&ドロップでテーブルに配置" />
+                  <FlowConnector />
+                  <FlowStep num={3} icon={<ShoppingBag />} title="注文受付" desc="ドリンク・フード・チップをワンタップ注文" />
+                  <FlowConnector />
+                  <FlowStep num={4} icon={<CreditCard />} title="精算" desc="現金・カード・電子マネーで精算処理" />
+                  <FlowConnector />
+                  <FlowStep num={5} icon={<ClipboardCheck />} title="締め処理" desc="日次の売上を確定。レジ差異も管理" last />
+                </div>
+                <button onClick={handleDemo} className="mt-5 w-full flex items-center justify-center gap-1.5 py-2.5 bg-[#faf8f5] border border-[#e8e4df] text-[13px] font-medium text-[#3a8f7c] rounded-[6px] hover:bg-[#f0f9f6] transition-colors">
+                  このフローを体験する
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -99,13 +127,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-white border-t border-[#e8e4df] py-8">
         <div className="flex items-center justify-center gap-2">
           <Image src="/logo-icon.png" alt="みえるくん" width={20} height={20} />
           <p className="text-[11px] text-[#9aa0a6]">&copy; {new Date().getFullYear()} てんぽみえるくん</p>
         </div>
       </footer>
+    </div>
+  );
+}
+
+// --- フローステップ ---
+function FlowStep({ num, icon, title, desc, active, last }: {
+  num: number; icon: React.ReactNode; title: string; desc: string; active?: boolean; last?: boolean;
+}) {
+  return (
+    <div className={`flex items-start gap-3 p-3 rounded-[8px] transition-colors ${active ? "bg-[#f0f9f6] border border-[#3a8f7c]/15" : ""}`}>
+      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[12px] font-bold ${
+        active ? "bg-[#3a8f7c] text-white" : "bg-[#e8e4df] text-[#5f6368]"
+      }`}>
+        {num}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <span className={`[&>svg]:w-3.5 [&>svg]:h-3.5 ${active ? "text-[#3a8f7c]" : "text-[#9aa0a6]"}`}>{icon}</span>
+          <span className={`text-[13px] font-semibold ${active ? "text-[#2c3e50]" : "text-[#5f6368]"}`}>{title}</span>
+        </div>
+        <p className="text-[11px] text-[#9aa0a6] leading-relaxed">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function FlowConnector() {
+  return (
+    <div className="flex items-center pl-6 py-0.5">
+      <div className="w-px h-4 bg-[#dadce0]" />
     </div>
   );
 }
