@@ -57,7 +57,7 @@ export default function CustomersPage() {
       <div className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-hidden">
         <table className="w-full text-[13px]">
           <thead>
-            <tr className="border-b border-[#d8d3cc] bg-[#faf8f5]">
+            <tr className="border-b border-[#e8e4df]">
               <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">顧客名</th>
               <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ランク</th>
               <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">来店</th>
@@ -74,7 +74,7 @@ export default function CustomersPage() {
                 <p className="text-[13px]">該当する顧客がいません</p>
               </td></tr>
             ) : filtered.map(c => (
-              <tr key={c.id} className="border-b border-[#e8e4df] hover:bg-[#f3f0ec] transition-colors cursor-pointer" onClick={() => window.location.href = `/customers/${c.id}`}>
+              <tr key={c.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] transition-colors cursor-pointer" onClick={() => window.location.href = `/customers/${c.id}`}>
                 <td className="px-4 py-2.5">
                   <Link href={`/customers/${c.id}`} className="font-medium text-[#3a8f7c] hover:underline">{c.name}</Link>
                 </td>

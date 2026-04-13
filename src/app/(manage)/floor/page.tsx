@@ -188,21 +188,18 @@ export default function FloorPage() {
   return (
     <div className="space-y-4">
         {/* Top bar: counts */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] px-4 py-2.5">
-            <Users className="w-4 h-4 text-[#3a8f7c]" />
-            <span className="text-[13px] text-[#5a6977]">来店</span>
-            <span className="text-[20px] font-bold text-[#2c3e50] ml-1">{activeCount + unpaidCount}名</span>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[#8e9baa] text-[13px]">来店</span>
+            <span className="text-[15px] font-bold text-[#2c3e50]">{activeCount + unpaidCount}名</span>
           </div>
-          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] px-4 py-2.5">
-            <MapPin className="w-4 h-4 text-[#f59e0b]" />
-            <span className="text-[13px] text-[#5a6977]">未配置</span>
-            <span className="text-[20px] font-bold text-[#2c3e50] ml-1">{unassignedCount}名</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[#8e9baa] text-[13px]">未配置</span>
+            <span className="text-[15px] font-bold text-[#2c3e50]">{unassignedCount}名</span>
           </div>
-          <div className="flex items-center gap-2 bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] px-4 py-2.5">
-            <AlertCircle className="w-4 h-4 text-[#c5221f]" />
-            <span className="text-[13px] text-[#5a6977]">未払</span>
-            <span className="text-[20px] font-bold text-[#c5221f] ml-1">{unpaidCount}名</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[#8e9baa] text-[13px]">未払</span>
+            <span className="text-[15px] font-bold text-[#c5221f]">{unpaidCount}名</span>
           </div>
           <button onClick={() => { setShowNewForm(false); setSelectedPreset(""); setShowCheckinModal(true); }}
             className="ml-auto flex items-center gap-1 px-4 py-2.5 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">
@@ -211,20 +208,18 @@ export default function FloorPage() {
         </div>
 
         {/* Section A: Checked-in visitors */}
-        <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] overflow-hidden">
-          <div className="px-4 py-3 border-b border-[#d8d3cc] bg-[#faf8f5]">
-            <h2 className="text-[14px] font-semibold text-[#2c3e50]">来店中</h2>
-          </div>
+        <div>
+          <h2 className="text-[13px] font-semibold text-[#2c3e50] mb-2">来店中</h2>
           <table className="w-full text-[13px]">
             <thead>
-              <tr className="border-b border-[#d8d3cc] bg-[#faf8f5]">
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">顧客名</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">ランク</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">入店</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">卓</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">金額</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">状態</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">操作</th>
+              <tr className="border-b border-[#e8e4df]">
+                <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">顧客名</th>
+                <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ランク</th>
+                <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">入店</th>
+                <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">卓</th>
+                <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">金額</th>
+                <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">状態</th>
+                <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -238,7 +233,7 @@ export default function FloorPage() {
               {[...assignedVisitors, ...visitors.filter((v) => v.status === "unpaid")].map((v) => (
                 <tr
                   key={v.id}
-                  className={`border-b border-[#f0f0f0] hover:bg-[#f8f9fa] transition-colors ${
+                  className={`border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer transition-colors ${
                     isVipRow(v.rank) ? "bg-[#fffbeb]/30" : ""
                   }`}
                 >
@@ -281,7 +276,7 @@ export default function FloorPage() {
                     {v.amount > 0 ? `¥${v.amount.toLocaleString()}` : "--"}
                   </td>
                   <td className="px-4 py-2.5">
-                    <span className={`inline px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${statusBadge(v.status)}`}>
+                    <span className={`inline px-1.5 py-0.5 text-[10px] font-semibold rounded-[3px] ${statusBadge(v.status)}`}>
                       {statusLabel(v.status)}
                     </span>
                   </td>
@@ -304,15 +299,13 @@ export default function FloorPage() {
 
         {/* Section B: Unassigned */}
         {unassignedVisitors.length > 0 && (
-          <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[#d8d3cc] bg-[#faf8f5]">
-              <h2 className="text-[14px] font-semibold text-[#2c3e50]">未配置 ({unassignedVisitors.length}名)</h2>
-            </div>
-            <div className="divide-y divide-[#f0f0f0]">
+          <div>
+            <h2 className="text-[13px] font-semibold text-[#2c3e50] mb-2">未配置 ({unassignedVisitors.length}名)</h2>
+            <div className="divide-y divide-[#f3f0ec]">
               {unassignedVisitors.map((v) => (
                 <div
                   key={v.id}
-                  className="flex items-center justify-between px-4 py-3 border-l-2 border-l-[#3a8f7c] hover:bg-[#f8f9fa] transition-colors"
+                  className="flex items-center justify-between px-4 py-3 border-l-2 border-l-[#3a8f7c] hover:bg-[#faf8f5] transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <span

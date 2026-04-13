@@ -172,14 +172,14 @@ export default function ProductsPage() {
       <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] overflow-hidden">
         <table className="w-full text-[13px]">
           <thead>
-            <tr className="border-b border-border bg-bg">
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">商品名</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">カテゴリ</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">価格</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">原価</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">在庫</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">ステータス</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">操作</th>
+            <tr className="border-b border-[#e8e4df]">
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">商品名</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">カテゴリ</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">価格</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">原価</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">在庫</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ステータス</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -192,7 +192,7 @@ export default function ProductsPage() {
               </tr>
             ) : (
               products.map((p) => (
-                <tr key={p.id} className="border-b border-border-light hover:bg-bg-hover transition-colors">
+                <tr key={p.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer transition-colors">
                   <td className="px-4 py-2.5 font-medium">{p.name}</td>
                   <td className="px-4 py-2.5 text-text-secondary">{categoryLabel(p.category)}</td>
                   <td className="px-4 py-2.5 font-medium">{formatCurrency(p.price)}</td>
@@ -200,11 +200,11 @@ export default function ProductsPage() {
                   <td className="px-4 py-2.5 text-text-secondary">{p.stock}</td>
                   <td className="px-4 py-2.5">
                     {p.is_active ? (
-                      <span className="inline px-2 py-0.5 text-[11px] font-medium rounded-[var(--radius-sm)] bg-status-success-bg text-status-success">
+                      <span className="inline px-1.5 py-0.5 text-[10px] font-semibold rounded-[3px] bg-[#e6f4ea] text-[#1e7e34]">
                         有効
                       </span>
                     ) : (
-                      <span className="inline px-2 py-0.5 text-[11px] font-medium rounded-[var(--radius-sm)] bg-bg text-text-tertiary">
+                      <span className="inline px-1.5 py-0.5 text-[10px] font-semibold rounded-[3px] bg-[#faf8f5] text-[#8e9baa]">
                         無効
                       </span>
                     )}

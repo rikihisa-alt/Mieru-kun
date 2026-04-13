@@ -14,6 +14,7 @@ import {
   Lock,
   Package,
   Settings,
+  History,
 } from "lucide-react";
 
 const NAV = [
@@ -28,6 +29,7 @@ const NAV = [
     { href: "/customers/new", label: "顧客登録", icon: UserPlus },
     { href: "/attendance", label: "勤怠管理", icon: Clock },
     { href: "/closing", label: "締め処理", icon: Lock },
+    { href: "/history", label: "履歴", icon: History },
   ]},
   { section: "設定", items: [
     { href: "/products", label: "商品マスタ", icon: Package },

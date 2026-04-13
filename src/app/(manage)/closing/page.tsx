@@ -61,9 +61,29 @@ export default function ClosingPage() {
 
   return (
     <div className="space-y-4">
+      {/* Summary bar */}
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[#8e9baa] text-[13px]">対象日</span>
+          <span className="text-[15px] font-bold text-[#2c3e50]">{date}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[#8e9baa] text-[13px]">売上</span>
+          <span className="text-[15px] font-bold text-[#2c3e50]">{formatCurrency(summary.total_sales)}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[#8e9baa] text-[13px]">来店</span>
+          <span className="text-[15px] font-bold text-[#2c3e50]">{summary.total_visitors}人</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[#8e9baa] text-[13px]">注文</span>
+          <span className="text-[15px] font-bold text-[#2c3e50]">{summary.total_orders}件</span>
+        </div>
+      </div>
+
       {/* 日付入力 */}
       <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4">
-        <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-2">
+        <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-2">
           締め対象日
         </label>
         <input
@@ -76,7 +96,7 @@ export default function ClosingPage() {
 
       {/* サマリカード */}
       <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4">
-        <h2 className="text-[13px] font-semibold text-text-primary mb-3">売上サマリ</h2>
+        <h2 className="text-[13px] font-semibold text-[#2c3e50] mb-3">売上サマリ</h2>
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
             <span className="block text-[11px] text-text-tertiary mb-0.5">売上合計</span>
@@ -112,7 +132,7 @@ export default function ClosingPage() {
 
       {/* メモ */}
       <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4">
-        <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-2">
+        <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-2">
           備考
         </label>
         <textarea

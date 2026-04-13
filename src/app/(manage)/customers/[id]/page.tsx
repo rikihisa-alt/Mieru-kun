@@ -227,29 +227,26 @@ export default function CustomerDetailPage() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="flex items-center gap-6">
         {stats.map((s) => (
-          <div key={s.label} className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] px-4 py-3">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-[#8e9baa]">{s.icon}</span>
-              <span className="text-[11px] text-[#8e9baa] font-medium">{s.label}</span>
-            </div>
-            <p className="text-[18px] font-bold text-[#2c3e50] tracking-tight">{s.value}</p>
+          <div key={s.label} className="flex items-center gap-1.5">
+            <span className="text-[#8e9baa] text-[13px]">{s.label}</span>
+            <span className="text-[15px] font-bold text-[#2c3e50]">{s.value}</span>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] overflow-hidden">
-        <div className="flex border-b border-[#d8d3cc]">
+      <div>
+        <div className="flex gap-1 border-b border-[#e8e4df] mb-4">
           {TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 ${
+              className={`px-3 py-2 text-[13px] font-medium transition-colors border-b-2 ${
                 activeTab === tab
                   ? "text-[#3a8f7c] border-[#3a8f7c]"
-                  : "text-[#5a6977] border-transparent hover:text-[#2c3e50] hover:bg-[#faf8f5]"
+                  : "text-[#8e9baa] border-transparent hover:text-[#2c3e50]"
               }`}
             >
               {tab}
@@ -257,12 +254,12 @@ export default function CustomerDetailPage() {
           ))}
         </div>
 
-        <div className="p-5">
+        <div>
           {/* Tab 1: Basic Info */}
           {activeTab === "基本情報" && (
             <div className="space-y-4 max-w-lg">
               <div>
-                <label className="block text-[11px] font-medium text-[#8e9baa] mb-1">氏名</label>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">氏名</label>
                 <input
                   type="text"
                   value={name}
@@ -271,7 +268,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-[#8e9baa] mb-1">電話番号</label>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">電話番号</label>
                 <input
                   type="text"
                   value={phone}
@@ -280,7 +277,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-[#8e9baa] mb-1">メールアドレス</label>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">メールアドレス</label>
                 <input
                   type="text"
                   value={email}
@@ -289,7 +286,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-[#8e9baa] mb-1">ランク</label>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">ランク</label>
                 <select
                   value={rank}
                   onChange={(e) => setRank(e.target.value as Rank)}
@@ -302,7 +299,7 @@ export default function CustomerDetailPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-[#8e9baa] mb-1">備考</label>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">備考</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -333,12 +330,12 @@ export default function CustomerDetailPage() {
             <div>
               <table className="w-full text-[13px]">
                 <thead>
-                  <tr className="border-b border-[#d8d3cc]">
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">日時</th>
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">卓</th>
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">金額</th>
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">滞在時間</th>
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">ステータス</th>
+                  <tr className="border-b border-[#e8e4df]">
+                    <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">日時</th>
+                    <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">卓</th>
+                    <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">金額</th>
+                    <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">滞在時間</th>
+                    <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -347,7 +344,7 @@ export default function CustomerDetailPage() {
                     const m = v.stayMinutes % 60;
                     const stayStr = h > 0 ? `${h}時間${m}分` : `${m}分`;
                     return (
-                      <tr key={v.id} className="border-b border-[#f0f0f0] hover:bg-[#f8f9fa] transition-colors">
+                      <tr key={v.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer transition-colors">
                         <td className="px-3 py-2.5 text-[#5a6977]">{v.date}</td>
                         <td className="px-3 py-2.5">
                           <span className="inline-block px-2 py-0.5 bg-[#faf8f5] rounded-[4px] text-[12px] font-medium">
