@@ -104,64 +104,64 @@ export default function DashboardPage() {
   // --- セクション描画マップ ---
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     kpi: () => (
-      <div className="bg-white border border-[#e8e4df] rounded-[8px] overflow-hidden">
-        <div className="grid grid-cols-5 divide-x divide-[#e8e4df]">
-          {/* 売上 - メイン */}
-          <div className="col-span-2 p-5 cursor-pointer hover:bg-[#faf8f5] transition-colors" onClick={() => router.push("/floor")}>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-2 h-2 rounded-full bg-[#3a8f7c]" />
-              <span className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">本日売上</span>
+      <div className="space-y-5">
+        {/* 売上ヒーロー - 背景なし、数字だけで語る */}
+        <div className="cursor-pointer group" onClick={() => router.push("/floor")}>
+          <div className="flex items-end gap-4">
+            <div>
+              <p className="text-[11px] font-medium text-[#8e9baa] mb-1">本日の売上</p>
+              <p className="text-[40px] font-extrabold text-[#2c3e50] leading-none tracking-tighter">
+                ¥{kpis.sales.toLocaleString()}
+              </p>
             </div>
-            <div className="flex items-baseline gap-1.5 mb-1">
-              <span className="text-[28px] font-bold text-[#2c3e50] tracking-tight">¥{kpis.sales.toLocaleString()}</span>
-            </div>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-[12px] text-[#8e9baa]">来店 <strong className="text-[#2c3e50]">{kpis.visitors}</strong>名</span>
-              <span className="text-[12px] text-[#8e9baa]">客単価 <strong className="text-[#2c3e50]">¥{kpis.avgSpend.toLocaleString()}</strong></span>
-            </div>
-            {/* 目標バー */}
-            <div className="mt-3">
-              <div className="flex items-center justify-between text-[10px] mb-1">
-                <span className="text-[#8e9baa]">目標 ¥{kpis.targetSales.toLocaleString()}</span>
-                <span className="font-bold text-[#3a8f7c]">{progressPercent}%</span>
-              </div>
-              <div className="w-full h-1.5 bg-[#e8e4df] rounded-full overflow-hidden">
-                <div className="h-full rounded-full bg-[#3a8f7c]" style={{ width: `${progressPercent}%`, transition: "width 0.6s ease" }} />
-              </div>
+            <div className="pb-2 flex items-center gap-4 text-[13px]">
+              <span className="text-[#8e9baa]">{kpis.visitors}名来店</span>
+              <span className="text-[#8e9baa]">¥{kpis.avgSpend.toLocaleString()}/人</span>
+              <span className="text-[#3a8f7c] font-semibold">{progressPercent}%達成</span>
             </div>
           </div>
+          {/* 達成ライン - 極薄 */}
+          <div className="w-full h-[3px] bg-[#e8e4df] rounded-full mt-3 overflow-hidden">
+            <div className="h-full rounded-full bg-[#3a8f7c]" style={{ width: `${progressPercent}%`, transition: "width 0.8s cubic-bezier(0.4,0,0.2,1)" }} />
+          </div>
+        </div>
 
-          {/* 右3つ - サブKPI */}
-          <div className="p-4 flex flex-col justify-center cursor-pointer hover:bg-[#faf8f5] transition-colors" onClick={() => router.push("/tables")}>
-            <span className="text-[10px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">稼働卓</span>
-            <div className="flex items-baseline gap-1">
-              <span className="text-[22px] font-bold text-[#2c3e50]">{kpis.activeTables}</span>
-              <span className="text-[12px] text-[#8e9baa]">/ {kpis.totalTables}</span>
-            </div>
-            <div className="flex gap-0.5 mt-2">
-              {Array.from({ length: kpis.totalTables }).map((_, i) => (
-                <div key={i} className={`h-1.5 flex-1 rounded-full ${i < kpis.activeTables ? "bg-[#3a8f7c]" : "bg-[#e8e4df]"}`} />
-              ))}
-            </div>
-          </div>
-
-          <div className="p-4 flex flex-col justify-center cursor-pointer hover:bg-[#faf8f5] transition-colors" onClick={() => router.push("/orders")}>
-            <span className="text-[10px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">未精算</span>
-            <div className="flex items-baseline gap-1">
-              <span className={`text-[22px] font-bold ${kpis.unpaid > 0 ? "text-[#c0392b]" : "text-[#2c3e50]"}`}>{kpis.unpaid}</span>
-              <span className="text-[12px] text-[#8e9baa]">件</span>
-            </div>
-            {kpis.unpaid > 0 && <div className="mt-2 h-1.5 rounded-full bg-[#c0392b]/20"><div className="h-full rounded-full bg-[#c0392b] animate-pulse" style={{ width: "100%" }} /></div>}
-          </div>
-
-          <div className="p-4 flex flex-col justify-center cursor-pointer hover:bg-[#faf8f5] transition-colors" onClick={() => router.push("/attendance")}>
-            <span className="text-[10px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">出勤</span>
-            <div className="flex items-baseline gap-1">
-              <span className="text-[22px] font-bold text-[#2c3e50]">{kpis.onDuty}</span>
-              <span className="text-[12px] text-[#8e9baa]">名</span>
-            </div>
-            <span className="text-[10px] text-[#8e9baa] mt-1">イベント {kpis.todayEvents}件</span>
-          </div>
+        {/* ステータスドット行 - 枠なし、ドット+数字+ラベル */}
+        <div className="flex items-stretch gap-6 pt-1">
+          <StatusDot
+            label="稼働卓"
+            value={`${kpis.activeTables}/${kpis.totalTables}`}
+            color="#3a8f7c"
+            sub={kpis.activeTables >= kpis.totalTables ? "満席" : `空き${kpis.totalTables - kpis.activeTables}`}
+            subColor={kpis.activeTables >= kpis.totalTables ? "#c0392b" : "#8e9baa"}
+            onClick={() => router.push("/tables")}
+          />
+          <div className="w-px bg-[#e8e4df]" />
+          <StatusDot
+            label="未精算"
+            value={`${kpis.unpaid}`}
+            color={kpis.unpaid > 0 ? "#c0392b" : "#8e9baa"}
+            sub={kpis.unpaid > 0 ? "要対応" : "—"}
+            subColor={kpis.unpaid > 0 ? "#c0392b" : "#8e9baa"}
+            pulse={kpis.unpaid > 0}
+            onClick={() => router.push("/orders")}
+          />
+          <div className="w-px bg-[#e8e4df]" />
+          <StatusDot
+            label="出勤中"
+            value={`${kpis.onDuty}`}
+            color="#2c3e50"
+            sub={`${kpis.todayEvents}件のイベント`}
+            onClick={() => router.push("/attendance")}
+          />
+          <div className="w-px bg-[#e8e4df]" />
+          <StatusDot
+            label="注文"
+            value={`${kpis.orders}`}
+            color="#2c3e50"
+            sub={`¥${kpis.avgSpend.toLocaleString()}/人`}
+            onClick={() => router.push("/orders")}
+          />
         </div>
       </div>
     ),
@@ -367,6 +367,21 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function StatusDot({ label, value, color, sub, subColor, pulse, onClick }: {
+  label: string; value: string; color: string; sub?: string; subColor?: string; pulse?: boolean; onClick?: () => void;
+}) {
+  return (
+    <div className="flex-1 cursor-pointer group" onClick={onClick}>
+      <div className="flex items-center gap-1.5 mb-1">
+        <div className={`w-2 h-2 rounded-full ${pulse ? "animate-pulse" : ""}`} style={{ backgroundColor: color }} />
+        <span className="text-[10px] font-semibold text-[#8e9baa] uppercase tracking-wider group-hover:text-[#5a6977] transition-colors">{label}</span>
+      </div>
+      <p className="text-[24px] font-bold tracking-tight leading-none" style={{ color }}>{value}</p>
+      {sub && <p className="text-[11px] mt-1" style={{ color: subColor ?? "#8e9baa" }}>{sub}</p>}
     </div>
   );
 }
