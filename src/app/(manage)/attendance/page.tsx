@@ -12,8 +12,10 @@ interface StaffRecord {
   status: "working" | "on_break" | "finished" | "off";
   needsApproval: boolean;
 }
+interface BreakSpan { startQ: number; endQ: number; }
 interface ShiftBar {
   staffId: string; date: string; startQ: number; endQ: number; // 15分単位 (0=14:00, 1=14:15 ...)
+  breaks: BreakSpan[];
 }
 
 // ===== 定数 =====
@@ -58,16 +60,14 @@ function dateLabelShort(s: string): string {
 function makeInitShifts(): ShiftBar[] {
   const bars: ShiftBar[] = [];
   const today = dateStr(0);
-  // s1: 18:00-24:00 = Q16-Q40
-  bars.push({ staffId: "s1", date: today, startQ: 16, endQ: 40 });
-  bars.push({ staffId: "s2", date: today, startQ: 16, endQ: 40 });
-  bars.push({ staffId: "s3", date: today, startQ: 12, endQ: 36 }); // 17:00-23:00
-  bars.push({ staffId: "s4", date: today, startQ: 17, endQ: 40 }); // 18:15-24:00
-  // 明日のシフト
+  bars.push({ staffId: "s1", date: today, startQ: 16, endQ: 40, breaks: [{ startQ: 28, endQ: 32 }] }); // 休憩21:00-22:00
+  bars.push({ staffId: "s2", date: today, startQ: 16, endQ: 40, breaks: [] });
+  bars.push({ staffId: "s3", date: today, startQ: 12, endQ: 36, breaks: [{ startQ: 22, endQ: 24 }] }); // 休憩19:30-20:00
+  bars.push({ staffId: "s4", date: today, startQ: 17, endQ: 40, breaks: [] });
   const tmrw = dateStr(1);
-  bars.push({ staffId: "s1", date: tmrw, startQ: 16, endQ: 40 });
-  bars.push({ staffId: "s3", date: tmrw, startQ: 12, endQ: 36 });
-  bars.push({ staffId: "s5", date: tmrw, startQ: 12, endQ: 36 });
+  bars.push({ staffId: "s1", date: tmrw, startQ: 16, endQ: 40, breaks: [{ startQ: 28, endQ: 32 }] });
+  bars.push({ staffId: "s3", date: tmrw, startQ: 12, endQ: 36, breaks: [] });
+  bars.push({ staffId: "s5", date: tmrw, startQ: 12, endQ: 36, breaks: [{ startQ: 20, endQ: 24 }] });
   return bars;
 }
 
@@ -87,6 +87,7 @@ export default function AttendancePage() {
   // ドラッグ作成用state
   const [dragging, setDragging] = useState<{ staffId: string; startQ: number; currentQ: number } | null>(null);
   const [resizing, setResizing] = useState<{ staffId: string; edge: "start" | "end"; origBar: ShiftBar } | null>(null);
+  const [breakDragging, setBreakDragging] = useState<{ staffId: string; startQ: number; currentQ: number } | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
 
   function approve(id: string) {
@@ -135,6 +136,10 @@ export default function AttendancePage() {
       const q = getQFromMouse(e);
       setDragging(prev => prev ? { ...prev, currentQ: q } : null);
     }
+    if (breakDragging) {
+      const q = getQFromMouse(e);
+      setBreakDragging(prev => prev ? { ...prev, currentQ: q } : null);
+    }
     if (resizing) {
       const q = getQFromMouse(e);
       const bar = resizing.origBar;
@@ -152,9 +157,24 @@ export default function AttendancePage() {
       const s = Math.min(dragging.startQ, dragging.currentQ);
       const e = Math.max(dragging.startQ, dragging.currentQ);
       if (e - s >= 1) {
-        setShifts(prev => [...prev, { staffId: dragging.staffId, date: selectedDate, startQ: s, endQ: e }]);
+        setShifts(prev => [...prev, { staffId: dragging.staffId, date: selectedDate, startQ: s, endQ: e, breaks: [] }]);
       }
       setDragging(null);
+    }
+    if (breakDragging) {
+      const s = Math.min(breakDragging.startQ, breakDragging.currentQ);
+      const e = Math.max(breakDragging.startQ, breakDragging.currentQ);
+      if (e - s >= 1) {
+        setShifts(prev => prev.map(bar => {
+          if (bar.staffId !== breakDragging.staffId || bar.date !== selectedDate) return bar;
+          // 休憩はバー範囲内に制限
+          const bs = Math.max(bar.startQ, s);
+          const be = Math.min(bar.endQ, e);
+          if (be - bs < 1) return bar;
+          return { ...bar, breaks: [...bar.breaks, { startQ: bs, endQ: be }] };
+        }));
+      }
+      setBreakDragging(null);
     }
     if (resizing) setResizing(null);
   }
@@ -372,30 +392,70 @@ export default function AttendancePage() {
                   ))}
 
                   {/* 既存バー */}
-                  {bar && (
-                    <div className="absolute top-2 bottom-2 rounded-[4px] bg-[#1a73e8] flex items-center justify-between px-1.5 group cursor-default"
-                      style={{ left: `${(bar.startQ / TOTAL_Q) * 100}%`, width: `${((bar.endQ - bar.startQ) / TOTAL_Q) * 100}%` }}
-                      onClick={e => e.stopPropagation()}>
-                      {/* 左リサイズハンドル */}
-                      {tab === "create" && (
-                        <div className="w-2 h-full cursor-ew-resize absolute left-0 top-0 rounded-l-[4px] hover:bg-[#1557b0]"
-                          onMouseDown={e => { e.stopPropagation(); setResizing({ staffId: s.id, edge: "start", origBar: bar }); }} />
-                      )}
-                      <span className="text-[10px] text-white font-medium whitespace-nowrap mx-auto">
-                        {qToTime(bar.startQ)}–{qToTime(bar.endQ)}
-                      </span>
-                      {/* 右リサイズハンドル */}
-                      {tab === "create" && (
-                        <div className="w-2 h-full cursor-ew-resize absolute right-0 top-0 rounded-r-[4px] hover:bg-[#1557b0]"
-                          onMouseDown={e => { e.stopPropagation(); setResizing({ staffId: s.id, edge: "end", origBar: bar }); }} />
-                      )}
-                      {/* 削除ボタン */}
-                      {tab === "create" && (
-                        <button onClick={e => { e.stopPropagation(); deleteBar(s.id, selectedDate); }}
-                          className="absolute -top-1 -right-1 w-4 h-4 bg-[#c5221f] text-white rounded-full text-[8px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
-                      )}
-                    </div>
-                  )}
+                  {bar && (() => {
+                    const barLeft = (bar.startQ / TOTAL_Q) * 100;
+                    const barWidth = ((bar.endQ - bar.startQ) / TOTAL_Q) * 100;
+                    const totalBreakMin = bar.breaks.reduce((sum, b) => sum + (b.endQ - b.startQ) * 15, 0);
+                    return (
+                      <div className="absolute top-2 bottom-2 rounded-[4px] bg-[#1a73e8] group cursor-default overflow-hidden"
+                        style={{ left: `${barLeft}%`, width: `${barWidth}%` }}
+                        onClick={e => e.stopPropagation()}
+                        onMouseDown={tab === "create" ? (e) => {
+                          if (e.altKey || e.metaKey) {
+                            e.stopPropagation();
+                            const q = getQFromMouse(e);
+                            setBreakDragging({ staffId: s.id, startQ: q, currentQ: q });
+                          }
+                        } : undefined}>
+
+                        {/* 休憩帯（オレンジ） */}
+                        {bar.breaks.map((brk, bi) => {
+                          const relLeft = ((brk.startQ - bar.startQ) / (bar.endQ - bar.startQ)) * 100;
+                          const relWidth = ((brk.endQ - brk.startQ) / (bar.endQ - bar.startQ)) * 100;
+                          return (
+                            <div key={bi} className="absolute top-0 bottom-0 bg-[#e37400] group/brk"
+                              style={{ left: `${relLeft}%`, width: `${relWidth}%` }}>
+                              <span className="absolute inset-0 flex items-center justify-center text-[8px] text-white/90 font-medium">休</span>
+                              {tab === "create" && (
+                                <button onClick={e => { e.stopPropagation(); setShifts(prev => prev.map(x => x.staffId === s.id && x.date === selectedDate ? { ...x, breaks: x.breaks.filter((_, j) => j !== bi) } : x)); }}
+                                  className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#c5221f] text-white rounded-full text-[7px] flex items-center justify-center opacity-0 group-hover/brk:opacity-100 transition-opacity z-10">✕</button>
+                              )}
+                            </div>
+                          );
+                        })}
+
+                        {/* ラベル */}
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] text-white font-medium whitespace-nowrap pointer-events-none">
+                          {qToTime(bar.startQ)}–{qToTime(bar.endQ)}{totalBreakMin > 0 ? ` (休${totalBreakMin}分)` : ""}
+                        </span>
+
+                        {/* 休憩ドラッグ中プレビュー */}
+                        {breakDragging?.staffId === s.id && (() => {
+                          const bs = Math.max(bar.startQ, Math.min(breakDragging.startQ, breakDragging.currentQ));
+                          const be = Math.min(bar.endQ, Math.max(breakDragging.startQ, breakDragging.currentQ));
+                          if (be - bs < 1) return null;
+                          const relL = ((bs - bar.startQ) / (bar.endQ - bar.startQ)) * 100;
+                          const relW = ((be - bs) / (bar.endQ - bar.startQ)) * 100;
+                          return <div className="absolute top-0 bottom-0 bg-[#e37400]/50 border-2 border-[#e37400] border-dashed rounded-[2px]" style={{ left: `${relL}%`, width: `${relW}%` }} />;
+                        })()}
+
+                        {/* リサイズハンドル */}
+                        {tab === "create" && (
+                          <>
+                            <div className="w-2 h-full cursor-ew-resize absolute left-0 top-0 rounded-l-[4px] hover:bg-[#1557b0] z-10"
+                              onMouseDown={e => { e.stopPropagation(); setResizing({ staffId: s.id, edge: "start", origBar: bar }); }} />
+                            <div className="w-2 h-full cursor-ew-resize absolute right-0 top-0 rounded-r-[4px] hover:bg-[#1557b0] z-10"
+                              onMouseDown={e => { e.stopPropagation(); setResizing({ staffId: s.id, edge: "end", origBar: bar }); }} />
+                          </>
+                        )}
+                        {/* 削除ボタン */}
+                        {tab === "create" && (
+                          <button onClick={e => { e.stopPropagation(); deleteBar(s.id, selectedDate); }}
+                            className="absolute -top-1 -right-1 w-4 h-4 bg-[#c5221f] text-white rounded-full text-[8px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">✕</button>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {/* ドラッグ中のプレビュー */}
                   {dragBar && (
@@ -418,7 +478,7 @@ export default function AttendancePage() {
           {tab === "create" && (
             <div className="px-4 py-2.5 bg-[#f5f6f8] border-t border-[#e8eaed] flex items-center gap-3 text-[11px] text-[#9aa0a6]">
               <Image src="/logo-icon.png" alt="" width={16} height={16} className="opacity-30" />
-              <span>空白エリアをドラッグしてシフトを作成 | バーの端をドラッグしてリサイズ | 15分単位</span>
+              <span>空白ドラッグ→シフト作成 | 端ドラッグ→リサイズ | <strong className="text-[#e37400]">Alt+バー内ドラッグ→休憩</strong> | 15分単位</span>
             </div>
           )}
         </div>
