@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -33,7 +34,10 @@ export default function LoginPage() {
     <div className="min-h-screen bg-bg flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
-          <Link href="/" className="text-[16px] font-bold text-text-primary">てんぽみえるくん</Link>
+          <Link href="/" className="inline-flex flex-col items-center gap-2">
+            <Image src="/logo-icon.png" alt="みえるくん" width={48} height={48} />
+            <span className="text-[16px] font-bold text-text-primary">てんぽみえるくん</span>
+          </Link>
         </div>
 
         <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-6">
