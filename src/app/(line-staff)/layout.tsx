@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import { Home, Clock, Grid3X3, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -26,7 +27,10 @@ export default function LineStaffLayout({ children }: { children: React.ReactNod
       {/* ヘッダー */}
       <header className="sticky top-0 z-30 bg-bg-white border-b border-border">
         <div className="flex items-center justify-between px-4 h-12">
-          <span className="text-[13px] font-bold text-text-primary">てんぽみえるくん</span>
+          <div className="flex items-center gap-1.5">
+            <Image src="/logo-icon.png" alt="みえるくん" width={22} height={22} />
+            <span className="text-[13px] font-bold text-text-primary">てんぽみえるくん</span>
+          </div>
           <button onClick={handleLogout} className="p-1.5 rounded-[var(--radius)] text-text-tertiary hover:bg-bg-hover">
             <LogOut className="w-4 h-4" />
           </button>
