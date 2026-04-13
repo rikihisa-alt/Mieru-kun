@@ -59,7 +59,7 @@ export default function ClosingPage() {
   }
 
   return (
-    <div className="space-y-4 max-w-2xl">
+    <div className="space-y-4">
       {/* 日付入力 */}
       <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4">
         <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-2">

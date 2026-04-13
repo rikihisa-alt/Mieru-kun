@@ -59,7 +59,7 @@ export default function NewCustomerPage() {
   }
 
   return (
-    <div className="max-w-lg">
+    <div className="max-w-2xl">
       <Link href="/customers" className="flex items-center gap-1 text-[12px] text-[#9aa0a6] hover:text-[#5f6368] mb-4">
         <ArrowLeft className="w-3.5 h-3.5" />顧客一覧に戻る
       </Link>

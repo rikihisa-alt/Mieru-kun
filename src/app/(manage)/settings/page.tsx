@@ -57,7 +57,7 @@ export default function SettingsPage() {
   const SaveBtn = "px-4 py-[7px] bg-[#1a73e8] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#1557b0] transition-colors";
 
   return (
-    <div className="space-y-4 max-w-2xl">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* 店舗情報 */}
       <div className={Card}>
         <h2 className="text-[13px] font-semibold mb-4">店舗情報</h2>
