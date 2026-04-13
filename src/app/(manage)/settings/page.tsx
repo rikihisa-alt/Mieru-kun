@@ -72,7 +72,38 @@ export default async function SettingsPage() {
       {/* 営業時間 */}
       <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-5">
         <h2 className="text-[13px] font-semibold text-text-primary mb-4">営業時間</h2>
-        <p className="text-[13px] text-text-tertiary">営業時間設定は今後のアップデートで対応予定です。</p>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
+                開店時刻
+              </label>
+              <input type="time" defaultValue="18:00" className="text-[13px]" />
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
+                閉店時刻
+              </label>
+              <input type="time" defaultValue="05:00" className="text-[13px]" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
+              定休日
+            </label>
+            <div className="flex gap-1.5">
+              {["月","火","水","木","金","土","日"].map(d => (
+                <button key={d} className={`w-9 h-9 rounded-[4px] text-[12px] font-medium border transition-colors ${
+                  d === "月" ? "bg-[#1a73e8] text-white border-[#1a73e8]" : "border-[#dadce0] text-[#5f6368] hover:bg-[#f0f1f3]"
+                }`}>{d}</button>
+              ))}
+            </div>
+            <p className="text-[11px] text-text-tertiary mt-1.5">選択した曜日が定休日になります</p>
+          </div>
+          <button className="px-4 py-[7px] bg-[#1a73e8] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#1557b0] transition-colors">
+            保存
+          </button>
+        </div>
       </div>
 
       {/* LINE連携 */}

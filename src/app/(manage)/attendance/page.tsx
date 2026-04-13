@@ -123,25 +123,52 @@ export default function AttendancePage() {
         <div className="bg-white border border-[#dadce0] rounded-[8px] overflow-auto">
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#e8eaed]">
             <button className="p-1 hover:bg-[#f0f1f3] rounded-[4px]"><ChevronLeft className="w-4 h-4" /></button>
-            <span className="text-[13px] font-semibold">4月14日〜4月20日</span>
+            <span className="text-[13px] font-semibold">本日のシフト</span>
             <button className="p-1 hover:bg-[#f0f1f3] rounded-[4px]"><ChevronRight className="w-4 h-4" /></button>
           </div>
-          <table className="w-full text-[12px]">
-            <thead><tr className="border-b border-[#dadce0] bg-[#f5f6f8]">
-              <th className="px-4 py-2 text-[11px] font-semibold text-[#9aa0a6] uppercase text-left w-32">スタッフ</th>
-              {DAYS.map(d => <th key={d} className="px-2 py-2 text-center text-[11px] font-semibold text-[#9aa0a6] uppercase">{d}</th>)}
-            </tr></thead>
-            <tbody>{SHIFTS.map(s => (
-              <tr key={s.name} className="border-b border-[#e8eaed]">
-                <td className="px-4 py-2 font-medium">{s.name}</td>
-                {s.slots.map((slot, i) => (
-                  <td key={i} className="px-2 py-2 text-center">
-                    {slot ? <span className="inline-block px-2 py-1 bg-[#e8f0fe] text-[#1a73e8] text-[10px] font-medium rounded-[4px]">{slot}</span> : <span className="text-[#9aa0a6]">—</span>}
-                  </td>
-                ))}
-              </tr>
-            ))}</tbody>
-          </table>
+          {/* タイムラインヘッダー: 時間軸 */}
+          <div className="flex border-b border-[#e8eaed]">
+            <div className="w-28 flex-shrink-0 px-3 py-2 text-[11px] font-semibold text-[#9aa0a6] uppercase">スタッフ</div>
+            <div className="flex-1 flex">
+              {Array.from({ length: 12 }, (_, i) => i + 14).map(h => (
+                <div key={h} className="flex-1 text-center py-2 text-[10px] font-semibold text-[#9aa0a6] border-l border-[#e8eaed]">
+                  {h}:00
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* タイムラインバー */}
+          {SHIFTS.map(s => {
+            const todaySlot = s.slots[0]; // 本日分
+            let startH = 0, endH = 0;
+            if (todaySlot) {
+              const [sh, eh] = todaySlot.split("-").map(Number);
+              startH = sh; endH = eh;
+            }
+            const timelineStart = 14; // 14時始まり
+            const timelineEnd = 26; // 26時(=翌2時)
+            const totalHours = timelineEnd - timelineStart;
+            const barLeft = todaySlot ? ((startH - timelineStart) / totalHours) * 100 : 0;
+            const barWidth = todaySlot ? ((endH - startH) / totalHours) * 100 : 0;
+            return (
+              <div key={s.name} className="flex border-b border-[#e8eaed] hover:bg-[#f5f6f8] transition-colors">
+                <div className="w-28 flex-shrink-0 px-3 py-3 text-[12px] font-medium">{s.name}</div>
+                <div className="flex-1 relative h-10">
+                  {/* 時間グリッド */}
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <div key={i} className="absolute top-0 bottom-0 border-l border-[#e8eaed]" style={{ left: `${(i / 12) * 100}%` }} />
+                  ))}
+                  {/* バー */}
+                  {todaySlot && (
+                    <div className="absolute top-2 bottom-2 rounded-[4px] bg-[#1a73e8] flex items-center px-2"
+                      style={{ left: `${barLeft}%`, width: `${barWidth}%` }}>
+                      <span className="text-[10px] text-white font-medium whitespace-nowrap">{todaySlot}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

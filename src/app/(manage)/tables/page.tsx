@@ -121,6 +121,10 @@ export default function TablesPage() {
     setNewTableName(""); setNewTableSeats(9); setShowAddTable(false);
   }
   function deleteTable(tid: string) {
+    const hasPlayers = players.some(p => p.tableId === tid);
+    if (hasPlayers) {
+      if (!window.confirm("この卓に配置されているお客さんが存在します。\n本当に削除してよろしいですか？")) return;
+    }
     setPlayers(prev => prev.map(p => p.tableId === tid ? { ...p, tableId: null, seatIndex: null } : p));
     setTables(prev => prev.filter(t => t.id !== tid));
     if (selectedTable === tid) setSelectedTable(null);
