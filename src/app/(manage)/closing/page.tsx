@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { executeClosingAction } from "@/lib/actions/closing-actions";
 import { formatCurrency, todayString } from "@/lib/utils";

@@ -89,6 +89,7 @@ export default function AttendancePage() {
   const [resizing, setResizing] = useState<{ staffId: string; edge: "start" | "end"; origBar: ShiftBar } | null>(null);
   const [breakDragging, setBreakDragging] = useState<{ staffId: string; startQ: number; currentQ: number } | null>(null);
   const [breakMode, setBreakMode] = useState(false); // ダブルクリックで休憩モードON
+  const [moving, setMoving] = useState<{ staffId: string; date: string; startMouseQ: number; origStartQ: number; origEndQ: number } | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
 
   function approve(id: string) {
@@ -102,7 +103,7 @@ export default function AttendancePage() {
 
   // 日付切替
   function changeDate(dir: number) {
-    const newOff = dateOffset + dir;
+    const newOff = dateOffset + (dir * 7);
     setDateOffset(newOff);
     setSelectedDate(dateStr(newOff));
   }
@@ -141,6 +142,16 @@ export default function AttendancePage() {
       const q = getQFromMouse(e);
       setBreakDragging(prev => prev ? { ...prev, currentQ: q } : null);
     }
+    if (moving) {
+      const q = getQFromMouse(e);
+      const delta = q - moving.startMouseQ;
+      const duration = moving.origEndQ - moving.origStartQ;
+      let newStart = moving.origStartQ + delta;
+      let newEnd = moving.origEndQ + delta;
+      if (newStart < 0) { newStart = 0; newEnd = duration; }
+      if (newEnd > TOTAL_Q) { newEnd = TOTAL_Q; newStart = TOTAL_Q - duration; }
+      setShifts(prev => prev.map(s => s.staffId === moving.staffId && s.date === moving.date ? { ...s, startQ: newStart, endQ: newEnd } : s));
+    }
     if (resizing) {
       const q = getQFromMouse(e);
       const bar = resizing.origBar;
@@ -178,11 +189,53 @@ export default function AttendancePage() {
       setBreakDragging(null);
     }
     if (resizing) setResizing(null);
+    if (moving) setMoving(null);
   }
 
   // PDF
   function exportPDF() {
     const w = window.open("", "_blank"); if (!w) return;
+    if (tab === "calendar") {
+      // カレンダー月間表示PDF
+      const [calY, calM] = historyMonth.split("-").map(Number);
+      const daysInMonth = new Date(calY, calM, 0).getDate();
+      const dayNames = ["日","月","火","水","木","金","土"];
+      const allDates = Array.from({ length: daysInMonth }, (_, i) => {
+        const d = new Date(calY, calM - 1, i + 1);
+        return { day: i + 1, dow: d.getDay(), dateStr: d.toISOString().split("T")[0] };
+      });
+      let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>シフトカレンダー</title>
+        <style>body{font-family:"Hiragino Sans",sans-serif;padding:12px;font-size:9px}
+        h1{font-size:14px;margin-bottom:2px}p.sub{color:#888;font-size:9px;margin-bottom:10px}
+        table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:2px 3px;text-align:center}
+        th{background:#f5f5f5;font-size:8px}.name{text-align:left;font-weight:600;white-space:nowrap}
+        .badge{background:#3a8f7c;color:#fff;border-radius:3px;padding:1px 3px;font-size:8px;display:inline-block}
+        .sun{color:#c5221f}.sat{color:#3a8f7c}
+        @media print{@page{size:landscape;margin:8mm}}</style></head>
+        <body><h1>シフトカレンダー - ${calY}年${calM}月</h1><p class="sub">Come On Casino | てんぽみえるくん</p>
+        <table><thead><tr><th class="name" style="min-width:60px">スタッフ</th>`;
+      allDates.forEach(d => {
+        const cls = d.dow === 0 ? ' class="sun"' : d.dow === 6 ? ' class="sat"' : '';
+        html += `<th${cls}><div style="font-size:7px">${dayNames[d.dow]}</div><div>${d.day}</div></th>`;
+      });
+      html += `</tr></thead><tbody>`;
+      STAFF_LIST.forEach(s => {
+        html += `<tr><td class="name">${s.name}</td>`;
+        allDates.forEach(d => {
+          const shift = shifts.find(sh => sh.staffId === s.id && sh.date === d.dateStr);
+          if (shift) {
+            html += `<td><span class="badge">${qToTime(shift.startQ).replace(":00","")}-${qToTime(shift.endQ).replace(":00","")}</span></td>`;
+          } else {
+            html += `<td style="color:#ccc">—</td>`;
+          }
+        });
+        html += `</tr>`;
+      });
+      html += `</tbody></table></body></html>`;
+      w.document.write(html); w.document.close();
+      setTimeout(() => w.print(), 500);
+      return;
+    }
     let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>シフト表</title>
       <style>body{font-family:"Hiragino Sans",sans-serif;padding:20px;font-size:11px}
       h1{font-size:15px;margin-bottom:2px}p.sub{color:#888;font-size:10px;margin-bottom:12px}
@@ -401,7 +454,7 @@ export default function AttendancePage() {
                     const barWidth = ((bar.endQ - bar.startQ) / TOTAL_Q) * 100;
                     const totalBreakMin = bar.breaks.reduce((sum, b) => sum + (b.endQ - b.startQ) * 15, 0);
                     return (
-                      <div className="absolute top-2 bottom-2 rounded-[4px] bg-[#3a8f7c] group cursor-default overflow-hidden"
+                      <div className="absolute top-2 bottom-2 rounded-[4px] bg-[#3a8f7c] group cursor-grab overflow-hidden active:cursor-grabbing"
                         style={{ left: `${barLeft}%`, width: `${barWidth}%` }}
                         onClick={e => e.stopPropagation()}
                         onMouseDown={tab === "create" ? (e) => {
@@ -409,6 +462,10 @@ export default function AttendancePage() {
                             e.stopPropagation();
                             const q = getQFromMouse(e);
                             setBreakDragging({ staffId: s.id, startQ: q, currentQ: q });
+                          } else {
+                            e.stopPropagation();
+                            const q = getQFromMouse(e);
+                            setMoving({ staffId: s.id, date: selectedDate, startMouseQ: q, origStartQ: bar.startQ, origEndQ: bar.endQ });
                           }
                         } : undefined}
                         onDoubleClick={tab === "create" ? (e) => {
@@ -486,7 +543,7 @@ export default function AttendancePage() {
           {tab === "create" && (
             <div className="px-4 py-2.5 bg-[#faf8f5] border-t border-[#e8e4df] flex items-center gap-3 text-[11px] text-[#8e9baa]">
               <Image src="/logo-icon.png" alt="" width={16} height={16} className="opacity-30" />
-              <span>空白ドラッグ→シフト作成 | 端ドラッグ→リサイズ | <strong className={breakMode ? "text-[#e37400]" : "text-[#8e9baa]"}>バーをダブルクリック→休憩モード{breakMode ? " ON ✓" : ""}</strong> | 15分単位</span>
+              <span>空白ドラッグ→シフト作成 | バードラッグ→移動 | 端ドラッグ→リサイズ | <strong className={breakMode ? "text-[#e37400]" : "text-[#8e9baa]"}>バーをダブルクリック→休憩モード{breakMode ? " ON ✓" : ""}</strong> | 15分単位</span>
               {breakMode && <span className="ml-2 px-2 py-0.5 bg-[#e37400] text-white text-[10px] rounded-[4px] font-medium">休憩モード: バー内をドラッグして休憩を設定</span>}
             </div>
           )}
@@ -528,7 +585,6 @@ export default function AttendancePage() {
                       <td className="px-3 py-2 font-medium text-[12px] sticky left-0 bg-white z-10">{staff.name}</td>
                       {allDates.map(d => {
                         const shift = shifts.find(s => s.staffId === staff.id && s.date === d.dateStr);
-                        const totalBreak = shift ? shift.breaks.reduce((sum, b) => sum + (b.endQ - b.startQ) * 15, 0) : 0;
                         return (
                           <td key={d.day} className={`px-0.5 py-1 text-center ${d.dow === 0 || d.dow === 6 ? "bg-[#fafafa]" : ""}`}>
                             {shift ? (
@@ -536,9 +592,6 @@ export default function AttendancePage() {
                                 <span className="inline-block px-1.5 py-0.5 bg-[#3a8f7c] text-white text-[9px] font-medium rounded-[3px] leading-tight">
                                   {qToTime(shift.startQ).replace(":00","")}-{qToTime(shift.endQ).replace(":00","")}
                                 </span>
-                                {totalBreak > 0 && (
-                                  <span className="text-[8px] text-[#e37400] mt-0.5">休{totalBreak}m</span>
-                                )}
                               </div>
                             ) : (
                               <span className="text-[#d8d3cc]">—</span>

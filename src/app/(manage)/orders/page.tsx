@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { ShoppingBag, CreditCard, Plus, Minus, CheckCircle, X, ChevronDown } from "lucide-react";
 

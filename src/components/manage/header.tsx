@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -35,6 +36,7 @@ export function Header() {
     <header className="h-14 bg-bg-white border-b border-border flex items-center justify-between px-6">
       <h1 className="text-[15px] font-semibold text-text-primary">{title}</h1>
       <div className="flex items-center gap-3">
+        <Image src="/logo-icon.png" alt="みえるくん" width={22} height={22} className="opacity-25" />
         <span className="text-[12px] text-text-tertiary">
           {new Date().toLocaleDateString("ja-JP", { month: "long", day: "numeric", weekday: "short" })}
         </span>

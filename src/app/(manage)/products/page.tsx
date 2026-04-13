@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_STORE_ID, formatCurrency, categoryLabel } from "@/lib/utils";
