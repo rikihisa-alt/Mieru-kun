@@ -73,7 +73,8 @@ function makeInitShifts(): ShiftBar[] {
 
 export default function AttendancePage() {
   const [staff, setStaff] = useState(ATTENDANCE);
-  const [tab, setTab] = useState<"today" | "shift" | "create">("today");
+  const [tab, setTab] = useState<"today" | "shift" | "create" | "history">("today");
+  const [historyMonth, setHistoryMonth] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; });
   const [editId, setEditId] = useState<string | null>(null);
   const [editTime, setEditTime] = useState("");
   const [editReason, setEditReason] = useState("");
@@ -178,6 +179,59 @@ export default function AttendancePage() {
     setTimeout(() => w.print(), 500);
   }
 
+  // 出勤簿PDF
+  function exportAttendancePDF() {
+    const w = window.open("", "_blank"); if (!w) return;
+    const [y, m] = historyMonth.split("-");
+    const daysInMonth = new Date(parseInt(y), parseInt(m), 0).getDate();
+    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>出勤簿</title>
+      <style>body{font-family:"Hiragino Sans",sans-serif;padding:20px;font-size:10px}
+      h1{font-size:15px;margin-bottom:2px}p.sub{color:#888;font-size:10px;margin-bottom:16px}
+      table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:4px 6px;text-align:center}
+      th{background:#f5f5f5;font-size:9px}.name{text-align:left;font-weight:600}
+      .time{font-family:monospace;font-size:9px}.total{font-weight:700;background:#f9f9f9}</style></head>
+      <body><h1>出勤簿 - ${y}年${parseInt(m)}月</h1>
+      <p class="sub">Come On Casino | てんぽみえるくん | ※勤務時間は分単位（秒切り捨て）</p>`;
+    STAFF_LIST.forEach(s => {
+      html += `<h3 style="margin:16px 0 4px;font-size:12px">${s.name}（${s.role}）</h3>`;
+      html += `<table><thead><tr><th>日付</th><th>出勤</th><th>退勤</th><th>休憩</th><th>勤務時間</th><th>備考</th></tr></thead><tbody>`;
+      let totalMin = 0;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dt = new Date(parseInt(y), parseInt(m)-1, d);
+        const dayName = ["日","月","火","水","木","金","土"][dt.getDay()];
+        const isWeekend = dt.getDay() === 0 || dt.getDay() === 6;
+        // デモ: ランダムにシフトデータ生成
+        const hasShift = d % 7 !== 0 && d % 3 !== 0; // 適当な休み
+        const clockIn = hasShift ? "18:00" : "";
+        const clockOut = hasShift ? "24:00" : "";
+        const breakMin = hasShift ? 60 : 0;
+        const workMin = hasShift ? 300 : 0; // 5h
+        totalMin += workMin;
+        html += `<tr${isWeekend?" style='background:#fafafa'":""}><td>${d}日(${dayName})</td>`;
+        html += `<td class="time">${clockIn}</td><td class="time">${clockOut}</td>`;
+        html += `<td>${breakMin > 0 ? breakMin+"分" : ""}</td>`;
+        html += `<td class="time">${workMin > 0 ? Math.floor(workMin/60)+"h"+workMin%60+"m" : ""}</td>`;
+        html += `<td></td></tr>`;
+      }
+      html += `<tr class="total"><td colspan="4">合計</td><td>${Math.floor(totalMin/60)}h${totalMin%60}m</td><td></td></tr>`;
+      html += `</tbody></table>`;
+    });
+    html += `</body></html>`;
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 500);
+  }
+
+  // 履歴デモデータ
+  const historyData = STAFF_LIST.map(s => {
+    const days: { date: string; clockIn: string; clockOut: string; breakMin: number; workMin: number }[] = [];
+    for (let i = 1; i <= 10; i++) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      if (i % 3 === 0) continue; // 休み
+      days.push({ date: `${d.getMonth()+1}/${d.getDate()}`, clockIn: "18:00", clockOut: "24:00", breakMin: 60, workMin: 300 });
+    }
+    return { ...s, days };
+  });
+
   const working = staff.filter(s => s.status === "working").length;
   const onBreak = staff.filter(s => s.status === "on_break").length;
   const pending = staff.filter(s => s.needsApproval).length;
@@ -197,6 +251,9 @@ export default function AttendancePage() {
         </button>
         <button onClick={() => setTab("create")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "create" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
           <Plus className="w-3 h-3 inline mr-1" />シフト作成
+        </button>
+        <button onClick={() => setTab("history")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "history" ? "bg-[#1a73e8] text-white" : "text-[#5f6368] hover:bg-[#f0f1f3]"}`}>
+          <FileDown className="w-3 h-3 inline mr-1" />履歴・出勤簿
         </button>
         {tab === "today" && (
           <div className="ml-auto flex items-center gap-3 text-[12px]">
@@ -364,6 +421,50 @@ export default function AttendancePage() {
               <span>空白エリアをドラッグしてシフトを作成 | バーの端をドラッグしてリサイズ | 15分単位</span>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ===== 履歴・出勤簿 ===== */}
+      {tab === "history" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <label className="text-[12px] text-[#5f6368]">対象月:</label>
+              <input type="month" value={historyMonth} onChange={e => setHistoryMonth(e.target.value)} className="text-[13px] py-1 px-2 border border-[#dadce0] rounded-[6px]" />
+            </div>
+            <button onClick={exportAttendancePDF} className="flex items-center gap-1 px-3 py-[7px] bg-[#1a73e8] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#1557b0]">
+              <FileDown className="w-3.5 h-3.5" />出勤簿PDF出力
+            </button>
+          </div>
+          <p className="text-[11px] text-[#9aa0a6]">※勤務時間は分単位（秒切り捨て）で計算</p>
+
+          {/* スタッフ別履歴 */}
+          {historyData.map(s => (
+            <div key={s.id} className="bg-white border border-[#dadce0] rounded-[8px] overflow-hidden">
+              <div className="px-4 py-2.5 bg-[#f5f6f8] border-b border-[#e8eaed] flex items-center justify-between">
+                <span className="text-[13px] font-semibold">{s.name}</span>
+                <span className="text-[11px] text-[#9aa0a6]">{s.role} | 合計 {s.days.reduce((sum, d) => sum + d.workMin, 0)}分 ({Math.floor(s.days.reduce((sum, d) => sum + d.workMin, 0) / 60)}h{s.days.reduce((sum, d) => sum + d.workMin, 0) % 60}m)</span>
+              </div>
+              <table className="w-full text-[12px]">
+                <thead><tr className="border-b border-[#e8eaed]">
+                  <th className="px-4 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left">日付</th>
+                  <th className="px-4 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left">出勤</th>
+                  <th className="px-4 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left">退勤</th>
+                  <th className="px-4 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left">休憩</th>
+                  <th className="px-4 py-2 text-[10px] font-semibold text-[#9aa0a6] uppercase text-left">勤務時間</th>
+                </tr></thead>
+                <tbody>{s.days.map((d, i) => (
+                  <tr key={i} className="border-b border-[#e8eaed]">
+                    <td className="px-4 py-1.5">{d.date}</td>
+                    <td className="px-4 py-1.5 font-mono">{d.clockIn}</td>
+                    <td className="px-4 py-1.5 font-mono">{d.clockOut}</td>
+                    <td className="px-4 py-1.5">{d.breakMin}分</td>
+                    <td className="px-4 py-1.5 font-medium">{Math.floor(d.workMin/60)}h{d.workMin%60}m</td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          ))}
         </div>
       )}
     </div>
