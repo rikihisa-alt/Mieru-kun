@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
+import { useAppStore } from "@/lib/store/app-store";
 import {
   DndContext,
   DragOverlay,
@@ -48,8 +49,20 @@ const RANK_COLORS: Record<string, string> = { vip: "#7c3aed", gold: "#d97706", s
 const RANK_LABELS: Record<string, string> = { vip: "VIP", gold: "Gold", silver: "Silver", regular: "" };
 
 export default function TablesPage() {
+  const appStore = useAppStore();
   const [tables, setTables] = useState<TableDef[]>(INIT_TABLES);
   const [players, setPlayers] = useState<Player[]>(INIT_PLAYERS);
+
+  // 卓の稼働状況をダッシュボードに同期
+  useEffect(() => {
+    const synced = tables.map(t => ({
+      name: t.name,
+      occupied: players.filter(p => p.tableId === t.id).length,
+      max: t.maxSeats,
+      type: t.type,
+    }));
+    appStore.updateTables(synced);
+  }, [tables, players, appStore]);
   const [activePlayer, setActivePlayer] = useState<Player | null>(null);
   const [expandedTable, setExpandedTable] = useState<string | null>(null);
 
@@ -351,7 +364,7 @@ function WaitingArea({ players, onPlayerClick }: {
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: "waiting" });
   return (
-    <div ref={setNodeRef} className={`border rounded-[8px] px-4 py-3 transition-colors ${isOver ? "border-[#3a8f7c] bg-[#e8f5f0]" : "border-[#e8e4df] border-dashed"}`}>
+    <div ref={setNodeRef} className={`pb-3 border-b transition-colors ${isOver ? "border-[#3a8f7c] bg-[#e8f5f0] rounded-[6px] px-3 py-2" : "border-[#e8e4df]"}`}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">待機中</span>
         <span className="text-[12px] font-bold text-[#3a8f7c]">{players.length}名</span>
@@ -382,8 +395,8 @@ function DraggablePlayer({ player, onChipClick }: {
 function PlayerChip({ player, isDragging }: { player: Player; isDragging?: boolean }) {
   const label = RANK_LABELS[player.rank];
   return (
-    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 bg-white border rounded-[6px] text-[11px] font-medium cursor-grab select-none ${
-      isDragging ? "dragging border-[#3a8f7c]" : "border-[#d8d3cc] hover:border-[#3a8f7c]/60 hover:bg-[#f0f9f6]"
+    <div className={`flex items-center gap-1.5 px-2 py-1 text-[11px] font-medium cursor-grab select-none rounded-[4px] ${
+      isDragging ? "dragging bg-[#e8f5f0] border border-[#3a8f7c]" : "hover:bg-[#f3f0ec]"
     }`} style={{ transition: "transform 0.1s, box-shadow 0.1s, border-color 0.1s" }}>
       <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold" style={{ backgroundColor: RANK_COLORS[player.rank] }}>
         {player.name.charAt(0)}

@@ -107,6 +107,7 @@ interface AppStore {
   addTimelineEvent: (ev: Omit<TimelineEvent, "id">) => void;
   clockInStaff: (id: string) => void;
   clockOutStaff: (id: string) => void;
+  updateTables: (tables: TableInfo[]) => void;
 }
 
 const AppStoreContext = createContext<AppStore | null>(null);
@@ -116,7 +117,11 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>(INIT_STAFF);
   const [timeline, setTimeline] = useState<TimelineEvent[]>(INIT_TIMELINE);
   const [events] = useState<EventItem[]>(INIT_EVENTS);
-  const [tables] = useState<TableInfo[]>(INIT_TABLES);
+  const [tables, setTables] = useState<TableInfo[]>(INIT_TABLES);
+
+  const updateTables = useCallback((newTables: TableInfo[]) => {
+    setTables(newTables);
+  }, []);
 
   // KPI算出（リアルタイム）
   const activeVisitors = visitors.filter(v => v.status === "active" || v.status === "unassigned" || v.status === "unpaid");
@@ -191,7 +196,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     <AppStoreContext.Provider value={{
       visitors, staffMembers, timeline, events, tables, kpis,
       addVisitor, settleVisitor, assignTable, addTimelineEvent,
-      clockInStaff, clockOutStaff,
+      clockInStaff, clockOutStaff, updateTables,
     }}>
       {children}
     </AppStoreContext.Provider>
