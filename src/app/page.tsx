@@ -152,7 +152,7 @@ export default function Home() {
               <div key={i} className="pb-12 border-b border-[#f3f0ec] last:border-0 last:pb-0">
                 {/* Before: 文章（左）+ 画像（右） */}
                 <div className="flex flex-col md:flex-row gap-6 items-center">
-                  <div className="md:w-[55%]">
+                  <div className="md:w-[60%]">
                     <p className="text-[10px] font-semibold text-[#c0392b] uppercase tracking-wider mb-2">Before</p>
                     <div className="flex items-center gap-1.5 mb-2">
                       <Minus className="w-3.5 h-3.5 text-[#c0392b] flex-shrink-0" />
@@ -160,13 +160,8 @@ export default function Home() {
                     </div>
                     <p className="text-[12px] text-[#5a6977] leading-[1.8]">{item.problemDesc}</p>
                   </div>
-                  <div className="md:w-[45%] flex justify-center">
-                    <div className="w-full max-w-[280px] aspect-[16/9] bg-[#fce8e6]/30 border border-[#c0392b]/10 rounded-[8px] flex items-center justify-center">
-                      <Image src={item.beforeImg} alt={item.problem} width={260} height={146} className="rounded-[6px] object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                      <span className="text-[40px] absolute">
-                        {i === 0 ? "📋" : i === 1 ? "🃏" : i === 2 ? "🪙" : i === 3 ? "📅" : "🧾"}
-                      </span>
-                    </div>
+                  <div className="md:w-[40%] flex justify-center">
+                    <Image src={item.beforeImg} alt={item.problem} width={240} height={240} className="object-contain" />
                   </div>
                 </div>
 
@@ -179,15 +174,10 @@ export default function Home() {
 
                 {/* After: 画像（左）+ 文章（右） */}
                 <div className="flex flex-col md:flex-row gap-6 items-center">
-                  <div className="md:w-[45%] flex justify-center">
-                    <div className="w-full max-w-[280px] aspect-[16/9] bg-[#e8f5f0]/50 border border-[#3a8f7c]/10 rounded-[8px] flex items-center justify-center">
-                      <Image src={item.afterImg} alt={item.solution} width={260} height={146} className="rounded-[6px] object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                      <span className="text-[40px] absolute">
-                        {i === 0 ? "📱" : i === 1 ? "🖱️" : i === 2 ? "✅" : i === 3 ? "📲" : "⚡"}
-                      </span>
-                    </div>
+                  <div className="md:w-[40%] flex justify-center">
+                    <Image src={item.afterImg} alt={item.solution} width={240} height={240} className="object-contain" />
                   </div>
-                  <div className="md:w-[55%]">
+                  <div className="md:w-[60%]">
                     <p className="text-[10px] font-semibold text-[#3a8f7c] uppercase tracking-wider mb-2">After</p>
                     <div className="flex items-center gap-1.5 mb-2">
                       <Check className="w-3.5 h-3.5 text-[#3a8f7c] flex-shrink-0" />
