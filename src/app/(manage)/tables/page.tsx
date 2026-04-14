@@ -328,6 +328,8 @@ function PlayerPopover({ player, x, y, onRemove, onClose }: {
   }, [x, y]);
 
   return (
+    <>
+    <div className="fixed inset-0 z-40" onClick={onClose} />
     <div ref={ref} className="fixed z-50 bg-white border border-[#d8d3cc] rounded-[8px] shadow-lg p-3 min-w-[180px]"
       style={{ left: pos.left, top: pos.top }}
       onClick={e => e.stopPropagation()}>
@@ -354,6 +356,7 @@ function PlayerPopover({ player, x, y, onRemove, onClose }: {
         </button>
       )}
     </div>
+    </>
   );
 }
 
