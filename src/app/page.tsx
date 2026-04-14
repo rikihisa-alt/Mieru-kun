@@ -25,16 +25,19 @@ export default function Home() {
             <Image src="/logo-icon.png" alt="みえるくん" width={30} height={30} />
             <span className="text-[15px] font-bold text-[#2c3e50] tracking-tight">てんぽみえるくん</span>
           </div>
-          <nav className="hidden md:flex items-center gap-6 text-[13px] text-[#5a6977]">
-            <a href="#flow" className="hover:text-[#2c3e50]">運営フロー</a>
-            <a href="#features" className="hover:text-[#2c3e50]">機能</a>
-            <a href="#merit" className="hover:text-[#2c3e50]">メリット</a>
-            <a href="#pricing" className="hover:text-[#2c3e50]">料金</a>
-            <a href="#faq" className="hover:text-[#2c3e50]">FAQ</a>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="px-3 py-[7px] text-[13px] font-medium text-[#5a6977] hover:text-[#2c3e50]">ログイン</Link>
-            <button onClick={handleDemo} className="px-4 py-[7px] text-[13px] font-medium bg-[#3a8f7c] text-white rounded-[6px] hover:bg-[#2f7a69]">デモを見る</button>
+          <div className="flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-5 text-[13px] text-[#5a6977]">
+              <a href="#flow" className="hover:text-[#2c3e50]">運営フロー</a>
+              <a href="#problem" className="hover:text-[#2c3e50]">課題解決</a>
+              <a href="#features" className="hover:text-[#2c3e50]">機能</a>
+              <a href="#merit" className="hover:text-[#2c3e50]">メリット</a>
+              <a href="#pricing" className="hover:text-[#2c3e50]">料金</a>
+              <a href="#faq" className="hover:text-[#2c3e50]">FAQ</a>
+            </nav>
+            <div className="flex items-center gap-3">
+              <Link href="/login" className="px-3 py-[7px] text-[13px] font-medium text-[#5a6977] hover:text-[#2c3e50]">ログイン</Link>
+              <button onClick={handleDemo} className="px-4 py-[7px] text-[13px] font-medium bg-[#3a8f7c] text-white rounded-[6px] hover:bg-[#2f7a69]">デモを見る</button>
+            </div>
           </div>
         </div>
       </header>
@@ -103,8 +106,47 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ===== 運営フロー ===== */}
+      <section id="flow" className="bg-white py-14 border-t border-[#e8e4df]">
+        <div className="w-full px-8 md:px-16 max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Operation Flow</p>
+            <h2 className="text-[22px] font-bold text-[#2c3e50] mb-1">1日の運営がそのままシステムに</h2>
+            <p className="text-[14px] text-[#5a6977]">開店から締めまで、業務の流れに沿って自然に操作できます</p>
+          </div>
+          <div className="relative">
+            <div className="absolute left-[18px] top-6 bottom-6 w-px bg-[#e8e4df]" />
+            {[
+              { icon: <DoorOpen />, title: "入店登録",
+                desc: "来店した顧客をワンタップで登録。LINEのQRコードからの来店にも対応しています。VIPや常連のお客様はランクバッジで自動識別され、過去の来店履歴やチップ残高がその場で確認できます。未配置の顧客は一覧に表示され、次の卓配置にスムーズにつながります。" },
+              { icon: <Grid3X3 />, title: "卓に配置",
+                desc: "トナメ・リング・サイドの卓種別ごとにポーカーテーブルをビジュアル表示。顧客をドラッグ＆ドロップで好きな卓の好きな席に配置できます。各卓の空席数、ディーラーの配置、稼働時間がリアルタイムで把握でき、卓の追加・編集・削除もその場で完結します。" },
+              { icon: <ShoppingBag />, title: "注文・提供",
+                desc: "商品マスタからドリンク・フード・チップをタップで注文。注文は来店情報と自動的に紐付けられ、顧客ごとの利用金額がリアルタイムで更新されます。注文履歴はインライン展開で確認でき、追加注文もその場で完了します。" },
+              { icon: <CreditCard />, title: "精算",
+                desc: "現金・カード・電子マネーの支払方法に対応。来店中の顧客一覧から精算対象を選び、支払方法を選択するだけで精算が完了します。未精算の顧客はダッシュボードにアラート表示され、取りこぼしを防止します。" },
+              { icon: <ClipboardCheck />, title: "締め処理",
+                desc: "当日の売上・注文・精算データをシステムが自動集計。現金・カード・電子マネーの支払方法別内訳、未精算の有無、レジ差異もワンクリックで確認できます。メモを添えて締め実行ボタンを押すだけで日次の売上が確定。履歴として保存され、後日の確認や分析にも活用できます。" },
+            ].map((s, i) => (
+              <div key={i} className="flex items-start gap-5 mb-8 last:mb-0 relative">
+                <div className="w-[36px] h-[36px] rounded-full bg-[#3a8f7c] text-white flex items-center justify-center text-[14px] font-bold flex-shrink-0 z-10">
+                  {i + 1}
+                </div>
+                <div className="pt-1">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-[#3a8f7c] [&>svg]:w-5 [&>svg]:h-5">{s.icon}</span>
+                    <span className="text-[16px] font-semibold text-[#2c3e50]">{s.title}</span>
+                  </div>
+                  <p className="text-[13px] text-[#5a6977] leading-[1.8]">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ===== Before → After（詳細版） ===== */}
-      <section className="py-14 border-t border-[#e8e4df]">
+      <section id="problem" className="py-14 border-t border-[#e8e4df]">
         <div className="w-full px-8 md:px-16 max-w-4xl mx-auto">
           <div className="text-center mb-10">
             <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Before → After</p>
@@ -203,39 +245,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== 運営フロー（縦） ===== */}
-      <section id="flow" className="bg-white py-14 border-t border-[#e8e4df]">
-        <div className="w-full px-8 md:px-16 max-w-3xl mx-auto">
-          <div className="text-center mb-8">
-            <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Operation Flow</p>
-            <h2 className="text-[20px] font-bold text-[#2c3e50] mb-1">1日の運営がそのままシステムに</h2>
-            <p className="text-[13px] text-[#5a6977]">開店から締めまで、業務の流れに沿って操作できます</p>
-          </div>
-          <div className="relative">
-            <div className="absolute left-[15px] top-4 bottom-4 w-px bg-[#e8e4df]" />
-            {[
-              { icon: <DoorOpen />, title: "入店登録", desc: "QRコード・LINEからの入店にも対応。VIP・常連は自動識別されます。" },
-              { icon: <Grid3X3 />, title: "卓に配置", desc: "ポーカーテーブルにドラッグ&ドロップで配置。ディーラーも管理。" },
-              { icon: <ShoppingBag />, title: "注文・提供", desc: "ワンタップで注文。来店と紐付いて売上に自動反映されます。" },
-              { icon: <CreditCard />, title: "精算", desc: "現金・カード・電子マネーに対応。未精算の取りこぼしを防止。" },
-              { icon: <ClipboardCheck />, title: "締め処理", desc: "売上確定、支払方法別内訳、レジ差異の確認まで完結。" },
-            ].map((s, i) => (
-              <div key={i} className="flex items-start gap-4 mb-6 last:mb-0 relative">
-                <div className="w-[30px] h-[30px] rounded-full bg-[#3a8f7c] text-white flex items-center justify-center text-[12px] font-bold flex-shrink-0 z-10">
-                  {i + 1}
-                </div>
-                <div className="pt-0.5">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-[#3a8f7c] [&>svg]:w-4 [&>svg]:h-4">{s.icon}</span>
-                    <span className="text-[14px] font-semibold text-[#2c3e50]">{s.title}</span>
-                  </div>
-                  <p className="text-[12px] text-[#5a6977] leading-[1.7]">{s.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* (運営フローは数字セクションの後に移動済み) */}
 
       {/* ===== 機能（縦1列） ===== */}
       <section id="features" className="py-14 border-t border-[#e8e4df]">
