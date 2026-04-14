@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useAppStore } from "@/lib/store/app-store";
 import {
   Users,
   Clock,
@@ -79,6 +80,7 @@ const INITIAL_VISITORS: Visitor[] = [
 ];
 
 export default function FloorPage() {
+  const appStore = useAppStore();
   const [visitors, setVisitors] = useState<Visitor[]>(INITIAL_VISITORS);
   const [showNewForm, setShowNewForm] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState("");
@@ -132,6 +134,8 @@ export default function FloorPage() {
       { name, time: formatTimeOnly(now()) },
       ...prev.slice(0, 2),
     ]);
+    // グローバルストアにも反映（ダッシュボード連動）
+    try { appStore.addVisitor(name, rank); } catch { /* provider外の場合 */ }
     setSelectedPreset("");
     setNewName("");
     setNewRank("regular");
@@ -139,6 +143,8 @@ export default function FloorPage() {
   }
 
   function handleSettle(id: string) {
+    const v = visitors.find(x => x.id === id);
+    if (v) { try { appStore.settleVisitor(id); } catch { /* */ } }
     setVisitors((prev) => prev.filter((v) => v.id !== id));
   }
 

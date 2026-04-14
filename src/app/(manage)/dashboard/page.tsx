@@ -3,46 +3,19 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Settings2, X, GripVertical, AlertTriangle, ArrowUpRight, DoorOpen, LogIn, LogOut as LogOutIcon, CalendarDays, Clock } from "lucide-react";
+import { Settings2, X, GripVertical, AlertTriangle, ArrowUpRight, DoorOpen, LogIn, LogOut as LogOutIcon, CalendarDays, Clock, ShoppingBag, Coins, CreditCard } from "lucide-react";
+import { useAppStore } from "@/lib/store/app-store";
 
 const RANK_DOT: Record<string, string> = { regular: "#8e9baa", silver: "#5a6977", gold: "#d97706", vip: "#7c3aed" };
 
-interface TableInfo { name: string; occupied: number; max: number; type: string; }
-interface TimelineEvent { time: string; type: "入店" | "退店" | "出勤" | "退勤" | "イベント"; name: string; detail?: string; rank?: string; }
-interface EventItem { title: string; time: string; status: string; participants: number; }
 interface DashSection { id: string; label: string; visible: boolean; }
 interface AlertSetting { id: string; label: string; enabled: boolean; color: string; }
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { kpis, tables, timeline, events } = useAppStore();
 
-  const kpis = { visitors: 23, unpaid: 2, activeTables: 6, totalTables: 8, onDuty: 8, sales: 185000, avgSpend: 8043, orders: 47, targetSales: 250000 };
   const progressPct = Math.min(100, Math.round((kpis.sales / kpis.targetSales) * 100));
-
-  const tables: TableInfo[] = [
-    { name: "VIP-1", occupied: 4, max: 6, type: "VIP" }, { name: "VIP-2", occupied: 6, max: 6, type: "VIP" },
-    { name: "A-1", occupied: 3, max: 4, type: "一般" }, { name: "A-2", occupied: 0, max: 4, type: "一般" },
-    { name: "A-3", occupied: 2, max: 4, type: "一般" }, { name: "B-1", occupied: 4, max: 4, type: "一般" },
-    { name: "B-2", occupied: 0, max: 4, type: "一般" }, { name: "S-1", occupied: 3, max: 4, type: "S-VIP" },
-  ];
-  const events: EventItem[] = [
-    { title: "VIPナイト", time: "20:00-24:00", status: "進行中", participants: 12 },
-    { title: "新作カクテル試飲会", time: "22:00-23:00", status: "準備中", participants: 8 },
-  ];
-  // タイムライン: 入店・退店・出勤・退勤・イベントを時系列で
-  const timeline: TimelineEvent[] = [
-    { time: "21:30", type: "入店", name: "田中 太郎", rank: "gold" },
-    { time: "21:15", type: "入店", name: "佐藤 花子", rank: "vip" },
-    { time: "21:00", type: "出勤", name: "山田 太郎", detail: "ディーラー" },
-    { time: "20:45", type: "入店", name: "鈴木 一郎", rank: "regular" },
-    { time: "20:30", type: "退店", name: "高橋 美咲", rank: "silver" },
-    { time: "20:15", type: "退勤", name: "伊藤 美咲", detail: "フロア" },
-    { time: "20:10", type: "入店", name: "渡辺 健太", rank: "regular" },
-    { time: "20:00", type: "イベント", name: "VIPナイト", detail: "開始" },
-    { time: "18:00", type: "出勤", name: "鈴木 一郎", detail: "ディーラー" },
-    { time: "18:00", type: "出勤", name: "佐藤 花", detail: "フロア" },
-    { time: "17:30", type: "出勤", name: "高橋 健", detail: "ディーラー" },
-  ];
 
   const [showSettings, setShowSettings] = useState(false);
   const [sections, setSections] = useState<DashSection[]>([
@@ -72,6 +45,9 @@ export default function DashboardPage() {
     "退店": { icon: <LogOutIcon className="w-3 h-3" />, color: "#8e9baa", bg: "#f3f0ec" },
     "出勤": { icon: <LogIn className="w-3 h-3" />, color: "#2c3e50", bg: "#e8e4df" },
     "退勤": { icon: <LogOutIcon className="w-3 h-3" />, color: "#5a6977", bg: "#f3f0ec" },
+    "注文": { icon: <ShoppingBag className="w-3 h-3" />, color: "#3a8f7c", bg: "#e8f5f0" },
+    "精算": { icon: <CreditCard className="w-3 h-3" />, color: "#2e7d5b", bg: "#e8f5f0" },
+    "チップ": { icon: <Coins className="w-3 h-3" />, color: "#d97706", bg: "#fdf4e8" },
     "イベント": { icon: <CalendarDays className="w-3 h-3" />, color: "#7c3aed", bg: "#f3e8fd" },
   };
 
@@ -174,7 +150,12 @@ export default function DashboardPage() {
                 const t = TYPE_ICON[ev.type];
                 return (
                   <div key={i} className="flex items-start gap-3 py-1.5 hover:bg-[#faf8f5] rounded-[4px] transition-colors cursor-pointer relative"
-                    onClick={() => router.push(ev.type === "入店" || ev.type === "退店" ? "/floor" : ev.type === "イベント" ? "/tables" : "/attendance")}>
+                    onClick={() => router.push(
+                      ev.type === "入店" || ev.type === "退店" ? "/floor" :
+                      ev.type === "注文" || ev.type === "精算" ? "/orders" :
+                      ev.type === "チップ" ? "/customers" :
+                      ev.type === "イベント" ? "/tables" : "/attendance"
+                    )}>
                     <span className="text-[11px] text-[#8e9baa] font-mono w-8 text-right pt-0.5 flex-shrink-0">{ev.time}</span>
                     <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10" style={{ backgroundColor: t.bg, color: t.color }}>
                       {t.icon}
