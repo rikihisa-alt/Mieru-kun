@@ -112,7 +112,7 @@ export default function DashboardPage() {
             <p className="text-[13px] font-semibold text-[#2c3e50]">卓稼働 <span className="font-normal text-[#8e9baa]">{kpis.activeTables}/{kpis.totalTables}</span></p>
             <button onClick={() => router.push("/tables")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">卓管理<ArrowUpRight className="w-3 h-3" /></button>
           </div>
-          <div className="grid grid-cols-2 gap-x-8">
+          <div className="grid grid-cols-2 gap-x-8 max-h-[200px] overflow-y-auto">
             {[tables.slice(0, 4), tables.slice(4)].map((half, hi) => (
               <table key={hi} className="w-full text-[12px]">
                 <tbody>

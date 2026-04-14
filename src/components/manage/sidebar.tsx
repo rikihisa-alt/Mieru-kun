@@ -26,7 +26,7 @@ const NAV = [
   ]},
   { section: "管理", items: [
     { href: "/customers", label: "顧客管理", icon: Users },
-    { href: "/customers/new", label: "顧客登録", icon: UserPlus },
+    { href: "/staff", label: "従業員管理", icon: UserPlus },
     { href: "/attendance", label: "勤怠管理", icon: Clock },
     { href: "/closing", label: "締め処理", icon: Lock },
     { href: "/history", label: "履歴", icon: History },
