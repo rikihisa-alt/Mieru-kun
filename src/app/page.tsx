@@ -111,60 +111,90 @@ export default function Home() {
             <h2 className="text-[20px] font-bold text-[#2c3e50]">こんな課題を、こう解決します</h2>
           </div>
 
-          <div className="space-y-10">
+          <div className="space-y-12">
             {[
               {
-                emoji: "📋", problem: "入退店の記録が追いつかない",
+                beforeImg: "/illustrations/before-checkin.png", afterImg: "/illustrations/after-checkin.png",
+                problem: "入退店の記録が追いつかない",
                 problemDesc: "来店した顧客を紙の名簿に手書きで記録。混雑時には記入漏れが発生し、「今、店内に何人いるのか」すら正確に把握できない。Excelで集計しようにも営業中にPCを開く余裕がなく、翌日にまとめて入力する日も。",
                 solution: "リアルタイムタイムラインで全体把握",
                 solutionDesc: "入店と同時にシステムに記録。店内の顧客数・未配置・未精算がリアルタイムで画面に表示されます。誰がいつ来て、どの卓にいて、いくら使っているかが一目瞭然。",
               },
               {
-                emoji: "🃏", problem: "卓の配置に手間取り、お客様を待たせてしまう",
+                beforeImg: "/illustrations/before-table.png", afterImg: "/illustrations/after-table.png",
+                problem: "卓の配置に手間取り、お客様を待たせてしまう",
                 problemDesc: "空いている卓を探すのにフロアを歩き回り、ディーラーの配置も口頭で確認。ピーク時にはどの卓が満席でどこに空きがあるかわからず、VIPのお客様を待たせてしまうことも。",
                 solution: "ビジュアル卓管理でドラッグ&ドロップ配置",
                 solutionDesc: "画面上にポーカーテーブルを再現。空席が一目でわかり、顧客をドラッグして卓に配置するだけ。ディーラーの配置時間も記録でき、交代のタイミングも管理できます。",
               },
               {
-                emoji: "🪙", problem: "チップ残高が合わない、トラブルになる",
+                beforeImg: "/illustrations/before-chip.png", afterImg: "/illustrations/after-chip.png",
+                problem: "チップ残高が合わない、トラブルになる",
                 problemDesc: "チップの付与・使用をその場でメモするが、後から集計するとお客様の残高と店舗の記録が一致しない。「もらったはず」「使ってない」の水掛け論になり、信頼を損なうことも。",
                 solution: "履歴ベースの残高管理で整合性を自動担保",
                 solutionDesc: "チップの増減はすべて履歴として記録。残高は履歴から自動計算されるため、手入力による不一致が起きません。いつ・誰が・いくら操作したかも完全に追跡可能。",
               },
               {
-                emoji: "📅", problem: "シフトと勤怠が別管理で二度手間",
+                beforeImg: "/illustrations/before-shift.png", afterImg: "/illustrations/after-shift.png",
+                problem: "シフトと勤怠が別管理で二度手間",
                 problemDesc: "シフトはLINEグループで希望を集めてExcelで作成。勤怠はタイムカードで記録し、月末に手計算で給与に反映。修正が入るたびにやり取りが発生し、管理者の負担が大きい。",
                 solution: "タイムラインUIでシフト作成、LINEで出退勤打刻",
                 solutionDesc: "シフトはドラッグ操作で直感的に作成。スタッフはLINEからワンタップで出退勤を打刻。勤務時間は分単位で自動計算され、修正には承認フローが付くので改ざんも防止。",
               },
               {
-                emoji: "🧾", problem: "日次の締めに1時間かかる",
+                beforeImg: "/illustrations/before-closing.png", afterImg: "/illustrations/after-closing.png",
+                problem: "日次の締めに1時間かかる",
                 problemDesc: "レジの現金を数え、カード売上と照合し、差異があれば原因を探す。売上の内訳を手計算でまとめてノートに記録。この作業に毎晩1時間以上かかっている。",
                 solution: "ワンクリック締め処理、差異自動検知",
                 solutionDesc: "当日の注文・精算データから売上を自動集計。支払方法別の内訳、未精算の有無、レジ差異もシステムが検出。メモを添えて「締め実行」を押すだけで完了します。",
               },
             ].map((item, i) => (
-              <div key={i} className="flex flex-col md:flex-row gap-6 pb-10 border-b border-[#f3f0ec] last:border-0 last:pb-0">
-                {/* 左: 課題 */}
-                <div className="md:w-[48%]">
-                  <div className="text-[40px] mb-2">{item.emoji}</div>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Minus className="w-3.5 h-3.5 text-[#c0392b] flex-shrink-0" />
-                    <h3 className="text-[15px] font-semibold text-[#c0392b]">{item.problem}</h3>
+              <div key={i} className="pb-12 border-b border-[#f3f0ec] last:border-0 last:pb-0">
+                {/* Before: 文章（左）+ 画像（右） */}
+                <div className="flex flex-col md:flex-row gap-6 items-center">
+                  <div className="md:w-[55%]">
+                    <p className="text-[10px] font-semibold text-[#c0392b] uppercase tracking-wider mb-2">Before</p>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Minus className="w-3.5 h-3.5 text-[#c0392b] flex-shrink-0" />
+                      <h3 className="text-[15px] font-semibold text-[#c0392b]">{item.problem}</h3>
+                    </div>
+                    <p className="text-[12px] text-[#5a6977] leading-[1.8]">{item.problemDesc}</p>
                   </div>
-                  <p className="text-[12px] text-[#5a6977] leading-[1.8]">{item.problemDesc}</p>
-                </div>
-                {/* 矢印 */}
-                <div className="hidden md:flex items-center justify-center md:w-[4%]">
-                  <ArrowRight className="w-5 h-5 text-[#d8d3cc]" />
-                </div>
-                {/* 右: 解決 */}
-                <div className="md:w-[48%]">
-                  <div className="flex items-center gap-1.5 mb-2 md:mt-12">
-                    <Check className="w-3.5 h-3.5 text-[#3a8f7c] flex-shrink-0" />
-                    <h3 className="text-[15px] font-semibold text-[#3a8f7c]">{item.solution}</h3>
+                  <div className="md:w-[45%] flex justify-center">
+                    <div className="w-full max-w-[280px] aspect-[16/9] bg-[#fce8e6]/30 border border-[#c0392b]/10 rounded-[8px] flex items-center justify-center">
+                      <Image src={item.beforeImg} alt={item.problem} width={260} height={146} className="rounded-[6px] object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                      <span className="text-[40px] absolute">
+                        {i === 0 ? "📋" : i === 1 ? "🃏" : i === 2 ? "🪙" : i === 3 ? "📅" : "🧾"}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-[12px] text-[#2c3e50] leading-[1.8]">{item.solutionDesc}</p>
+                </div>
+
+                {/* 中央下矢印 */}
+                <div className="flex justify-center py-4">
+                  <div className="w-8 h-8 rounded-full bg-[#e8e4df] flex items-center justify-center">
+                    <ChevronDown className="w-4 h-4 text-[#5a6977]" />
+                  </div>
+                </div>
+
+                {/* After: 画像（左）+ 文章（右） */}
+                <div className="flex flex-col md:flex-row gap-6 items-center">
+                  <div className="md:w-[45%] flex justify-center">
+                    <div className="w-full max-w-[280px] aspect-[16/9] bg-[#e8f5f0]/50 border border-[#3a8f7c]/10 rounded-[8px] flex items-center justify-center">
+                      <Image src={item.afterImg} alt={item.solution} width={260} height={146} className="rounded-[6px] object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                      <span className="text-[40px] absolute">
+                        {i === 0 ? "📱" : i === 1 ? "🖱️" : i === 2 ? "✅" : i === 3 ? "📲" : "⚡"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="md:w-[55%]">
+                    <p className="text-[10px] font-semibold text-[#3a8f7c] uppercase tracking-wider mb-2">After</p>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Check className="w-3.5 h-3.5 text-[#3a8f7c] flex-shrink-0" />
+                      <h3 className="text-[15px] font-semibold text-[#3a8f7c]">{item.solution}</h3>
+                    </div>
+                    <p className="text-[12px] text-[#2c3e50] leading-[1.8]">{item.solutionDesc}</p>
+                  </div>
                 </div>
               </div>
             ))}
