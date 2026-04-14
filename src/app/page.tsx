@@ -107,37 +107,37 @@ export default function Home() {
       </section>
 
       {/* ===== 運営フロー ===== */}
-      <section id="flow" className="bg-white py-14 border-t border-[#e8e4df]">
-        <div className="w-full px-8 md:px-16 max-w-5xl mx-auto">
-          <div className="text-center mb-10">
+      <section id="flow" className="bg-white py-12 border-t border-[#e8e4df]">
+        <div className="w-full px-8 md:px-16">
+          <div className="text-center mb-8">
             <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Operation Flow</p>
             <h2 className="text-[22px] font-bold text-[#2c3e50] mb-1">1日の運営がそのままシステムに</h2>
             <p className="text-[14px] text-[#5a6977]">開店から締めまで、業務の流れに沿って自然に操作できます</p>
           </div>
           <div className="relative">
-            <div className="absolute left-[18px] top-6 bottom-6 w-px bg-[#e8e4df]" />
+            <div className="absolute left-[18px] top-5 bottom-5 w-px bg-[#e8e4df]" />
             {[
               { icon: <DoorOpen />, title: "入店登録",
-                desc: "来店した顧客をワンタップで登録。LINEのQRコードからの来店にも対応しています。VIPや常連のお客様はランクバッジで自動識別され、過去の来店履歴やチップ残高がその場で確認できます。未配置の顧客は一覧に表示され、次の卓配置にスムーズにつながります。" },
+                desc: "来店した顧客をワンタップで登録。LINEのQRコードからの来店にも対応しています。VIPや常連のお客様はランクバッジで自動識別され、過去の来店履歴やチップ残高がその場で確認可能です。登録された顧客は「未配置」として入店管理画面に表示され、そのまま卓配置の操作へスムーズにつながります。新規顧客もその場でフォーム登録でき、名前・電話番号・ランクを入力するだけで完了します。" },
               { icon: <Grid3X3 />, title: "卓に配置",
-                desc: "トナメ・リング・サイドの卓種別ごとにポーカーテーブルをビジュアル表示。顧客をドラッグ＆ドロップで好きな卓の好きな席に配置できます。各卓の空席数、ディーラーの配置、稼働時間がリアルタイムで把握でき、卓の追加・編集・削除もその場で完結します。" },
+                desc: "トナメ・リング・サイドの卓種別ごとにポーカーテーブルをビジュアル表示。顧客をドラッグ＆ドロップで好きな卓の好きな席に配置できます。各卓の空席数、着席中のプレイヤー、ディーラーの名前と配置時間がリアルタイムで把握でき、ディーラー交代のタイミング管理にも対応。卓の追加・編集・削除もその場で完結し、プレイヤーが配置されている卓を削除する際は確認ダイアログで安全に操作できます。" },
               { icon: <ShoppingBag />, title: "注文・提供",
-                desc: "商品マスタからドリンク・フード・チップをタップで注文。注文は来店情報と自動的に紐付けられ、顧客ごとの利用金額がリアルタイムで更新されます。注文履歴はインライン展開で確認でき、追加注文もその場で完了します。" },
+                desc: "商品マスタに登録されたドリンク・フード・チップをタップで注文。注文は来店情報と自動的に紐付けられ、顧客ごとの利用金額がリアルタイムで更新されます。注文履歴は行をクリックするとインライン展開で確認でき、追加注文もその場でモーダルから完了。商品の価格はサーバー側で検証されるため、フロント改ざんによる不正も防止されます。カテゴリ別のフィルタリングにも対応しています。" },
               { icon: <CreditCard />, title: "精算",
-                desc: "現金・カード・電子マネーの支払方法に対応。来店中の顧客一覧から精算対象を選び、支払方法を選択するだけで精算が完了します。未精算の顧客はダッシュボードにアラート表示され、取りこぼしを防止します。" },
+                desc: "現金・カード・電子マネーの支払方法に対応。来店中の顧客一覧から精算対象を選び、支払方法を選択するだけで精算が完了します。精算済みのステータスは即座に画面に反映され、ダッシュボードの未精算カウントもリアルタイムで減少。同一来店の二重精算はシステムが自動ブロックするため、オペレーションミスを根本から防止します。精算履歴は監査ログにも自動記録されます。" },
               { icon: <ClipboardCheck />, title: "締め処理",
-                desc: "当日の売上・注文・精算データをシステムが自動集計。現金・カード・電子マネーの支払方法別内訳、未精算の有無、レジ差異もワンクリックで確認できます。メモを添えて締め実行ボタンを押すだけで日次の売上が確定。履歴として保存され、後日の確認や分析にも活用できます。" },
+                desc: "当日の売上・注文・精算データをシステムが自動集計。現金・カード・電子マネーの支払方法別内訳が一覧表示され、未精算の有無もワンクリックで確認できます。未精算の顧客が残っている場合は警告が表示され、締め処理の前に対応を促します。メモを添えて「締め実行」ボタンを押すだけで日次の売上が確定し、同一日の二重締めはユニーク制約で防止。締め履歴は全て保存され、後日の確認や月次分析にも活用できます。" },
             ].map((s, i) => (
-              <div key={i} className="flex items-start gap-5 mb-8 last:mb-0 relative">
+              <div key={i} className="flex items-start gap-4 mb-6 last:mb-0 relative">
                 <div className="w-[36px] h-[36px] rounded-full bg-[#3a8f7c] text-white flex items-center justify-center text-[14px] font-bold flex-shrink-0 z-10">
                   {i + 1}
                 </div>
                 <div className="pt-1">
-                  <div className="flex items-center gap-2 mb-1.5">
+                  <div className="flex items-center gap-2 mb-1">
                     <span className="text-[#3a8f7c] [&>svg]:w-5 [&>svg]:h-5">{s.icon}</span>
                     <span className="text-[16px] font-semibold text-[#2c3e50]">{s.title}</span>
                   </div>
-                  <p className="text-[13px] text-[#5a6977] leading-[1.8]">{s.desc}</p>
+                  <p className="text-[14px] text-[#5a6977] leading-[1.8]">{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -146,8 +146,8 @@ export default function Home() {
       </section>
 
       {/* ===== Before → After（詳細版） ===== */}
-      <section id="problem" className="py-14 border-t border-[#e8e4df]">
-        <div className="w-full px-8 md:px-16 max-w-4xl mx-auto">
+      <section id="problem" className="py-12 border-t border-[#e8e4df]">
+        <div className="w-full px-8 md:px-16">
           <div className="text-center mb-10">
             <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Before → After</p>
             <h2 className="text-[20px] font-bold text-[#2c3e50]">こんな課題を、こう解決します</h2>
@@ -249,7 +249,7 @@ export default function Home() {
 
       {/* ===== 機能（縦1列） ===== */}
       <section id="features" className="py-14 border-t border-[#e8e4df]">
-        <div className="w-full px-8 md:px-16 max-w-3xl mx-auto">
+        <div className="w-full px-8 md:px-16 mx-auto max-w-6xl">
           <div className="text-center mb-8">
             <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Features</p>
             <h2 className="text-[20px] font-bold text-[#2c3e50] mb-1">店舗運営に必要な機能をすべて搭載</h2>
@@ -281,7 +281,7 @@ export default function Home() {
 
       {/* ===== 導入メリット（縦1列） ===== */}
       <section id="merit" className="bg-white py-14 border-t border-[#e8e4df]">
-        <div className="w-full px-8 md:px-16 max-w-3xl mx-auto">
+        <div className="w-full px-8 md:px-16 mx-auto max-w-6xl">
           <div className="text-center mb-8">
             <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Benefits</p>
             <h2 className="text-[20px] font-bold text-[#2c3e50]">導入するメリット</h2>
@@ -311,7 +311,7 @@ export default function Home() {
 
       {/* ===== LINE連携（2カラム・バランス調整） ===== */}
       <section className="py-14 border-t border-[#e8e4df]">
-        <div className="w-full px-8 md:px-16 max-w-4xl mx-auto">
+        <div className="w-full px-8 md:px-16 mx-auto">
           <div className="flex flex-col lg:flex-row gap-12 items-center">
             <div className="lg:w-[55%]">
               <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">LINE Integration</p>
@@ -366,7 +366,7 @@ export default function Home() {
 
       {/* ===== 導入3ステップ ===== */}
       <section className="bg-white py-14 border-t border-[#e8e4df]">
-        <div className="w-full px-8 md:px-16 max-w-3xl mx-auto text-center">
+        <div className="w-full px-8 md:px-16 mx-auto max-w-6xl text-center">
           <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Getting Started</p>
           <h2 className="text-[20px] font-bold text-[#2c3e50] mb-8">3ステップで始められます</h2>
           <div className="grid grid-cols-3 gap-6">
@@ -387,7 +387,7 @@ export default function Home() {
 
       {/* ===== 料金 ===== */}
       <section id="pricing" className="py-14 border-t border-[#e8e4df]">
-        <div className="w-full px-8 md:px-16 max-w-4xl mx-auto">
+        <div className="w-full px-8 md:px-16 mx-auto">
           <div className="text-center mb-8">
             <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Pricing</p>
             <h2 className="text-[20px] font-bold text-[#2c3e50] mb-1">シンプルな料金体系</h2>
@@ -404,7 +404,7 @@ export default function Home() {
 
       {/* ===== FAQ ===== */}
       <section id="faq" className="bg-white py-14 border-t border-[#e8e4df]">
-        <div className="w-full px-8 md:px-16 max-w-3xl mx-auto">
+        <div className="w-full px-8 md:px-16 mx-auto max-w-6xl">
           <div className="text-center mb-8">
             <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">FAQ</p>
             <h2 className="text-[20px] font-bold text-[#2c3e50]">よくある質問</h2>
