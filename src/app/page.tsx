@@ -71,56 +71,23 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 右: プレビュー（縦長） */}
+            {/* 右: 実際のダッシュボード画面 */}
             <div className="w-full lg:w-[50%]">
               <div className="bg-white border border-[#e8e4df] rounded-[12px] overflow-hidden shadow-sm">
                 <div className="h-7 bg-[#f3f0ec] border-b border-[#e8e4df] flex items-center px-3 gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-[#d8d3cc]" /><div className="w-2 h-2 rounded-full bg-[#d8d3cc]" /><div className="w-2 h-2 rounded-full bg-[#d8d3cc]" />
                   <span className="text-[9px] text-[#8e9baa] ml-2">てんぽみえるくん — ダッシュボード</span>
                 </div>
-                <div className="p-5">
-                  {/* サマリー */}
-                  <div className="flex items-center gap-3 mb-4 text-[12px] pb-3 border-b border-[#f3f0ec]">
-                    <span className="text-[#8e9baa]">来店 <strong className="text-[#2c3e50]">8名</strong></span>
-                    <span className="text-[#8e9baa]">稼働 <strong className="text-[#2c3e50]">3/4</strong></span>
-                    <span className="text-[#8e9baa]">出勤 <strong className="text-[#2c3e50]">4名</strong></span>
-                    <span className="text-[#3a8f7c] font-semibold">売上 ¥185,000</span>
-                  </div>
-                  {/* 卓 */}
-                  <p className="text-[10px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-2">卓稼働</p>
-                  <div className="grid grid-cols-4 gap-2 mb-4">
-                    {[{ n: "T1", o: 3, m: 9 }, { n: "T2", o: 1, m: 9 }, { n: "T3", o: 2, m: 10 }, { n: "T4", o: 0, m: 6 }].map((t, i) => {
-                      const active = t.o > 0;
-                      return (
-                        <div key={i} className={`text-center py-2 rounded-[4px] ${active ? "bg-[#e8f5f0]" : "bg-[#f3f0ec]"}`}>
-                          <p className="text-[10px] text-[#8e9baa]">{t.n}</p>
-                          <p className={`text-[14px] font-bold ${active ? "text-[#2c3e50]" : "text-[#d8d3cc]"}`}>{t.o}<span className="text-[10px] font-normal text-[#8e9baa]">/{t.m}</span></p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {/* タイムライン */}
-                  <p className="text-[10px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-2">タイムライン</p>
-                  <div className="space-y-2 text-[11px]">
-                    {[
-                      { t: "21:00", type: "入店", n: "山本 翔太", c: "#3a8f7c" },
-                      { t: "20:45", type: "注文", n: "田中 太郎  ビール×2", c: "#3a8f7c" },
-                      { t: "20:30", type: "入店", n: "渡辺 優子", c: "#3a8f7c" },
-                      { t: "20:00", type: "イベント", n: "VIPナイト 開始", c: "#7c3aed" },
-                      { t: "19:15", type: "精算", n: "高橋 美咲  ¥3,200", c: "#2e7d5b" },
-                      { t: "18:15", type: "出勤", n: "高橋 健  ディーラー", c: "#2c3e50" },
-                      { t: "18:00", type: "出勤", n: "山田 太郎  ディーラー", c: "#2c3e50" },
-                    ].map((ev, i) => (
-                      <div key={i} className="flex items-center gap-2.5 py-0.5">
-                        <span className="text-[#8e9baa] font-mono w-9 text-[10px]">{ev.t}</span>
-                        <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: ev.c }} />
-                        <span className="text-[9px] font-semibold uppercase w-12 flex-shrink-0" style={{ color: ev.c }}>{ev.type}</span>
-                        <span className="text-[#2c3e50]">{ev.n}</span>
-                      </div>
-                    ))}
-                  </div>
+                <div className="relative h-[420px] overflow-hidden">
+                  <iframe
+                    src="/dashboard"
+                    className="absolute top-0 left-0 border-0 pointer-events-none"
+                    style={{ width: "200%", height: "200%", transform: "scale(0.5)", transformOrigin: "top left" }}
+                    tabIndex={-1}
+                  />
                 </div>
               </div>
+              <p className="text-[10px] text-[#8e9baa] text-center mt-2">※ 実際のダッシュボード画面です</p>
             </div>
           </div>
         </div>
@@ -136,37 +103,83 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== Before → After ===== */}
+      {/* ===== Before → After（詳細版） ===== */}
       <section className="py-14 border-t border-[#e8e4df]">
         <div className="w-full px-8 md:px-16 max-w-4xl mx-auto">
-          <div className="text-center mb-8">
+          <div className="text-center mb-10">
             <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Before → After</p>
             <h2 className="text-[20px] font-bold text-[#2c3e50]">こんな課題を、こう解決します</h2>
           </div>
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-[#e8e4df]">
-                <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left w-[46%]">課題</th>
-                <th className="pb-2 w-[8%]"></th>
-                <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left w-[46%]">解決</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ["入退店が手書き・Excelで状況把握が遅い", "リアルタイムのタイムラインで即座に把握"],
-                ["卓の空席やディーラー配置の確認に時間がかかる", "ビジュアル卓管理でドラッグ&ドロップ配置"],
-                ["チップ・ポイント管理が煩雑でミスが発生", "履歴ベースの残高管理で整合性を自動担保"],
-                ["シフト作成と勤怠管理が別ツールで非効率", "タイムラインUIでシフト作成、LINEで打刻"],
-                ["売上締めに時間がかかりレジ差異の追跡が困難", "ワンクリック締め処理、差異自動検知"],
-              ].map(([p, s], i) => (
-                <tr key={i} className="border-b border-[#f3f0ec]">
-                  <td className="py-3 text-[#5a6977]"><Minus className="w-3 h-3 text-[#c0392b] inline mr-1.5" />{p}</td>
-                  <td className="py-3 text-center"><ArrowRight className="w-3.5 h-3.5 text-[#d8d3cc] inline" /></td>
-                  <td className="py-3 text-[#2c3e50] font-medium"><Check className="w-3 h-3 text-[#3a8f7c] inline mr-1.5" />{s}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+          <div className="space-y-10">
+            {[
+              {
+                emoji: "📋", problem: "入退店の記録が追いつかない",
+                problemDesc: "来店した顧客を紙の名簿に手書きで記録。混雑時には記入漏れが発生し、「今、店内に何人いるのか」すら正確に把握できない。Excelで集計しようにも営業中にPCを開く余裕がなく、翌日にまとめて入力する日も。",
+                solution: "リアルタイムタイムラインで全体把握",
+                solutionDesc: "入店と同時にシステムに記録。店内の顧客数・未配置・未精算がリアルタイムで画面に表示されます。誰がいつ来て、どの卓にいて、いくら使っているかが一目瞭然。",
+              },
+              {
+                emoji: "🃏", problem: "卓の配置に手間取り、お客様を待たせてしまう",
+                problemDesc: "空いている卓を探すのにフロアを歩き回り、ディーラーの配置も口頭で確認。ピーク時にはどの卓が満席でどこに空きがあるかわからず、VIPのお客様を待たせてしまうことも。",
+                solution: "ビジュアル卓管理でドラッグ&ドロップ配置",
+                solutionDesc: "画面上にポーカーテーブルを再現。空席が一目でわかり、顧客をドラッグして卓に配置するだけ。ディーラーの配置時間も記録でき、交代のタイミングも管理できます。",
+              },
+              {
+                emoji: "🪙", problem: "チップ残高が合わない、トラブルになる",
+                problemDesc: "チップの付与・使用をその場でメモするが、後から集計するとお客様の残高と店舗の記録が一致しない。「もらったはず」「使ってない」の水掛け論になり、信頼を損なうことも。",
+                solution: "履歴ベースの残高管理で整合性を自動担保",
+                solutionDesc: "チップの増減はすべて履歴として記録。残高は履歴から自動計算されるため、手入力による不一致が起きません。いつ・誰が・いくら操作したかも完全に追跡可能。",
+              },
+              {
+                emoji: "📅", problem: "シフトと勤怠が別管理で二度手間",
+                problemDesc: "シフトはLINEグループで希望を集めてExcelで作成。勤怠はタイムカードで記録し、月末に手計算で給与に反映。修正が入るたびにやり取りが発生し、管理者の負担が大きい。",
+                solution: "タイムラインUIでシフト作成、LINEで出退勤打刻",
+                solutionDesc: "シフトはドラッグ操作で直感的に作成。スタッフはLINEからワンタップで出退勤を打刻。勤務時間は分単位で自動計算され、修正には承認フローが付くので改ざんも防止。",
+              },
+              {
+                emoji: "🧾", problem: "日次の締めに1時間かかる",
+                problemDesc: "レジの現金を数え、カード売上と照合し、差異があれば原因を探す。売上の内訳を手計算でまとめてノートに記録。この作業に毎晩1時間以上かかっている。",
+                solution: "ワンクリック締め処理、差異自動検知",
+                solutionDesc: "当日の注文・精算データから売上を自動集計。支払方法別の内訳、未精算の有無、レジ差異もシステムが検出。メモを添えて「締め実行」を押すだけで完了します。",
+              },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col md:flex-row gap-6 pb-10 border-b border-[#f3f0ec] last:border-0 last:pb-0">
+                {/* 左: 課題 */}
+                <div className="md:w-[48%]">
+                  <div className="text-[40px] mb-2">{item.emoji}</div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Minus className="w-3.5 h-3.5 text-[#c0392b] flex-shrink-0" />
+                    <h3 className="text-[15px] font-semibold text-[#c0392b]">{item.problem}</h3>
+                  </div>
+                  <p className="text-[12px] text-[#5a6977] leading-[1.8]">{item.problemDesc}</p>
+                </div>
+                {/* 矢印 */}
+                <div className="hidden md:flex items-center justify-center md:w-[4%]">
+                  <ArrowRight className="w-5 h-5 text-[#d8d3cc]" />
+                </div>
+                {/* 右: 解決 */}
+                <div className="md:w-[48%]">
+                  <div className="flex items-center gap-1.5 mb-2 md:mt-12">
+                    <Check className="w-3.5 h-3.5 text-[#3a8f7c] flex-shrink-0" />
+                    <h3 className="text-[15px] font-semibold text-[#3a8f7c]">{item.solution}</h3>
+                  </div>
+                  <p className="text-[12px] text-[#2c3e50] leading-[1.8]">{item.solutionDesc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== 中間CTA ===== */}
+      <section className="py-10 border-t border-[#e8e4df] bg-[#f0f9f6]">
+        <div className="text-center">
+          <h3 className="text-[16px] font-bold text-[#2c3e50] mb-2">まずは無料で触ってみてください</h3>
+          <p className="text-[12px] text-[#5a6977] mb-4">アカウント登録不要。デモモードで全機能をお試しいただけます</p>
+          <button onClick={handleDemo} className="group inline-flex items-center gap-2 px-6 py-2.5 text-[14px] font-medium bg-[#3a8f7c] text-white rounded-[6px] hover:bg-[#2f7a69]">
+            デモを体験する<ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          </button>
         </div>
       </section>
 
