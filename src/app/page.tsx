@@ -22,7 +22,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-[#e8e4df]">
         <div className="w-full px-8 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/logo-icon.png" alt="みえるくん" width={30} height={30} />
+            <Image src="/logo-icon.png" alt="みえるくん" width={36} height={36} />
             <span className="text-[15px] font-bold text-[#2c3e50] tracking-tight">てんぽみえるくん</span>
           </div>
           <div className="flex items-center gap-6">
@@ -195,12 +195,12 @@ export default function Home() {
                 {/* Before: 文章（左）+ 画像（右） */}
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                   <div className="md:w-[60%]">
-                    <p className="text-[10px] font-semibold text-[#c0392b] uppercase tracking-wider mb-2">Before</p>
+                    <p className="text-[11px] font-semibold text-[#c0392b] uppercase tracking-wider mb-2">Before</p>
                     <div className="flex items-center gap-1.5 mb-2">
                       <Minus className="w-3.5 h-3.5 text-[#c0392b] flex-shrink-0" />
-                      <h3 className="text-[15px] font-semibold text-[#c0392b]">{item.problem}</h3>
+                      <h3 className="text-[17px] font-semibold text-[#c0392b]">{item.problem}</h3>
                     </div>
-                    <p className="text-[12px] text-[#5a6977] leading-[1.8]">{item.problemDesc}</p>
+                    <p className="text-[14px] text-[#5a6977] leading-[1.8]">{item.problemDesc}</p>
                   </div>
                   <div className="md:w-[40%] flex justify-center">
                     <Image src={item.beforeImg} alt={item.problem} width={240} height={240} className="object-contain" />
@@ -220,12 +220,12 @@ export default function Home() {
                     <Image src={item.afterImg} alt={item.solution} width={240} height={240} className="object-contain" />
                   </div>
                   <div className="md:w-[60%]">
-                    <p className="text-[10px] font-semibold text-[#3a8f7c] uppercase tracking-wider mb-2">After</p>
+                    <p className="text-[11px] font-semibold text-[#3a8f7c] uppercase tracking-wider mb-2">After</p>
                     <div className="flex items-center gap-1.5 mb-2">
                       <Check className="w-3.5 h-3.5 text-[#3a8f7c] flex-shrink-0" />
-                      <h3 className="text-[15px] font-semibold text-[#3a8f7c]">{item.solution}</h3>
+                      <h3 className="text-[17px] font-semibold text-[#3a8f7c]">{item.solution}</h3>
                     </div>
-                    <p className="text-[12px] text-[#2c3e50] leading-[1.8]">{item.solutionDesc}</p>
+                    <p className="text-[14px] text-[#2c3e50] leading-[1.8]">{item.solutionDesc}</p>
                   </div>
                 </div>
               </div>
@@ -270,8 +270,8 @@ export default function Home() {
                   {f.icon}
                 </div>
                 <div>
-                  <h3 className="text-[14px] font-semibold text-[#2c3e50] mb-0.5">{f.title}</h3>
-                  <p className="text-[12px] text-[#5a6977] leading-[1.7]">{f.desc}</p>
+                  <h3 className="text-[15px] font-semibold text-[#2c3e50] mb-0.5">{f.title}</h3>
+                  <p className="text-[13px] text-[#5a6977] leading-[1.7]">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -300,8 +300,8 @@ export default function Home() {
                   {b.icon}
                 </div>
                 <div>
-                  <h3 className="text-[14px] font-semibold text-[#2c3e50] mb-0.5">{b.title}</h3>
-                  <p className="text-[12px] text-[#5a6977] leading-[1.7]">{b.desc}</p>
+                  <h3 className="text-[15px] font-semibold text-[#2c3e50] mb-0.5">{b.title}</h3>
+                  <p className="text-[13px] text-[#5a6977] leading-[1.7]">{b.desc}</p>
                 </div>
               </div>
             ))}
@@ -460,10 +460,10 @@ function FAQ({ q, a }: { q: string; a: string }) {
   return (
     <div className="border-b border-[#f3f0ec]">
       <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-3.5 text-left">
-        <span className="text-[13px] font-medium text-[#2c3e50]">{q}</span>
+        <span className="text-[14px] font-medium text-[#2c3e50]">{q}</span>
         <ChevronDown className={`w-4 h-4 text-[#8e9baa] flex-shrink-0 ml-4 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <p className="text-[12px] text-[#5a6977] leading-[1.7] pb-3.5">{a}</p>}
+      {open && <p className="text-[13px] text-[#5a6977] leading-[1.7] pb-3.5">{a}</p>}
     </div>
   );
 }
@@ -473,7 +473,7 @@ function PricePlan({ name, price, unit, desc, features, highlight }: {
 }) {
   return (
     <div className={`rounded-[8px] p-5 ${highlight ? "border-2 border-[#3a8f7c] bg-[#f0f9f6]" : "border border-[#e8e4df] bg-white"}`}>
-      {highlight && <span className="text-[10px] font-semibold text-[#3a8f7c] uppercase tracking-wider">おすすめ</span>}
+      {highlight && <span className="text-[11px] font-semibold text-[#3a8f7c] uppercase tracking-wider">おすすめ</span>}
       <h3 className="text-[15px] font-bold text-[#2c3e50] mt-1">{name}</h3>
       <div className="flex items-baseline gap-0.5 mt-2 mb-1">
         <span className="text-[26px] font-black text-[#2c3e50]">{price}</span>
