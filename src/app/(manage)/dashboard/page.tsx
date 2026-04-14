@@ -98,10 +98,10 @@ export default function DashboardPage() {
                     const c = full ? "#c0392b" : empty ? "#d8d3cc" : pct > 0.7 ? "#c87b1a" : "#3a8f7c";
                     return (
                       <tr key={t.name} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer" onClick={() => router.push("/tables")}>
-                        <td className="py-1.5 w-4"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} /></td>
-                        <td className="py-1.5 font-medium w-14">{t.name}</td>
-                        <td className="py-1.5 text-[#5a6977] w-10">{t.occupied}/{t.max}</td>
-                        <td className="py-1.5 text-[#8e9baa] w-10">{t.type}</td>
+                        <td className="py-1.5 pr-2 w-5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} /></td>
+                        <td className="py-1.5 pr-4 font-medium">{t.name}</td>
+                        <td className="py-1.5 pr-4 text-[#5a6977]">{t.occupied} / {t.max}</td>
+                        <td className="py-1.5 pr-4 text-[#8e9baa]">{t.type}</td>
                         <td className="py-1.5">
                           <div className="h-[5px] bg-[#f3f0ec] rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: c }} />
