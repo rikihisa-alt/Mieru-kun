@@ -45,7 +45,7 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#3a8f7c]/5 rounded-full blur-[100px] translate-x-1/4 -translate-y-1/4" />
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#e8c170]/8 rounded-full blur-[80px] -translate-x-1/4 translate-y-1/4" />
         </div>
-        <div className="relative w-full px-8 md:px-16 py-16 md:py-20">
+        <div className="relative w-full px-8 md:px-16 py-10 md:py-14">
           <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 items-center">
             <div className="w-full lg:w-[50%] lg:pl-4">
               <Image src="/logo-full.png" alt="てんぽみえるくん" width={280} height={70} className="mb-5" />
@@ -94,8 +94,8 @@ export default function Home() {
       </section>
 
       {/* ===== 数字 ===== */}
-      <section className="bg-white py-10 border-t border-[#e8e4df]">
-        <div className="w-full px-8 md:px-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <section className="bg-white py-6 border-t border-[#e8e4df]">
+        <div className="w-full px-8 md:px-16 grid grid-cols-4 gap-4 text-center">
           <Stat value="2〜3h" label="1日の業務削減時間" />
           <Stat value="0円" label="初期導入費用" />
           <Stat value="即日" label="最短導入期間" />
@@ -442,7 +442,7 @@ export default function Home() {
 }
 
 function Stat({ value, label }: { value: string; label: string }) {
-  return <div><p className="text-[28px] font-black text-[#3a8f7c] tracking-tight">{value}</p><p className="text-[12px] text-[#5a6977] mt-1">{label}</p></div>;
+  return <div><p className="text-[32px] font-medium text-[#3a8f7c] tracking-tight leading-none">{value}</p><p className="text-[13px] text-[#5a6977] mt-1.5">{label}</p></div>;
 }
 
 function FAQ({ q, a }: { q: string; a: string }) {

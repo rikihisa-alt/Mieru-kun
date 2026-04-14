@@ -16,36 +16,37 @@ export function ActionBar() {
   ];
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
-      {/* 展開メニュー */}
-      {open && (
-        <div className="flex flex-col gap-1.5 mb-1">
-          {actions.map((a, i) => (
-            <button
-              key={i}
-              onClick={() => { a.onClick(); setOpen(false); }}
-              className="flex items-center gap-2.5 pl-4 pr-5 py-2.5 bg-white border border-[#d8d3cc] rounded-[8px] shadow-lg hover:shadow-xl transition-all text-[13px] font-medium text-[#2c3e50] group"
-            >
-              <span className="w-7 h-7 rounded-[6px] flex items-center justify-center text-white [&>svg]:w-3.5 [&>svg]:h-3.5" style={{ backgroundColor: a.color }}>
-                {a.icon}
-              </span>
-              {a.label}
-            </button>
-          ))}
-        </div>
-      )}
+    <>
+      {/* 展開時の背景オーバーレイ（外クリックで閉じる） */}
+      {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />}
 
-      {/* FABボタン */}
-      <button
-        onClick={() => setOpen(!open)}
-        className={`w-12 h-12 rounded-[12px] flex items-center justify-center shadow-lg transition-all [&>svg]:w-5 [&>svg]:h-5 ${
-          open
-            ? "bg-[#2c3e50] text-white rotate-0"
-            : "bg-[#3a8f7c] text-white hover:bg-[#2f7a69]"
-        }`}
-      >
-        {open ? <X /> : <ChevronUp />}
-      </button>
-    </div>
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        {open && (
+          <div className="flex flex-col gap-1.5 mb-1">
+            {actions.map((a, i) => (
+              <button
+                key={i}
+                onClick={() => { a.onClick(); setOpen(false); }}
+                className="flex items-center gap-2.5 pl-4 pr-5 py-2.5 bg-white border border-[#d8d3cc] rounded-[8px] shadow-lg hover:shadow-xl transition-all text-[13px] font-medium text-[#2c3e50]"
+              >
+                <span className="w-7 h-7 rounded-[6px] flex items-center justify-center text-white [&>svg]:w-3.5 [&>svg]:h-3.5" style={{ backgroundColor: a.color }}>
+                  {a.icon}
+                </span>
+                {a.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <button
+          onClick={() => setOpen(!open)}
+          className={`w-12 h-12 rounded-[12px] flex items-center justify-center shadow-lg transition-all [&>svg]:w-5 [&>svg]:h-5 ${
+            open ? "bg-[#2c3e50] text-white" : "bg-[#3a8f7c] text-white hover:bg-[#2f7a69]"
+          }`}
+        >
+          {open ? <X /> : <ChevronUp />}
+        </button>
+      </div>
+    </>
   );
 }
