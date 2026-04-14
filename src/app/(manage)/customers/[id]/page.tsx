@@ -354,7 +354,7 @@ export default function CustomerDetailPage() {
                         <td className="px-3 py-2.5 font-medium text-[#2c3e50]">¥{v.amount.toLocaleString()}</td>
                         <td className="px-3 py-2.5 text-[#5a6977]">{stayStr}</td>
                         <td className="px-3 py-2.5">
-                          <span className="inline px-2 py-0.5 text-[11px] font-medium rounded-[4px] bg-[#e8f5f0] text-[#3a8f7c]">
+                          <span className="inline px-1.5 py-0.5 text-[10px] font-semibold rounded-[3px] bg-[#e8f5f0] text-[#3a8f7c]">
                             精算済
                           </span>
                         </td>
@@ -384,6 +384,7 @@ export default function CustomerDetailPage() {
               {/* Chip Grant */}
               <div>
                 <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">チップ付与</h3>
+
                 <div className="flex items-end gap-2">
                   <div className="flex-1">
                     <label className="block text-[11px] text-[#8e9baa] mb-1">数量</label>
@@ -528,7 +529,7 @@ export default function CustomerDetailPage() {
 
               <div className="space-y-2">
                 {prizes.map((p) => (
-                  <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 border border-[#d8d3cc] rounded-[6px] hover:bg-[#f8f9fa]">
+                  <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 border-b border-[#f3f0ec] hover:bg-[#faf8f5] transition-colors">
                     <Gift className="w-4 h-4 text-[#7c3aed]" />
                     <span className="text-[13px] font-medium text-[#2c3e50]">{p.name}</span>
                     <span className="text-[12px] text-[#8e9baa] ml-auto">{p.date}</span>

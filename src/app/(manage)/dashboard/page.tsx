@@ -141,15 +141,33 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ===== タイムライン (入店・退店・出勤・退勤・イベントを時系列) ===== */}
+      {/* ===== タイムライン ===== */}
       {isVisible("timeline") && (
         <div>
           <div className="flex items-center justify-between mb-2">
             <p className="text-[13px] font-semibold text-[#2c3e50]">タイムライン</p>
-            <button onClick={() => router.push("/floor")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">入店管理<ArrowUpRight className="w-3 h-3" /></button>
+            <button onClick={() => router.push("/history")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">すべての履歴<ArrowUpRight className="w-3 h-3" /></button>
           </div>
-          <div className="relative">
-            {/* 縦線 */}
+
+          {/* イベント: タイムライン見出しの直下に横並び */}
+          {events.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-3 mb-2">
+              {events.map((ev, i) => {
+                const st = ev.status === "進行中" ? { bg: "#e8f5f0", text: "#2e7d5b" } : ev.status === "準備中" ? { bg: "#fdf4e8", text: "#c87b1a" } : { bg: "#f3f0ec", text: "#5a6977" };
+                return (
+                  <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] border border-[#e8e4df] hover:border-[#d8d3cc] cursor-pointer flex-shrink-0 whitespace-nowrap transition-colors">
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-[3px]" style={{ backgroundColor: st.bg, color: st.text }}>{ev.status}</span>
+                    <span className="text-[12px] font-medium text-[#2c3e50]">{ev.title}</span>
+                    <span className="text-[11px] text-[#8e9baa]">{ev.time}</span>
+                    <span className="text-[11px] text-[#8e9baa]">{ev.participants}名</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* タイムライン本体（スクロール） */}
+          <div className="relative max-h-[360px] overflow-y-auto">
             <div className="absolute left-[39px] top-0 bottom-0 w-px bg-[#e8e4df]" />
             <div className="space-y-0">
               {timeline.map((ev, i) => {
@@ -172,26 +190,6 @@ export default function DashboardPage() {
               })}
             </div>
           </div>
-
-          {/* イベント: タイムラインの下に横並び */}
-          {events.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-[#e8e4df]">
-              <p className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-2">本日のイベント</p>
-              <div className="flex gap-3 overflow-x-auto pb-1">
-                {events.map((ev, i) => {
-                  const st = ev.status === "進行中" ? { bg: "#e8f5f0", text: "#2e7d5b" } : ev.status === "準備中" ? { bg: "#fdf4e8", text: "#c87b1a" } : { bg: "#f3f0ec", text: "#5a6977" };
-                  return (
-                    <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-[6px] border border-[#e8e4df] hover:border-[#d8d3cc] cursor-pointer flex-shrink-0 whitespace-nowrap transition-colors">
-                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-[3px]" style={{ backgroundColor: st.bg, color: st.text }}>{ev.status}</span>
-                      <span className="text-[13px] font-medium text-[#2c3e50]">{ev.title}</span>
-                      <span className="text-[11px] text-[#8e9baa]">{ev.time}</span>
-                      <span className="text-[11px] text-[#8e9baa]">{ev.participants}名</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </div>
       )}
 
