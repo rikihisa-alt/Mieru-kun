@@ -168,7 +168,7 @@ export default function TablesPage() {
 
         {/* 卓追加フォーム */}
         {showAddTable && (
-          <div className="bg-white border border-[#3a8f7c]/30 rounded-[8px] p-4 flex items-end gap-3 mb-3">
+          <div className="pb-4 border-b border-[#e8e4df] flex items-end gap-3 mb-3">
             <div className="flex-1">
               <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">卓名</label>
               <input type="text" value={newTableName} onChange={e => setNewTableName(e.target.value)} placeholder="テーブル5" className="mt-1 text-[13px]" />
@@ -351,7 +351,7 @@ function WaitingArea({ players, onPlayerClick }: {
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: "waiting" });
   return (
-    <div ref={setNodeRef} className={`bg-white border rounded-[8px] px-4 py-3 transition-colors ${isOver ? "border-[#3a8f7c] bg-[#e8f5f0]" : "border-[#d8d3cc]"}`}>
+    <div ref={setNodeRef} className={`border rounded-[8px] px-4 py-3 transition-colors ${isOver ? "border-[#3a8f7c] bg-[#e8f5f0]" : "border-[#e8e4df] border-dashed"}`}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">待機中</span>
         <span className="text-[12px] font-bold text-[#3a8f7c]">{players.length}名</span>
@@ -409,7 +409,7 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
 
   return (
     <div ref={setNodeRef}
-      className={`bg-white border rounded-[8px] cursor-pointer ${borderColor}`}
+      className={`border rounded-[8px] cursor-pointer ${borderColor}`}
       style={{ transition: "transform 0.1s, border-color 0.15s, box-shadow 0.15s" }}>
       {/* ヘッダー */}
       <div className="flex items-center justify-between p-5 pb-0" onClick={onToggleExpand}>

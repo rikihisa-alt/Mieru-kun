@@ -53,7 +53,7 @@ export default function SettingsPage() {
   function addPointRule() { setPointRules(prev => [...prev, { id: `pr${Date.now()}`, trigger: "", amount: 0 }]); }
 
   const L = "block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1.5";
-  const Card = "bg-white border border-[#d8d3cc] rounded-[8px] p-5";
+  const Card = "pb-5 border-b border-[#e8e4df]";
   const SaveBtn = "px-4 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors";
 
   return (

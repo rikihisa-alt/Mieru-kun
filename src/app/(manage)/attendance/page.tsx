@@ -349,9 +349,9 @@ export default function AttendancePage() {
       {/* ===== 本日の勤怠 ===== */}
       {tab === "today" && (
         <>
-          <div className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-hidden">
+          <div className="overflow-hidden">
             <table className="w-full text-[13px]">
-              <thead><tr className="border-b border-[#d8d3cc] bg-[#faf8f5]">
+              <thead><tr className="border-b border-[#e8e4df]">
                 {["スタッフ","役割","出勤","退勤","休憩","勤務","状態","操作"].map(h => (
                   <th key={h} className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">{h}</th>
                 ))}
@@ -378,7 +378,7 @@ export default function AttendancePage() {
             </table>
           </div>
           {editId && (
-            <div className="bg-white border border-[#3a8f7c]/30 rounded-[8px] p-4 space-y-3">
+            <div className="pt-4 border-t border-[#e8e4df] space-y-3">
               <h3 className="text-[13px] font-semibold">勤怠修正: {staff.find(s=>s.id===editId)?.name}</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">退勤時刻</label><input type="time" value={editTime} onChange={e=>setEditTime(e.target.value)} className="mt-1"/></div>
@@ -395,7 +395,7 @@ export default function AttendancePage() {
 
       {/* ===== シフト確認 / シフト作成 共通タイムライン ===== */}
       {(tab === "shift" || tab === "create") && (
-        <div className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-hidden select-none"
+        <div className="overflow-hidden select-none"
           onMouseMove={tab === "create" ? handleTimelineMouseMove : undefined}
           onMouseUp={tab === "create" ? handleTimelineMouseUp : undefined}
           onMouseLeave={tab === "create" ? handleTimelineMouseUp : undefined}>
@@ -566,11 +566,11 @@ export default function AttendancePage() {
               <span className="text-[14px] font-semibold">{calY}年{calM}月</span>
               <button onClick={() => { const d = new Date(calY, calM, 1); setHistoryMonth(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`); }} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><ChevronRight className="w-4 h-4" /></button>
             </div>
-            <div className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-auto">
+            <div className="overflow-auto">
               <table className="w-full text-[11px]">
                 <thead>
-                  <tr className="border-b border-[#d8d3cc] bg-[#faf8f5]">
-                    <th className="px-3 py-2 text-[10px] font-semibold text-[#8e9baa] uppercase text-left sticky left-0 bg-[#faf8f5] z-10 min-w-[80px]">スタッフ</th>
+                  <tr className="border-b border-[#e8e4df]">
+                    <th className="px-3 py-2 text-[10px] font-semibold text-[#8e9baa] uppercase text-left sticky left-0 bg-[#faf9f7] z-10 min-w-[80px]">スタッフ</th>
                     {allDates.map(d => (
                       <th key={d.day} className={`px-1 py-2 text-center min-w-[36px] ${d.dow === 0 ? "text-[#c5221f]" : d.dow === 6 ? "text-[#3a8f7c]" : "text-[#8e9baa]"}`}>
                         <div className="text-[9px]">{dayNames[d.dow]}</div>
@@ -625,8 +625,8 @@ export default function AttendancePage() {
 
           {/* スタッフ別履歴 */}
           {historyData.map(s => (
-            <div key={s.id} className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-hidden">
-              <div className="px-4 py-2.5 bg-[#faf8f5] border-b border-[#e8e4df] flex items-center justify-between">
+            <div key={s.id} className="overflow-hidden">
+              <div className="px-4 py-2.5 border-b border-[#e8e4df] flex items-center justify-between">
                 <span className="text-[13px] font-semibold">{s.name}</span>
                 <span className="text-[11px] text-[#8e9baa]">{s.role} | 合計 {s.days.reduce((sum, d) => sum + d.workMin, 0)}分 ({Math.floor(s.days.reduce((sum, d) => sum + d.workMin, 0) / 60)}h{s.days.reduce((sum, d) => sum + d.workMin, 0) % 60}m)</span>
               </div>

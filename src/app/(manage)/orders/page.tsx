@@ -73,9 +73,9 @@ export default function OrdersPage() {
       </div>
 
       {/* 一覧（インライン展開付き） */}
-      <div className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-hidden">
+      <div className="overflow-hidden">
         <table className="w-full text-[13px]">
-          <thead><tr className="border-b border-[#d8d3cc] bg-[#faf8f5]">
+          <thead><tr className="border-b border-[#e8e4df]">
             <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left w-8"></th>
             <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">顧客</th>
             <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">卓</th>

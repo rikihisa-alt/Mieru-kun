@@ -40,7 +40,7 @@ export default function NewCustomerPage() {
   if (done) {
     return (
       <div className="max-w-lg mx-auto">
-        <div className="bg-white border border-[#d8d3cc] rounded-[8px] p-8 text-center">
+        <div className="p-8 text-center">
           <CheckCircle className="w-12 h-12 text-[#188038] mx-auto mb-3" />
           <p className="text-[16px] font-semibold text-[#188038]">顧客を登録しました</p>
           <p className="text-[13px] text-[#5a6977] mt-1">{name}</p>
@@ -65,7 +65,7 @@ export default function NewCustomerPage() {
         <ArrowLeft className="w-3.5 h-3.5" />顧客一覧に戻る
       </Link>
 
-      <div className="bg-white border border-[#d8d3cc] rounded-[8px] p-5">
+      <div>
         <h2 className="text-[15px] font-semibold mb-4">顧客新規登録</h2>
 
         {error && (

@@ -54,7 +54,7 @@ export default function CustomersPage() {
       </div>
 
       {/* テーブル */}
-      <div className="bg-white border border-[#d8d3cc] rounded-[8px] overflow-hidden">
+      <div className="overflow-hidden">
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-[#e8e4df]">

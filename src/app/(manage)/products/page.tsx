@@ -82,12 +82,12 @@ export default function ProductsPage() {
     <div className="space-y-4">
       {/* ツールバー */}
       <div className="flex items-center justify-between">
-        <span className="text-[13px] text-text-secondary">
-          商品数 <strong className="text-text-primary">{products.length}</strong>件
+        <span className="text-[13px] text-[#5a6977]">
+          商品数 <strong className="text-[#2c3e50]">{products.length}</strong>件
         </span>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-1.5 px-3 py-[7px] bg-accent text-text-inverse text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors"
+          className="flex items-center gap-1.5 px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
           商品を追加
@@ -96,16 +96,16 @@ export default function ProductsPage() {
 
       {/* インラインフォーム */}
       {showForm && (
-        <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4">
+        <div className="pb-4 border-b border-[#e8e4df]">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-[13px] font-semibold text-text-primary">新規商品</h3>
-            <button onClick={() => setShowForm(false)} className="text-text-tertiary hover:text-text-primary">
+            <h3 className="text-[13px] font-semibold text-[#2c3e50]">新規商品</h3>
+            <button onClick={() => setShowForm(false)} className="text-[#8e9baa] hover:text-[#2c3e50]">
               <X className="w-4 h-4" />
             </button>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
             <div>
-              <label className="block text-[11px] text-text-tertiary font-medium mb-1">商品名</label>
+              <label className="block text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-1">商品名</label>
               <input
                 type="text"
                 value={formData.name}
@@ -115,7 +115,7 @@ export default function ProductsPage() {
               />
             </div>
             <div>
-              <label className="block text-[11px] text-text-tertiary font-medium mb-1">カテゴリ</label>
+              <label className="block text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-1">カテゴリ</label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -127,7 +127,7 @@ export default function ProductsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-[11px] text-text-tertiary font-medium mb-1">価格</label>
+              <label className="block text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-1">価格</label>
               <input
                 type="number"
                 value={formData.price}
@@ -137,7 +137,7 @@ export default function ProductsPage() {
               />
             </div>
             <div>
-              <label className="block text-[11px] text-text-tertiary font-medium mb-1">原価</label>
+              <label className="block text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-1">原価</label>
               <input
                 type="number"
                 value={formData.cost}
@@ -147,7 +147,7 @@ export default function ProductsPage() {
               />
             </div>
             <div>
-              <label className="block text-[11px] text-text-tertiary font-medium mb-1">在庫</label>
+              <label className="block text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-1">在庫</label>
               <input
                 type="number"
                 value={formData.stock}
@@ -160,7 +160,7 @@ export default function ProductsPage() {
           <div className="mt-3 flex justify-end">
             <button
               onClick={handleAdd}
-              className="px-3 py-[7px] bg-accent text-text-inverse text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors"
+              className="px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors"
             >
               追加
             </button>
@@ -169,7 +169,7 @@ export default function ProductsPage() {
       )}
 
       {/* テーブル */}
-      <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] overflow-hidden">
+      <div className="overflow-hidden">
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-[#e8e4df]">
@@ -185,7 +185,7 @@ export default function ProductsPage() {
           <tbody>
             {products.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-text-tertiary">
+                <td colSpan={7} className="px-4 py-10 text-center text-[#8e9baa]">
                   <Package className="w-8 h-8 mx-auto mb-2 opacity-30" />
                   <p>商品が登録されていません</p>
                 </td>
@@ -194,10 +194,10 @@ export default function ProductsPage() {
               products.map((p) => (
                 <tr key={p.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer transition-colors">
                   <td className="px-4 py-2.5 font-medium">{p.name}</td>
-                  <td className="px-4 py-2.5 text-text-secondary">{categoryLabel(p.category)}</td>
+                  <td className="px-4 py-2.5 text-[#5a6977]">{categoryLabel(p.category)}</td>
                   <td className="px-4 py-2.5 font-medium">{formatCurrency(p.price)}</td>
-                  <td className="px-4 py-2.5 text-text-secondary">{formatCurrency(p.cost)}</td>
-                  <td className="px-4 py-2.5 text-text-secondary">{p.stock}</td>
+                  <td className="px-4 py-2.5 text-[#5a6977]">{formatCurrency(p.cost)}</td>
+                  <td className="px-4 py-2.5 text-[#5a6977]">{p.stock}</td>
                   <td className="px-4 py-2.5">
                     {p.is_active ? (
                       <span className="inline px-1.5 py-0.5 text-[10px] font-semibold rounded-[3px] bg-[#e6f4ea] text-[#1e7e34]">
@@ -212,7 +212,7 @@ export default function ProductsPage() {
                   <td className="px-4 py-2.5">
                     <button
                       onClick={() => toggleActive(p)}
-                      className="px-2.5 py-1 text-[12px] text-accent hover:bg-accent-light rounded-[var(--radius)] transition-colors"
+                      className="px-2.5 py-1 text-[12px] text-[#3a8f7c] hover:bg-[#e8f5f0] rounded-[6px] transition-colors"
                     >
                       {p.is_active ? "無効にする" : "有効にする"}
                     </button>

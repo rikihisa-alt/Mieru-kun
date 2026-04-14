@@ -203,7 +203,7 @@ export default function CustomerDetailPage() {
       </Link>
 
       {/* Customer header */}
-      <div className="bg-[#ffffff] border border-[#d8d3cc] rounded-[8px] p-5">
+      <div className="pb-4 border-b border-[#e8e4df]">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -583,7 +583,7 @@ export default function CustomerDetailPage() {
                 <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">未払履歴</h3>
                 <div className="space-y-2">
                   {unpaidHistory.map((u) => (
-                    <div key={u.id} className="flex items-center justify-between px-3 py-2.5 border border-[#d8d3cc] rounded-[6px]">
+                    <div key={u.id} className="flex items-center justify-between px-3 py-2.5 border-b border-[#f3f0ec]">
                       <div className="flex items-center gap-3">
                         <span className="text-[12px] text-[#8e9baa]">{u.date}</span>
                         <span className="text-[13px] font-medium text-[#c5221f]">¥{u.amount.toLocaleString()}</span>
