@@ -434,17 +434,9 @@ export default function Home() {
 
       {/* ===== Footer ===== */}
       <footer className="bg-white border-t border-[#e8e4df] py-6">
-        <div className="w-full px-8 md:px-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Image src="/logo-icon.png" alt="みえるくん" width={18} height={18} />
-            <span className="text-[11px] text-[#8e9baa]">&copy; {new Date().getFullYear()} てんぽみえるくん</span>
-          </div>
-          <div className="flex items-center gap-4 text-[11px] text-[#8e9baa]">
-            <a href="#features" className="hover:text-[#5a6977]">機能</a>
-            <a href="#pricing" className="hover:text-[#5a6977]">料金</a>
-            <a href="#faq" className="hover:text-[#5a6977]">FAQ</a>
-            <Link href="/login" className="hover:text-[#5a6977]">ログイン</Link>
-          </div>
+        <div className="w-full px-8 md:px-16 flex items-center justify-center gap-2">
+          <Image src="/logo-icon.png" alt="みえるくん" width={24} height={24} />
+          <span className="text-[13px] text-[#8e9baa]">&copy; {new Date().getFullYear()} てんぽみえるくん</span>
         </div>
       </footer>
     </div>
