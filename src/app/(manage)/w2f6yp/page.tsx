@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { executeClosingAction } from "@/lib/actions/closing-actions";
 import { formatCurrency, todayString } from "@/lib/utils";
@@ -42,15 +41,15 @@ export default function ClosingPage() {
     return (
       <div className="max-w-lg mx-auto mt-12 text-center">
         <div className="p-8">
-          <CheckCircle className="w-12 h-12 mx-auto mb-3 text-[#188038]" />
-          <h2 className="text-[16px] font-bold text-[#2c3e50] mb-1">締め処理が完了しました</h2>
-          <p className="text-[13px] text-[#5a6977] mb-4">{date} の締め処理が正常に実行されました。</p>
+          <CheckCircle className="w-12 h-12 mx-auto mb-3 text-status-success" />
+          <h2 className="text-[16px] font-bold text-text-primary mb-1">締め処理が完了しました</h2>
+          <p className="text-[13px] text-text-secondary mb-4">{date} の締め処理が正常に実行されました。</p>
           <button
             onClick={() => {
               setResult(null);
               setNotes("");
             }}
-            className="px-3 py-[7px] text-[13px] font-medium text-[#3a8f7c] hover:bg-[#e8f5f0] rounded-[6px] transition-colors"
+            className="px-3 py-[7px] text-[13px] font-medium text-accent hover:bg-accent-light rounded-[6px] transition-colors"
           >
             別の日付で締め処理
           </button>
@@ -64,26 +63,26 @@ export default function ClosingPage() {
       {/* Summary bar */}
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-1.5">
-          <span className="text-[#8e9baa] text-[13px]">対象日</span>
-          <span className="text-[15px] font-bold text-[#2c3e50]">{date}</span>
+          <span className="text-text-tertiary text-[13px]">対象日</span>
+          <span className="text-[15px] font-bold text-text-primary">{date}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[#8e9baa] text-[13px]">売上</span>
-          <span className="text-[15px] font-bold text-[#2c3e50]">{formatCurrency(summary.total_sales)}</span>
+          <span className="text-text-tertiary text-[13px]">売上</span>
+          <span className="text-[15px] font-bold text-text-primary">{formatCurrency(summary.total_sales)}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[#8e9baa] text-[13px]">来店</span>
-          <span className="text-[15px] font-bold text-[#2c3e50]">{summary.total_visitors}人</span>
+          <span className="text-text-tertiary text-[13px]">来店</span>
+          <span className="text-[15px] font-bold text-text-primary">{summary.total_visitors}人</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[#8e9baa] text-[13px]">注文</span>
-          <span className="text-[15px] font-bold text-[#2c3e50]">{summary.total_orders}件</span>
+          <span className="text-text-tertiary text-[13px]">注文</span>
+          <span className="text-[15px] font-bold text-text-primary">{summary.total_orders}件</span>
         </div>
       </div>
 
       {/* 日付入力 */}
-      <div className="pb-4 border-b border-[#e8e4df]">
-        <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-2">
+      <div className="pb-4 border-b border-border-light">
+        <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-2">
           締め対象日
         </label>
         <input
@@ -95,35 +94,35 @@ export default function ClosingPage() {
       </div>
 
       {/* サマリカード */}
-      <div className="pb-4 border-b border-[#e8e4df]">
-        <h2 className="text-[13px] font-semibold text-[#2c3e50] mb-3">売上サマリ</h2>
+      <div className="pb-4 border-b border-border-light">
+        <h2 className="text-[13px] font-semibold text-text-primary mb-3">売上サマリ</h2>
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
-            <span className="block text-[11px] text-[#8e9baa] mb-0.5">売上合計</span>
-            <span className="text-[18px] font-bold text-[#2c3e50]">{formatCurrency(summary.total_sales)}</span>
+            <span className="block text-[11px] text-text-tertiary mb-0.5">売上合計</span>
+            <span className="text-[18px] font-bold text-text-primary">{formatCurrency(summary.total_sales)}</span>
           </div>
           <div>
-            <span className="block text-[11px] text-[#8e9baa] mb-0.5">来店数</span>
-            <span className="text-[18px] font-bold text-[#2c3e50]">{summary.total_visitors}人</span>
+            <span className="block text-[11px] text-text-tertiary mb-0.5">来店数</span>
+            <span className="text-[18px] font-bold text-text-primary">{summary.total_visitors}人</span>
           </div>
           <div>
-            <span className="block text-[11px] text-[#8e9baa] mb-0.5">注文数</span>
-            <span className="text-[18px] font-bold text-[#2c3e50]">{summary.total_orders}件</span>
+            <span className="block text-[11px] text-text-tertiary mb-0.5">注文数</span>
+            <span className="text-[18px] font-bold text-text-primary">{summary.total_orders}件</span>
           </div>
         </div>
-        <div className="border-t border-[#e8e4df] pt-3">
-          <h3 className="text-[12px] font-medium text-[#5a6977] mb-2">支払方法内訳</h3>
+        <div className="border-t border-border-light pt-3">
+          <h3 className="text-[12px] font-medium text-text-secondary mb-2">支払方法内訳</h3>
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-[13px]">
-              <span className="text-[#5a6977]">現金</span>
+              <span className="text-text-secondary">現金</span>
               <span className="font-medium">{formatCurrency(summary.cash_amount)}</span>
             </div>
             <div className="flex items-center justify-between text-[13px]">
-              <span className="text-[#5a6977]">カード</span>
+              <span className="text-text-secondary">カード</span>
               <span className="font-medium">{formatCurrency(summary.card_amount)}</span>
             </div>
             <div className="flex items-center justify-between text-[13px]">
-              <span className="text-[#5a6977]">電子マネー</span>
+              <span className="text-text-secondary">電子マネー</span>
               <span className="font-medium">{formatCurrency(summary.electronic_amount)}</span>
             </div>
           </div>
@@ -131,8 +130,8 @@ export default function ClosingPage() {
       </div>
 
       {/* メモ */}
-      <div className="pb-4 border-b border-[#e8e4df]">
-        <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-2">
+      <div className="pb-4 border-b border-border-light">
+        <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-2">
           備考
         </label>
         <textarea
@@ -146,9 +145,9 @@ export default function ClosingPage() {
 
       {/* エラー表示 */}
       {result?.error && (
-        <div className="flex items-center gap-2 px-4 py-3 bg-[#fce8e6] border border-[#c5221f]/20 rounded-[6px] text-[13px]">
-          <AlertTriangle className="w-4 h-4 text-[#c5221f] flex-shrink-0" />
-          <span className="text-[#c5221f] font-medium">{result.error}</span>
+        <div className="flex items-center gap-2 px-4 py-3 bg-status-danger-bg border border-[#c5221f]/20 rounded-[6px] text-[13px]">
+          <AlertTriangle className="w-4 h-4 text-status-danger flex-shrink-0" />
+          <span className="text-status-danger font-medium">{result.error}</span>
         </div>
       )}
 
@@ -156,7 +155,7 @@ export default function ClosingPage() {
       <button
         onClick={handleSubmit}
         disabled={loading}
-        className="flex items-center gap-1.5 px-4 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors disabled:opacity-50"
+        className="flex items-center gap-1.5 px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors disabled:opacity-50"
       >
         <Lock className="w-3.5 h-3.5" />
         {loading ? "処理中..." : "締め処理を実行"}

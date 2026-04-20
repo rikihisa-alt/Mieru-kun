@@ -108,7 +108,7 @@ export default function HistoryPage() {
           {TABS.map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] transition-colors ${
-                activeTab === t.key ? "bg-[#3a8f7c] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"
+                activeTab === t.key ? "bg-accent text-white" : "text-text-secondary hover:bg-bg-hover"
               }`}>
               {t.label}
             </button>
@@ -116,39 +116,39 @@ export default function HistoryPage() {
         </div>
         <div className="flex items-center gap-2">
           <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)}
-            className="text-[12px] px-2 py-1 border border-[#d8d3cc] rounded-[4px] w-36" />
-          {dateFilter && <button onClick={() => setDateFilter("")} className="text-[11px] text-[#8e9baa] hover:text-[#5a6977]">クリア</button>}
-          <button onClick={exportPDF} className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#5a6977] hover:bg-[#f3f0ec] rounded-[6px]">
+            className="text-[12px] px-2 py-1 border border-border rounded-[4px] w-36" />
+          {dateFilter && <button onClick={() => setDateFilter("")} className="text-[11px] text-text-tertiary hover:text-text-secondary">クリア</button>}
+          <button onClick={exportPDF} className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-text-secondary hover:bg-bg-hover rounded-[6px]">
             <FileDown className="w-3.5 h-3.5" />PDF出力
           </button>
         </div>
       </div>
 
       {/* 件数 */}
-      <p className="text-[12px] text-[#8e9baa]">{filtered.length}件</p>
+      <p className="text-[12px] text-text-tertiary">{filtered.length}件</p>
 
       {/* タイムライン表示 */}
       {Object.entries(grouped).map(([date, entries]) => (
         <div key={date}>
-          <p className="text-[12px] font-semibold text-[#2c3e50] pb-1.5 mb-0 border-b border-[#d8d3cc]">{date}</p>
+          <p className="text-[12px] font-semibold text-text-primary pb-1.5 mb-0 border-b border-border">{date}</p>
           <div className="relative">
-            <div className="absolute left-[39px] top-0 bottom-0 w-px bg-[#e8e4df]" />
+            <div className="absolute left-[39px] top-0 bottom-0 w-px bg-border-light" />
             {entries.map(e => {
               const meta = TYPE_META[e.type];
               return (
-                <div key={e.id} className="flex items-start gap-3 py-2 hover:bg-[#faf8f5] rounded-[4px] transition-colors relative">
-                  <span className="text-[11px] text-[#8e9baa] font-mono w-8 text-right pt-0.5 flex-shrink-0">{e.time}</span>
+                <div key={e.id} className="flex items-start gap-3 py-2 hover:bg-bg-hover rounded-[4px] transition-colors relative">
+                  <span className="text-[11px] text-text-tertiary font-mono w-8 text-right pt-0.5 flex-shrink-0">{e.time}</span>
                   <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10" style={{ backgroundColor: meta.bg, color: meta.color }}>
                     {meta.icon}
                   </div>
                   <div className="flex items-center gap-2 pt-0.5 flex-1 min-w-0">
                     <span className="text-[10px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: meta.color }}>{e.type}</span>
-                    <span className="text-[12px] font-medium text-[#2c3e50] truncate">{e.name}</span>
-                    {e.realName && <span className="text-[11px] text-[#8e9baa] truncate">（{e.realName}）</span>}
-                    {e.detail && <span className="text-[11px] text-[#8e9baa] truncate">{e.detail}</span>}
+                    <span className="text-[12px] font-medium text-text-primary truncate">{e.name}</span>
+                    {e.realName && <span className="text-[11px] text-text-tertiary truncate">（{e.realName}）</span>}
+                    {e.detail && <span className="text-[11px] text-text-tertiary truncate">{e.detail}</span>}
                   </div>
                   {e.amount != null && (
-                    <span className="text-[12px] font-semibold text-[#2c3e50] flex-shrink-0">¥{e.amount.toLocaleString()}</span>
+                    <span className="text-[12px] font-semibold text-text-primary flex-shrink-0">¥{e.amount.toLocaleString()}</span>
                   )}
                 </div>
               );
@@ -160,7 +160,7 @@ export default function HistoryPage() {
       {filtered.length === 0 && (
         <div className="text-center py-12">
           <Image src="/logo-icon.png" alt="みえるくん" width={32} height={32} className="mx-auto mb-2 opacity-30" />
-          <p className="text-[13px] text-[#8e9baa]">該当する履歴がありません</p>
+          <p className="text-[13px] text-text-tertiary">該当する履歴がありません</p>
         </div>
       )}
     </div>

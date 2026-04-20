@@ -33,22 +33,14 @@ const RANK_LABELS: Record<Rank, string> = {
 function rankTextClass(rank: Rank): string {
   switch (rank) {
     case "gold":
-      return "text-[#d97706]";
+      return "text-status-warning";
     case "vip":
       return "text-[#7c3aed]";
     case "silver":
       return "text-[#475569]";
     default:
-      return "text-[#8e9baa]";
+      return "text-text-tertiary";
   }
-}
-
-interface ChipPointEntry {
-  id: string;
-  date: string;
-  amount: number;
-  reason: string;
-  balanceAfter: number;
 }
 
 interface VisitEntry {
@@ -138,8 +130,7 @@ export default function CustomerDetailPage() {
   // Stats
   const [visits] = useState(initial.totalVisits);
   const [totalSpent] = useState(initial.totalSpent);
-  const [chipBalance, setChipBalance] = useState(initial.chipBalance);
-  const [pointBalance, setPointBalance] = useState(initial.pointBalance);
+  const [pointBalance] = useState(initial.pointBalance);
 
   // Visit history
   const [visitHistory] = useState<VisitEntry[]>([
@@ -149,28 +140,6 @@ export default function CustomerDetailPage() {
     { id: "vh4", date: "2026-04-01 18:45", table: "B-1", amount: 22000, stayMinutes: 150, status: "settled" },
     { id: "vh5", date: "2026-03-28 20:00", table: "VIP-1", amount: 38000, stayMinutes: 210, status: "settled" },
   ]);
-
-  // Chip history
-  const [chipHistory, setChipHistory] = useState<ChipPointEntry[]>([
-    { id: "ch1", date: "2026-04-11", amount: 2000, reason: "来店ボーナス", balanceAfter: 5000 },
-    { id: "ch2", date: "2026-04-09", amount: -500, reason: "ドリンク交換", balanceAfter: 3000 },
-    { id: "ch3", date: "2026-04-05", amount: 1000, reason: "イベント参加", balanceAfter: 3500 },
-    { id: "ch4", date: "2026-04-01", amount: 1500, reason: "VIPボーナス", balanceAfter: 2500 },
-    { id: "ch5", date: "2026-03-28", amount: -200, reason: "景品交換", balanceAfter: 1000 },
-  ]);
-  const [chipAmount, setChipAmount] = useState("");
-  const [chipReason, setChipReason] = useState("");
-
-  // Point history
-  const [pointHistory, setPointHistory] = useState<ChipPointEntry[]>([
-    { id: "ph1", date: "2026-04-11", amount: 320, reason: "利用額ポイント", balanceAfter: 1200 },
-    { id: "ph2", date: "2026-04-09", amount: 150, reason: "利用額ポイント", balanceAfter: 880 },
-    { id: "ph3", date: "2026-04-05", amount: -300, reason: "景品交換", balanceAfter: 730 },
-    { id: "ph4", date: "2026-04-01", amount: 220, reason: "利用額ポイント", balanceAfter: 1030 },
-    { id: "ph5", date: "2026-03-28", amount: 380, reason: "利用額ポイント", balanceAfter: 810 },
-  ]);
-  const [pointAmount, setPointAmount] = useState("");
-  const [pointReason, setPointReason] = useState("");
 
   // Prize
   const [prizes, setPrizes] = useState<PrizeEntry[]>([
@@ -184,39 +153,13 @@ export default function CustomerDetailPage() {
   // Unpaid
   const [hasUnpaid, setHasUnpaid] = useState(false);
   const [unpaidAmount, setUnpaidAmount] = useState("");
-  const [unpaidHistory, setUnpaidHistory] = useState<UnpaidEntry[]>([
+  const [unpaidHistory] = useState<UnpaidEntry[]>([
     { id: "up1", date: "2026-03-15", amount: 5000, note: "精算忘れ - 翌日回収済" },
   ]);
 
   function handleSave() {
     setSaveMsg(true);
     setTimeout(() => setSaveMsg(false), 2000);
-  }
-
-  function handleChipGrant() {
-    const amt = parseInt(chipAmount);
-    if (isNaN(amt) || amt === 0 || !chipReason.trim()) return;
-    const newBalance = chipBalance + amt;
-    setChipBalance(newBalance);
-    setChipHistory((prev) => [
-      { id: `ch${Date.now()}`, date: new Date().toISOString().split("T")[0], amount: amt, reason: chipReason, balanceAfter: newBalance },
-      ...prev,
-    ]);
-    setChipAmount("");
-    setChipReason("");
-  }
-
-  function handlePointGrant() {
-    const amt = parseInt(pointAmount);
-    if (isNaN(amt) || amt === 0 || !pointReason.trim()) return;
-    const newBalance = pointBalance + amt;
-    setPointBalance(newBalance);
-    setPointHistory((prev) => [
-      { id: `ph${Date.now()}`, date: new Date().toISOString().split("T")[0], amount: amt, reason: pointReason, balanceAfter: newBalance },
-      ...prev,
-    ]);
-    setPointAmount("");
-    setPointReason("");
   }
 
   function handlePrizeGrant() {
@@ -309,42 +252,42 @@ export default function CustomerDetailPage() {
       {/* Back link */}
       <Link
         href="/a9k5dm"
-        className="inline-flex items-center gap-1 text-[13px] text-[#5a6977] hover:text-[#2c3e50] transition-colors"
+        className="inline-flex items-center gap-1 text-[13px] text-text-secondary hover:text-text-primary transition-colors"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
         顧客一覧
       </Link>
 
       {/* Customer header */}
-      <div className="pb-4 border-b border-[#e8e4df]">
+      <div className="pb-4 border-b border-border-light">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-baseline gap-2 mb-1 flex-wrap">
-              <h1 className="text-[18px] font-bold text-[#2c3e50]">{nickname || name}</h1>
-              {nickname && <span className="text-[13px] text-[#8e9baa]">{name}</span>}
+              <h1 className="text-[18px] font-bold text-text-primary">{nickname || name}</h1>
+              {nickname && <span className="text-[13px] text-text-tertiary">{name}</span>}
               <span className={`text-[12px] font-semibold tracking-wider ${rankTextClass(rank)}`}>
                 {RANK_LABELS[rank]}
               </span>
               {isBlacklisted && (
-                <span className="text-[11px] font-bold tracking-wider text-[#c5221f] border border-[#c5221f]/40 bg-[#fce8e6] px-1.5 py-0.5 rounded-[4px]">BLACK</span>
+                <span className="text-[11px] font-bold tracking-wider text-status-danger border border-[#c5221f]/40 bg-status-danger-bg px-1.5 py-0.5 rounded-[4px]">BLACK</span>
               )}
               {isHidden && (
-                <span className="text-[11px] font-semibold tracking-wider text-[#5a6977] border border-[#d8d3cc] bg-[#f3f0ec] px-1.5 py-0.5 rounded-[4px]">HIDDEN</span>
+                <span className="text-[11px] font-semibold tracking-wider text-text-secondary border border-border bg-bg-hover px-1.5 py-0.5 rounded-[4px]">HIDDEN</span>
               )}
             </div>
-            <div className="flex items-center gap-4 mt-2 text-[13px] text-[#5a6977]">
+            <div className="flex items-center gap-4 mt-2 text-[13px] text-text-secondary">
               <span className="flex items-center gap-1">
-                <Phone className="w-3.5 h-3.5 text-[#8e9baa]" />
+                <Phone className="w-3.5 h-3.5 text-text-tertiary" />
                 {phone || "-"}
               </span>
               <span className="flex items-center gap-1">
-                <Mail className="w-3.5 h-3.5 text-[#8e9baa]" />
+                <Mail className="w-3.5 h-3.5 text-text-tertiary" />
                 {email || "-"}
               </span>
             </div>
             {cautionText && (
-              <div className="mt-3 flex items-start gap-2 px-3 py-2 bg-[#fdf4e8] border border-[#c87b1a]/30 rounded-[6px]">
-                <AlertTriangle className="w-4 h-4 text-[#c87b1a] shrink-0 mt-0.5" />
+              <div className="mt-3 flex items-start gap-2 px-3 py-2 bg-status-warning-bg border border-[#c87b1a]/30 rounded-[6px]">
+                <AlertTriangle className="w-4 h-4 text-status-warning shrink-0 mt-0.5" />
                 <span className="text-[12px] text-[#8a5a10] leading-relaxed">{cautionText}</span>
               </div>
             )}
@@ -356,23 +299,23 @@ export default function CustomerDetailPage() {
       <div className="flex items-center gap-6">
         {stats.map((s) => (
           <div key={s.label} className="flex items-center gap-1.5">
-            <span className="text-[#8e9baa] text-[13px]">{s.label}</span>
-            <span className="text-[15px] font-bold text-[#2c3e50]">{s.value}</span>
+            <span className="text-text-tertiary text-[13px]">{s.label}</span>
+            <span className="text-[15px] font-bold text-text-primary">{s.value}</span>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
       <div>
-        <div className="flex gap-1 border-b border-[#e8e4df] mb-4">
+        <div className="flex gap-1 border-b border-border-light mb-4">
           {TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-3 py-2 text-[13px] font-medium transition-colors border-b-2 ${
                 activeTab === tab
-                  ? "text-[#3a8f7c] border-[#3a8f7c]"
-                  : "text-[#8e9baa] border-transparent hover:text-[#2c3e50]"
+                  ? "text-accent border-accent"
+                  : "text-text-tertiary border-transparent hover:text-text-primary"
               }`}
             >
               {tab}
@@ -385,48 +328,48 @@ export default function CustomerDetailPage() {
           {activeTab === "基本情報" && (
             <div className="space-y-4 max-w-lg">
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">ニックネーム（ポーカーネーム）</label>
+                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">ニックネーム（ポーカーネーム）</label>
                 <input
                   type="text"
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
                   placeholder="卓上・精算等の画面で表示される名前"
-                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
+                  className="w-full px-3 py-2 text-[13px] border border-border rounded-[6px] text-text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-[#3a8f7c]"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">本名</label>
+                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">本名</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
+                  className="w-full px-3 py-2 text-[13px] border border-border rounded-[6px] text-text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-[#3a8f7c]"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">電話番号</label>
+                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">電話番号</label>
                 <input
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
+                  className="w-full px-3 py-2 text-[13px] border border-border rounded-[6px] text-text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-[#3a8f7c]"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">メールアドレス</label>
+                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">メールアドレス</label>
                 <input
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
+                  className="w-full px-3 py-2 text-[13px] border border-border rounded-[6px] text-text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-[#3a8f7c]"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">ランク</label>
+                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">ランク</label>
                 <select
                   value={rank}
                   onChange={(e) => setRank(e.target.value as Rank)}
-                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
+                  className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-border rounded-[6px] text-text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-[#3a8f7c]"
                 >
                   <option value="regular">レギュラー</option>
                   <option value="silver">シルバー</option>
@@ -435,51 +378,51 @@ export default function CustomerDetailPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">生年月日</label>
+                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">生年月日</label>
                 <input
                   type="date"
                   value={dateOfBirth}
                   onChange={(e) => setDateOfBirth(e.target.value)}
-                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c]"
+                  className="w-full px-3 py-2 text-[13px] border border-border rounded-[6px] text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">LINE ID</label>
+                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">LINE ID</label>
                 <input
                   type="text"
                   value={lineId}
                   onChange={(e) => setLineId(e.target.value)}
                   placeholder="LINE連携ID"
-                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c]"
+                  className="w-full px-3 py-2 text-[13px] border border-border rounded-[6px] text-text-primary focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">注意事項（ヘッダー常時表示）</label>
+                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">注意事項（ヘッダー常時表示）</label>
                 <textarea
                   value={cautionText}
                   onChange={(e) => setCautionText(e.target.value)}
                   rows={2}
                   placeholder="例: 飲食不可 / 過去トラブルあり"
-                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c] resize-none"
+                  className="w-full px-3 py-2 text-[13px] border border-border rounded-[6px] text-text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-[#3a8f7c] resize-none"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">備考（一般メモ）</label>
+                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">備考（一般メモ）</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c] resize-none"
+                  className="w-full px-3 py-2 text-[13px] border border-border rounded-[6px] text-text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-[#3a8f7c] resize-none"
                 />
               </div>
-              <div className="pt-2 border-t border-[#e8e4df] space-y-2">
-                <p className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">管理フラグ</p>
-                <label className="flex items-center gap-2 text-[13px] text-[#2c3e50] cursor-pointer">
+              <div className="pt-2 border-t border-border-light space-y-2">
+                <p className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">管理フラグ</p>
+                <label className="flex items-center gap-2 text-[13px] text-text-primary cursor-pointer">
                   <input type="checkbox" checked={isBlacklisted} onChange={(e) => setIsBlacklisted(e.target.checked)} />
                   <span>ブラックリスト（入店拒否）</span>
-                  <span className="text-[11px] text-[#8e9baa]">※ オーナーのみ変更可</span>
+                  <span className="text-[11px] text-text-tertiary">※ オーナーのみ変更可</span>
                 </label>
-                <label className="flex items-center gap-2 text-[13px] text-[#2c3e50] cursor-pointer">
+                <label className="flex items-center gap-2 text-[13px] text-text-primary cursor-pointer">
                   <input type="checkbox" checked={isHidden} onChange={(e) => setIsHidden(e.target.checked)} />
                   <span>非表示（一般スタッフの検索結果に出さない）</span>
                 </label>
@@ -487,13 +430,13 @@ export default function CustomerDetailPage() {
               <div className="flex items-center gap-3 pt-2">
                 <button
                   onClick={handleSave}
-                  className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-accent hover:bg-accent-hover rounded-[6px] transition-colors"
                 >
                   <Save className="w-3.5 h-3.5" />
                   保存
                 </button>
                 {saveMsg && (
-                  <span className="flex items-center gap-1 text-[12px] text-[#1e7e34]">
+                  <span className="flex items-center gap-1 text-[12px] text-status-success">
                     <CheckCircle className="w-3.5 h-3.5" />
                     保存しました
                   </span>
@@ -507,12 +450,12 @@ export default function CustomerDetailPage() {
             <div>
               <table className="w-full text-[13px]">
                 <thead>
-                  <tr className="border-b border-[#e8e4df]">
-                    <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">日時</th>
-                    <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">卓</th>
-                    <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">金額</th>
-                    <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">滞在時間</th>
-                    <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ステータス</th>
+                  <tr className="border-b border-border-light">
+                    <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">日時</th>
+                    <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">卓</th>
+                    <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">金額</th>
+                    <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">滞在時間</th>
+                    <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -521,17 +464,17 @@ export default function CustomerDetailPage() {
                     const m = v.stayMinutes % 60;
                     const stayStr = h > 0 ? `${h}時間${m}分` : `${m}分`;
                     return (
-                      <tr key={v.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer transition-colors">
-                        <td className="px-3 py-2.5 text-[#5a6977]">{v.date}</td>
+                      <tr key={v.id} className="border-b border-border-light hover:bg-bg-hover cursor-pointer transition-colors">
+                        <td className="px-3 py-2.5 text-text-secondary">{v.date}</td>
                         <td className="px-3 py-2.5">
-                          <span className="inline-block px-2 py-0.5 bg-[#faf8f5] rounded-[4px] text-[12px] font-medium">
+                          <span className="inline-block px-2 py-0.5 bg-bg-hover rounded-[4px] text-[12px] font-medium">
                             {v.table}
                           </span>
                         </td>
-                        <td className="px-3 py-2.5 font-medium text-[#2c3e50]">¥{v.amount.toLocaleString()}</td>
-                        <td className="px-3 py-2.5 text-[#5a6977]">{stayStr}</td>
+                        <td className="px-3 py-2.5 font-medium text-text-primary">¥{v.amount.toLocaleString()}</td>
+                        <td className="px-3 py-2.5 text-text-secondary">{stayStr}</td>
                         <td className="px-3 py-2.5">
-                          <span className="inline px-1.5 py-0.5 text-[10px] font-semibold rounded-[3px] bg-[#e8f5f0] text-[#3a8f7c]">
+                          <span className="inline px-1.5 py-0.5 text-[10px] font-semibold rounded-[3px] bg-accent-light text-accent">
                             精算済
                           </span>
                         </td>
@@ -582,129 +525,15 @@ export default function CustomerDetailPage() {
             />
           )}
 
-          {/* 旧: チップ・ポイント タブ(互換のため保持しないが古いリンクが来た場合のフォールバック) */}
-          {false && (
-            <div className="space-y-6">
-              {/* Balances */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#faf8f5] rounded-[6px] p-4">
-                  <div className="text-[11px] text-[#8e9baa] font-medium mb-1">チップ残高</div>
-                  <div className="text-[22px] font-bold text-[#2c3e50]">{chipBalance.toLocaleString()}</div>
-                </div>
-                <div className="bg-[#faf8f5] rounded-[6px] p-4">
-                  <div className="text-[11px] text-[#8e9baa] font-medium mb-1">ポイント残高</div>
-                  <div className="text-[22px] font-bold text-[#2c3e50]">{pointBalance.toLocaleString()}</div>
-                </div>
-              </div>
-
-              {/* Chip Grant */}
-              <div>
-                <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">チップ付与</h3>
-
-                <div className="flex items-end gap-2">
-                  <div className="flex-1">
-                    <label className="block text-[11px] text-[#8e9baa] mb-1">数量</label>
-                    <input
-                      type="number"
-                      value={chipAmount}
-                      onChange={(e) => setChipAmount(e.target.value)}
-                      placeholder="例: 500"
-                      className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-[11px] text-[#8e9baa] mb-1">理由</label>
-                    <input
-                      type="text"
-                      value={chipReason}
-                      onChange={(e) => setChipReason(e.target.value)}
-                      placeholder="例: 来店ボーナス"
-                      className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
-                    />
-                  </div>
-                  <button
-                    onClick={handleChipGrant}
-                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors whitespace-nowrap"
-                  >
-                    付与
-                  </button>
-                </div>
-                {/* Chip History */}
-                <div className="mt-3 space-y-1">
-                  {chipHistory.map((e) => (
-                    <div key={e.id} className="flex items-center justify-between py-1.5 px-2 text-[12px] rounded hover:bg-[#faf8f5]">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[#8e9baa]">{e.date}</span>
-                        <span className={`font-medium ${e.amount >= 0 ? "text-[#1e7e34]" : "text-[#c5221f]"}`}>
-                          {e.amount >= 0 ? "+" : ""}{e.amount.toLocaleString()}
-                        </span>
-                        <span className="text-[#5a6977]">{e.reason}</span>
-                      </div>
-                      <span className="text-[#8e9baa]">残: {e.balanceAfter.toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Point Grant */}
-              <div>
-                <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">ポイント付与</h3>
-                <div className="flex items-end gap-2">
-                  <div className="flex-1">
-                    <label className="block text-[11px] text-[#8e9baa] mb-1">数量</label>
-                    <input
-                      type="number"
-                      value={pointAmount}
-                      onChange={(e) => setPointAmount(e.target.value)}
-                      placeholder="例: 100"
-                      className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-[11px] text-[#8e9baa] mb-1">理由</label>
-                    <input
-                      type="text"
-                      value={pointReason}
-                      onChange={(e) => setPointReason(e.target.value)}
-                      placeholder="例: 利用額ポイント"
-                      className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
-                    />
-                  </div>
-                  <button
-                    onClick={handlePointGrant}
-                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors whitespace-nowrap"
-                  >
-                    付与
-                  </button>
-                </div>
-                {/* Point History */}
-                <div className="mt-3 space-y-1">
-                  {pointHistory.map((e) => (
-                    <div key={e.id} className="flex items-center justify-between py-1.5 px-2 text-[12px] rounded hover:bg-[#faf8f5]">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[#8e9baa]">{e.date}</span>
-                        <span className={`font-medium ${e.amount >= 0 ? "text-[#1e7e34]" : "text-[#c5221f]"}`}>
-                          {e.amount >= 0 ? "+" : ""}{e.amount.toLocaleString()}
-                        </span>
-                        <span className="text-[#5a6977]">{e.reason}</span>
-                      </div>
-                      <span className="text-[#8e9baa]">残: {e.balanceAfter.toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Tab 4: Prizes */}
           {activeTab === "プライズ" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-[13px] font-semibold text-[#2c3e50]">付与済みプライズ</h3>
+                <h3 className="text-[13px] font-semibold text-text-primary">付与済みプライズ</h3>
                 {!showPrizeForm && (
                   <button
                     onClick={() => setShowPrizeForm(true)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#ffffff] bg-accent hover:bg-accent-hover rounded-[6px] transition-colors"
                   >
                     <Plus className="w-3 h-3" />
                     プライズ付与
@@ -713,13 +542,13 @@ export default function CustomerDetailPage() {
               </div>
 
               {showPrizeForm && (
-                <div className="flex items-end gap-2 p-3 bg-[#faf8f5] rounded-[6px]">
+                <div className="flex items-end gap-2 p-3 bg-bg-hover rounded-[6px]">
                   <div className="flex-1">
-                    <label className="block text-[11px] text-[#8e9baa] mb-1">プライズ選択</label>
+                    <label className="block text-[11px] text-text-tertiary mb-1">プライズ選択</label>
                     <select
                       value={selectedPrize}
                       onChange={(e) => setSelectedPrize(e.target.value)}
-                      className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c]"
+                      className="w-full px-3 py-2 text-[13px] bg-[#ffffff] border border-border rounded-[6px] text-text-primary focus:outline-none focus:border-accent"
                     >
                       {PRIZE_OPTIONS.map((p) => (
                         <option key={p} value={p}>
@@ -730,13 +559,13 @@ export default function CustomerDetailPage() {
                   </div>
                   <button
                     onClick={handlePrizeGrant}
-                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors whitespace-nowrap"
+                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-accent hover:bg-accent-hover rounded-[6px] transition-colors whitespace-nowrap"
                   >
                     付与
                   </button>
                   <button
                     onClick={() => setShowPrizeForm(false)}
-                    className="px-3 py-2 text-[12px] text-[#5a6977] hover:text-[#2c3e50]"
+                    className="px-3 py-2 text-[12px] text-text-secondary hover:text-text-primary"
                   >
                     キャンセル
                   </button>
@@ -745,10 +574,10 @@ export default function CustomerDetailPage() {
 
               <div className="space-y-2">
                 {prizes.map((p) => (
-                  <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 border-b border-[#f3f0ec] hover:bg-[#faf8f5] transition-colors">
+                  <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 border-b border-border-light hover:bg-bg-hover transition-colors">
                     <Gift className="w-4 h-4 text-[#7c3aed]" />
-                    <span className="text-[13px] font-medium text-[#2c3e50]">{p.name}</span>
-                    <span className="text-[12px] text-[#8e9baa] ml-auto">{p.date}</span>
+                    <span className="text-[13px] font-medium text-text-primary">{p.name}</span>
+                    <span className="text-[12px] text-text-tertiary ml-auto">{p.date}</span>
                   </div>
                 ))}
               </div>
@@ -760,11 +589,11 @@ export default function CustomerDetailPage() {
             <div className="space-y-4">
               {/* Toggle */}
               <div className="flex items-center gap-3">
-                <span className="text-[13px] text-[#2c3e50]">未払あり</span>
+                <span className="text-[13px] text-text-primary">未払あり</span>
                 <button
                   onClick={() => setHasUnpaid(!hasUnpaid)}
                   className={`relative w-[44px] h-[24px] rounded-full transition-colors ${
-                    hasUnpaid ? "bg-[#c5221f]" : "bg-[#d8d3cc]"
+                    hasUnpaid ? "bg-status-danger" : "bg-[#d8d3cc]"
                   }`}
                 >
                   <span
@@ -776,19 +605,19 @@ export default function CustomerDetailPage() {
               </div>
 
               {hasUnpaid && (
-                <div className="p-4 bg-[#fce8e6] border border-[#c5221f]/20 rounded-[6px]">
+                <div className="p-4 bg-status-danger-bg border border-[#c5221f]/20 rounded-[6px]">
                   <div className="flex items-center gap-2 mb-3">
-                    <AlertTriangle className="w-4 h-4 text-[#c5221f]" />
-                    <span className="text-[13px] font-medium text-[#c5221f]">未払いが発生しています</span>
+                    <AlertTriangle className="w-4 h-4 text-status-danger" />
+                    <span className="text-[13px] font-medium text-status-danger">未払いが発生しています</span>
                   </div>
                   <div>
-                    <label className="block text-[11px] text-[#c5221f]/70 mb-1">未払金額</label>
+                    <label className="block text-[11px] text-status-danger/70 mb-1">未払金額</label>
                     <input
                       type="number"
                       value={unpaidAmount}
                       onChange={(e) => setUnpaidAmount(e.target.value)}
                       placeholder="金額を入力"
-                      className="w-full max-w-[200px] px-3 py-2 text-[13px] border border-[#c5221f]/30 rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#c5221f] bg-[#ffffff]"
+                      className="w-full max-w-[200px] px-3 py-2 text-[13px] border border-[#c5221f]/30 rounded-[6px] text-text-primary focus:outline-none focus:border-[#c5221f] bg-[#ffffff]"
                     />
                   </div>
                 </div>
@@ -796,14 +625,14 @@ export default function CustomerDetailPage() {
 
               {/* Unpaid history */}
               <div>
-                <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">未払履歴</h3>
+                <h3 className="text-[13px] font-semibold text-text-primary mb-2">未払履歴</h3>
                 <div className="space-y-2">
                   {unpaidHistory.map((u) => (
-                    <div key={u.id} className="flex items-center justify-between px-3 py-2.5 border-b border-[#f3f0ec]">
+                    <div key={u.id} className="flex items-center justify-between px-3 py-2.5 border-b border-border-light">
                       <div className="flex items-center gap-3">
-                        <span className="text-[12px] text-[#8e9baa]">{u.date}</span>
-                        <span className="text-[13px] font-medium text-[#c5221f]">¥{u.amount.toLocaleString()}</span>
-                        <span className="text-[12px] text-[#5a6977]">{u.note}</span>
+                        <span className="text-[12px] text-text-tertiary">{u.date}</span>
+                        <span className="text-[13px] font-medium text-status-danger">¥{u.amount.toLocaleString()}</span>
+                        <span className="text-[12px] text-text-secondary">{u.note}</span>
                       </div>
                     </div>
                   ))}

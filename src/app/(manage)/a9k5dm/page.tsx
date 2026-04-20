@@ -25,9 +25,9 @@ const DEMO: Customer[] = [
 ];
 
 const RANK_TEXT: Record<Rank, string> = {
-  regular: "text-[#8e9baa]",
+  regular: "text-text-tertiary",
   silver: "text-[#475569]",
-  gold: "text-[#d97706]",
+  gold: "text-status-warning",
   vip: "text-[#7c3aed]",
 };
 const RANK_LABEL: Record<Rank, string> = { regular: "Regular", silver: "SILVER", gold: "GOLD", vip: "VIP" };
@@ -51,14 +51,14 @@ export default function CustomersPage() {
       {/* ツールバー */}
       <div className="flex items-center justify-between">
         <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8e9baa] pointer-events-none z-10" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none z-10" />
           <input type="text" value={search} onChange={e => setSearch(e.target.value)}
             placeholder="ニックネーム・本名・電話番号で検索"
             style={{ paddingLeft: "36px" }}
-            className="w-full pr-3 py-[7px] text-[13px] border border-[#d8d3cc] rounded-[6px] focus:outline-none focus:border-[#3a8f7c]" />
+            className="w-full pr-3 py-[7px] text-[13px] border border-border rounded-[6px] focus:outline-none focus:border-accent" />
         </div>
         <Link href="/a9k5dm/q7t3wc"
-          className="flex items-center gap-1 px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors">
+          className="flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors">
           <Plus className="w-3.5 h-3.5" />顧客登録
         </Link>
       </div>
@@ -67,38 +67,38 @@ export default function CustomersPage() {
       <div className="overflow-hidden">
         <table className="w-full text-[13px]">
           <thead>
-            <tr className="border-b border-[#e8e4df]">
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ニックネーム / 本名</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ランク</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">来店</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">累計利用額</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">チップ</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ポイント</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">最終来店</th>
+            <tr className="border-b border-border-light">
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ニックネーム / 本名</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ランク</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">来店</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">累計利用額</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">チップ</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ポイント</th>
+              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">最終来店</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan={7} className="px-4 py-10 text-center text-[#8e9baa]">
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-text-tertiary">
                 <Image src="/logo-icon.png" alt="みえるくん" width={32} height={32} className="mx-auto mb-2 opacity-30" />
                 <p className="text-[13px]">該当する顧客がいません</p>
               </td></tr>
             ) : filtered.map(c => (
-              <tr key={c.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] transition-colors cursor-pointer" onClick={(e) => openMenu(c, e)}>
+              <tr key={c.id} className="border-b border-border-light hover:bg-bg-hover transition-colors cursor-pointer" onClick={(e) => openMenu(c, e)}>
                 <td className="px-4 py-2.5">
                   <div className="flex items-baseline gap-2">
-                    <span className="font-medium text-[#3a8f7c] hover:underline">{c.nickname || c.name}</span>
-                    {c.nickname && <span className="text-[11px] text-[#8e9baa]">{c.name}</span>}
+                    <span className="font-medium text-accent hover:underline">{c.nickname || c.name}</span>
+                    {c.nickname && <span className="text-[11px] text-text-tertiary">{c.name}</span>}
                   </div>
                 </td>
                 <td className="px-4 py-2.5">
                   <span className={`text-[12px] font-semibold tracking-wider ${RANK_TEXT[c.rank]}`}>{RANK_LABEL[c.rank]}</span>
                 </td>
-                <td className="px-4 py-2.5 text-[#5a6977]">{c.totalVisits}回</td>
+                <td className="px-4 py-2.5 text-text-secondary">{c.totalVisits}回</td>
                 <td className="px-4 py-2.5 font-medium">¥{c.totalSpent.toLocaleString()}</td>
-                <td className="px-4 py-2.5 text-[#5a6977]">{c.chipBalance.toLocaleString()}</td>
-                <td className="px-4 py-2.5 text-[#5a6977]">{c.pointBalance.toLocaleString()}</td>
-                <td className="px-4 py-2.5 text-[#5a6977] text-[12px]">{c.lastVisit}</td>
+                <td className="px-4 py-2.5 text-text-secondary">{c.chipBalance.toLocaleString()}</td>
+                <td className="px-4 py-2.5 text-text-secondary">{c.pointBalance.toLocaleString()}</td>
+                <td className="px-4 py-2.5 text-text-secondary text-[12px]">{c.lastVisit}</td>
               </tr>
             ))}
           </tbody>

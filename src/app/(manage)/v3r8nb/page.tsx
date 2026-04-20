@@ -170,35 +170,35 @@ export default function TablesPage() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Image src="/logo-icon.png" alt="みえるくん" width={20} height={20} />
-            <span className="text-[13px] text-[#5a6977]">
-              稼働 <strong className="text-[#2c3e50]">{tables.filter(t => getTablePlayers(t.id).length > 0).length}</strong> / {tables.length} 卓
+            <span className="text-[13px] text-text-secondary">
+              稼働 <strong className="text-text-primary">{tables.filter(t => getTablePlayers(t.id).length > 0).length}</strong> / {tables.length} 卓
             </span>
           </div>
           <button onClick={() => setShowAddTable(true)}
-            className="flex items-center gap-1 px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors">
+            className="flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors">
             <Plus className="w-3.5 h-3.5" />卓を追加
           </button>
         </div>
 
         {/* 卓追加フォーム */}
         {showAddTable && (
-          <div className="pb-4 border-b border-[#e8e4df] flex items-end gap-3 mb-3">
+          <div className="pb-4 border-b border-border-light flex items-end gap-3 mb-3">
             <div className="flex-1">
-              <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">卓名</label>
+              <label className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider">卓名</label>
               <input type="text" value={newTableName} onChange={e => setNewTableName(e.target.value)} placeholder="テーブル5" className="mt-1 text-[13px]" />
             </div>
             <div className="w-28">
-              <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">種別</label>
+              <label className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider">種別</label>
               <select value={newTableType} onChange={e => setNewTableType(e.target.value as typeof newTableType)} className="mt-1 text-[13px]">
                 <option>トナメ</option><option>リング</option><option>サイド</option>
               </select>
             </div>
             <div className="w-20">
-              <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">席数</label>
+              <label className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider">席数</label>
               <input type="number" min={2} max={12} value={newTableSeats} onChange={e => setNewTableSeats(parseInt(e.target.value) || 6)} className="mt-1 text-[13px]" />
             </div>
-            <button onClick={addTable} className="px-4 py-2 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">追加</button>
-            <button onClick={() => setShowAddTable(false)} className="px-3 py-2 border border-[#d8d3cc] text-[13px] rounded-[6px] hover:bg-[#f3f0ec]">取消</button>
+            <button onClick={addTable} className="px-4 py-2 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">追加</button>
+            <button onClick={() => setShowAddTable(false)} className="px-3 py-2 border border-border text-[13px] rounded-[6px] hover:bg-bg-hover">取消</button>
           </div>
         )}
 
@@ -247,7 +247,7 @@ export default function TablesPage() {
             extra: popoverPlayer.player.tableId ? (
               <button
                 onClick={() => { removeFromTable(popoverPlayer.player.id); setPopoverPlayer(null); }}
-                className="w-full flex items-center justify-center gap-1 py-1.5 text-[12px] text-[#c5221f] bg-[#fce8e6] rounded-[6px] hover:bg-[#f8d7d4] transition-colors"
+                className="w-full flex items-center justify-center gap-1 py-1.5 text-[12px] text-status-danger bg-status-danger-bg rounded-[6px] hover:bg-[#f8d7d4] transition-colors"
               >
                 <X className="w-3 h-3" />卓から外す
               </button>
@@ -275,44 +275,44 @@ function EditModal({ table, onSave, onClose }: {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 backdrop-blur-[2px]" onClick={onClose}>
-      <div className="bg-white rounded-[8px] border border-[#d8d3cc] shadow-xl w-[380px] p-5 space-y-4" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-[8px] border border-border shadow-xl w-[380px] p-5 space-y-4" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <span className="text-[15px] font-semibold text-[#2c3e50]">卓を編集</span>
-          <button onClick={onClose} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]">
-            <X className="w-4 h-4 text-[#5a6977]" />
+          <span className="text-[15px] font-semibold text-text-primary">卓を編集</span>
+          <button onClick={onClose} className="p-1 hover:bg-bg-hover rounded-[4px]">
+            <X className="w-4 h-4 text-text-secondary" />
           </button>
         </div>
         <div>
-          <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider block mb-1">卓名</label>
+          <label className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider block mb-1">卓名</label>
           <input type="text" value={name} onChange={e => setName(e.target.value)}
-            className="w-full text-[13px] border border-[#d8d3cc] rounded-[6px] px-3 py-2 focus:outline-none focus:border-[#3a8f7c]" />
+            className="w-full text-[13px] border border-border rounded-[6px] px-3 py-2 focus:outline-none focus:border-accent" />
         </div>
         <div>
-          <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider block mb-1">種別</label>
+          <label className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider block mb-1">種別</label>
           <select value={type} onChange={e => setType(e.target.value as TableDef["type"])}
-            className="w-full text-[13px] border border-[#d8d3cc] rounded-[6px] px-3 py-2 focus:outline-none focus:border-[#3a8f7c]">
+            className="w-full text-[13px] border border-border rounded-[6px] px-3 py-2 focus:outline-none focus:border-accent">
             <option>トナメ</option><option>リング</option><option>サイド</option>
           </select>
         </div>
         <div>
-          <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider block mb-1">席数</label>
+          <label className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider block mb-1">席数</label>
           <input type="number" min={2} max={12} value={maxSeats} onChange={e => setMaxSeats(parseInt(e.target.value) || 6)}
-            className="w-full text-[13px] border border-[#d8d3cc] rounded-[6px] px-3 py-2 focus:outline-none focus:border-[#3a8f7c]" />
+            className="w-full text-[13px] border border-border rounded-[6px] px-3 py-2 focus:outline-none focus:border-accent" />
         </div>
         <div>
-          <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider block mb-1">ディーラー</label>
+          <label className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider block mb-1">ディーラー</label>
           <select value={dealer} onChange={e => setDealer(e.target.value)}
-            className="w-full text-[13px] border border-[#d8d3cc] rounded-[6px] px-3 py-2 focus:outline-none focus:border-[#3a8f7c]">
+            className="w-full text-[13px] border border-border rounded-[6px] px-3 py-2 focus:outline-none focus:border-accent">
             <option>山田</option><option>鈴木</option><option>佐藤</option><option>高橋</option><option>—</option>
           </select>
         </div>
         <div className="flex gap-2 pt-1">
           <button onClick={() => onSave({ name, type, maxSeats, dealer })}
-            className="flex-1 py-2 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors">
+            className="flex-1 py-2 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors">
             保存
           </button>
           <button onClick={onClose}
-            className="px-4 py-2 border border-[#d8d3cc] text-[13px] text-[#5a6977] rounded-[6px] hover:bg-[#f3f0ec] transition-colors">
+            className="px-4 py-2 border border-border text-[13px] text-text-secondary rounded-[6px] hover:bg-bg-hover transition-colors">
             取消
           </button>
         </div>
@@ -328,13 +328,13 @@ function WaitingArea({ players, onPlayerClick }: {
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: "waiting" });
   return (
-    <div ref={setNodeRef} className={`pb-3 border-b transition-colors ${isOver ? "border-[#3a8f7c] bg-[#e8f5f0] rounded-[6px] px-3 py-2" : "border-[#e8e4df]"}`}>
+    <div ref={setNodeRef} className={`pb-3 border-b transition-colors ${isOver ? "border-accent bg-accent-light rounded-[6px] px-3 py-2" : "border-border-light"}`}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">待機中</span>
-        <span className="text-[12px] font-bold text-[#3a8f7c]">{players.length}名</span>
+        <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">待機中</span>
+        <span className="text-[12px] font-bold text-accent">{players.length}名</span>
       </div>
       <div className="flex flex-wrap gap-1.5 min-h-[36px]">
-        {players.length === 0 ? <span className="text-[11px] text-[#8e9baa]">待機中の顧客はいません</span>
+        {players.length === 0 ? <span className="text-[11px] text-text-tertiary">待機中の顧客はいません</span>
         : players.map(p => <DraggablePlayer key={p.id} player={p} onChipClick={onPlayerClick} />)}
       </div>
     </div>
@@ -361,13 +361,13 @@ function PlayerChip({ player, isDragging }: { player: Player; isDragging?: boole
   const display = player.nickname || player.name.split(" ")[0];
   return (
     <div className={`flex items-center gap-1.5 px-2 py-1 text-[11px] font-medium cursor-grab select-none rounded-[4px] whitespace-nowrap ${
-      isDragging ? "dragging bg-[#e8f5f0] border border-[#3a8f7c]" : "hover:bg-[#f3f0ec]"
+      isDragging ? "dragging bg-accent-light border border-accent" : "hover:bg-bg-hover"
     }`} style={{ transition: "transform 0.1s, box-shadow 0.1s, border-color 0.1s" }}>
       <div className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold" style={{ backgroundColor: RANK_COLORS[player.rank] }}>
         {display.charAt(0)}
       </div>
       <span className="whitespace-nowrap">{display}</span>
-      {label && <span className="whitespace-nowrap text-[9px] px-1 py-0.5 rounded bg-[#faf8f5] text-[#5a6977]">{label}</span>}
+      {label && <span className="whitespace-nowrap text-[9px] px-1 py-0.5 rounded bg-bg-hover text-text-secondary">{label}</span>}
     </div>
   );
 }
@@ -381,7 +381,7 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: table.id });
   const occupancy = table.maxSeats > 0 ? players.length / table.maxSeats : 0;
-  const borderColor = isOver ? "border-[#3a8f7c] bg-[#e8f5f0]/20" : expanded ? "border-[#3a8f7c]" : occupancy >= 1 ? "border-[#c5221f]/40" : "border-[#d8d3cc]";
+  const borderColor = isOver ? "border-accent bg-accent-light/20" : expanded ? "border-accent" : occupancy >= 1 ? "border-[#c5221f]/40" : "border-border";
 
   const tableHeight = Math.max(180, table.maxSeats > 8 ? 220 : 180);
 
@@ -392,25 +392,25 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
       {/* ヘッダー */}
       <div className="flex items-center justify-between p-5 pb-0" onClick={onToggleExpand}>
         <div className="flex items-center gap-3">
-          <Dice5 className={`w-4 h-4 ${players.length > 0 ? "text-[#3a8f7c]" : "text-[#8e9baa]"}`} />
+          <Dice5 className={`w-4 h-4 ${players.length > 0 ? "text-accent" : "text-text-tertiary"}`} />
           <span className="text-[15px] font-semibold">{table.name}</span>
           <TypeBadge type={table.type} />
-          <span className={`text-[12px] font-semibold ${occupancy >= 1 ? "text-[#c5221f]" : occupancy > 0.7 ? "text-[#d97706]" : players.length > 0 ? "text-[#188038]" : "text-[#8e9baa]"}`}>
+          <span className={`text-[12px] font-semibold ${occupancy >= 1 ? "text-status-danger" : occupancy > 0.7 ? "text-status-warning" : players.length > 0 ? "text-status-success" : "text-text-tertiary"}`}>
             {players.length}/{table.maxSeats}席
           </span>
           {table.dealer !== "—" && (
-            <span className="text-[11px] text-[#5a6977]">D: {table.dealer}</span>
+            <span className="text-[11px] text-text-secondary">D: {table.dealer}</span>
           )}
           {table.dealerMinutes > 0 && (
-            <span className="text-[11px] text-[#8e9baa]">{table.dealerMinutes}分</span>
+            <span className="text-[11px] text-text-tertiary">{table.dealerMinutes}分</span>
           )}
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={e => { e.stopPropagation(); onEdit(); }} className="p-1.5 hover:bg-[#f3f0ec] rounded-[4px]"><Pencil className="w-3.5 h-3.5 text-[#8e9baa]" /></button>
-          <button onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1.5 hover:bg-[#fce8e6] rounded-[4px]"><Trash2 className="w-3.5 h-3.5 text-[#c5221f]/50" /></button>
+          <button onClick={e => { e.stopPropagation(); onEdit(); }} className="p-1.5 hover:bg-bg-hover rounded-[4px]"><Pencil className="w-3.5 h-3.5 text-text-tertiary" /></button>
+          <button onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1.5 hover:bg-status-danger-bg rounded-[4px]"><Trash2 className="w-3.5 h-3.5 text-status-danger/50" /></button>
           {expanded
-            ? <ChevronUp className="w-4 h-4 text-[#8e9baa] ml-1" />
-            : <ChevronDown className="w-4 h-4 text-[#8e9baa] ml-1" />}
+            ? <ChevronUp className="w-4 h-4 text-text-tertiary ml-1" />
+            : <ChevronDown className="w-4 h-4 text-text-tertiary ml-1" />}
         </div>
       </div>
 
@@ -443,33 +443,33 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
 
       {/* インライン詳細パネル（展開時） */}
       {expanded && (
-        <div className="border-t border-[#e8e4df] px-5 py-3" onClick={e => e.stopPropagation()}>
+        <div className="border-t border-border-light px-5 py-3" onClick={e => e.stopPropagation()}>
           {/* プレイヤーリスト */}
           <div className="mb-3">
-            <span className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">配置プレイヤー</span>
+            <span className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider">配置プレイヤー</span>
             {players.length === 0 ? (
-              <p className="text-[12px] text-[#8e9baa] mt-1">プレイヤーなし</p>
+              <p className="text-[12px] text-text-tertiary mt-1">プレイヤーなし</p>
             ) : (
               <div className="mt-1 space-y-1">
                 {players.map(p => {
                   const displayName = p.nickname || p.name;
                   return (
-                  <div key={p.id} className="flex items-center justify-between px-3 py-1.5 rounded-[6px] hover:bg-[#f3f0ec] transition-colors">
+                  <div key={p.id} className="flex items-center justify-between px-3 py-1.5 rounded-[6px] hover:bg-bg-hover transition-colors">
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold"
                         style={{ backgroundColor: RANK_COLORS[p.rank] }}>
                         {displayName.charAt(0)}
                       </div>
-                      <span className="text-[12px] font-medium text-[#2c3e50]">{displayName}</span>
-                      {p.nickname && <span className="text-[10px] text-[#8e9baa]">{p.name}</span>}
+                      <span className="text-[12px] font-medium text-text-primary">{displayName}</span>
+                      {p.nickname && <span className="text-[10px] text-text-tertiary">{p.name}</span>}
                       {RANK_LABELS[p.rank] && (
-                        <span className="text-[9px] px-1 py-0.5 rounded-[4px] bg-[#faf8f5] text-[#5a6977]">{RANK_LABELS[p.rank]}</span>
+                        <span className="text-[9px] px-1 py-0.5 rounded-[4px] bg-bg-hover text-text-secondary">{RANK_LABELS[p.rank]}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-[#8e9baa]">{p.chips.toLocaleString()}枚</span>
+                      <span className="text-[11px] text-text-tertiary">{p.chips.toLocaleString()}枚</span>
                       <button onClick={() => onRemovePlayer(p.id)}
-                        className="p-0.5 hover:bg-[#fce8e6] rounded text-[#c5221f]">
+                        className="p-0.5 hover:bg-status-danger-bg rounded text-status-danger">
                         <X className="w-3 h-3" />
                       </button>
                     </div>
@@ -481,20 +481,20 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
           </div>
 
           {/* ディーラー情報 */}
-          <div className="flex items-center gap-3 mb-3 text-[12px] text-[#5a6977]">
-            <User className="w-3.5 h-3.5 text-[#8e9baa]" />
-            <span>ディーラー: <strong className="text-[#2c3e50]">{table.dealer}</strong></span>
+          <div className="flex items-center gap-3 mb-3 text-[12px] text-text-secondary">
+            <User className="w-3.5 h-3.5 text-text-tertiary" />
+            <span>ディーラー: <strong className="text-text-primary">{table.dealer}</strong></span>
             {table.dealerMinutes > 0 && <span>({table.dealerMinutes}分)</span>}
           </div>
 
           {/* アクションボタン */}
           <div className="flex gap-2">
             <button onClick={onEdit}
-              className="flex-1 flex items-center justify-center gap-1 py-1.5 text-[12px] text-[#3a8f7c] bg-[#e8f5f0] rounded-[6px] hover:bg-[#d0ebe4] transition-colors">
+              className="flex-1 flex items-center justify-center gap-1 py-1.5 text-[12px] text-accent bg-accent-light rounded-[6px] hover:bg-[#d0ebe4] transition-colors">
               <Pencil className="w-3 h-3" />編集
             </button>
             <button onClick={onDelete}
-              className="flex items-center justify-center gap-1 px-3 py-1.5 text-[12px] text-[#c5221f] bg-[#fce8e6] rounded-[6px] hover:bg-[#f8d7d4] transition-colors">
+              className="flex items-center justify-center gap-1 px-3 py-1.5 text-[12px] text-status-danger bg-status-danger-bg rounded-[6px] hover:bg-[#f8d7d4] transition-colors">
               <Trash2 className="w-3 h-3" />削除
             </button>
           </div>
@@ -522,9 +522,9 @@ function SeatSlot({ tableId, seatIndex, cx, cy, player, onPlayerClick }: {
         <DraggablePlayer player={player} onChipClick={onPlayerClick} />
       ) : (
         <div className={`w-10 h-10 rounded-full border-2 border-dashed flex items-center justify-center ${
-          isOver ? "drop-target-active" : "border-[#d8d3cc] hover:border-[#3a8f7c]/50 hover:bg-[#f0f9f6]"
+          isOver ? "drop-target-active" : "border-border hover:border-accent/50 hover:bg-[#f0f9f6]"
         }`} style={{ transition: "transform 0.1s, border-color 0.1s, background-color 0.1s" }}>
-          <span className={`text-[10px] font-medium ${isOver ? "text-[#3a8f7c]" : "text-[#8e9baa]"}`}>{seatIndex + 1}</span>
+          <span className={`text-[10px] font-medium ${isOver ? "text-accent" : "text-text-tertiary"}`}>{seatIndex + 1}</span>
         </div>
       )}
     </div>
@@ -533,6 +533,6 @@ function SeatSlot({ tableId, seatIndex, cx, cy, player, onPlayerClick }: {
 
 // ==================== 共通 ====================
 function TypeBadge({ type }: { type: string }) {
-  const c = type === "トナメ" ? "bg-[#e8f5f0] text-[#3a8f7c]" : type === "リング" ? "bg-[#e6f4ea] text-[#188038]" : "bg-[#faf8f5] text-[#5a6977]";
+  const c = type === "トナメ" ? "bg-accent-light text-accent" : type === "リング" ? "bg-[#e6f4ea] text-status-success" : "bg-bg-hover text-text-secondary";
   return <span className={`text-[10px] px-1.5 py-0.5 rounded-[4px] font-medium ${c}`}>{type}</span>;
 }

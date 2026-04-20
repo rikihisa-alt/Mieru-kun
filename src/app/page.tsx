@@ -17,69 +17,69 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf8f5]">
+    <div className="min-h-screen flex flex-col bg-bg-hover">
       {/* ===== Header ===== */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-[#e8e4df]">
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-border-light">
         <div className="w-full px-8 h-14 flex items-center justify-between">
           <Link href="/h7p2kx" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Image src="/logo-icon.png" alt="みえるくん" width={36} height={36} />
-            <span className="text-[15px] font-bold text-[#2c3e50] tracking-tight">てんぽみえるくん</span>
+            <span className="text-[15px] font-bold text-text-primary tracking-tight">てんぽみえるくん</span>
           </Link>
           <div className="flex items-center gap-6">
-            <nav className="hidden md:flex items-center gap-5 text-[13px] text-[#5a6977]">
-              <a href="#flow" className="hover:text-[#2c3e50]">運営フロー</a>
-              <a href="#problem" className="hover:text-[#2c3e50]">課題解決</a>
-              <a href="#features" className="hover:text-[#2c3e50]">機能</a>
-              <a href="#merit" className="hover:text-[#2c3e50]">メリット</a>
-              <a href="#pricing" className="hover:text-[#2c3e50]">料金</a>
-              <a href="#faq" className="hover:text-[#2c3e50]">FAQ</a>
+            <nav className="hidden md:flex items-center gap-5 text-[13px] text-text-secondary">
+              <a href="#flow" className="hover:text-text-primary">運営フロー</a>
+              <a href="#problem" className="hover:text-text-primary">課題解決</a>
+              <a href="#features" className="hover:text-text-primary">機能</a>
+              <a href="#merit" className="hover:text-text-primary">メリット</a>
+              <a href="#pricing" className="hover:text-text-primary">料金</a>
+              <a href="#faq" className="hover:text-text-primary">FAQ</a>
             </nav>
             <div className="flex items-center gap-3">
-              <Link href="/login" className="px-3 py-[7px] text-[13px] font-medium text-[#5a6977] hover:text-[#2c3e50]">ログイン</Link>
-              <button onClick={handleDemo} className="px-4 py-[7px] text-[13px] font-medium bg-[#3a8f7c] text-white rounded-[6px] hover:bg-[#2f7a69]">デモを見る</button>
+              <Link href="/login" className="px-3 py-[7px] text-[13px] font-medium text-text-secondary hover:text-text-primary">ログイン</Link>
+              <button onClick={handleDemo} className="px-4 py-[7px] text-[13px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-hover">デモを見る</button>
             </div>
           </div>
         </div>
       </header>
 
       {/* ===== Hero ===== */}
-      <section className="relative bg-[#faf8f5] overflow-hidden">
+      <section className="relative bg-bg-hover overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#3a8f7c]/5 rounded-full blur-[100px] translate-x-1/4 -translate-y-1/4" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] translate-x-1/4 -translate-y-1/4" />
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#e8c170]/8 rounded-full blur-[80px] -translate-x-1/4 translate-y-1/4" />
         </div>
         <div className="relative w-full px-8 md:px-16 py-10 md:py-14">
           <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 items-center">
             <div className="w-full lg:w-[50%] lg:pl-4">
               <Image src="/logo-full.png" alt="てんぽみえるくん" width={280} height={70} className="mb-5" />
-              <p className="text-[12px] font-medium text-[#3a8f7c] mb-3 tracking-wide">アミューズメントカジノ専用 店舗運営システム</p>
-              <h1 className="text-[28px] md:text-[36px] font-bold text-[#2c3e50] leading-[1.25] mb-4 tracking-tight">
+              <p className="text-[12px] font-medium text-accent mb-3 tracking-wide">アミューズメントカジノ専用 店舗運営システム</p>
+              <h1 className="text-[28px] md:text-[36px] font-bold text-text-primary leading-[1.25] mb-4 tracking-tight">
                 入退店から精算、勤怠まで。<br />
-                店舗運営を<span className="text-[#3a8f7c]">ひとつの画面</span>に。
+                店舗運営を<span className="text-accent">ひとつの画面</span>に。
               </h1>
-              <p className="text-[14px] text-[#5a6977] leading-[1.8] mb-6">
+              <p className="text-[14px] text-text-secondary leading-[1.8] mb-6">
                 ポーカーテーブルへの配置、ドリンク注文、チップ管理、スタッフの勤怠やシフトまで。
                 LINEとの連携で、スタッフも顧客もスマホから操作可能。
               </p>
               <div className="flex flex-wrap gap-3 mb-5">
-                <button onClick={handleDemo} className="group flex items-center gap-2 px-6 py-2.5 text-[14px] font-medium bg-[#3a8f7c] text-white rounded-[6px] hover:bg-[#2f7a69] shadow-sm">
+                <button onClick={handleDemo} className="group flex items-center gap-2 px-6 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-hover shadow-sm">
                   無料でデモを体験<ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
-                <a href="#pricing" className="px-5 py-2.5 text-[14px] font-medium border border-[#d1ccc5] text-[#5a6977] rounded-[6px] hover:bg-white">料金を見る</a>
+                <a href="#pricing" className="px-5 py-2.5 text-[14px] font-medium border border-[#d1ccc5] text-text-secondary rounded-[6px] hover:bg-white">料金を見る</a>
               </div>
-              <div className="flex items-center gap-4 text-[11px] text-[#8e9baa]">
-                <span className="flex items-center gap-1"><Check className="w-3 h-3 text-[#3a8f7c]" />初期費用0円</span>
-                <span className="flex items-center gap-1"><Check className="w-3 h-3 text-[#3a8f7c]" />最短即日導入</span>
-                <span className="flex items-center gap-1"><Check className="w-3 h-3 text-[#3a8f7c]" />LINE連携</span>
+              <div className="flex items-center gap-4 text-[11px] text-text-tertiary">
+                <span className="flex items-center gap-1"><Check className="w-3 h-3 text-accent" />初期費用0円</span>
+                <span className="flex items-center gap-1"><Check className="w-3 h-3 text-accent" />最短即日導入</span>
+                <span className="flex items-center gap-1"><Check className="w-3 h-3 text-accent" />LINE連携</span>
               </div>
             </div>
 
             {/* 右: 実際のダッシュボード画面 */}
             <div className="w-full lg:w-[50%]">
-              <div className="bg-white border border-[#e8e4df] rounded-[12px] overflow-hidden shadow-sm">
-                <div className="h-7 bg-[#f3f0ec] border-b border-[#e8e4df] flex items-center px-3 gap-1.5">
+              <div className="bg-white border border-border-light rounded-[12px] overflow-hidden shadow-sm">
+                <div className="h-7 bg-bg-hover border-b border-border-light flex items-center px-3 gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-[#d8d3cc]" /><div className="w-2 h-2 rounded-full bg-[#d8d3cc]" /><div className="w-2 h-2 rounded-full bg-[#d8d3cc]" />
-                  <span className="text-[9px] text-[#8e9baa] ml-2">てんぽみえるくん — ダッシュボード</span>
+                  <span className="text-[9px] text-text-tertiary ml-2">てんぽみえるくん — ダッシュボード</span>
                 </div>
                 <div className="relative h-[420px] overflow-hidden">
                   <iframe
@@ -90,14 +90,14 @@ export default function Home() {
                   />
                 </div>
               </div>
-              <p className="text-[10px] text-[#8e9baa] text-center mt-2">※ 実際のダッシュボード画面です</p>
+              <p className="text-[10px] text-text-tertiary text-center mt-2">※ 実際のダッシュボード画面です</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ===== 数字 ===== */}
-      <section className="bg-white py-6 border-t border-[#e8e4df]">
+      <section className="bg-white py-6 border-t border-border-light">
         <div className="w-full px-8 md:px-16 grid grid-cols-4 gap-4 text-center">
           <Stat value="2〜3h" label="1日の業務削減時間" />
           <Stat value="0円" label="初期導入費用" />
@@ -107,15 +107,15 @@ export default function Home() {
       </section>
 
       {/* ===== 運営フロー ===== */}
-      <section id="flow" className="bg-white py-12 border-t border-[#e8e4df]">
+      <section id="flow" className="bg-white py-12 border-t border-border-light">
         <div className="w-full px-8 md:px-16">
           <div className="text-center mb-8">
-            <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Operation Flow</p>
-            <h2 className="text-[22px] font-bold text-[#2c3e50] mb-1">1日の運営がそのままシステムに</h2>
-            <p className="text-[14px] text-[#5a6977]">開店から締めまで、業務の流れに沿って自然に操作できます</p>
+            <p className="text-[12px] font-medium text-accent mb-2 uppercase tracking-wider">Operation Flow</p>
+            <h2 className="text-[22px] font-bold text-text-primary mb-1">1日の運営がそのままシステムに</h2>
+            <p className="text-[14px] text-text-secondary">開店から締めまで、業務の流れに沿って自然に操作できます</p>
           </div>
           <div className="relative">
-            <div className="absolute left-[18px] top-5 bottom-5 w-px bg-[#e8e4df]" />
+            <div className="absolute left-[18px] top-5 bottom-5 w-px bg-border-light" />
             {[
               { icon: <DoorOpen />, title: "入店登録",
                 desc: "来店した顧客をワンタップで登録。LINEのQRコードからの来店にも対応しています。VIPや常連のお客様はランクバッジで自動識別され、過去の来店履歴やチップ残高がその場で確認可能です。登録された顧客は「未配置」として入店管理画面に表示され、そのまま卓配置の操作へスムーズにつながります。新規顧客もその場でフォーム登録でき、名前・電話番号・ランクを入力するだけで完了します。" },
@@ -129,15 +129,15 @@ export default function Home() {
                 desc: "当日の売上・注文・精算データをシステムが自動集計。現金・カード・電子マネーの支払方法別内訳が一覧表示され、未精算の有無もワンクリックで確認できます。未精算の顧客が残っている場合は警告が表示され、締め処理の前に対応を促します。メモを添えて「締め実行」ボタンを押すだけで日次の売上が確定し、同一日の二重締めはユニーク制約で防止。締め履歴は全て保存され、後日の確認や月次分析にも活用できます。" },
             ].map((s, i) => (
               <div key={i} className="flex items-start gap-4 mb-6 last:mb-0 relative">
-                <div className="w-[36px] h-[36px] rounded-full bg-[#3a8f7c] text-white flex items-center justify-center text-[14px] font-bold flex-shrink-0 z-10">
+                <div className="w-[36px] h-[36px] rounded-full bg-accent text-white flex items-center justify-center text-[14px] font-bold flex-shrink-0 z-10">
                   {i + 1}
                 </div>
                 <div className="pt-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[#3a8f7c] [&>svg]:w-5 [&>svg]:h-5">{s.icon}</span>
-                    <span className="text-[16px] font-semibold text-[#2c3e50]">{s.title}</span>
+                    <span className="text-accent [&>svg]:w-5 [&>svg]:h-5">{s.icon}</span>
+                    <span className="text-[16px] font-semibold text-text-primary">{s.title}</span>
                   </div>
-                  <p className="text-[14px] text-[#5a6977] leading-[1.8]">{s.desc}</p>
+                  <p className="text-[14px] text-text-secondary leading-[1.8]">{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -146,11 +146,11 @@ export default function Home() {
       </section>
 
       {/* ===== Before → After（詳細版） ===== */}
-      <section id="problem" className="py-12 border-t border-[#e8e4df]">
+      <section id="problem" className="py-12 border-t border-border-light">
         <div className="w-full px-8 md:px-16">
           <div className="text-center mb-10">
-            <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Before → After</p>
-            <h2 className="text-[20px] font-bold text-[#2c3e50]">こんな課題を、こう解決します</h2>
+            <p className="text-[12px] font-medium text-accent mb-2 uppercase tracking-wider">Before → After</p>
+            <h2 className="text-[20px] font-bold text-text-primary">こんな課題を、こう解決します</h2>
           </div>
 
           <div className="space-y-12">
@@ -191,16 +191,16 @@ export default function Home() {
                 solutionDesc: "当日の注文データ・精算データからシステムが売上を自動集計します。現金・カード・電子マネーの支払方法別内訳、未精算の有無もワンクリックで確認可能。レジ差異が発生した場合はシステムが自動検知してアラートを表示します。メモを添えて「締め実行」ボタンを押すだけで、日次の締め処理が完了。履歴として保存されるため、後日の確認や分析にも活用できます。",
               },
             ].map((item, i) => (
-              <div key={i} className="pb-12 border-b border-[#f3f0ec] last:border-0 last:pb-0">
+              <div key={i} className="pb-12 border-b border-border-light last:border-0 last:pb-0">
                 {/* Before: 文章（左）+ 画像（右） */}
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                   <div className="md:w-[60%]">
-                    <p className="text-[11px] font-semibold text-[#c0392b] uppercase tracking-wider mb-2">Before</p>
+                    <p className="text-[11px] font-semibold text-status-danger uppercase tracking-wider mb-2">Before</p>
                     <div className="flex items-center gap-1.5 mb-2">
-                      <Minus className="w-3.5 h-3.5 text-[#c0392b] flex-shrink-0" />
-                      <h3 className="text-[17px] font-semibold text-[#c0392b]">{item.problem}</h3>
+                      <Minus className="w-3.5 h-3.5 text-status-danger flex-shrink-0" />
+                      <h3 className="text-[17px] font-semibold text-status-danger">{item.problem}</h3>
                     </div>
-                    <p className="text-[14px] text-[#5a6977] leading-[1.8]">{item.problemDesc}</p>
+                    <p className="text-[14px] text-text-secondary leading-[1.8]">{item.problemDesc}</p>
                   </div>
                   <div className="md:w-[40%] flex justify-center">
                     <Image src={item.beforeImg} alt={item.problem} width={240} height={240} className="object-contain" />
@@ -209,8 +209,8 @@ export default function Home() {
 
                 {/* 中央下矢印 */}
                 <div className="flex justify-center py-4">
-                  <div className="w-8 h-8 rounded-full bg-[#e8e4df] flex items-center justify-center">
-                    <ChevronDown className="w-4 h-4 text-[#5a6977]" />
+                  <div className="w-8 h-8 rounded-full bg-border-light flex items-center justify-center">
+                    <ChevronDown className="w-4 h-4 text-text-secondary" />
                   </div>
                 </div>
 
@@ -220,12 +220,12 @@ export default function Home() {
                     <Image src={item.afterImg} alt={item.solution} width={240} height={240} className="object-contain" />
                   </div>
                   <div className="md:w-[60%]">
-                    <p className="text-[11px] font-semibold text-[#3a8f7c] uppercase tracking-wider mb-2">After</p>
+                    <p className="text-[11px] font-semibold text-accent uppercase tracking-wider mb-2">After</p>
                     <div className="flex items-center gap-1.5 mb-2">
-                      <Check className="w-3.5 h-3.5 text-[#3a8f7c] flex-shrink-0" />
-                      <h3 className="text-[17px] font-semibold text-[#3a8f7c]">{item.solution}</h3>
+                      <Check className="w-3.5 h-3.5 text-accent flex-shrink-0" />
+                      <h3 className="text-[17px] font-semibold text-accent">{item.solution}</h3>
                     </div>
-                    <p className="text-[14px] text-[#2c3e50] leading-[1.8]">{item.solutionDesc}</p>
+                    <p className="text-[14px] text-text-primary leading-[1.8]">{item.solutionDesc}</p>
                   </div>
                 </div>
               </div>
@@ -235,11 +235,11 @@ export default function Home() {
       </section>
 
       {/* ===== 中間CTA ===== */}
-      <section className="py-10 border-t border-[#e8e4df] bg-[#f0f9f6]">
+      <section className="py-10 border-t border-border-light bg-[#f0f9f6]">
         <div className="text-center">
-          <h3 className="text-[16px] font-bold text-[#2c3e50] mb-2">まずは無料で触ってみてください</h3>
-          <p className="text-[12px] text-[#5a6977] mb-4">アカウント登録不要。デモモードで全機能をお試しいただけます</p>
-          <button onClick={handleDemo} className="group inline-flex items-center gap-2 px-6 py-2.5 text-[14px] font-medium bg-[#3a8f7c] text-white rounded-[6px] hover:bg-[#2f7a69]">
+          <h3 className="text-[16px] font-bold text-text-primary mb-2">まずは無料で触ってみてください</h3>
+          <p className="text-[12px] text-text-secondary mb-4">アカウント登録不要。デモモードで全機能をお試しいただけます</p>
+          <button onClick={handleDemo} className="group inline-flex items-center gap-2 px-6 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-hover">
             デモを体験する<ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
@@ -248,11 +248,11 @@ export default function Home() {
       {/* (運営フローは数字セクションの後に移動済み) */}
 
       {/* ===== 機能（縦1列） ===== */}
-      <section id="features" className="py-14 border-t border-[#e8e4df]">
+      <section id="features" className="py-14 border-t border-border-light">
         <div className="w-full px-8 md:px-16 mx-auto max-w-6xl">
           <div className="text-center mb-8">
-            <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Features</p>
-            <h2 className="text-[20px] font-bold text-[#2c3e50] mb-1">店舗運営に必要な機能をすべて搭載</h2>
+            <p className="text-[12px] font-medium text-accent mb-2 uppercase tracking-wider">Features</p>
+            <h2 className="text-[20px] font-bold text-text-primary mb-1">店舗運営に必要な機能をすべて搭載</h2>
           </div>
           <div className="space-y-0">
             {[
@@ -265,13 +265,13 @@ export default function Home() {
               { icon: <BarChart3 />, title: "ダッシュボード", desc: "売上・来店数・客単価・稼働卓をリアルタイム表示。タイムラインで店舗の動きを時系列で把握。" },
               { icon: <Shield />, title: "セキュリティ", desc: "RLSによるデータ保護。顧客は自分のデータのみ、スタッフは自店舗のみアクセス可能。監査ログも完備。" },
             ].map((f, i) => (
-              <div key={i} className="flex items-start gap-3 py-4 border-b border-[#f3f0ec]">
-                <div className="w-8 h-8 rounded-[6px] bg-[#e8f5f0] flex items-center justify-center flex-shrink-0 text-[#3a8f7c] [&>svg]:w-4 [&>svg]:h-4 mt-0.5">
+              <div key={i} className="flex items-start gap-3 py-4 border-b border-border-light">
+                <div className="w-8 h-8 rounded-[6px] bg-accent-light flex items-center justify-center flex-shrink-0 text-accent [&>svg]:w-4 [&>svg]:h-4 mt-0.5">
                   {f.icon}
                 </div>
                 <div>
-                  <h3 className="text-[15px] font-semibold text-[#2c3e50] mb-0.5">{f.title}</h3>
-                  <p className="text-[13px] text-[#5a6977] leading-[1.7]">{f.desc}</p>
+                  <h3 className="text-[15px] font-semibold text-text-primary mb-0.5">{f.title}</h3>
+                  <p className="text-[13px] text-text-secondary leading-[1.7]">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -280,11 +280,11 @@ export default function Home() {
       </section>
 
       {/* ===== 導入メリット（縦1列） ===== */}
-      <section id="merit" className="bg-white py-14 border-t border-[#e8e4df]">
+      <section id="merit" className="bg-white py-14 border-t border-border-light">
         <div className="w-full px-8 md:px-16 mx-auto max-w-6xl">
           <div className="text-center mb-8">
-            <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Benefits</p>
-            <h2 className="text-[20px] font-bold text-[#2c3e50]">導入するメリット</h2>
+            <p className="text-[12px] font-medium text-accent mb-2 uppercase tracking-wider">Benefits</p>
+            <h2 className="text-[20px] font-bold text-text-primary">導入するメリット</h2>
           </div>
           <div className="space-y-0">
             {[
@@ -295,13 +295,13 @@ export default function Home() {
               { icon: <BarChart3 />, title: "経営判断を高速化", desc: "売上・来店数・客単価・稼働率をリアルタイムで把握。日次締めの履歴から傾向分析も可能。データに基づく経営を支援。" },
               { icon: <Building2 />, title: "多店舗展開にも対応", desc: "店舗ごとのデータは完全に分離。将来の2号店・3号店にもそのまま導入可能な設計です。" },
             ].map((b, i) => (
-              <div key={i} className="flex items-start gap-3 py-4 border-b border-[#f3f0ec]">
-                <div className="w-8 h-8 rounded-[6px] bg-[#e8f5f0] flex items-center justify-center flex-shrink-0 text-[#3a8f7c] [&>svg]:w-4 [&>svg]:h-4 mt-0.5">
+              <div key={i} className="flex items-start gap-3 py-4 border-b border-border-light">
+                <div className="w-8 h-8 rounded-[6px] bg-accent-light flex items-center justify-center flex-shrink-0 text-accent [&>svg]:w-4 [&>svg]:h-4 mt-0.5">
                   {b.icon}
                 </div>
                 <div>
-                  <h3 className="text-[15px] font-semibold text-[#2c3e50] mb-0.5">{b.title}</h3>
-                  <p className="text-[13px] text-[#5a6977] leading-[1.7]">{b.desc}</p>
+                  <h3 className="text-[15px] font-semibold text-text-primary mb-0.5">{b.title}</h3>
+                  <p className="text-[13px] text-text-secondary leading-[1.7]">{b.desc}</p>
                 </div>
               </div>
             ))}
@@ -310,13 +310,13 @@ export default function Home() {
       </section>
 
       {/* ===== LINE連携（2カラム・バランス調整） ===== */}
-      <section className="py-14 border-t border-[#e8e4df]">
+      <section className="py-14 border-t border-border-light">
         <div className="w-full px-8 md:px-16 mx-auto">
           <div className="flex flex-col lg:flex-row gap-12 items-center">
             <div className="lg:w-[55%]">
-              <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">LINE Integration</p>
-              <h2 className="text-[20px] font-bold text-[#2c3e50] mb-3">LINEから、すべてが動く</h2>
-              <p className="text-[13px] text-[#5a6977] leading-[1.8] mb-5">
+              <p className="text-[12px] font-medium text-accent mb-2 uppercase tracking-wider">LINE Integration</p>
+              <h2 className="text-[20px] font-bold text-text-primary mb-3">LINEから、すべてが動く</h2>
+              <p className="text-[13px] text-text-secondary leading-[1.8] mb-5">
                 専用アプリのインストールは不要。LINEさえあれば、スタッフも顧客もすぐに使い始められます。
                 出退勤の打刻、卓の確認、チップの付与、来店登録まで、すべてLINEの中で完結します。
               </p>
@@ -327,20 +327,20 @@ export default function Home() {
                   { icon: <LineChart />, role: "管理者", items: "売上速報・アラート通知" },
                 ].map((l, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <div className="w-7 h-7 rounded-[6px] bg-[#e8f5f0] flex items-center justify-center flex-shrink-0 text-[#3a8f7c] [&>svg]:w-3.5 [&>svg]:h-3.5">{l.icon}</div>
+                    <div className="w-7 h-7 rounded-[6px] bg-accent-light flex items-center justify-center flex-shrink-0 text-accent [&>svg]:w-3.5 [&>svg]:h-3.5">{l.icon}</div>
                     <div>
-                      <span className="text-[12px] font-semibold text-[#2c3e50]">{l.role}</span>
-                      <p className="text-[12px] text-[#5a6977]">{l.items}</p>
+                      <span className="text-[12px] font-semibold text-text-primary">{l.role}</span>
+                      <p className="text-[12px] text-text-secondary">{l.items}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
             <div className="lg:w-[45%] flex justify-center">
-              <div className="bg-white border border-[#e8e4df] rounded-[16px] p-5 w-[260px] shadow-sm">
-                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#f3f0ec]">
+              <div className="bg-white border border-border-light rounded-[16px] p-5 w-[260px] shadow-sm">
+                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border-light">
                   <Image src="/logo-icon.png" alt="みえるくん" width={22} height={22} />
-                  <span className="text-[13px] font-bold text-[#2c3e50]">てんぽみえるくん</span>
+                  <span className="text-[13px] font-bold text-text-primary">てんぽみえるくん</span>
                 </div>
                 <div className="space-y-2">
                   {[
@@ -349,10 +349,10 @@ export default function Home() {
                     { label: "チップ付与", sub: "顧客にチップを付与" },
                     { label: "来店登録", sub: "QRコードで入店" },
                   ].map((item, i) => (
-                    <div key={i} className="bg-[#faf8f5] border border-[#e8e4df] rounded-[8px] px-3 py-2.5 flex items-center justify-between hover:bg-[#f3f0ec] cursor-pointer transition-colors">
+                    <div key={i} className="bg-bg-hover border border-border-light rounded-[8px] px-3 py-2.5 flex items-center justify-between hover:bg-bg-hover cursor-pointer transition-colors">
                       <div>
-                        <p className="text-[12px] font-medium text-[#2c3e50]">{item.label}</p>
-                        <p className="text-[10px] text-[#8e9baa]">{item.sub}</p>
+                        <p className="text-[12px] font-medium text-text-primary">{item.label}</p>
+                        <p className="text-[10px] text-text-tertiary">{item.sub}</p>
                       </div>
                       <ChevronRight className="w-3.5 h-3.5 text-[#d8d3cc]" />
                     </div>
@@ -365,10 +365,10 @@ export default function Home() {
       </section>
 
       {/* ===== 導入3ステップ ===== */}
-      <section className="bg-white py-14 border-t border-[#e8e4df]">
+      <section className="bg-white py-14 border-t border-border-light">
         <div className="w-full px-8 md:px-16 mx-auto max-w-6xl text-center">
-          <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Getting Started</p>
-          <h2 className="text-[20px] font-bold text-[#2c3e50] mb-8">3ステップで始められます</h2>
+          <p className="text-[12px] font-medium text-accent mb-2 uppercase tracking-wider">Getting Started</p>
+          <h2 className="text-[20px] font-bold text-text-primary mb-8">3ステップで始められます</h2>
           <div className="grid grid-cols-3 gap-6">
             {[
               { n: "1", t: "デモで体験", d: "アカウント不要。今すぐ全機能をお試しください。" },
@@ -376,9 +376,9 @@ export default function Home() {
               { n: "3", t: "即日スタート", d: "初期設定は最短30分。その日から運用開始。" },
             ].map((s, i) => (
               <div key={i}>
-                <div className="w-10 h-10 rounded-full border-2 border-[#3a8f7c] text-[#3a8f7c] flex items-center justify-center text-[16px] font-bold mx-auto mb-2">{s.n}</div>
-                <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-1">{s.t}</h3>
-                <p className="text-[11px] text-[#5a6977]">{s.d}</p>
+                <div className="w-10 h-10 rounded-full border-2 border-accent text-accent flex items-center justify-center text-[16px] font-bold mx-auto mb-2">{s.n}</div>
+                <h3 className="text-[13px] font-semibold text-text-primary mb-1">{s.t}</h3>
+                <p className="text-[11px] text-text-secondary">{s.d}</p>
               </div>
             ))}
           </div>
@@ -386,28 +386,28 @@ export default function Home() {
       </section>
 
       {/* ===== 料金 ===== */}
-      <section id="pricing" className="py-14 border-t border-[#e8e4df]">
+      <section id="pricing" className="py-14 border-t border-border-light">
         <div className="w-full px-8 md:px-16 mx-auto">
           <div className="text-center mb-8">
-            <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">Pricing</p>
-            <h2 className="text-[20px] font-bold text-[#2c3e50] mb-1">シンプルな料金体系</h2>
-            <p className="text-[13px] text-[#5a6977]">初期費用0円。必要な分だけお支払い</p>
+            <p className="text-[12px] font-medium text-accent mb-2 uppercase tracking-wider">Pricing</p>
+            <h2 className="text-[20px] font-bold text-text-primary mb-1">シンプルな料金体系</h2>
+            <p className="text-[13px] text-text-secondary">初期費用0円。必要な分だけお支払い</p>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             <PricePlan name="スターター" price="¥9,800" unit="/月" desc="1店舗・5名まで" features={["入退店・卓管理", "注文・精算", "顧客管理", "ダッシュボード", "LINE連携（スタッフ）"]} />
             <PricePlan name="スタンダード" price="¥19,800" unit="/月" desc="1店舗・15名まで" features={["スターターの全機能", "チップ・ポイント管理", "勤怠・シフト管理", "締め処理・履歴", "PDF出力", "LINE連携（顧客）"]} highlight />
             <PricePlan name="プレミアム" price="¥39,800" unit="/月" desc="多店舗・無制限" features={["スタンダードの全機能", "多店舗対応", "経営分析・レポート", "API連携", "優先サポート"]} />
           </div>
-          <p className="text-center text-[11px] text-[#8e9baa] mt-5">※ 全プラン初期費用0円。年払いで2ヶ月分無料。</p>
+          <p className="text-center text-[11px] text-text-tertiary mt-5">※ 全プラン初期費用0円。年払いで2ヶ月分無料。</p>
         </div>
       </section>
 
       {/* ===== FAQ ===== */}
-      <section id="faq" className="bg-white py-14 border-t border-[#e8e4df]">
+      <section id="faq" className="bg-white py-14 border-t border-border-light">
         <div className="w-full px-8 md:px-16 mx-auto max-w-6xl">
           <div className="text-center mb-8">
-            <p className="text-[12px] font-medium text-[#3a8f7c] mb-2 uppercase tracking-wider">FAQ</p>
-            <h2 className="text-[20px] font-bold text-[#2c3e50]">よくある質問</h2>
+            <p className="text-[12px] font-medium text-accent mb-2 uppercase tracking-wider">FAQ</p>
+            <h2 className="text-[20px] font-bold text-text-primary">よくある質問</h2>
           </div>
           {[
             { q: "導入にどのくらい時間がかかりますか？", a: "アカウント作成後、初期設定は最短30分で完了します。商品マスタや卓の設定を行えば、その日から運用を開始できます。" },
@@ -421,22 +421,22 @@ export default function Home() {
       </section>
 
       {/* ===== CTA ===== */}
-      <section className="bg-[#2c3e50] py-14">
+      <section className="bg-text-primary py-14">
         <div className="text-center">
           <Image src="/logo-icon.png" alt="みえるくん" width={44} height={44} className="mx-auto mb-3" />
           <h3 className="text-[18px] font-bold text-white mb-2">まずは無料で触ってみてください</h3>
           <p className="text-[13px] text-white/50 mb-6">アカウント登録不要。デモモードで全機能をお試しいただけます</p>
-          <button onClick={handleDemo} className="group inline-flex items-center gap-2 px-7 py-2.5 text-[14px] font-medium bg-[#3a8f7c] text-white rounded-[6px] hover:bg-[#2f7a69]">
+          <button onClick={handleDemo} className="group inline-flex items-center gap-2 px-7 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-hover">
             デモを体験する<ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
       </section>
 
       {/* ===== Footer ===== */}
-      <footer className="bg-white border-t border-[#e8e4df] py-6">
+      <footer className="bg-white border-t border-border-light py-6">
         <div className="w-full px-8 md:px-16 flex items-center justify-center gap-2">
           <Image src="/logo-icon.png" alt="みえるくん" width={24} height={24} />
-          <span className="text-[13px] text-[#8e9baa]">&copy; {new Date().getFullYear()} てんぽみえるくん</span>
+          <span className="text-[13px] text-text-tertiary">&copy; {new Date().getFullYear()} てんぽみえるくん</span>
         </div>
       </footer>
     </div>
@@ -444,18 +444,18 @@ export default function Home() {
 }
 
 function Stat({ value, label }: { value: string; label: string }) {
-  return <div><p className="text-[32px] font-medium text-[#3a8f7c] tracking-tight leading-none">{value}</p><p className="text-[13px] text-[#5a6977] mt-1.5">{label}</p></div>;
+  return <div><p className="text-[32px] font-medium text-accent tracking-tight leading-none">{value}</p><p className="text-[13px] text-text-secondary mt-1.5">{label}</p></div>;
 }
 
 function FAQ({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-[#f3f0ec]">
+    <div className="border-b border-border-light">
       <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-3.5 text-left">
-        <span className="text-[14px] font-medium text-[#2c3e50]">{q}</span>
-        <ChevronDown className={`w-4 h-4 text-[#8e9baa] flex-shrink-0 ml-4 transition-transform ${open ? "rotate-180" : ""}`} />
+        <span className="text-[14px] font-medium text-text-primary">{q}</span>
+        <ChevronDown className={`w-4 h-4 text-text-tertiary flex-shrink-0 ml-4 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <p className="text-[13px] text-[#5a6977] leading-[1.7] pb-3.5">{a}</p>}
+      {open && <p className="text-[13px] text-text-secondary leading-[1.7] pb-3.5">{a}</p>}
     </div>
   );
 }
@@ -464,18 +464,18 @@ function PricePlan({ name, price, unit, desc, features, highlight }: {
   name: string; price: string; unit: string; desc: string; features: string[]; highlight?: boolean;
 }) {
   return (
-    <div className={`rounded-[8px] p-5 ${highlight ? "border-2 border-[#3a8f7c] bg-[#f0f9f6]" : "border border-[#e8e4df] bg-white"}`}>
-      {highlight && <span className="text-[11px] font-semibold text-[#3a8f7c] uppercase tracking-wider">おすすめ</span>}
-      <h3 className="text-[15px] font-bold text-[#2c3e50] mt-1">{name}</h3>
+    <div className={`rounded-[8px] p-5 ${highlight ? "border-2 border-accent bg-[#f0f9f6]" : "border border-border-light bg-white"}`}>
+      {highlight && <span className="text-[11px] font-semibold text-accent uppercase tracking-wider">おすすめ</span>}
+      <h3 className="text-[15px] font-bold text-text-primary mt-1">{name}</h3>
       <div className="flex items-baseline gap-0.5 mt-2 mb-1">
-        <span className="text-[26px] font-black text-[#2c3e50]">{price}</span>
-        <span className="text-[11px] text-[#8e9baa]">{unit}</span>
+        <span className="text-[26px] font-black text-text-primary">{price}</span>
+        <span className="text-[11px] text-text-tertiary">{unit}</span>
       </div>
-      <p className="text-[11px] text-[#8e9baa] mb-3">{desc}</p>
+      <p className="text-[11px] text-text-tertiary mb-3">{desc}</p>
       <div className="space-y-1.5">
         {features.map((f, i) => (
-          <div key={i} className="flex items-center gap-1.5 text-[11px] text-[#5a6977]">
-            <Check className="w-3 h-3 text-[#3a8f7c] flex-shrink-0" />{f}
+          <div key={i} className="flex items-center gap-1.5 text-[11px] text-text-secondary">
+            <Check className="w-3 h-3 text-accent flex-shrink-0" />{f}
           </div>
         ))}
       </div>

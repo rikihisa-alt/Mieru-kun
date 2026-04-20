@@ -78,16 +78,16 @@ export default function NewCustomerPage() {
     return (
       <div className="max-w-lg mx-auto">
         <div className="p-8 text-center">
-          <CheckCircle className="w-12 h-12 text-[#188038] mx-auto mb-3" />
-          <p className="text-[16px] font-semibold text-[#188038]">顧客を登録しました</p>
-          <p className="text-[13px] text-[#5a6977] mt-1">{nickname ? `${nickname}（${name}）` : name}</p>
+          <CheckCircle className="w-12 h-12 text-status-success mx-auto mb-3" />
+          <p className="text-[16px] font-semibold text-status-success">顧客を登録しました</p>
+          <p className="text-[13px] text-text-secondary mt-1">{nickname ? `${nickname}（${name}）` : name}</p>
           <div className="flex gap-2 justify-center mt-6">
             <button onClick={resetForm}
-              className="px-4 py-[7px] border border-[#d8d3cc] text-[13px] font-medium rounded-[6px] hover:bg-[#f3f0ec]">
+              className="px-4 py-[7px] border border-border text-[13px] font-medium rounded-[6px] hover:bg-bg-hover">
               続けて登録
             </button>
             <button onClick={() => router.push("/a9k5dm")}
-              className="px-4 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">
+              className="px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">
               顧客一覧へ
             </button>
           </div>
@@ -98,14 +98,14 @@ export default function NewCustomerPage() {
 
   return (
     <div className="max-w-2xl">
-      <Link href="/a9k5dm" className="flex items-center gap-1 text-[12px] text-[#8e9baa] hover:text-[#5a6977] mb-4">
+      <Link href="/a9k5dm" className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-secondary mb-4">
         <ArrowLeft className="w-3.5 h-3.5" />顧客一覧に戻る
       </Link>
 
       <h2 className="text-[15px] font-semibold mb-4">顧客新規登録</h2>
 
       {error && (
-        <div className="mb-4 px-3 py-2 bg-[#fce8e6] border border-[#c5221f]/20 rounded-[6px] text-[12px] text-[#c5221f]">{error}</div>
+        <div className="mb-4 px-3 py-2 bg-status-danger-bg border border-[#c5221f]/20 rounded-[6px] text-[12px] text-status-danger">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -171,11 +171,11 @@ export default function NewCustomerPage() {
 
         {/* ---- フラグ（管理者） ---- */}
         <Section title="管理フラグ">
-          <label className="flex items-center gap-2 text-[13px] text-[#2c3e50] cursor-pointer">
+          <label className="flex items-center gap-2 text-[13px] text-text-primary cursor-pointer">
             <input type="checkbox" checked={isBlacklisted} onChange={e => setIsBlacklisted(e.target.checked)} />
             <span>ブラックリスト（入店拒否）</span>
           </label>
-          <label className="flex items-center gap-2 text-[13px] text-[#2c3e50] cursor-pointer">
+          <label className="flex items-center gap-2 text-[13px] text-text-primary cursor-pointer">
             <input type="checkbox" checked={isHidden} onChange={e => setIsHidden(e.target.checked)} />
             <span>非表示（一般スタッフの検索結果に出さない）</span>
           </label>
@@ -183,11 +183,11 @@ export default function NewCustomerPage() {
 
         <div className="flex gap-2 pt-2">
           <button type="submit" disabled={loading}
-            className="flex-1 py-2.5 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] disabled:opacity-50 transition-colors">
+            className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover disabled:opacity-50 transition-colors">
             {loading ? "登録中..." : "登録する"}
           </button>
           <Link href="/a9k5dm"
-            className="px-4 py-2.5 border border-[#d8d3cc] text-[13px] font-medium rounded-[6px] hover:bg-[#f3f0ec] text-center transition-colors">
+            className="px-4 py-2.5 border border-border text-[13px] font-medium rounded-[6px] hover:bg-bg-hover text-center transition-colors">
             キャンセル
           </Link>
         </div>
@@ -199,7 +199,7 @@ export default function NewCustomerPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-3">
-      <h3 className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">{title}</h3>
+      <h3 className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">{title}</h3>
       <div className="space-y-3">{children}</div>
     </div>
   );
@@ -208,9 +208,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-[12px] font-medium text-[#5a6977] mb-1">
+      <label className="block text-[12px] font-medium text-text-secondary mb-1">
         {label}
-        {required && <span className="text-[#c5221f] ml-1">*</span>}
+        {required && <span className="text-status-danger ml-1">*</span>}
       </label>
       {children}
     </div>

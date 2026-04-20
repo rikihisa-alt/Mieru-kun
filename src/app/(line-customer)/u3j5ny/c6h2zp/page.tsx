@@ -16,14 +16,14 @@ export default function MemberRankingPage() {
     <div className="space-y-4">
       <Link href="/u3j5ny" className="text-[12px] text-text-tertiary">← マイページ</Link>
       <h2 className="text-[16px] font-bold flex items-center gap-2">
-        <Trophy className="w-5 h-5 text-[#d97706]" />
+        <Trophy className="w-5 h-5 text-status-warning" />
         月間ランキング
       </h2>
       <p className="text-[11px] text-text-tertiary">来店ポイント 月間集計</p>
 
       <div className="space-y-2">
         {TOP5.map((r) => (
-          <div key={r.rank} className={`flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] ${r.self ? "bg-[#e8f5f0] border border-accent/30" : "bg-bg-white border border-border"}`}>
+          <div key={r.rank} className={`flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] ${r.self ? "bg-accent-light border border-accent/30" : "bg-bg-white border border-border"}`}>
             <span className="w-7 text-center">
               {r.rank <= 3 ? <Medal className="w-4 h-4 mx-auto" style={{ color: r.rank === 1 ? "#d97706" : r.rank === 2 ? "#6b7280" : "#a16207" }} /> : <span className="text-[12px] text-text-tertiary font-mono">{r.rank}</span>}
             </span>

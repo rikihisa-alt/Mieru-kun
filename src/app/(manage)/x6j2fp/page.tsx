@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
-import { ShoppingBag, CreditCard, Plus, Minus, CheckCircle, X, ChevronDown } from "lucide-react";
+import { CreditCard, Plus, Minus, X, ChevronDown } from "lucide-react";
 
 export type OrderCategory = "entrance" | "drink" | "food" | "tournament_fee" | "tip_purchase" | "tip_use" | "discount" | "adjustment" | "other";
 
@@ -86,54 +85,54 @@ export default function OrdersPage() {
       {/* フィルタ + 完了トースト */}
       <div className="flex items-center gap-1">
         {(["all", "active", "settled"] as const).map(f => (
-          <button key={f} onClick={() => setFilter(f)} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${filter === f ? "bg-[#3a8f7c] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"}`}>
+          <button key={f} onClick={() => setFilter(f)} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${filter === f ? "bg-accent text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
             {f === "all" ? "すべて" : f === "active" ? "来店中" : "精算済"}
           </button>
         ))}
-        <span className="ml-auto text-[12px] text-[#8e9baa]">{filtered.length}件</span>
-        {done && <span className="ml-2 text-[12px] text-[#2e7d5b] font-medium toast-in">✓ 精算完了</span>}
+        <span className="ml-auto text-[12px] text-text-tertiary">{filtered.length}件</span>
+        {done && <span className="ml-2 text-[12px] text-status-success font-medium toast-in">✓ 精算完了</span>}
       </div>
 
       {/* 一覧（インライン展開付き） */}
       <div className="overflow-hidden">
         <table className="w-full text-[13px]">
-          <thead><tr className="border-b border-[#e8e4df]">
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left w-8"></th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ニックネーム / 本名</th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">卓</th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">注文</th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">金額</th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">状態</th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">操作</th>
+          <thead><tr className="border-b border-border-light">
+            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left w-8"></th>
+            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ニックネーム / 本名</th>
+            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">卓</th>
+            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">注文</th>
+            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">金額</th>
+            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">状態</th>
+            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">操作</th>
           </tr></thead>
           <tbody>{filtered.map(v => (
             <React.Fragment key={v.id}>
               <tr onClick={() => setExpandedId(expandedId === v.id ? null : v.id)}
-                className={`border-b border-[#e8e4df] cursor-pointer hover:bg-[#f3f0ec] ${expandedId === v.id ? "bg-[#f3f0ec]" : ""}`}>
+                className={`border-b border-border-light cursor-pointer hover:bg-bg-hover ${expandedId === v.id ? "bg-bg-hover" : ""}`}>
                 <td className="px-4 py-2.5">
-                  <ChevronDown className={`w-3.5 h-3.5 text-[#8e9baa] transition-transform ${expandedId === v.id ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-text-tertiary transition-transform ${expandedId === v.id ? "rotate-180" : ""}`} />
                 </td>
                 <td className="px-4 py-2.5 font-medium">
                   <div className="flex items-baseline gap-2">
                     <span>{v.customerNickname || v.customer}</span>
-                    {v.customerNickname && <span className="text-[11px] text-[#8e9baa] font-normal">{v.customer}</span>}
+                    {v.customerNickname && <span className="text-[11px] text-text-tertiary font-normal">{v.customer}</span>}
                   </div>
                 </td>
-                <td className="px-4 py-2.5 text-[#5a6977]">{v.table}</td>
-                <td className="px-4 py-2.5 text-[#5a6977]">{v.items.reduce((s, i) => s + i.qty, 0)}点</td>
+                <td className="px-4 py-2.5 text-text-secondary">{v.table}</td>
+                <td className="px-4 py-2.5 text-text-secondary">{v.items.reduce((s, i) => s + i.qty, 0)}点</td>
                 <td className="px-4 py-2.5 font-medium">¥{v.total.toLocaleString()}</td>
                 <td className="px-4 py-2.5">
-                  <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${v.status === "active" ? "bg-[#e8f5f0] text-[#2e7d5b]" : "bg-[#f3f0ec] text-[#5a6977]"}`}>
+                  <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${v.status === "active" ? "bg-accent-light text-status-success" : "bg-bg-hover text-text-secondary"}`}>
                     {v.status === "active" ? "来店中" : "精算済"}
                   </span>
                 </td>
                 <td className="px-4 py-2.5">
                   {v.status === "active" && (
                     <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => { setOrderModalId(v.id); setCart([]); }} className="px-2 py-0.5 text-[11px] text-[#3a8f7c] bg-[#e8f5f0] rounded-[4px] hover:bg-[#d0ebe4]">
+                      <button onClick={() => { setOrderModalId(v.id); setCart([]); }} className="px-2 py-0.5 text-[11px] text-accent bg-accent-light rounded-[4px] hover:bg-[#d0ebe4]">
                         <Plus className="w-3 h-3 inline" /> 注文
                       </button>
-                      <button onClick={() => setSettleId(v.id)} className="px-2 py-0.5 text-[11px] text-[#5a6977] hover:bg-[#f3f0ec] rounded-[4px]">
+                      <button onClick={() => setSettleId(v.id)} className="px-2 py-0.5 text-[11px] text-text-secondary hover:bg-bg-hover rounded-[4px]">
                         <CreditCard className="w-3 h-3 inline" /> 精算
                       </button>
                     </div>
@@ -143,29 +142,29 @@ export default function OrdersPage() {
 
               {/* インライン展開 */}
               {expandedId === v.id && (
-                <tr className="fade-in"><td colSpan={7} className="px-6 py-3 bg-[#faf8f5] border-b border-[#e8e4df]">
+                <tr className="fade-in"><td colSpan={7} className="px-6 py-3 bg-bg-hover border-b border-border-light">
                   {v.items.length === 0 ? (
-                    <p className="text-[12px] text-[#8e9baa]">注文なし</p>
+                    <p className="text-[12px] text-text-tertiary">注文なし</p>
                   ) : (
                     <div className="space-y-1">
-                      <p className="text-[10px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-1">注文明細</p>
+                      <p className="text-[10px] text-text-tertiary font-semibold uppercase tracking-wider mb-1">注文明細</p>
                       {v.items.map((item, i) => (
                         <div key={i} className="flex justify-between text-[12px]">
-                          <span className="text-[#5a6977]">{item.name} ×{item.qty}</span>
+                          <span className="text-text-secondary">{item.name} ×{item.qty}</span>
                           <span className="font-medium">¥{(item.price * item.qty).toLocaleString()}</span>
                         </div>
                       ))}
-                      <div className="flex justify-between text-[13px] font-bold pt-1 border-t border-[#e8e4df] mt-1">
+                      <div className="flex justify-between text-[13px] font-bold pt-1 border-t border-border-light mt-1">
                         <span>合計</span><span>¥{v.total.toLocaleString()}</span>
                       </div>
                     </div>
                   )}
                   {v.status === "active" && (
                     <div className="flex gap-2 mt-3">
-                      <button onClick={() => { setOrderModalId(v.id); setCart([]); }} className="px-3 py-[6px] text-[12px] font-medium text-[#3a8f7c] bg-[#e8f5f0] rounded-[6px] hover:bg-[#d0ebe4]">
+                      <button onClick={() => { setOrderModalId(v.id); setCart([]); }} className="px-3 py-[6px] text-[12px] font-medium text-accent bg-accent-light rounded-[6px] hover:bg-[#d0ebe4]">
                         <Plus className="w-3 h-3 inline mr-1" />注文追加
                       </button>
-                      <button onClick={() => setSettleId(v.id)} className="px-3 py-[6px] text-[12px] font-medium text-white bg-[#3a8f7c] rounded-[6px] hover:bg-[#2f7a69]">
+                      <button onClick={() => setSettleId(v.id)} className="px-3 py-[6px] text-[12px] font-medium text-white bg-accent rounded-[6px] hover:bg-accent-hover">
                         <CreditCard className="w-3 h-3 inline mr-1" />精算する
                       </button>
                     </div>
@@ -184,13 +183,13 @@ export default function OrdersPage() {
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setOrderModalId(null)}>
             <div className="bg-white rounded-[8px] w-full max-w-md max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between px-5 py-3 border-b border-[#e8e4df]">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-border-light">
                 <div>
                   <span className="text-[14px] font-semibold">{v.customerNickname || v.customer}</span>
-                  {v.customerNickname && <span className="text-[11px] text-[#8e9baa] ml-2">{v.customer}</span>}
-                  <span className="text-[11px] text-[#8e9baa] ml-2">卓 {v.table}</span>
+                  {v.customerNickname && <span className="text-[11px] text-text-tertiary ml-2">{v.customer}</span>}
+                  <span className="text-[11px] text-text-tertiary ml-2">卓 {v.table}</span>
                 </div>
-                <button onClick={() => setOrderModalId(null)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><X className="w-4 h-4 text-[#8e9baa]" /></button>
+                <button onClick={() => setOrderModalId(null)} className="p-1 hover:bg-bg-hover rounded-[4px]"><X className="w-4 h-4 text-text-tertiary" /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {(Object.keys(CATEGORY_LABEL) as OrderCategory[]).map((cat) => {
@@ -198,18 +197,18 @@ export default function OrdersPage() {
                   if (items.length === 0) return null;
                   return (
                     <div key={cat}>
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-[#8e9baa] mb-1">{CATEGORY_LABEL[cat]}</div>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-text-tertiary mb-1">{CATEGORY_LABEL[cat]}</div>
                       <div className="space-y-0.5">
                         {items.map(p => {
                           const inCart = cart.find(c => c.name === p.name);
                           return (
-                            <div key={p.name} className="flex items-center justify-between px-2 py-1.5 rounded-[4px] hover:bg-[#f3f0ec] cursor-pointer" onClick={() => addToCart(p)}>
-                              <div><span className="text-[12px] font-medium">{p.name}</span><span className={`text-[11px] ml-2 ${p.price < 0 ? "text-[#c0392b]" : "text-[#8e9baa]"}`}>¥{p.price.toLocaleString()}</span></div>
+                            <div key={p.name} className="flex items-center justify-between px-2 py-1.5 rounded-[4px] hover:bg-bg-hover cursor-pointer" onClick={() => addToCart(p)}>
+                              <div><span className="text-[12px] font-medium">{p.name}</span><span className={`text-[11px] ml-2 ${p.price < 0 ? "text-status-danger" : "text-text-tertiary"}`}>¥{p.price.toLocaleString()}</span></div>
                               {inCart && (
                                 <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                                  <button onClick={() => updateQty(p.name, -1)} className="w-5 h-5 rounded border border-[#d8d3cc] flex items-center justify-center hover:bg-[#e8e4df]"><Minus className="w-3 h-3" /></button>
+                                  <button onClick={() => updateQty(p.name, -1)} className="w-5 h-5 rounded border border-border flex items-center justify-center hover:bg-border-light"><Minus className="w-3 h-3" /></button>
                                   <span className="text-[12px] font-bold w-5 text-center">{inCart.qty}</span>
-                                  <button onClick={() => updateQty(p.name, 1)} className="w-5 h-5 rounded border border-[#d8d3cc] flex items-center justify-center hover:bg-[#e8e4df]"><Plus className="w-3 h-3" /></button>
+                                  <button onClick={() => updateQty(p.name, 1)} className="w-5 h-5 rounded border border-border flex items-center justify-center hover:bg-border-light"><Plus className="w-3 h-3" /></button>
                                 </div>
                               )}
                             </div>
@@ -221,9 +220,9 @@ export default function OrdersPage() {
                 })}
               </div>
               {cart.length > 0 && (
-                <div className="px-5 py-3 border-t border-[#e8e4df] space-y-2">
-                  <div className="flex justify-between text-[13px]"><span className="text-[#5a6977]">追加分</span><span className="font-bold">¥{cartTotal.toLocaleString()}</span></div>
-                  <button onClick={() => confirmOrder(orderModalId)} className="w-full py-2 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">注文を確定</button>
+                <div className="px-5 py-3 border-t border-border-light space-y-2">
+                  <div className="flex justify-between text-[13px]"><span className="text-text-secondary">追加分</span><span className="font-bold">¥{cartTotal.toLocaleString()}</span></div>
+                  <button onClick={() => confirmOrder(orderModalId)} className="w-full py-2 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">注文を確定</button>
                 </div>
               )}
             </div>
@@ -290,13 +289,13 @@ function SettleModalContent({
     <>
       <h3 className="text-[14px] font-semibold mb-4">精算</h3>
 
-      <div className="mb-4 p-3 bg-[#faf8f5] rounded-[6px] space-y-1">
+      <div className="mb-4 p-3 bg-bg-hover rounded-[6px] space-y-1">
         <div className="flex justify-between text-[12px]">
-          <span className="text-[#8e9baa]">顧客</span>
+          <span className="text-text-tertiary">顧客</span>
           <span className="font-medium">{visit.customerNickname ? `${visit.customerNickname}（${visit.customer}）` : visit.customer}</span>
         </div>
         <div className="flex justify-between items-end">
-          <span className="text-[12px] text-[#8e9baa]">合計</span>
+          <span className="text-[12px] text-text-tertiary">合計</span>
           <span className="text-[22px] font-bold">¥{visit.total.toLocaleString()}</span>
         </div>
       </div>
@@ -304,8 +303,8 @@ function SettleModalContent({
       {/* 支払方法（複数） */}
       <div className="mb-3">
         <div className="flex items-center justify-between mb-2">
-          <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">支払方法</label>
-          <button onClick={addPayment} className="text-[11px] text-[#3a8f7c] hover:underline">+ 支払を追加</button>
+          <label className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider">支払方法</label>
+          <button onClick={addPayment} className="text-[11px] text-accent hover:underline">+ 支払を追加</button>
         </div>
         <div className="space-y-2">
           {payments.map((p, i) => (
@@ -317,7 +316,7 @@ function SettleModalContent({
               </select>
               <input type="number" value={p.amount} onChange={(e) => updatePayment(i, { amount: parseInt(e.target.value) || 0 })} className="w-28 text-[13px] text-right" />
               {payments.length > 1 && (
-                <button onClick={() => removePayment(i)} className="text-[#c5221f] p-1 hover:bg-[#fce8e6] rounded">
+                <button onClick={() => removePayment(i)} className="text-status-danger p-1 hover:bg-status-danger-bg rounded">
                   <X className="w-3 h-3" />
                 </button>
               )}
@@ -328,7 +327,7 @@ function SettleModalContent({
 
       {/* 未収 */}
       <div className="mb-3">
-        <label className="flex items-center gap-2 text-[12px] text-[#5a6977] cursor-pointer mb-1">
+        <label className="flex items-center gap-2 text-[12px] text-text-secondary cursor-pointer mb-1">
           <input type="checkbox" checked={outstandingAmount > 0} onChange={(e) => setOutstandingAmount(e.target.checked ? Math.max(0, diff) : 0)} />
           <span>未収を計上する</span>
         </label>
@@ -339,17 +338,17 @@ function SettleModalContent({
 
       {/* 差額表示 */}
       <div className={`mb-4 px-3 py-2 rounded-[6px] text-[12px] font-medium flex items-center justify-between ${
-        diff === 0 ? "bg-[#e8f5f0] text-[#2e7d5b]" : diff > 0 ? "bg-[#fdf4e8] text-[#c87b1a]" : "bg-[#fce8e6] text-[#c0392b]"
+        diff === 0 ? "bg-accent-light text-status-success" : diff > 0 ? "bg-status-warning-bg text-status-warning" : "bg-status-danger-bg text-status-danger"
       }`}>
         <span>差額</span>
         <span>{diff === 0 ? "0（精算可能）" : diff > 0 ? `+¥${diff.toLocaleString()}（不足）` : `¥${diff.toLocaleString()}（過払）`}</span>
       </div>
 
       <div className="flex gap-2">
-        <button onClick={onSettle} disabled={diff !== 0} className="flex-1 py-2.5 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] disabled:opacity-40 disabled:cursor-not-allowed">
+        <button onClick={onSettle} disabled={diff !== 0} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed">
           精算を確定
         </button>
-        <button onClick={onCancel} className="px-4 py-2.5 border border-[#d8d3cc] text-[13px] rounded-[6px] hover:bg-[#f3f0ec]">
+        <button onClick={onCancel} className="px-4 py-2.5 border border-border text-[13px] rounded-[6px] hover:bg-bg-hover">
           戻る
         </button>
       </div>

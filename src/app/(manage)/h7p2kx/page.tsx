@@ -52,13 +52,13 @@ export default function DashboardPage() {
   return (
     <div className="space-y-5 relative">
       <div className="absolute top-0 right-0">
-        <button onClick={() => setShowSettings(true)} className="flex items-center gap-1 px-2 py-1 text-[11px] text-[#8e9baa] hover:bg-[#f3f0ec] rounded-[4px]"><Settings2 className="w-3 h-3" /></button>
+        <button onClick={() => setShowSettings(true)} className="flex items-center gap-1 px-2 py-1 text-[11px] text-text-tertiary hover:bg-bg-hover rounded-[4px]"><Settings2 className="w-3 h-3" /></button>
       </div>
 
       {/* ===== 本日集計 ===== */}
       {isVisible("summary") && (
-        <div className="flex items-center gap-2 flex-wrap text-[14px] pb-4 border-b border-[#e8e4df]">
-          <span className="text-[#8e9baa] text-[13px] mr-1">本日集計：</span>
+        <div className="flex items-center gap-2 flex-wrap text-[14px] pb-4 border-b border-border-light">
+          <span className="text-text-tertiary text-[13px] mr-1">本日集計：</span>
           <Chip label="来店" value={`${kpis.visitors}名`} color="#3a8f7c" onClick={() => router.push("/m4w9sq")} />
           <Chip label="売上" value={`¥${kpis.sales.toLocaleString()}`} />
           <Chip label="客単価" value={`¥${kpis.avgSpend.toLocaleString()}`} />
@@ -71,7 +71,7 @@ export default function DashboardPage() {
       {/* ===== 要対応 ===== */}
       {isVisible("alerts") && (hasUnpaidAlert || hasFullAlert) && (
         <div>
-          <p className="text-[13px] font-semibold text-[#2c3e50] mb-2">要対応</p>
+          <p className="text-[13px] font-semibold text-text-primary mb-2">要対応</p>
           <div className="space-y-1.5">
             {hasUnpaidAlert && <AlertRow color="#c0392b" text={`未精算 ${kpis.unpaid}件 — 精算処理が必要です`} onClick={() => router.push("/x6j2fp")} />}
             {hasFullAlert && <AlertRow color="#c87b1a" text={`満席卓 ${fullTables}卓 — 卓管理を確認してください`} onClick={() => router.push("/v3r8nb")} />}
@@ -83,8 +83,8 @@ export default function DashboardPage() {
       {isVisible("tables") && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-[13px] font-semibold text-[#2c3e50]">卓稼働 <span className="font-normal text-[#8e9baa]">{kpis.activeTables}/{kpis.totalTables}</span></p>
-            <button onClick={() => router.push("/v3r8nb")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">卓管理<ArrowUpRight className="w-3 h-3" /></button>
+            <p className="text-[13px] font-semibold text-text-primary">卓稼働 <span className="font-normal text-text-tertiary">{kpis.activeTables}/{kpis.totalTables}</span></p>
+            <button onClick={() => router.push("/v3r8nb")} className="flex items-center gap-0.5 text-[11px] text-accent hover:underline">卓管理<ArrowUpRight className="w-3 h-3" /></button>
           </div>
           <div className="grid grid-cols-2 gap-x-8 max-h-[200px] overflow-y-auto">
             {[tables.slice(0, 4), tables.slice(4)].map((half, hi) => (
@@ -95,13 +95,13 @@ export default function DashboardPage() {
                     const full = pct >= 1; const empty = t.occupied === 0;
                     const c = full ? "#c0392b" : empty ? "#d8d3cc" : pct > 0.7 ? "#c87b1a" : "#3a8f7c";
                     return (
-                      <tr key={t.name} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer" onClick={() => router.push("/v3r8nb")}>
+                      <tr key={t.name} className="border-b border-border-light hover:bg-bg-hover cursor-pointer" onClick={() => router.push("/v3r8nb")}>
                         <td className="py-1.5 pr-2 w-5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} /></td>
                         <td className="py-1.5 pr-4 font-medium">{t.name}</td>
-                        <td className="py-1.5 pr-4 text-[#5a6977]">{t.occupied} / {t.max}</td>
-                        <td className="py-1.5 pr-4 text-[#8e9baa]">{t.type}</td>
+                        <td className="py-1.5 pr-4 text-text-secondary">{t.occupied} / {t.max}</td>
+                        <td className="py-1.5 pr-4 text-text-tertiary">{t.type}</td>
                         <td className="py-1.5">
-                          <div className="h-[5px] bg-[#f3f0ec] rounded-full overflow-hidden">
+                          <div className="h-[5px] bg-bg-hover rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: c }} />
                           </div>
                         </td>
@@ -119,8 +119,8 @@ export default function DashboardPage() {
       {isVisible("timeline") && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-[13px] font-semibold text-[#2c3e50]">タイムライン</p>
-            <button onClick={() => router.push("/n3k8xh")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">すべての履歴<ArrowUpRight className="w-3 h-3" /></button>
+            <p className="text-[13px] font-semibold text-text-primary">タイムライン</p>
+            <button onClick={() => router.push("/n3k8xh")} className="flex items-center gap-0.5 text-[11px] text-accent hover:underline">すべての履歴<ArrowUpRight className="w-3 h-3" /></button>
           </div>
 
           {/* イベント: タイムライン見出しの直下に横並び */}
@@ -129,11 +129,11 @@ export default function DashboardPage() {
               {events.map((ev, i) => {
                 const st = ev.status === "進行中" ? { bg: "#e8f5f0", text: "#2e7d5b" } : ev.status === "準備中" ? { bg: "#fdf4e8", text: "#c87b1a" } : { bg: "#f3f0ec", text: "#5a6977" };
                 return (
-                  <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] border border-[#e8e4df] hover:border-[#d8d3cc] cursor-pointer flex-shrink-0 whitespace-nowrap transition-colors">
+                  <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] border border-border-light hover:border-border cursor-pointer flex-shrink-0 whitespace-nowrap transition-colors">
                     <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-[3px]" style={{ backgroundColor: st.bg, color: st.text }}>{ev.status}</span>
-                    <span className="text-[12px] font-medium text-[#2c3e50]">{ev.title}</span>
-                    <span className="text-[11px] text-[#8e9baa]">{ev.time}</span>
-                    <span className="text-[11px] text-[#8e9baa]">{ev.participants}名</span>
+                    <span className="text-[12px] font-medium text-text-primary">{ev.title}</span>
+                    <span className="text-[11px] text-text-tertiary">{ev.time}</span>
+                    <span className="text-[11px] text-text-tertiary">{ev.participants}名</span>
                   </div>
                 );
               })}
@@ -142,27 +142,27 @@ export default function DashboardPage() {
 
           {/* タイムライン本体（スクロール） */}
           <div className="relative max-h-[360px] overflow-y-auto">
-            <div className="absolute left-[39px] top-0 bottom-0 w-px bg-[#e8e4df]" />
+            <div className="absolute left-[39px] top-0 bottom-0 w-px bg-border-light" />
             <div className="space-y-0">
               {timeline.map((ev, i) => {
                 const t = TYPE_ICON[ev.type];
                 return (
-                  <div key={i} className="flex items-start gap-3 py-1.5 hover:bg-[#faf8f5] rounded-[4px] transition-colors cursor-pointer relative"
+                  <div key={i} className="flex items-start gap-3 py-1.5 hover:bg-bg-hover rounded-[4px] transition-colors cursor-pointer relative"
                     onClick={() => router.push(
                       ev.type === "入店" || ev.type === "退店" ? "/m4w9sq" :
                       ev.type === "注文" || ev.type === "精算" ? "/x6j2fp" :
                       ev.type === "チップ" ? "/a9k5dm" :
                       ev.type === "イベント" ? "/v3r8nb" : "/z5b7lc"
                     )}>
-                    <span className="text-[11px] text-[#8e9baa] font-mono w-8 text-right pt-0.5 flex-shrink-0">{ev.time}</span>
+                    <span className="text-[11px] text-text-tertiary font-mono w-8 text-right pt-0.5 flex-shrink-0">{ev.time}</span>
                     <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10" style={{ backgroundColor: t.bg, color: t.color }}>
                       {t.icon}
                     </div>
                     <div className="flex items-center gap-2 pt-0.5 min-w-0">
                       <span className="text-[10px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: t.color }}>{ev.type}</span>
-                      <span className="text-[12px] font-medium text-[#2c3e50] truncate">{ev.name}</span>
-                      {ev.realName && <span className="text-[11px] text-[#8e9baa] flex-shrink-0">（{ev.realName}）</span>}
-                      {ev.detail && <span className="text-[11px] text-[#8e9baa] flex-shrink-0">{ev.detail}</span>}
+                      <span className="text-[12px] font-medium text-text-primary truncate">{ev.name}</span>
+                      {ev.realName && <span className="text-[11px] text-text-tertiary flex-shrink-0">（{ev.realName}）</span>}
+                      {ev.detail && <span className="text-[11px] text-text-tertiary flex-shrink-0">{ev.detail}</span>}
                     </div>
                   </div>
                 );
@@ -176,29 +176,29 @@ export default function DashboardPage() {
       {showSettings && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/20" onClick={() => setShowSettings(false)}>
           <div className="w-72 bg-white h-full shadow-lg overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#e8e4df]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
               <span className="text-[13px] font-semibold">表示設定</span>
-              <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><X className="w-4 h-4 text-[#8e9baa]" /></button>
+              <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-bg-hover rounded-[4px]"><X className="w-4 h-4 text-text-tertiary" /></button>
             </div>
             <div className="p-4 space-y-1">
               {sections.map((s, idx) => (
-                <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 rounded-[4px] hover:bg-[#faf8f5]">
+                <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 rounded-[4px] hover:bg-bg-hover">
                   <GripVertical className="w-3 h-3 text-[#d8d3cc]" />
                   <label className="flex items-center gap-2 flex-1 cursor-pointer">
                     <input type="checkbox" checked={s.visible} onChange={() => toggleSection(s.id)} className="accent-[#3a8f7c]" />
                     <span className="text-[12px]">{s.label}</span>
                   </label>
                   <div className="flex gap-0.5">
-                    <button onClick={() => moveSection(s.id, -1)} disabled={idx === 0} className="text-[10px] px-1 text-[#8e9baa] disabled:opacity-30">↑</button>
-                    <button onClick={() => moveSection(s.id, 1)} disabled={idx === sections.length - 1} className="text-[10px] px-1 text-[#8e9baa] disabled:opacity-30">↓</button>
+                    <button onClick={() => moveSection(s.id, -1)} disabled={idx === 0} className="text-[10px] px-1 text-text-tertiary disabled:opacity-30">↑</button>
+                    <button onClick={() => moveSection(s.id, 1)} disabled={idx === sections.length - 1} className="text-[10px] px-1 text-text-tertiary disabled:opacity-30">↓</button>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="p-4 border-t border-[#e8e4df] space-y-1">
-              <p className="text-[10px] text-[#8e9baa] font-semibold uppercase tracking-wider mb-1">アラート</p>
+            <div className="p-4 border-t border-border-light space-y-1">
+              <p className="text-[10px] text-text-tertiary font-semibold uppercase tracking-wider mb-1">アラート</p>
               {alertSettings.map(a => (
-                <label key={a.id} className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-[#faf8f5] rounded-[4px]">
+                <label key={a.id} className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-bg-hover rounded-[4px]">
                   <input type="checkbox" checked={a.enabled} onChange={() => toggleAlert(a.id)} className="accent-[#3a8f7c]" />
                   <span className="text-[12px]">{a.label}</span>
                 </label>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
 function Chip({ label, value, color, onClick }: { label: string; value: string; color?: string; onClick?: () => void }) {
   return (
     <span className={`inline-flex items-center gap-1.5 ${onClick ? "cursor-pointer hover:opacity-70" : ""}`} onClick={onClick}>
-      <span className="text-[#8e9baa] text-[13px]">{label}</span>
+      <span className="text-text-tertiary text-[13px]">{label}</span>
       <span className="text-[15px] font-bold" style={{ color: color ?? "#2c3e50" }}>{value}</span>
     </span>
   );

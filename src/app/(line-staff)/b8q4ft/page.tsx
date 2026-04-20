@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { attendanceAction, getAttendanceStatus } from "@/lib/actions/attendance-actions";
 import type { AttendanceLog } from "@/types/database";
 import { formatTime, formatMinutes } from "@/lib/utils";
@@ -12,15 +12,17 @@ export default function ClockPage() {
   const [msg, setMsg] = useState("");
   const [now, setNow] = useState(new Date());
 
+  const load = useCallback(async () => {
+    try { setAtt(await getAttendanceStatus()); } catch { /* demo */ }
+  }, []);
+
+  /* eslint-disable react-hooks/set-state-in-effect -- 勤怠状況取得 + 時計表示 */
   useEffect(() => {
     load();
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
-  }, []);
-
-  async function load() {
-    try { setAtt(await getAttendanceStatus()); } catch { /* demo */ }
-  }
+  }, [load]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function act(action: string) {
     setLoading(true); setMsg("");
@@ -56,7 +58,7 @@ export default function ClockPage() {
           <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[var(--radius-sm)] ${
             isWorking ? "bg-status-success-bg text-status-success" :
             isBreak ? "bg-status-warning-bg text-status-warning" :
-            notStarted && att?.status === "finished" ? "bg-[#e8f5f0] text-accent" :
+            notStarted && att?.status === "finished" ? "bg-accent-light text-accent" :
             "bg-bg text-text-tertiary"
           }`}>
             {isWorking ? "勤務中" : isBreak ? "休憩中" : att?.status === "finished" ? "退勤済" : "未出勤"}

@@ -52,17 +52,17 @@ export function MultikePanel({ balance, thisMonthGained, expiringSoon, entries, 
     <div className="space-y-4">
       {/* 集計 */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-[#faf8f5] rounded-[6px] p-4">
-          <div className="text-[11px] text-[#8e9baa] font-medium mb-1">保有枚数</div>
-          <div className="text-[24px] font-bold text-[#2c3e50]">{balance.toLocaleString()}<span className="text-[12px] font-normal text-[#8e9baa] ml-1">枚</span></div>
+        <div className="bg-bg-hover rounded-[6px] p-4">
+          <div className="text-[11px] text-text-tertiary font-medium mb-1">保有枚数</div>
+          <div className="text-[24px] font-bold text-text-primary">{balance.toLocaleString()}<span className="text-[12px] font-normal text-text-tertiary ml-1">枚</span></div>
         </div>
-        <div className="bg-[#faf8f5] rounded-[6px] p-4">
-          <div className="text-[11px] text-[#8e9baa] font-medium mb-1">今月獲得</div>
-          <div className="text-[24px] font-bold text-[#2c3e50]">+{thisMonthGained.toLocaleString()}</div>
+        <div className="bg-bg-hover rounded-[6px] p-4">
+          <div className="text-[11px] text-text-tertiary font-medium mb-1">今月獲得</div>
+          <div className="text-[24px] font-bold text-text-primary">+{thisMonthGained.toLocaleString()}</div>
         </div>
-        <div className={`rounded-[6px] p-4 ${expiringSoon > 0 ? "bg-[#fdf4e8] border border-[#c87b1a]/30" : "bg-[#faf8f5]"}`}>
-          <div className="text-[11px] text-[#8e9baa] font-medium mb-1">期限切れ予定(30日以内)</div>
-          <div className={`text-[24px] font-bold ${expiringSoon > 0 ? "text-[#c87b1a]" : "text-[#2c3e50]"}`}>
+        <div className={`rounded-[6px] p-4 ${expiringSoon > 0 ? "bg-status-warning-bg border border-[#c87b1a]/30" : "bg-bg-hover"}`}>
+          <div className="text-[11px] text-text-tertiary font-medium mb-1">期限切れ予定(30日以内)</div>
+          <div className={`text-[24px] font-bold ${expiringSoon > 0 ? "text-status-warning" : "text-text-primary"}`}>
             {expiringSoon > 0 && <AlertTriangle className="w-4 h-4 inline mb-1 mr-1" />}
             {expiringSoon.toLocaleString()}
           </div>
@@ -71,14 +71,14 @@ export function MultikePanel({ balance, thisMonthGained, expiringSoon, entries, 
 
       {/* 操作 */}
       <div>
-        <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">操作</h3>
+        <h3 className="text-[13px] font-semibold text-text-primary mb-2">操作</h3>
         <div className="flex items-end gap-2 flex-wrap">
           <div className="w-24">
-            <label className="block text-[11px] text-[#8e9baa] mb-1">数量</label>
+            <label className="block text-[11px] text-text-tertiary mb-1">数量</label>
             <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="例: 5" />
           </div>
           <div className="flex-1 min-w-[160px]">
-            <label className="block text-[11px] text-[#8e9baa] mb-1">理由</label>
+            <label className="block text-[11px] text-text-tertiary mb-1">理由</label>
             <select value={selectedCode} onChange={(e) => setSelectedCode(e.target.value)}>
               {REASON_PRESETS.map((p) => (
                 <option key={p.code} value={p.code}>{p.sign > 0 ? "+" : "−"} {p.label}</option>
@@ -86,17 +86,17 @@ export function MultikePanel({ balance, thisMonthGained, expiringSoon, entries, 
             </select>
           </div>
           <div className="flex-1 min-w-[140px]">
-            <label className="block text-[11px] text-[#8e9baa] mb-1">有効期限（付与時のみ）</label>
+            <label className="block text-[11px] text-text-tertiary mb-1">有効期限（付与時のみ）</label>
             <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} disabled={preset.sign < 0} />
           </div>
           <div className="flex-1 min-w-[160px]">
-            <label className="block text-[11px] text-[#8e9baa] mb-1">補足</label>
+            <label className="block text-[11px] text-text-tertiary mb-1">補足</label>
             <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="キャンペーン名 等" />
           </div>
           <button
             onClick={submit}
             className={`px-4 py-2 text-[13px] font-medium text-white rounded-[6px] whitespace-nowrap ${
-              preset.sign > 0 ? "bg-[#7c3aed] hover:bg-[#6d2fd0]" : "bg-[#c0392b] hover:bg-[#9e2b1f]"
+              preset.sign > 0 ? "bg-[#7c3aed] hover:bg-[#6d2fd0]" : "bg-status-danger hover:bg-[#9e2b1f]"
             }`}
           >
             {preset.sign > 0 ? <><Plus className="w-3 h-3 inline mr-1" />付与</> : <><Minus className="w-3 h-3 inline mr-1" />消化</>}
@@ -106,22 +106,22 @@ export function MultikePanel({ balance, thisMonthGained, expiringSoon, entries, 
 
       {/* 履歴 */}
       <div>
-        <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">履歴</h3>
+        <h3 className="text-[13px] font-semibold text-text-primary mb-2">履歴</h3>
         <div className="space-y-1">
           {entries.length === 0 ? (
-            <p className="text-[12px] text-[#8e9baa] py-4 text-center">履歴はありません</p>
+            <p className="text-[12px] text-text-tertiary py-4 text-center">履歴はありません</p>
           ) : (
             entries.map((e) => (
-              <div key={e.id} className="flex items-center justify-between py-1.5 px-2 text-[12px] rounded hover:bg-[#faf8f5]">
+              <div key={e.id} className="flex items-center justify-between py-1.5 px-2 text-[12px] rounded hover:bg-bg-hover">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-[#8e9baa] font-mono text-[11px] shrink-0">{e.date}</span>
-                  <span className={`font-semibold shrink-0 ${e.delta >= 0 ? "text-[#7c3aed]" : "text-[#c0392b]"}`}>
+                  <span className="text-text-tertiary font-mono text-[11px] shrink-0">{e.date}</span>
+                  <span className={`font-semibold shrink-0 ${e.delta >= 0 ? "text-[#7c3aed]" : "text-status-danger"}`}>
                     {e.delta >= 0 ? "+" : ""}{e.delta.toLocaleString()}
                   </span>
-                  <span className="text-[#5a6977] truncate">{e.reason}</span>
-                  {e.expiresAt && <span className="text-[10px] text-[#c87b1a] shrink-0">〜{e.expiresAt}</span>}
+                  <span className="text-text-secondary truncate">{e.reason}</span>
+                  {e.expiresAt && <span className="text-[10px] text-status-warning shrink-0">〜{e.expiresAt}</span>}
                 </div>
-                <span className="text-[#8e9baa] text-[11px] shrink-0">残: {e.balanceAfter.toLocaleString()}</span>
+                <span className="text-text-tertiary text-[11px] shrink-0">残: {e.balanceAfter.toLocaleString()}</span>
               </div>
             ))
           )}

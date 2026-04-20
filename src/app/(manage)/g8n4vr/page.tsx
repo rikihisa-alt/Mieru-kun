@@ -52,48 +52,48 @@ export default function StaffPage() {
   return (
     <div className="space-y-4">
       {/* サマリー */}
-      <div className="flex items-center gap-6 pb-4 border-b border-[#e8e4df]">
+      <div className="flex items-center gap-6 pb-4 border-b border-border-light">
         <div className="flex items-center gap-1.5">
-          <span className="text-[#8e9baa] text-[13px]">従業員数</span>
-          <span className="text-[15px] font-bold text-[#2c3e50]">{staffList.length}名</span>
+          <span className="text-text-tertiary text-[13px]">従業員数</span>
+          <span className="text-[15px] font-bold text-text-primary">{staffList.length}名</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[#8e9baa] text-[13px]">在籍</span>
-          <span className="text-[15px] font-bold text-[#3a8f7c]">{activeCount}名</span>
+          <span className="text-text-tertiary text-[13px]">在籍</span>
+          <span className="text-[15px] font-bold text-accent">{activeCount}名</span>
         </div>
         <button onClick={() => { setShowAdd(true); setForm({ name: "", role: "ディーラー", hourlyWage: 1200, phone: "" }); }}
-          className="ml-auto flex items-center gap-1 px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">
+          className="ml-auto flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">
           <Plus className="w-3.5 h-3.5" />従業員追加
         </button>
       </div>
 
       {/* 追加フォーム */}
       {showAdd && (
-        <div className="pb-4 border-b border-[#e8e4df] space-y-3">
-          <p className="text-[13px] font-semibold text-[#2c3e50]">従業員追加</p>
+        <div className="pb-4 border-b border-border-light space-y-3">
+          <p className="text-[13px] font-semibold text-text-primary">従業員追加</p>
           <div className="grid grid-cols-4 gap-3">
             <div>
-              <label className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">名前 *</label>
+              <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">名前 *</label>
               <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="名前" className="mt-1 text-[13px]" />
             </div>
             <div>
-              <label className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">役割</label>
+              <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">役割</label>
               <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} className="mt-1 text-[13px]">
                 {ROLES.map(r => <option key={r}>{r}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">時給</label>
+              <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">時給</label>
               <input type="number" value={form.hourlyWage} onChange={e => setForm(f => ({ ...f, hourlyWage: parseInt(e.target.value) || 0 }))} className="mt-1 text-[13px]" />
             </div>
             <div>
-              <label className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">電話番号</label>
+              <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">電話番号</label>
               <input type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="090-0000-0000" className="mt-1 text-[13px]" />
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={addStaff} className="px-4 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">追加</button>
-            <button onClick={() => setShowAdd(false)} className="px-4 py-[7px] border border-[#d8d3cc] text-[13px] rounded-[6px] hover:bg-[#f3f0ec]">キャンセル</button>
+            <button onClick={addStaff} className="px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">追加</button>
+            <button onClick={() => setShowAdd(false)} className="px-4 py-[7px] border border-border text-[13px] rounded-[6px] hover:bg-bg-hover">キャンセル</button>
           </div>
         </div>
       )}
@@ -101,35 +101,35 @@ export default function StaffPage() {
       {/* 一覧 */}
       <table className="w-full text-[13px]">
         <thead>
-          <tr className="border-b border-[#e8e4df]">
-            <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">名前</th>
-            <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">役割</th>
-            <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">時給</th>
-            <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">電話番号</th>
-            <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">入社</th>
-            <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">状態</th>
-            <th className="pb-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">操作</th>
+          <tr className="border-b border-border-light">
+            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">名前</th>
+            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">役割</th>
+            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">時給</th>
+            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">電話番号</th>
+            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">入社</th>
+            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">状態</th>
+            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">操作</th>
           </tr>
         </thead>
         <tbody>
           {staffList.map(s => (
-            <tr key={s.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] transition-colors">
-              <td className="py-2.5 font-medium text-[#2c3e50]">{s.name}</td>
-              <td className="py-2.5 text-[#5a6977]">{s.role}</td>
-              <td className="py-2.5 text-[#5a6977]">¥{s.hourlyWage.toLocaleString()}</td>
-              <td className="py-2.5 text-[#5a6977] text-[12px]">{s.phone || "—"}</td>
-              <td className="py-2.5 text-[#8e9baa] text-[12px]">{s.joinDate}</td>
+            <tr key={s.id} className="border-b border-border-light hover:bg-bg-hover transition-colors">
+              <td className="py-2.5 font-medium text-text-primary">{s.name}</td>
+              <td className="py-2.5 text-text-secondary">{s.role}</td>
+              <td className="py-2.5 text-text-secondary">¥{s.hourlyWage.toLocaleString()}</td>
+              <td className="py-2.5 text-text-secondary text-[12px]">{s.phone || "—"}</td>
+              <td className="py-2.5 text-text-tertiary text-[12px]">{s.joinDate}</td>
               <td className="py-2.5">
-                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-[3px] ${s.status === "active" ? "bg-[#e8f5f0] text-[#2e7d5b]" : "bg-[#f3f0ec] text-[#8e9baa]"}`}>
+                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-[3px] ${s.status === "active" ? "bg-accent-light text-status-success" : "bg-bg-hover text-text-tertiary"}`}>
                   {s.status === "active" ? "在籍" : "退職"}
                 </span>
               </td>
               <td className="py-2.5">
                 <div className="flex gap-1">
                   <button onClick={() => { setEditId(s.id); setForm({ name: s.name, role: s.role, hourlyWage: s.hourlyWage, phone: s.phone }); }}
-                    className="px-2 py-0.5 text-[11px] text-[#3a8f7c] hover:bg-[#e8f5f0] rounded-[4px]"><Pencil className="w-3 h-3 inline" /> 編集</button>
+                    className="px-2 py-0.5 text-[11px] text-accent hover:bg-accent-light rounded-[4px]"><Pencil className="w-3 h-3 inline" /> 編集</button>
                   <button onClick={() => toggleStatus(s.id)}
-                    className={`px-2 py-0.5 text-[11px] rounded-[4px] ${s.status === "active" ? "text-[#8e9baa] hover:bg-[#f3f0ec]" : "text-[#3a8f7c] hover:bg-[#e8f5f0]"}`}>
+                    className={`px-2 py-0.5 text-[11px] rounded-[4px] ${s.status === "active" ? "text-text-tertiary hover:bg-bg-hover" : "text-accent hover:bg-accent-light"}`}>
                     {s.status === "active" ? "退職" : "復帰"}
                   </button>
                 </div>
@@ -145,31 +145,31 @@ export default function StaffPage() {
           <div className="bg-white rounded-[8px] w-full max-w-md p-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <p className="text-[14px] font-semibold">従業員編集</p>
-              <button onClick={() => setEditId(null)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><X className="w-4 h-4 text-[#8e9baa]" /></button>
+              <button onClick={() => setEditId(null)} className="p-1 hover:bg-bg-hover rounded-[4px]"><X className="w-4 h-4 text-text-tertiary" /></button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">名前</label>
+                <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">名前</label>
                 <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="mt-1 text-[13px]" />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">役割</label>
+                <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">役割</label>
                 <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} className="mt-1 text-[13px]">
                   {ROLES.map(r => <option key={r}>{r}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">時給</label>
+                <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">時給</label>
                 <input type="number" value={form.hourlyWage} onChange={e => setForm(f => ({ ...f, hourlyWage: parseInt(e.target.value) || 0 }))} className="mt-1 text-[13px]" />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider">電話番号</label>
+                <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">電話番号</label>
                 <input type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="mt-1 text-[13px]" />
               </div>
             </div>
             <div className="flex gap-2 mt-4">
-              <button onClick={saveEdit} className="flex-1 py-2.5 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">保存</button>
-              <button onClick={() => setEditId(null)} className="px-4 py-2.5 border border-[#d8d3cc] text-[13px] rounded-[6px] hover:bg-[#f3f0ec]">キャンセル</button>
+              <button onClick={saveEdit} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">保存</button>
+              <button onClick={() => setEditId(null)} className="px-4 py-2.5 border border-border text-[13px] rounded-[6px] hover:bg-bg-hover">キャンセル</button>
             </div>
           </div>
         </div>

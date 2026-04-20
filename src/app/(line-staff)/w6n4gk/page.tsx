@@ -25,9 +25,9 @@ const DEMO_MEMBERS: Record<string, MemberSnapshot> = {
 
 const RANK_TEXT: Record<string, string> = {
   vip: "text-[#7c3aed]",
-  gold: "text-[#d97706]",
+  gold: "text-status-warning",
   silver: "text-[#475569]",
-  regular: "text-[#8e9baa]",
+  regular: "text-text-tertiary",
 };
 const RANK_LABEL: Record<string, string> = { vip: "VIP", gold: "GOLD", silver: "SILVER", regular: "Regular" };
 
@@ -95,8 +95,8 @@ export default function QRScanPage() {
           </div>
 
           {member.caution && (
-            <div className="px-3 py-2 bg-[#fdf4e8] border border-[#c87b1a]/30 rounded-[6px] flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-[#c87b1a] shrink-0 mt-0.5" />
+            <div className="px-3 py-2 bg-status-warning-bg border border-[#c87b1a]/30 rounded-[6px] flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-status-warning shrink-0 mt-0.5" />
               <span className="text-[11px] text-[#8a5a10]">{member.caution}</span>
             </div>
           )}
@@ -122,7 +122,7 @@ export default function QRScanPage() {
       )}
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-[#2c3e50] text-white text-[12px] rounded-[6px] shadow-lg">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-text-primary text-white text-[12px] rounded-[6px] shadow-lg">
           {toast}
         </div>
       )}

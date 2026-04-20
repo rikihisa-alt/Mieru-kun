@@ -49,7 +49,7 @@ export default function AuditLogPage() {
         <button onClick={() => setFilter("all")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${filter === "all" ? "bg-text-primary text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
           すべて
         </button>
-        <button onClick={() => setFilter("sensitive")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${filter === "sensitive" ? "bg-[#c0392b] text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
+        <button onClick={() => setFilter("sensitive")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${filter === "sensitive" ? "bg-status-danger text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
           重要操作のみ
         </button>
         <span className="ml-auto text-[11px] text-text-tertiary">{rows.length}件</span>
