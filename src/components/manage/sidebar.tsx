@@ -42,9 +42,9 @@ export function Sidebar() {
 
   return (
     <aside className="w-56 bg-bg-white border-r border-border flex flex-col h-full">
-      <div className="h-20 flex items-center px-2 border-b border-border">
-        <Link href="/dashboard" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity min-w-0">
-          <Image src="/logo-icon.png" alt="みえるくん" width={64} height={64} className="shrink-0" />
+      <div className="flex items-center justify-center py-4 border-b border-border">
+        <Link href="/dashboard" className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity">
+          <Image src="/logo-icon.png" alt="みえるくん" width={112} height={112} />
           <span className="text-[13px] font-bold text-text-primary tracking-tight whitespace-nowrap">てんぽみえるくん</span>
         </Link>
       </div>
