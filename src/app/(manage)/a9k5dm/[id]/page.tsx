@@ -121,6 +121,13 @@ export default function CustomerDetailPage() {
   const [email, setEmail] = useState(initial.email);
   const [rank, setRank] = useState<Rank>(initial.rank);
   const [notes, setNotes] = useState(initial.notes);
+
+  // Phase 1 拡張: 注意事項・管理フラグ
+  const [cautionText, setCautionText] = useState("");
+  const [isBlacklisted, setIsBlacklisted] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [lineId, setLineId] = useState("");
   const [saveMsg, setSaveMsg] = useState(false);
 
   // Stats
@@ -238,23 +245,35 @@ export default function CustomerDetailPage() {
       <div className="pb-4 border-b border-[#e8e4df]">
         <div className="flex items-start justify-between">
           <div>
-            <div className="flex items-baseline gap-2 mb-1">
+            <div className="flex items-baseline gap-2 mb-1 flex-wrap">
               <h1 className="text-[18px] font-bold text-[#2c3e50]">{nickname || name}</h1>
               {nickname && <span className="text-[13px] text-[#8e9baa]">{name}</span>}
               <span className={`text-[12px] font-semibold tracking-wider ${rankTextClass(rank)}`}>
                 {RANK_LABELS[rank]}
               </span>
+              {isBlacklisted && (
+                <span className="text-[11px] font-bold tracking-wider text-[#c5221f] border border-[#c5221f]/40 bg-[#fce8e6] px-1.5 py-0.5 rounded-[4px]">BLACK</span>
+              )}
+              {isHidden && (
+                <span className="text-[11px] font-semibold tracking-wider text-[#5a6977] border border-[#d8d3cc] bg-[#f3f0ec] px-1.5 py-0.5 rounded-[4px]">HIDDEN</span>
+              )}
             </div>
             <div className="flex items-center gap-4 mt-2 text-[13px] text-[#5a6977]">
               <span className="flex items-center gap-1">
                 <Phone className="w-3.5 h-3.5 text-[#8e9baa]" />
-                {phone}
+                {phone || "-"}
               </span>
               <span className="flex items-center gap-1">
                 <Mail className="w-3.5 h-3.5 text-[#8e9baa]" />
-                {email}
+                {email || "-"}
               </span>
             </div>
+            {cautionText && (
+              <div className="mt-3 flex items-start gap-2 px-3 py-2 bg-[#fdf4e8] border border-[#c87b1a]/30 rounded-[6px]">
+                <AlertTriangle className="w-4 h-4 text-[#c87b1a] shrink-0 mt-0.5" />
+                <span className="text-[12px] text-[#8a5a10] leading-relaxed">{cautionText}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -342,7 +361,36 @@ export default function CustomerDetailPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">備考</label>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">生年月日</label>
+                <input
+                  type="date"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">LINE ID</label>
+                <input
+                  type="text"
+                  value={lineId}
+                  onChange={(e) => setLineId(e.target.value)}
+                  placeholder="LINE連携ID"
+                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">注意事項（ヘッダー常時表示）</label>
+                <textarea
+                  value={cautionText}
+                  onChange={(e) => setCautionText(e.target.value)}
+                  rows={2}
+                  placeholder="例: 飲食不可 / 過去トラブルあり"
+                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c] resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">備考（一般メモ）</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -350,7 +398,19 @@ export default function CustomerDetailPage() {
                   className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c] resize-none"
                 />
               </div>
-              <div className="flex items-center gap-3">
+              <div className="pt-2 border-t border-[#e8e4df] space-y-2">
+                <p className="text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">管理フラグ</p>
+                <label className="flex items-center gap-2 text-[13px] text-[#2c3e50] cursor-pointer">
+                  <input type="checkbox" checked={isBlacklisted} onChange={(e) => setIsBlacklisted(e.target.checked)} />
+                  <span>ブラックリスト（入店拒否）</span>
+                  <span className="text-[11px] text-[#8e9baa]">※ オーナーのみ変更可</span>
+                </label>
+                <label className="flex items-center gap-2 text-[13px] text-[#2c3e50] cursor-pointer">
+                  <input type="checkbox" checked={isHidden} onChange={(e) => setIsHidden(e.target.checked)} />
+                  <span>非表示（一般スタッフの検索結果に出さない）</span>
+                </label>
+              </div>
+              <div className="flex items-center gap-3 pt-2">
                 <button
                   onClick={handleSave}
                   className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-[#3a8f7c] hover:bg-[#2f7a69] rounded-[6px] transition-colors"

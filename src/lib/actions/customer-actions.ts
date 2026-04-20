@@ -29,24 +29,48 @@ export async function createCustomerAction(formData: FormData) {
     return { error: parsed.error.issues[0].message };
   }
 
+  // Phase 1 拡張フィールド（DB側マイグレーション phase1_customer_perm.sql 適用後に有効）
+  // 現時点では生年月日・LINE ID・紹介者・SNS等は notes に埋め込んで記録
+  const nickname = (formData.get("nickname") as string) || "";
+  const dob = (formData.get("date_of_birth") as string) || "";
+  const lineId = (formData.get("line_id") as string) || "";
+  const referrer = (formData.get("referrer_name") as string) || "";
+  const caution = (formData.get("caution_text") as string) || "";
+  const isBlacklisted = formData.get("is_blacklisted") === "true";
+  const isHidden = formData.get("is_hidden") === "true";
+  const snsLinksRaw = (formData.get("sns_links") as string) || "{}";
+
+  const extensionMeta = [
+    nickname && `nickname:${nickname}`,
+    dob && `DOB:${dob}`,
+    lineId && `LINE:${lineId}`,
+    referrer && `紹介:${referrer}`,
+    caution && `⚠ ${caution}`,
+    isBlacklisted && "BLACK",
+    isHidden && "HIDDEN",
+    snsLinksRaw !== "{}" && `SNS:${snsLinksRaw}`,
+  ]
+    .filter(Boolean)
+    .join(" / ");
+
+  const combinedNotes = [parsed.data.notes, extensionMeta].filter(Boolean).join("\n---\n");
+
   try {
-    // 3. DB操作（store_idはAuthContextから取得）
     const customer = await createCustomer({
       name: parsed.data.name,
       phone: parsed.data.phone || null,
       email: parsed.data.email || null,
       rank: parsed.data.rank as "regular" | "silver" | "gold" | "vip",
-      notes: parsed.data.notes || null,
-      line_id: null,
+      notes: combinedNotes || null,
+      line_id: lineId || null,
     });
 
-    // 4. 監査ログ記録
     await writeAuditLog({
       ctx,
       action: "customer.create",
       targetTable: "customers",
       targetId: customer.id,
-      after: { name: customer.name, rank: customer.rank },
+      after: { name: customer.name, rank: customer.rank, nickname, has_caution: !!caution, is_blacklisted: isBlacklisted, is_hidden: isHidden },
     });
 
     revalidatePath("/a9k5dm");

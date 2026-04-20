@@ -1,6 +1,5 @@
 import { Sidebar } from "@/components/manage/sidebar";
 import { Header } from "@/components/manage/header";
-import { ActionBar } from "@/components/manage/action-bar";
 import { AppStoreProvider } from "@/lib/store/app-store";
 
 export default function ManageLayout({ children }: { children: React.ReactNode }) {
@@ -14,7 +13,6 @@ export default function ManageLayout({ children }: { children: React.ReactNode }
             {children}
           </main>
         </div>
-        <ActionBar />
       </div>
     </AppStoreProvider>
   );
