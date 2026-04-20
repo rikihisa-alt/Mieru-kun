@@ -34,11 +34,17 @@ const RANK_LABELS: Record<Rank, string> = {
   vip: "VIP",
 };
 
-const RANK_DOT_COLORS: Record<Rank, string> = {
-  regular: "#9aa0a6",
-  silver: "#5f6368",
-  gold: "#f59e0b",
-  vip: "#7c3aed",
+const RANK_TEXT: Record<Rank, string> = {
+  regular: "text-[#8e9baa]",
+  silver: "text-[#475569]",
+  gold: "text-[#d97706]",
+  vip: "text-[#7c3aed]",
+};
+const RANK_SHORT: Record<Rank, string> = {
+  regular: "Regular",
+  silver: "SILVER",
+  gold: "GOLD",
+  vip: "VIP",
 };
 
 const PRESET_CUSTOMERS = [
@@ -252,21 +258,10 @@ export default function FloorPage() {
                     <div className="flex items-baseline gap-2">
                       <span>{v.nickname || v.name}</span>
                       {v.nickname && <span className="text-[11px] text-[#8e9baa]">{v.name}</span>}
-                      {(v.rank === "vip" || v.rank === "gold") && (
-                        <span className={`inline px-1.5 py-0.5 text-[10px] font-medium rounded-[4px] ${
-                          v.rank === "vip" ? "bg-[#f3e8fd] text-[#7c3aed]" : "bg-[#fef3c7] text-[#d97706]"
-                        }`}>
-                          {RANK_LABELS[v.rank]}
-                        </span>
-                      )}
                     </div>
                   </td>
                   <td className="px-4 py-2.5">
-                    <span
-                      className="inline-block w-[8px] h-[8px] rounded-full"
-                      style={{ backgroundColor: RANK_DOT_COLORS[v.rank] }}
-                      title={RANK_LABELS[v.rank]}
-                    />
+                    <span className={`text-[12px] font-semibold tracking-wider ${RANK_TEXT[v.rank]}`}>{RANK_SHORT[v.rank]}</span>
                   </td>
                   <td className="px-4 py-2.5 text-[#5a6977]">
                     <div className="flex items-center gap-1">
@@ -320,19 +315,9 @@ export default function FloorPage() {
                   className="flex items-center justify-between px-4 py-3 border-l-2 border-l-[#3a8f7c] hover:bg-[#faf8f5] transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span
-                      className="inline-block w-[8px] h-[8px] rounded-full"
-                      style={{ backgroundColor: RANK_DOT_COLORS[v.rank] }}
-                    />
                     <span className="text-[13px] font-medium text-[#2c3e50]">{v.nickname || v.name}</span>
                     {v.nickname && <span className="text-[11px] text-[#8e9baa]">{v.name}</span>}
-                    {(v.rank === "vip" || v.rank === "gold") && (
-                      <span className={`inline px-1.5 py-0.5 text-[10px] font-medium rounded-[4px] ${
-                        v.rank === "vip" ? "bg-[#f3e8fd] text-[#7c3aed]" : "bg-[#fef3c7] text-[#d97706]"
-                      }`}>
-                        {RANK_LABELS[v.rank]}
-                      </span>
-                    )}
+                    <span className={`text-[11px] font-semibold tracking-wider ${RANK_TEXT[v.rank]}`}>{RANK_SHORT[v.rank]}</span>
                     <span className="text-[12px] text-[#8e9baa]">
                       {formatTimeOnly(v.checkInAt)} 入店
                     </span>

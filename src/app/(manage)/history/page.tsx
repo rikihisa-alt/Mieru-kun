@@ -11,8 +11,6 @@ interface HistoryEntry {
   name: string; realName?: string; detail?: string; amount?: number; rank?: string;
 }
 
-const RANK_DOT: Record<string, string> = { regular: "#8e9baa", silver: "#5a6977", gold: "#d97706", vip: "#7c3aed" };
-
 const TYPE_META: Record<EventType, { icon: React.ReactNode; color: string; bg: string }> = {
   "入店": { icon: <DoorOpen className="w-3 h-3" />, color: "#3a8f7c", bg: "#e8f5f0" },
   "退店": { icon: <LogOutIcon className="w-3 h-3" />, color: "#8e9baa", bg: "#f3f0ec" },
@@ -145,7 +143,6 @@ export default function HistoryPage() {
                   </div>
                   <div className="flex items-center gap-2 pt-0.5 flex-1 min-w-0">
                     <span className="text-[10px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: meta.color }}>{e.type}</span>
-                    {e.rank && <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: RANK_DOT[e.rank] }} />}
                     <span className="text-[12px] font-medium text-[#2c3e50] truncate">{e.name}</span>
                     {e.realName && <span className="text-[11px] text-[#8e9baa] truncate">（{e.realName}）</span>}
                     {e.detail && <span className="text-[11px] text-[#8e9baa] truncate">{e.detail}</span>}

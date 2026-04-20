@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation";
 import { Settings2, X, GripVertical, AlertTriangle, ArrowUpRight, DoorOpen, LogIn, LogOut as LogOutIcon, CalendarDays, Clock, ShoppingBag, Coins, CreditCard } from "lucide-react";
 import { useAppStore } from "@/lib/store/app-store";
 
-const RANK_DOT: Record<string, string> = { regular: "#8e9baa", silver: "#5a6977", gold: "#d97706", vip: "#7c3aed" };
-
 interface DashSection { id: string; label: string; visible: boolean; }
 interface AlertSetting { id: string; label: string; enabled: boolean; color: string; }
 
@@ -162,7 +160,6 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-2 pt-0.5 min-w-0">
                       <span className="text-[10px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: t.color }}>{ev.type}</span>
-                      {ev.rank && <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: RANK_DOT[ev.rank] }} />}
                       <span className="text-[12px] font-medium text-[#2c3e50] truncate">{ev.name}</span>
                       {ev.realName && <span className="text-[11px] text-[#8e9baa] flex-shrink-0">（{ev.realName}）</span>}
                       {ev.detail && <span className="text-[11px] text-[#8e9baa] flex-shrink-0">{ev.detail}</span>}

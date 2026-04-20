@@ -21,22 +21,22 @@ import {
 type Rank = "regular" | "silver" | "gold" | "vip";
 
 const RANK_LABELS: Record<Rank, string> = {
-  regular: "レギュラー",
-  silver: "シルバー",
-  gold: "ゴールド",
+  regular: "Regular",
+  silver: "SILVER",
+  gold: "GOLD",
   vip: "VIP",
 };
 
-function rankBadgeClass(rank: Rank): string {
+function rankTextClass(rank: Rank): string {
   switch (rank) {
     case "gold":
-      return "bg-[#fef3c7] text-[#d97706]";
+      return "text-[#d97706]";
     case "vip":
-      return "bg-[#f3e8fd] text-[#7c3aed]";
+      return "text-[#7c3aed]";
     case "silver":
-      return "bg-[#e2e8f0] text-[#475569]";
+      return "text-[#475569]";
     default:
-      return "bg-[#faf8f5] text-[#5a6977]";
+      return "text-[#8e9baa]";
   }
 }
 
@@ -241,7 +241,7 @@ export default function CustomerDetailPage() {
             <div className="flex items-baseline gap-2 mb-1">
               <h1 className="text-[18px] font-bold text-[#2c3e50]">{nickname || name}</h1>
               {nickname && <span className="text-[13px] text-[#8e9baa]">{name}</span>}
-              <span className={`inline px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${rankBadgeClass(rank)}`}>
+              <span className={`text-[12px] font-semibold tracking-wider ${rankTextClass(rank)}`}>
                 {RANK_LABELS[rank]}
               </span>
             </div>
