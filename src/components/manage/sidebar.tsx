@@ -41,10 +41,10 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-56 bg-bg-white border-r border-border flex flex-col h-full">
-      <div className="flex items-center justify-center py-4 border-b border-border">
-        <Link href="/dashboard" className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity">
-          <Image src="/logo-icon.png" alt="みえるくん" width={112} height={112} />
+    <aside className="w-64 bg-bg-white border-r border-border flex flex-col h-full">
+      <div className="h-24 flex items-center px-2 border-b border-border">
+        <Link href="/dashboard" className="flex items-center gap-1 hover:opacity-80 transition-opacity min-w-0">
+          <Image src="/logo-icon.png" alt="みえるくん" width={80} height={80} className="shrink-0" />
           <span className="text-[13px] font-bold text-text-primary tracking-tight whitespace-nowrap">てんぽみえるくん</span>
         </Link>
       </div>
