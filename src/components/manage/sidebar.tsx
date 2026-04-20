@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutGrid,
   DoorOpen,
@@ -39,9 +39,10 @@ const NAV = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
-    <aside className="fixed top-0 left-0 w-56 h-screen bg-bg-white border-r border-border flex flex-col z-[100] isolate">
+    <aside className="fixed top-0 left-0 w-56 h-screen bg-bg-white border-r border-border flex flex-col z-[100] isolate" style={{ pointerEvents: "auto" }}>
       <div className="h-14 flex items-center px-4 border-b border-border">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <Image src="/logo-icon.png" alt="みえるくん" width={36} height={36} />
@@ -69,7 +70,12 @@ export function Sidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2.5 mx-2 px-3 py-[7px] rounded-[var(--radius)] text-[13px] font-medium transition-colors ${
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    router.push(item.href);
+                  }}
+                  className={`relative z-10 flex items-center gap-2.5 mx-2 px-3 py-[7px] rounded-[var(--radius)] text-[13px] font-medium transition-colors cursor-pointer ${
                     active
                       ? "bg-accent-light text-accent"
                       : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
