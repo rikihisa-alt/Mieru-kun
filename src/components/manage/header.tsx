@@ -35,7 +35,7 @@ export function Header() {
   }
 
   return (
-    <header className="h-24 bg-bg-white border-b border-border flex items-center justify-between px-6">
+    <header className="h-14 bg-bg-white border-b border-border flex items-center justify-between px-6">
       <h1 className="text-[15px] font-semibold text-text-primary">{title}</h1>
       <div className="flex items-center gap-3">
         <Image src="/logo-icon.png" alt="みえるくん" width={22} height={22} className="opacity-25" />
