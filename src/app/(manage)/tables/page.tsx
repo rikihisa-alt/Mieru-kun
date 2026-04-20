@@ -50,7 +50,7 @@ const RANK_COLORS: Record<string, string> = { vip: "#7c3aed", gold: "#d97706", s
 const RANK_LABELS: Record<string, string> = { vip: "VIP", gold: "Gold", silver: "Silver", regular: "" };
 
 export default function TablesPage() {
-  const appStore = useAppStore();
+  const updateTables = useAppStore().updateTables;
   const [tables, setTables] = useState<TableDef[]>(INIT_TABLES);
   const [players, setPlayers] = useState<Player[]>(INIT_PLAYERS);
 
@@ -62,8 +62,8 @@ export default function TablesPage() {
       max: t.maxSeats,
       type: t.type,
     }));
-    appStore.updateTables(synced);
-  }, [tables, players, appStore]);
+    updateTables(synced);
+  }, [tables, players, updateTables]);
   const [activePlayer, setActivePlayer] = useState<Player | null>(null);
   const [expandedTable, setExpandedTable] = useState<string | null>(null);
 

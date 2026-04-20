@@ -6,8 +6,8 @@ import { AppStoreProvider } from "@/lib/store/app-store";
 export default function ManageLayout({ children }: { children: React.ReactNode }) {
   return (
     <AppStoreProvider>
-      <Sidebar />
-      <div className="flex h-screen overflow-hidden pl-56">
+      <div className="flex h-screen overflow-hidden">
+        <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
           <main className="flex-1 overflow-y-auto p-6">
