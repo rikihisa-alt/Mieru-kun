@@ -83,21 +83,21 @@ const PRIZE_OPTIONS = [
 
 // 顧客データ（一覧ページと整合）
 interface CustomerData {
-  name: string; phone: string; email: string; rank: Rank; notes: string;
+  name: string; nickname: string; phone: string; email: string; rank: Rank; notes: string;
   totalVisits: number; totalSpent: number; chipBalance: number; pointBalance: number;
 }
 const CUSTOMER_DATA: Record<string, CustomerData> = {
-  c1: { name: "田中 太郎", phone: "090-1234-5678", email: "tanaka@example.com", rank: "gold", notes: "常連客。ウイスキーがお好み。誕生日: 3/15", totalVisits: 25, totalSpent: 150000, chipBalance: 5000, pointBalance: 1200 },
-  c2: { name: "鈴木 花子", phone: "090-2345-6789", email: "suzuki@example.com", rank: "vip", notes: "VIP常連。カクテル好き。", totalVisits: 50, totalSpent: 350000, chipBalance: 12000, pointBalance: 3500 },
-  c3: { name: "佐藤 健一", phone: "090-3456-7890", email: "sato@example.com", rank: "silver", notes: "", totalVisits: 10, totalSpent: 45000, chipBalance: 2000, pointBalance: 400 },
-  c4: { name: "高橋 美咲", phone: "", email: "", rank: "regular", notes: "", totalVisits: 3, totalSpent: 12000, chipBalance: 500, pointBalance: 100 },
-  c5: { name: "伊藤 大輔", phone: "090-4567-8901", email: "", rank: "regular", notes: "", totalVisits: 1, totalSpent: 3000, chipBalance: 0, pointBalance: 50 },
-  c6: { name: "渡辺 優子", phone: "090-5678-9012", email: "watanabe@example.com", rank: "gold", notes: "", totalVisits: 30, totalSpent: 200000, chipBalance: 8000, pointBalance: 2000 },
-  c7: { name: "山本 翔太", phone: "", email: "", rank: "silver", notes: "", totalVisits: 8, totalSpent: 32000, chipBalance: 1500, pointBalance: 300 },
-  c8: { name: "中村 あゆみ", phone: "090-6789-0123", email: "", rank: "regular", notes: "", totalVisits: 2, totalSpent: 8000, chipBalance: 200, pointBalance: 80 },
+  c1: { name: "田中 太郎", nickname: "タロウ", phone: "090-1234-5678", email: "tanaka@example.com", rank: "gold", notes: "常連客。ウイスキーがお好み。誕生日: 3/15", totalVisits: 25, totalSpent: 150000, chipBalance: 5000, pointBalance: 1200 },
+  c2: { name: "鈴木 花子", nickname: "ハナ", phone: "090-2345-6789", email: "suzuki@example.com", rank: "vip", notes: "VIP常連。カクテル好き。", totalVisits: 50, totalSpent: 350000, chipBalance: 12000, pointBalance: 3500 },
+  c3: { name: "佐藤 健一", nickname: "ケン", phone: "090-3456-7890", email: "sato@example.com", rank: "silver", notes: "", totalVisits: 10, totalSpent: 45000, chipBalance: 2000, pointBalance: 400 },
+  c4: { name: "高橋 美咲", nickname: "ミィ", phone: "", email: "", rank: "regular", notes: "", totalVisits: 3, totalSpent: 12000, chipBalance: 500, pointBalance: 100 },
+  c5: { name: "伊藤 大輔", nickname: "ダイ", phone: "090-4567-8901", email: "", rank: "regular", notes: "", totalVisits: 1, totalSpent: 3000, chipBalance: 0, pointBalance: 50 },
+  c6: { name: "渡辺 優子", nickname: "ユウ", phone: "090-5678-9012", email: "watanabe@example.com", rank: "gold", notes: "", totalVisits: 30, totalSpent: 200000, chipBalance: 8000, pointBalance: 2000 },
+  c7: { name: "山本 翔太", nickname: "ショウ", phone: "", email: "", rank: "silver", notes: "", totalVisits: 8, totalSpent: 32000, chipBalance: 1500, pointBalance: 300 },
+  c8: { name: "中村 あゆみ", nickname: "アユ", phone: "090-6789-0123", email: "", rank: "regular", notes: "", totalVisits: 2, totalSpent: 8000, chipBalance: 200, pointBalance: 80 },
 };
 
-const DEFAULT_CUSTOMER: CustomerData = { name: "顧客", phone: "", email: "", rank: "regular", notes: "", totalVisits: 0, totalSpent: 0, chipBalance: 0, pointBalance: 0 };
+const DEFAULT_CUSTOMER: CustomerData = { name: "顧客", nickname: "", phone: "", email: "", rank: "regular", notes: "", totalVisits: 0, totalSpent: 0, chipBalance: 0, pointBalance: 0 };
 
 export default function CustomerDetailPage() {
   const params = useParams();
@@ -116,6 +116,7 @@ export default function CustomerDetailPage() {
 
   // Basic info state
   const [name, setName] = useState(initial.name);
+  const [nickname, setNickname] = useState(initial.nickname);
   const [phone, setPhone] = useState(initial.phone);
   const [email, setEmail] = useState(initial.email);
   const [rank, setRank] = useState<Rank>(initial.rank);
@@ -237,8 +238,9 @@ export default function CustomerDetailPage() {
       <div className="pb-4 border-b border-[#e8e4df]">
         <div className="flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-[18px] font-bold text-[#2c3e50]">{name}</h1>
+            <div className="flex items-baseline gap-2 mb-1">
+              <h1 className="text-[18px] font-bold text-[#2c3e50]">{nickname || name}</h1>
+              {nickname && <span className="text-[13px] text-[#8e9baa]">{name}</span>}
               <span className={`inline px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${rankBadgeClass(rank)}`}>
                 {RANK_LABELS[rank]}
               </span>
@@ -290,7 +292,17 @@ export default function CustomerDetailPage() {
           {activeTab === "基本情報" && (
             <div className="space-y-4 max-w-lg">
               <div>
-                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">氏名</label>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">ニックネーム（ポーカーネーム）</label>
+                <input
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  placeholder="卓上・精算等の画面で表示される名前"
+                  className="w-full px-3 py-2 text-[13px] border border-[#d8d3cc] rounded-[6px] text-[#2c3e50] focus:outline-none focus:border-[#3a8f7c] focus:ring-1 focus:ring-[#3a8f7c]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">本名</label>
                 <input
                   type="text"
                   value={name}

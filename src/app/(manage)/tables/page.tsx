@@ -19,7 +19,7 @@ import { CustomerActionMenu } from "@/components/shared/customer-action-menu";
 
 // --- 型 ---
 interface Player {
-  id: string; name: string; rank: string; chips: number;
+  id: string; name: string; nickname: string; rank: string; chips: number;
   tableId: string | null; seatIndex: number | null;
 }
 interface TableDef {
@@ -36,14 +36,14 @@ const INIT_TABLES: TableDef[] = [
 ];
 
 const INIT_PLAYERS: Player[] = [
-  { id: "p1", name: "田中 太郎", rank: "gold", chips: 5000, tableId: "t1", seatIndex: 0 },
-  { id: "p2", name: "鈴木 花子", rank: "vip", chips: 12000, tableId: "t1", seatIndex: 2 },
-  { id: "p3", name: "佐藤 健一", rank: "silver", chips: 2000, tableId: "t1", seatIndex: 4 },
-  { id: "p4", name: "高橋 美咲", rank: "regular", chips: 500, tableId: "t3", seatIndex: 1 },
-  { id: "p5", name: "伊藤 大輔", rank: "regular", chips: 0, tableId: "t3", seatIndex: 3 },
-  { id: "p6", name: "渡辺 優子", rank: "gold", chips: 8000, tableId: null, seatIndex: null },
-  { id: "p7", name: "山本 翔太", rank: "silver", chips: 1500, tableId: null, seatIndex: null },
-  { id: "p8", name: "中村 あゆみ", rank: "regular", chips: 200, tableId: null, seatIndex: null },
+  { id: "p1", name: "田中 太郎", nickname: "タロウ", rank: "gold", chips: 5000, tableId: "t1", seatIndex: 0 },
+  { id: "p2", name: "鈴木 花子", nickname: "ハナ", rank: "vip", chips: 12000, tableId: "t1", seatIndex: 2 },
+  { id: "p3", name: "佐藤 健一", nickname: "ケン", rank: "silver", chips: 2000, tableId: "t1", seatIndex: 4 },
+  { id: "p4", name: "高橋 美咲", nickname: "ミィ", rank: "regular", chips: 500, tableId: "t3", seatIndex: 1 },
+  { id: "p5", name: "伊藤 大輔", nickname: "ダイ", rank: "regular", chips: 0, tableId: "t3", seatIndex: 3 },
+  { id: "p6", name: "渡辺 優子", nickname: "ユウ", rank: "gold", chips: 8000, tableId: null, seatIndex: null },
+  { id: "p7", name: "山本 翔太", nickname: "ショウ", rank: "silver", chips: 1500, tableId: null, seatIndex: null },
+  { id: "p8", name: "中村 あゆみ", nickname: "アユ", rank: "regular", chips: 200, tableId: null, seatIndex: null },
 ];
 
 const RANK_COLORS: Record<string, string> = { vip: "#7c3aed", gold: "#d97706", silver: "#6b7280", regular: "#9ca3af" };
@@ -240,7 +240,8 @@ export default function TablesPage() {
         <CustomerActionMenu
           customer={{
             id: popoverPlayer.player.id,
-            name: popoverPlayer.player.name,
+            name: popoverPlayer.player.nickname || popoverPlayer.player.name,
+            realName: popoverPlayer.player.nickname ? popoverPlayer.player.name : undefined,
             rank: popoverPlayer.player.rank,
             chips: popoverPlayer.player.chips,
             extra: popoverPlayer.player.tableId ? (
@@ -357,14 +358,15 @@ function DraggablePlayer({ player, onChipClick }: {
 
 function PlayerChip({ player, isDragging }: { player: Player; isDragging?: boolean }) {
   const label = RANK_LABELS[player.rank];
+  const display = player.nickname || player.name.split(" ")[0];
   return (
     <div className={`flex items-center gap-1.5 px-2 py-1 text-[11px] font-medium cursor-grab select-none rounded-[4px] whitespace-nowrap ${
       isDragging ? "dragging bg-[#e8f5f0] border border-[#3a8f7c]" : "hover:bg-[#f3f0ec]"
     }`} style={{ transition: "transform 0.1s, box-shadow 0.1s, border-color 0.1s" }}>
       <div className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold" style={{ backgroundColor: RANK_COLORS[player.rank] }}>
-        {player.name.charAt(0)}
+        {display.charAt(0)}
       </div>
-      <span className="whitespace-nowrap">{player.name.split(" ")[0]}</span>
+      <span className="whitespace-nowrap">{display}</span>
       {label && <span className="whitespace-nowrap text-[9px] px-1 py-0.5 rounded bg-[#faf8f5] text-[#5a6977]">{label}</span>}
     </div>
   );
@@ -449,14 +451,17 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
               <p className="text-[12px] text-[#8e9baa] mt-1">プレイヤーなし</p>
             ) : (
               <div className="mt-1 space-y-1">
-                {players.map(p => (
+                {players.map(p => {
+                  const displayName = p.nickname || p.name;
+                  return (
                   <div key={p.id} className="flex items-center justify-between px-3 py-1.5 rounded-[6px] hover:bg-[#f3f0ec] transition-colors">
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold"
                         style={{ backgroundColor: RANK_COLORS[p.rank] }}>
-                        {p.name.charAt(0)}
+                        {displayName.charAt(0)}
                       </div>
-                      <span className="text-[12px] font-medium text-[#2c3e50]">{p.name}</span>
+                      <span className="text-[12px] font-medium text-[#2c3e50]">{displayName}</span>
+                      {p.nickname && <span className="text-[10px] text-[#8e9baa]">{p.name}</span>}
                       {RANK_LABELS[p.rank] && (
                         <span className="text-[9px] px-1 py-0.5 rounded-[4px] bg-[#faf8f5] text-[#5a6977]">{RANK_LABELS[p.rank]}</span>
                       )}
@@ -469,7 +474,8 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
                       </button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

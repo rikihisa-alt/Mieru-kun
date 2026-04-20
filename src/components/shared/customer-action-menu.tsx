@@ -21,7 +21,8 @@ const RANK_LABELS: Record<string, string> = {
 
 export interface ActionMenuCustomer {
   id: string;
-  name: string;
+  name: string; // 表示名（ニックネーム優先）
+  realName?: string; // ニックネームがある場合の本名（補助表示）
   rank?: string;
   chips?: number;
   extra?: React.ReactNode; // 任意の追加情報/ボタン（例: 卓から外す）
@@ -78,7 +79,8 @@ export function CustomerActionMenu({ customer, x, y, onClose }: Props) {
           </div>
           <div>
             <div className="text-[13px] font-semibold text-[#2c3e50]">{customer.name}</div>
-            {label && <div className="text-[10px] text-[#8e9baa]">{label}</div>}
+            {customer.realName && <div className="text-[10px] text-[#8e9baa]">{customer.realName}</div>}
+            {!customer.realName && label && <div className="text-[10px] text-[#8e9baa]">{label}</div>}
           </div>
           <button onClick={onClose} className="ml-auto p-0.5 hover:bg-[#f3f0ec] rounded-[4px]">
             <X className="w-3.5 h-3.5 text-[#8e9baa]" />
