@@ -358,14 +358,14 @@ function DraggablePlayer({ player, onChipClick }: {
 function PlayerChip({ player, isDragging }: { player: Player; isDragging?: boolean }) {
   const label = RANK_LABELS[player.rank];
   return (
-    <div className={`flex items-center gap-1.5 px-2 py-1 text-[11px] font-medium cursor-grab select-none rounded-[4px] ${
+    <div className={`flex items-center gap-1.5 px-2 py-1 text-[11px] font-medium cursor-grab select-none rounded-[4px] whitespace-nowrap ${
       isDragging ? "dragging bg-[#e8f5f0] border border-[#3a8f7c]" : "hover:bg-[#f3f0ec]"
     }`} style={{ transition: "transform 0.1s, box-shadow 0.1s, border-color 0.1s" }}>
-      <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold" style={{ backgroundColor: RANK_COLORS[player.rank] }}>
+      <div className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold" style={{ backgroundColor: RANK_COLORS[player.rank] }}>
         {player.name.charAt(0)}
       </div>
-      <span>{player.name.split(" ")[0]}</span>
-      {label && <span className="text-[9px] px-1 py-0.5 rounded bg-[#faf8f5] text-[#5a6977]">{label}</span>}
+      <span className="whitespace-nowrap">{player.name.split(" ")[0]}</span>
+      {label && <span className="whitespace-nowrap text-[9px] px-1 py-0.5 rounded bg-[#faf8f5] text-[#5a6977]">{label}</span>}
     </div>
   );
 }
@@ -412,10 +412,10 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
         </div>
       </div>
 
-      {/* テーブル: 全幅の横長楕円 */}
+      {/* テーブル: 横長楕円(幅を短めにしてプレイヤー名のスペース確保) */}
       <div className="relative w-full p-5 pt-4" style={{ height: `${tableHeight + 40}px` }} onClick={onToggleExpand}>
         <div className="absolute rounded-[50%] bg-[#1a5c3a] border-[3px] border-[#2d7a4f]"
-          style={{ left: "12%", top: "20%", right: "12%", bottom: "20%" }}>
+          style={{ left: "22%", top: "20%", right: "22%", bottom: "20%" }}>
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <span className="text-[12px] text-white/90 font-medium block">{table.dealer !== "—" ? table.dealer : ""}</span>
@@ -424,11 +424,11 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
           </div>
         </div>
 
-        {/* 席 - 楕円の周囲に配置 */}
+        {/* 席 - 楕円の周囲に配置 (楕円幅に合わせて rx も縮小) */}
         {Array.from({ length: table.maxSeats }).map((_, i) => {
           const angle = (360 / table.maxSeats) * i - 90;
           const rad = (angle * Math.PI) / 180;
-          const rx = 44;
+          const rx = 34;
           const ry = 42;
           const cx = 50 + rx * Math.cos(rad);
           const cy = 50 + ry * Math.sin(rad);
