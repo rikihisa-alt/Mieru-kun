@@ -24,13 +24,13 @@ const DEMO: Customer[] = [
   { id: "c8", name: "中村 あゆみ", nickname: "アユ", rank: "regular", phone: "090-6789-0123", totalVisits: 2, totalSpent: 8000, chipBalance: 200, pointBalance: 80, lastVisit: "2026/03/20" },
 ];
 
-const RANK_BADGE: Record<Rank, string> = {
-  regular: "bg-[#faf8f5] text-[#5a6977]",
-  silver: "bg-[#faf8f5] text-[#5a6977]",
-  gold: "bg-[#fef7e0] text-[#d97706]",
-  vip: "bg-[#f3e8fd] text-[#7c3aed]",
+const RANK_TEXT: Record<Rank, string> = {
+  regular: "text-[#8e9baa]",
+  silver: "text-[#475569]",
+  gold: "text-[#d97706]",
+  vip: "text-[#7c3aed]",
 };
-const RANK_LABEL: Record<Rank, string> = { regular: "レギュラー", silver: "シルバー", gold: "ゴールド", vip: "VIP" };
+const RANK_LABEL: Record<Rank, string> = { regular: "Regular", silver: "SILVER", gold: "GOLD", vip: "VIP" };
 
 export default function CustomersPage() {
   const [search, setSearch] = useState("");
@@ -92,7 +92,7 @@ export default function CustomersPage() {
                   </div>
                 </td>
                 <td className="px-4 py-2.5">
-                  <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${RANK_BADGE[c.rank]}`}>{RANK_LABEL[c.rank]}</span>
+                  <span className={`text-[12px] font-semibold tracking-wider ${RANK_TEXT[c.rank]}`}>{RANK_LABEL[c.rank]}</span>
                 </td>
                 <td className="px-4 py-2.5 text-[#5a6977]">{c.totalVisits}回</td>
                 <td className="px-4 py-2.5 font-medium">¥{c.totalSpent.toLocaleString()}</td>
