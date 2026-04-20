@@ -31,46 +31,46 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-6">
-          <Link href="/" className="inline-flex flex-col items-center gap-2">
-            <Image src="/logo-icon.png" alt="みえるくん" width={48} height={48} />
-            <span className="text-[16px] font-bold text-text-primary">てんぽみえるくん</span>
+    <div className="min-h-screen bg-bg flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex flex-col items-center gap-3">
+            <Image src="/logo-icon.png" alt="みえるくん" width={80} height={80} />
+            <span className="text-[22px] font-bold text-text-primary tracking-tight">てんぽみえるくん</span>
           </Link>
         </div>
 
-        <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-6">
-          <h1 className="text-[16px] font-bold text-text-primary mb-5 text-center">ログイン</h1>
+        <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-8 shadow-sm">
+          <h1 className="text-[20px] font-bold text-text-primary mb-6 text-center">ログイン</h1>
 
           {error && (
-            <div className="mb-4 px-3 py-2 bg-status-danger-bg border border-status-danger/20 rounded-[var(--radius)] text-[12px] text-status-danger">
+            <div className="mb-5 px-4 py-3 bg-status-danger-bg border border-status-danger/20 rounded-[var(--radius)] text-[13px] text-status-danger">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[12px] font-medium text-text-secondary mb-1">メールアドレス</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
+              <label className="block text-[13px] font-medium text-text-secondary mb-1.5">メールアドレス</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={{ padding: "10px 12px", fontSize: "14px" }} />
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-text-secondary mb-1">パスワード</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" minLength={6} />
+              <label className="block text-[13px] font-medium text-text-secondary mb-1.5">パスワード</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" minLength={6} style={{ padding: "10px 12px", fontSize: "14px" }} />
             </div>
-            <button type="submit" disabled={loading} className="w-full py-2.5 bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors disabled:opacity-50">
+            <button type="submit" disabled={loading} className="w-full py-3 bg-accent text-white text-[15px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors disabled:opacity-50">
               {loading ? "ログイン中..." : "ログイン"}
             </button>
           </form>
 
           <div className="mt-4">
-            <button onClick={handleDemo} className="w-full py-2.5 bg-bg border border-border text-[13px] font-medium text-text-secondary rounded-[var(--radius)] hover:bg-bg-hover transition-colors">
+            <button onClick={handleDemo} className="w-full py-3 bg-bg border border-border text-[14px] font-medium text-text-secondary rounded-[var(--radius)] hover:bg-bg-hover transition-colors">
               デモモードで入る
             </button>
           </div>
 
-          <p className="mt-4 text-center text-[12px] text-text-tertiary">
-            アカウントをお持ちでない方は <Link href="/signup" className="text-accent hover:underline">新規登録</Link>
+          <p className="mt-6 text-center text-[13px] text-text-tertiary">
+            アカウントをお持ちでない方は <Link href="/signup" className="text-accent font-medium hover:underline">新規登録</Link>
           </p>
         </div>
       </div>
