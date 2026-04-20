@@ -21,10 +21,10 @@ export default function Home() {
       {/* ===== Header ===== */}
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-[#e8e4df]">
         <div className="w-full px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Image src="/logo-icon.png" alt="みえるくん" width={36} height={36} />
             <span className="text-[15px] font-bold text-[#2c3e50] tracking-tight">てんぽみえるくん</span>
-          </div>
+          </Link>
           <div className="flex items-center gap-6">
             <nav className="hidden md:flex items-center gap-5 text-[13px] text-[#5a6977]">
               <a href="#flow" className="hover:text-[#2c3e50]">運営フロー</a>
