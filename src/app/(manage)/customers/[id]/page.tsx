@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useParams } from "next/navigation";
 import {
   ArrowLeft,
   Phone,
@@ -81,7 +81,29 @@ const PRIZE_OPTIONS = [
   "記念品ギフトセット",
 ];
 
+// 顧客データ（一覧ページと整合）
+interface CustomerData {
+  name: string; phone: string; email: string; rank: Rank; notes: string;
+  totalVisits: number; totalSpent: number; chipBalance: number; pointBalance: number;
+}
+const CUSTOMER_DATA: Record<string, CustomerData> = {
+  c1: { name: "田中 太郎", phone: "090-1234-5678", email: "tanaka@example.com", rank: "gold", notes: "常連客。ウイスキーがお好み。誕生日: 3/15", totalVisits: 25, totalSpent: 150000, chipBalance: 5000, pointBalance: 1200 },
+  c2: { name: "鈴木 花子", phone: "090-2345-6789", email: "suzuki@example.com", rank: "vip", notes: "VIP常連。カクテル好き。", totalVisits: 50, totalSpent: 350000, chipBalance: 12000, pointBalance: 3500 },
+  c3: { name: "佐藤 健一", phone: "090-3456-7890", email: "sato@example.com", rank: "silver", notes: "", totalVisits: 10, totalSpent: 45000, chipBalance: 2000, pointBalance: 400 },
+  c4: { name: "高橋 美咲", phone: "", email: "", rank: "regular", notes: "", totalVisits: 3, totalSpent: 12000, chipBalance: 500, pointBalance: 100 },
+  c5: { name: "伊藤 大輔", phone: "090-4567-8901", email: "", rank: "regular", notes: "", totalVisits: 1, totalSpent: 3000, chipBalance: 0, pointBalance: 50 },
+  c6: { name: "渡辺 優子", phone: "090-5678-9012", email: "watanabe@example.com", rank: "gold", notes: "", totalVisits: 30, totalSpent: 200000, chipBalance: 8000, pointBalance: 2000 },
+  c7: { name: "山本 翔太", phone: "", email: "", rank: "silver", notes: "", totalVisits: 8, totalSpent: 32000, chipBalance: 1500, pointBalance: 300 },
+  c8: { name: "中村 あゆみ", phone: "090-6789-0123", email: "", rank: "regular", notes: "", totalVisits: 2, totalSpent: 8000, chipBalance: 200, pointBalance: 80 },
+};
+
+const DEFAULT_CUSTOMER: CustomerData = { name: "顧客", phone: "", email: "", rank: "regular", notes: "", totalVisits: 0, totalSpent: 0, chipBalance: 0, pointBalance: 0 };
+
 export default function CustomerDetailPage() {
+  const params = useParams();
+  const id = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : "";
+  const initial = CUSTOMER_DATA[id] ?? DEFAULT_CUSTOMER;
+
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const initialTab: Tab =
@@ -93,18 +115,18 @@ export default function CustomerDetailPage() {
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
 
   // Basic info state
-  const [name, setName] = useState("田中 太郎");
-  const [phone, setPhone] = useState("090-1234-5678");
-  const [email, setEmail] = useState("tanaka@example.com");
-  const [rank, setRank] = useState<Rank>("gold");
-  const [notes, setNotes] = useState("常連客。ウイスキーがお好み。誕生日: 3/15");
+  const [name, setName] = useState(initial.name);
+  const [phone, setPhone] = useState(initial.phone);
+  const [email, setEmail] = useState(initial.email);
+  const [rank, setRank] = useState<Rank>(initial.rank);
+  const [notes, setNotes] = useState(initial.notes);
   const [saveMsg, setSaveMsg] = useState(false);
 
   // Stats
-  const [visits, setVisits] = useState(25);
-  const [totalSpent] = useState(150000);
-  const [chipBalance, setChipBalance] = useState(5000);
-  const [pointBalance, setPointBalance] = useState(1200);
+  const [visits] = useState(initial.totalVisits);
+  const [totalSpent] = useState(initial.totalSpent);
+  const [chipBalance, setChipBalance] = useState(initial.chipBalance);
+  const [pointBalance, setPointBalance] = useState(initial.pointBalance);
 
   // Visit history
   const [visitHistory] = useState<VisitEntry[]>([

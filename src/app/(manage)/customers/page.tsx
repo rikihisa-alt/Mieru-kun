@@ -51,9 +51,11 @@ export default function CustomersPage() {
       {/* ツールバー */}
       <div className="flex items-center justify-between">
         <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8e9baa] pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8e9baa] pointer-events-none z-10" />
           <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="顧客名・電話番号で検索" className="w-full pl-10 pr-3 py-[7px] text-[13px] border border-[#d8d3cc] rounded-[6px] focus:outline-none focus:border-[#3a8f7c]" />
+            placeholder="顧客名・電話番号で検索"
+            style={{ paddingLeft: "36px" }}
+            className="w-full pr-3 py-[7px] text-[13px] border border-[#d8d3cc] rounded-[6px] focus:outline-none focus:border-[#3a8f7c]" />
         </div>
         <Link href="/customers/new"
           className="flex items-center gap-1 px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors">
@@ -84,7 +86,7 @@ export default function CustomersPage() {
             ) : filtered.map(c => (
               <tr key={c.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] transition-colors cursor-pointer" onClick={(e) => openMenu(c, e)}>
                 <td className="px-4 py-2.5">
-                  <Link href={`/customers/${c.id}`} onClick={(e) => e.stopPropagation()} className="font-medium text-[#3a8f7c] hover:underline">{c.name}</Link>
+                  <span className="font-medium text-[#3a8f7c] hover:underline">{c.name}</span>
                 </td>
                 <td className="px-4 py-2.5">
                   <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${RANK_BADGE[c.rank]}`}>{RANK_LABEL[c.rank]}</span>
