@@ -8,7 +8,7 @@ import { FileDown, DoorOpen, LogIn, LogOut as LogOutIcon, CalendarDays, CreditCa
 type EventType = "入店" | "退店" | "出勤" | "退勤" | "注文" | "精算" | "チップ" | "イベント";
 interface HistoryEntry {
   id: string; date: string; time: string; type: EventType;
-  name: string; detail?: string; amount?: number; rank?: string;
+  name: string; realName?: string; detail?: string; amount?: number; rank?: string;
 }
 
 const RANK_DOT: Record<string, string> = { regular: "#8e9baa", silver: "#5a6977", gold: "#d97706", vip: "#7c3aed" };
@@ -24,27 +24,27 @@ const TYPE_META: Record<EventType, { icon: React.ReactNode; color: string; bg: s
   "イベント": { icon: <CalendarDays className="w-3 h-3" />, color: "#7c3aed", bg: "#f3e8fd" },
 };
 
-// デモデータ
+// デモデータ (顧客はnickname=表示名、realName=本名を両方保持)
 const ALL_HISTORY: HistoryEntry[] = [
-  { id: "h1", date: "2026/04/14", time: "21:30", type: "入店", name: "田中 太郎", rank: "gold" },
-  { id: "h2", date: "2026/04/14", time: "21:20", type: "注文", name: "鈴木 花子", detail: "ウイスキー ×1", amount: 800, rank: "vip" },
-  { id: "h3", date: "2026/04/14", time: "21:15", type: "入店", name: "佐藤 花子", rank: "vip" },
+  { id: "h1", date: "2026/04/14", time: "21:30", type: "入店", name: "タロウ", realName: "田中 太郎", rank: "gold" },
+  { id: "h2", date: "2026/04/14", time: "21:20", type: "注文", name: "ハナ", realName: "鈴木 花子", detail: "ウイスキー ×1", amount: 800, rank: "vip" },
+  { id: "h3", date: "2026/04/14", time: "21:15", type: "入店", name: "ハナコ", realName: "佐藤 花子", rank: "vip" },
   { id: "h4", date: "2026/04/14", time: "21:00", type: "出勤", name: "山田 太郎", detail: "ディーラー" },
-  { id: "h5", date: "2026/04/14", time: "20:50", type: "チップ", name: "田中 太郎", detail: "+1,000枚", amount: 1000, rank: "gold" },
-  { id: "h6", date: "2026/04/14", time: "20:45", type: "入店", name: "鈴木 一郎", rank: "regular" },
-  { id: "h7", date: "2026/04/14", time: "20:40", type: "注文", name: "田中 太郎", detail: "ビール ×2, 枝豆 ×1", amount: 1500, rank: "gold" },
-  { id: "h8", date: "2026/04/14", time: "20:30", type: "精算", name: "高橋 美咲", detail: "現金", amount: 3200, rank: "silver" },
-  { id: "h9", date: "2026/04/14", time: "20:30", type: "退店", name: "高橋 美咲", rank: "silver" },
+  { id: "h5", date: "2026/04/14", time: "20:50", type: "チップ", name: "タロウ", realName: "田中 太郎", detail: "+1,000枚", amount: 1000, rank: "gold" },
+  { id: "h6", date: "2026/04/14", time: "20:45", type: "入店", name: "イチ", realName: "鈴木 一郎", rank: "regular" },
+  { id: "h7", date: "2026/04/14", time: "20:40", type: "注文", name: "タロウ", realName: "田中 太郎", detail: "ビール ×2, 枝豆 ×1", amount: 1500, rank: "gold" },
+  { id: "h8", date: "2026/04/14", time: "20:30", type: "精算", name: "ミィ", realName: "高橋 美咲", detail: "現金", amount: 3200, rank: "silver" },
+  { id: "h9", date: "2026/04/14", time: "20:30", type: "退店", name: "ミィ", realName: "高橋 美咲", rank: "silver" },
   { id: "h10", date: "2026/04/14", time: "20:15", type: "退勤", name: "伊藤 美咲", detail: "フロア" },
-  { id: "h11", date: "2026/04/14", time: "20:10", type: "入店", name: "渡辺 健太", rank: "regular" },
+  { id: "h11", date: "2026/04/14", time: "20:10", type: "入店", name: "ケンタ", realName: "渡辺 健太", rank: "regular" },
   { id: "h12", date: "2026/04/14", time: "20:00", type: "イベント", name: "VIPナイト", detail: "開始" },
-  { id: "h13", date: "2026/04/14", time: "19:30", type: "注文", name: "高橋 美咲", detail: "カクテル ×1, ピザ ×1", amount: 1500, rank: "silver" },
-  { id: "h14", date: "2026/04/14", time: "18:30", type: "入店", name: "高橋 美咲", rank: "silver" },
+  { id: "h13", date: "2026/04/14", time: "19:30", type: "注文", name: "ミィ", realName: "高橋 美咲", detail: "カクテル ×1, ピザ ×1", amount: 1500, rank: "silver" },
+  { id: "h14", date: "2026/04/14", time: "18:30", type: "入店", name: "ミィ", realName: "高橋 美咲", rank: "silver" },
   { id: "h15", date: "2026/04/14", time: "18:00", type: "出勤", name: "鈴木 一郎", detail: "ディーラー" },
   { id: "h16", date: "2026/04/14", time: "18:00", type: "出勤", name: "佐藤 花", detail: "フロア" },
   { id: "h17", date: "2026/04/14", time: "17:30", type: "出勤", name: "高橋 健", detail: "ディーラー" },
-  { id: "h18", date: "2026/04/13", time: "23:50", type: "精算", name: "渡辺 優子", detail: "カード", amount: 12000, rank: "gold" },
-  { id: "h19", date: "2026/04/13", time: "23:45", type: "退店", name: "渡辺 優子", rank: "gold" },
+  { id: "h18", date: "2026/04/13", time: "23:50", type: "精算", name: "ユウ", realName: "渡辺 優子", detail: "カード", amount: 12000, rank: "gold" },
+  { id: "h19", date: "2026/04/13", time: "23:45", type: "退店", name: "ユウ", realName: "渡辺 優子", rank: "gold" },
   { id: "h20", date: "2026/04/13", time: "22:00", type: "イベント", name: "ポーカー大会", detail: "終了" },
 ];
 
@@ -91,7 +91,8 @@ export default function HistoryPage() {
       html += `<div class="date-header">${date}</div>`;
       html += `<table><thead><tr><th>時間</th><th>種別</th><th>名前</th><th>詳細</th><th>金額</th></tr></thead><tbody>`;
       entries.forEach(e => {
-        html += `<tr><td>${e.time}</td><td>${e.type}</td><td>${e.name}</td><td>${e.detail ?? ""}</td><td>${e.amount ? "¥" + e.amount.toLocaleString() : ""}</td></tr>`;
+        const displayName = e.realName ? `${e.name}（${e.realName}）` : e.name;
+        html += `<tr><td>${e.time}</td><td>${e.type}</td><td>${displayName}</td><td>${e.detail ?? ""}</td><td>${e.amount ? "¥" + e.amount.toLocaleString() : ""}</td></tr>`;
       });
       html += `</tbody></table>`;
     });
@@ -146,6 +147,7 @@ export default function HistoryPage() {
                     <span className="text-[10px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: meta.color }}>{e.type}</span>
                     {e.rank && <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: RANK_DOT[e.rank] }} />}
                     <span className="text-[12px] font-medium text-[#2c3e50] truncate">{e.name}</span>
+                    {e.realName && <span className="text-[11px] text-[#8e9baa] truncate">（{e.realName}）</span>}
                     {e.detail && <span className="text-[11px] text-[#8e9baa] truncate">{e.detail}</span>}
                   </div>
                   {e.amount != null && (

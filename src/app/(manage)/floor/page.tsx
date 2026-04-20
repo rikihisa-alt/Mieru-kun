@@ -19,6 +19,7 @@ type Rank = "regular" | "silver" | "gold" | "vip";
 interface Visitor {
   id: string;
   name: string;
+  nickname: string;
   rank: Rank;
   checkInAt: string;
   table: string | null;
@@ -41,14 +42,14 @@ const RANK_DOT_COLORS: Record<Rank, string> = {
 };
 
 const PRESET_CUSTOMERS = [
-  { name: "田中 太郎", rank: "gold" as Rank },
-  { name: "佐藤 花子", rank: "vip" as Rank },
-  { name: "鈴木 一郎", rank: "regular" as Rank },
-  { name: "高橋 美咲", rank: "silver" as Rank },
-  { name: "渡辺 健太", rank: "regular" as Rank },
-  { name: "伊藤 誠", rank: "gold" as Rank },
-  { name: "山本 さくら", rank: "vip" as Rank },
-  { name: "中村 大輔", rank: "silver" as Rank },
+  { name: "田中 太郎", nickname: "タロウ", rank: "gold" as Rank },
+  { name: "佐藤 花子", nickname: "ハナコ", rank: "vip" as Rank },
+  { name: "鈴木 一郎", nickname: "イチ", rank: "regular" as Rank },
+  { name: "高橋 美咲", nickname: "ミィ", rank: "silver" as Rank },
+  { name: "渡辺 健太", nickname: "ケンタ", rank: "regular" as Rank },
+  { name: "伊藤 誠", nickname: "マコト", rank: "gold" as Rank },
+  { name: "山本 さくら", nickname: "サクラ", rank: "vip" as Rank },
+  { name: "中村 大輔", nickname: "ダイ", rank: "silver" as Rank },
 ];
 
 function now() {
@@ -69,14 +70,14 @@ function formatTimeOnly(isoStr: string): string {
 }
 
 const INITIAL_VISITORS: Visitor[] = [
-  { id: "v1", name: "田中 太郎", rank: "gold", checkInAt: new Date(Date.now() - 90 * 60000).toISOString(), table: "VIP-1", amount: 45000, status: "active" },
-  { id: "v2", name: "佐藤 花子", rank: "vip", checkInAt: new Date(Date.now() - 120 * 60000).toISOString(), table: "VIP-2", amount: 82000, status: "active" },
-  { id: "v3", name: "鈴木 一郎", rank: "regular", checkInAt: new Date(Date.now() - 45 * 60000).toISOString(), table: "A-3", amount: 12000, status: "active" },
-  { id: "v4", name: "高橋 美咲", rank: "silver", checkInAt: new Date(Date.now() - 30 * 60000).toISOString(), table: "B-1", amount: 8500, status: "active" },
-  { id: "v5", name: "渡辺 健太", rank: "regular", checkInAt: new Date(Date.now() - 60 * 60000).toISOString(), table: null, amount: 0, status: "unpaid" },
-  { id: "v6", name: "伊藤 誠", rank: "gold", checkInAt: new Date(Date.now() - 15 * 60000).toISOString(), table: null, amount: 0, status: "active" },
-  { id: "v7", name: "山本 さくら", rank: "vip", checkInAt: new Date(Date.now() - 10 * 60000).toISOString(), table: null, amount: 0, status: "active" },
-  { id: "v8", name: "中村 大輔", rank: "silver", checkInAt: new Date(Date.now() - 5 * 60000).toISOString(), table: null, amount: 0, status: "active" },
+  { id: "v1", name: "田中 太郎", nickname: "タロウ", rank: "gold", checkInAt: new Date(Date.now() - 90 * 60000).toISOString(), table: "VIP-1", amount: 45000, status: "active" },
+  { id: "v2", name: "佐藤 花子", nickname: "ハナコ", rank: "vip", checkInAt: new Date(Date.now() - 120 * 60000).toISOString(), table: "VIP-2", amount: 82000, status: "active" },
+  { id: "v3", name: "鈴木 一郎", nickname: "イチ", rank: "regular", checkInAt: new Date(Date.now() - 45 * 60000).toISOString(), table: "A-3", amount: 12000, status: "active" },
+  { id: "v4", name: "高橋 美咲", nickname: "ミィ", rank: "silver", checkInAt: new Date(Date.now() - 30 * 60000).toISOString(), table: "B-1", amount: 8500, status: "active" },
+  { id: "v5", name: "渡辺 健太", nickname: "ケンタ", rank: "regular", checkInAt: new Date(Date.now() - 60 * 60000).toISOString(), table: null, amount: 0, status: "unpaid" },
+  { id: "v6", name: "伊藤 誠", nickname: "マコト", rank: "gold", checkInAt: new Date(Date.now() - 15 * 60000).toISOString(), table: null, amount: 0, status: "active" },
+  { id: "v7", name: "山本 さくら", nickname: "サクラ", rank: "vip", checkInAt: new Date(Date.now() - 10 * 60000).toISOString(), table: null, amount: 0, status: "active" },
+  { id: "v8", name: "中村 大輔", nickname: "ダイ", rank: "silver", checkInAt: new Date(Date.now() - 5 * 60000).toISOString(), table: null, amount: 0, status: "active" },
 ];
 
 export default function FloorPage() {
@@ -88,9 +89,9 @@ export default function FloorPage() {
   const [newRank, setNewRank] = useState<Rank>("regular");
   const [showCheckinModal, setShowCheckinModal] = useState(false);
   const [recentEntries, setRecentEntries] = useState<{ name: string; time: string }[]>([
-    { name: "中村 大輔", time: formatTimeOnly(new Date(Date.now() - 5 * 60000).toISOString()) },
-    { name: "山本 さくら", time: formatTimeOnly(new Date(Date.now() - 10 * 60000).toISOString()) },
-    { name: "伊藤 誠", time: formatTimeOnly(new Date(Date.now() - 15 * 60000).toISOString()) },
+    { name: "ダイ", time: formatTimeOnly(new Date(Date.now() - 5 * 60000).toISOString()) },
+    { name: "サクラ", time: formatTimeOnly(new Date(Date.now() - 10 * 60000).toISOString()) },
+    { name: "マコト", time: formatTimeOnly(new Date(Date.now() - 15 * 60000).toISOString()) },
   ]);
 
   const activeCount = visitors.filter((v) => v.status === "active" || v.status === "assigned").length;
@@ -102,17 +103,20 @@ export default function FloorPage() {
 
   function handleCheckIn() {
     let name = "";
+    let nickname = "";
     let rank: Rank = "regular";
 
     if (showNewForm) {
       if (!newName.trim()) return;
       name = newName.trim();
+      nickname = "";
       rank = newRank;
     } else {
       if (!selectedPreset) return;
       const preset = PRESET_CUSTOMERS.find((c) => c.name === selectedPreset);
       if (!preset) return;
       name = preset.name;
+      nickname = preset.nickname;
       rank = preset.rank;
     }
 
@@ -122,6 +126,7 @@ export default function FloorPage() {
     const newVisitor: Visitor = {
       id: `v${Date.now()}`,
       name,
+      nickname,
       rank,
       checkInAt: now(),
       table: null,
@@ -131,11 +136,11 @@ export default function FloorPage() {
 
     setVisitors((prev) => [newVisitor, ...prev]);
     setRecentEntries((prev) => [
-      { name, time: formatTimeOnly(now()) },
+      { name: nickname || name, time: formatTimeOnly(now()) },
       ...prev.slice(0, 2),
     ]);
     // グローバルストアにも反映（ダッシュボード連動）
-    try { appStore.addVisitor(name, rank); } catch { /* provider外の場合 */ }
+    try { appStore.addVisitor(nickname || name, rank); } catch { /* provider外の場合 */ }
     setSelectedPreset("");
     setNewName("");
     setNewRank("regular");
@@ -219,7 +224,7 @@ export default function FloorPage() {
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-[#e8e4df]">
-                <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">顧客名</th>
+                <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ニックネーム / 本名</th>
                 <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ランク</th>
                 <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">入店</th>
                 <th className="px-4 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">卓</th>
@@ -244,8 +249,9 @@ export default function FloorPage() {
                   }`}
                 >
                   <td className="px-4 py-2.5 font-medium text-[#2c3e50]">
-                    <div className="flex items-center gap-2">
-                      {v.name}
+                    <div className="flex items-baseline gap-2">
+                      <span>{v.nickname || v.name}</span>
+                      {v.nickname && <span className="text-[11px] text-[#8e9baa]">{v.name}</span>}
                       {(v.rank === "vip" || v.rank === "gold") && (
                         <span className={`inline px-1.5 py-0.5 text-[10px] font-medium rounded-[4px] ${
                           v.rank === "vip" ? "bg-[#f3e8fd] text-[#7c3aed]" : "bg-[#fef3c7] text-[#d97706]"
@@ -318,7 +324,8 @@ export default function FloorPage() {
                       className="inline-block w-[8px] h-[8px] rounded-full"
                       style={{ backgroundColor: RANK_DOT_COLORS[v.rank] }}
                     />
-                    <span className="text-[13px] font-medium text-[#2c3e50]">{v.name}</span>
+                    <span className="text-[13px] font-medium text-[#2c3e50]">{v.nickname || v.name}</span>
+                    {v.nickname && <span className="text-[11px] text-[#8e9baa]">{v.name}</span>}
                     {(v.rank === "vip" || v.rank === "gold") && (
                       <span className={`inline px-1.5 py-0.5 text-[10px] font-medium rounded-[4px] ${
                         v.rank === "vip" ? "bg-[#f3e8fd] text-[#7c3aed]" : "bg-[#fef3c7] text-[#d97706]"
@@ -355,7 +362,7 @@ export default function FloorPage() {
                 <select value={selectedPreset} onChange={e => setSelectedPreset(e.target.value)} className="text-[13px]">
                   <option value="">顧客を選択...</option>
                   {PRESET_CUSTOMERS.filter(c => !visitors.find(v => v.name === c.name)).map(c => (
-                    <option key={c.name} value={c.name}>{c.name} ({RANK_LABELS[c.rank]})</option>
+                    <option key={c.name} value={c.name}>{c.nickname}（{c.name}） - {RANK_LABELS[c.rank]}</option>
                   ))}
                 </select>
                 <button onClick={() => setShowNewForm(true)} className="w-full text-left px-3 py-2 text-[12px] text-[#3a8f7c] hover:bg-[#e8f5f0] rounded-[6px] flex items-center gap-1">

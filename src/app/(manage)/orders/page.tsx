@@ -6,7 +6,7 @@ import { ShoppingBag, CreditCard, Plus, Minus, CheckCircle, X, ChevronDown } fro
 
 interface CartItem { name: string; price: number; qty: number; }
 interface Visit {
-  id: string; customer: string; rank: string; table: string;
+  id: string; customer: string; customerNickname: string; rank: string; table: string;
   items: CartItem[]; total: number; status: "active" | "settled";
 }
 
@@ -19,10 +19,10 @@ const PRODUCTS = [
 ];
 
 const INIT: Visit[] = [
-  { id: "v1", customer: "田中 太郎", rank: "gold", table: "T1", items: [{ name: "ビール", price: 600, qty: 2 }, { name: "枝豆", price: 300, qty: 1 }], total: 1500, status: "active" },
-  { id: "v2", customer: "鈴木 花子", rank: "vip", table: "T1", items: [{ name: "ウイスキー", price: 800, qty: 1 }], total: 800, status: "active" },
-  { id: "v3", customer: "佐藤 健一", rank: "silver", table: "T3", items: [], total: 0, status: "active" },
-  { id: "v4", customer: "高橋 美咲", rank: "regular", table: "T3", items: [{ name: "ソフトドリンク", price: 300, qty: 1 }], total: 300, status: "settled" },
+  { id: "v1", customer: "田中 太郎", customerNickname: "タロウ", rank: "gold", table: "T1", items: [{ name: "ビール", price: 600, qty: 2 }, { name: "枝豆", price: 300, qty: 1 }], total: 1500, status: "active" },
+  { id: "v2", customer: "鈴木 花子", customerNickname: "ハナ", rank: "vip", table: "T1", items: [{ name: "ウイスキー", price: 800, qty: 1 }], total: 800, status: "active" },
+  { id: "v3", customer: "佐藤 健一", customerNickname: "ケン", rank: "silver", table: "T3", items: [], total: 0, status: "active" },
+  { id: "v4", customer: "高橋 美咲", customerNickname: "ミィ", rank: "regular", table: "T3", items: [{ name: "ソフトドリンク", price: 300, qty: 1 }], total: 300, status: "settled" },
 ];
 
 export default function OrdersPage() {
@@ -77,7 +77,7 @@ export default function OrdersPage() {
         <table className="w-full text-[13px]">
           <thead><tr className="border-b border-[#e8e4df]">
             <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left w-8"></th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">顧客</th>
+            <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">ニックネーム / 本名</th>
             <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">卓</th>
             <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">注文</th>
             <th className="px-4 py-2.5 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">金額</th>
@@ -91,7 +91,12 @@ export default function OrdersPage() {
                 <td className="px-4 py-2.5">
                   <ChevronDown className={`w-3.5 h-3.5 text-[#8e9baa] transition-transform ${expandedId === v.id ? "rotate-180" : ""}`} />
                 </td>
-                <td className="px-4 py-2.5 font-medium">{v.customer}</td>
+                <td className="px-4 py-2.5 font-medium">
+                  <div className="flex items-baseline gap-2">
+                    <span>{v.customerNickname || v.customer}</span>
+                    {v.customerNickname && <span className="text-[11px] text-[#8e9baa] font-normal">{v.customer}</span>}
+                  </div>
+                </td>
                 <td className="px-4 py-2.5 text-[#5a6977]">{v.table}</td>
                 <td className="px-4 py-2.5 text-[#5a6977]">{v.items.reduce((s, i) => s + i.qty, 0)}点</td>
                 <td className="px-4 py-2.5 font-medium">¥{v.total.toLocaleString()}</td>
@@ -159,7 +164,8 @@ export default function OrdersPage() {
             <div className="bg-white rounded-[8px] w-full max-w-md max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between px-5 py-3 border-b border-[#e8e4df]">
                 <div>
-                  <span className="text-[14px] font-semibold">{v.customer}</span>
+                  <span className="text-[14px] font-semibold">{v.customerNickname || v.customer}</span>
+                  {v.customerNickname && <span className="text-[11px] text-[#8e9baa] ml-2">{v.customer}</span>}
                   <span className="text-[11px] text-[#8e9baa] ml-2">卓 {v.table}</span>
                 </div>
                 <button onClick={() => setOrderModalId(null)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><X className="w-4 h-4 text-[#8e9baa]" /></button>
@@ -201,7 +207,7 @@ export default function OrdersPage() {
             <div className="bg-white rounded-[8px] w-full max-w-sm p-5" onClick={e => e.stopPropagation()}>
               <h3 className="text-[14px] font-semibold mb-4">精算確認</h3>
               <div className="text-[12px] space-y-2 mb-4">
-                <div className="flex justify-between"><span className="text-[#8e9baa]">顧客</span><span className="font-medium">{v.customer}</span></div>
+                <div className="flex justify-between"><span className="text-[#8e9baa]">顧客</span><span className="font-medium">{v.customerNickname ? `${v.customerNickname}（${v.customer}）` : v.customer}</span></div>
                 <div className="flex justify-between items-end"><span className="text-[#8e9baa]">合計</span><span className="text-[22px] font-bold">¥{v.total.toLocaleString()}</span></div>
                 <div>
                   <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">支払方法</label>

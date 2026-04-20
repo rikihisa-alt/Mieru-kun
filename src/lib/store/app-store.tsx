@@ -8,7 +8,7 @@ export type VisitorStatus = "active" | "settled" | "unpaid" | "unassigned";
 export type TimelineType = "入店" | "退店" | "出勤" | "退勤" | "注文" | "精算" | "チップ" | "イベント";
 
 export interface Visitor {
-  id: string; name: string; rank: Rank; status: VisitorStatus;
+  id: string; name: string; realName?: string; rank: Rank; status: VisitorStatus;
   table: string; amount: number; time: string;
 }
 export interface StaffMember {
@@ -17,7 +17,7 @@ export interface StaffMember {
 }
 export interface TimelineEvent {
   id: string; time: string; type: TimelineType; name: string;
-  detail?: string; amount?: number; rank?: string;
+  realName?: string; detail?: string; amount?: number; rank?: string;
 }
 export interface EventItem {
   id: string; title: string; time: string; status: "進行中" | "準備中" | "完了";
@@ -42,16 +42,16 @@ const INIT_TABLES: TableInfo[] = [
   { name: "テーブル4", occupied: 0, max: 6, type: "サイド" },
 ];
 
-// 来店中の顧客（卓管理のプレイヤーと一致）
+// 来店中の顧客（卓管理のプレイヤーと一致） name=ニックネーム、realName=本名
 const INIT_VISITORS: Visitor[] = [
-  { id: "v1", name: "田中 太郎", rank: "gold", status: "active", table: "テーブル1", amount: 1500, time: "18:30" },
-  { id: "v2", name: "鈴木 花子", rank: "vip", status: "active", table: "テーブル1", amount: 800, time: "19:15" },
-  { id: "v3", name: "佐藤 健一", rank: "silver", status: "active", table: "テーブル1", amount: 0, time: "20:00" },
-  { id: "v4", name: "高橋 美咲", rank: "regular", status: "active", table: "テーブル3", amount: 300, time: "20:10" },
-  { id: "v5", name: "伊藤 大輔", rank: "regular", status: "active", table: "テーブル3", amount: 0, time: "20:20" },
-  { id: "v6", name: "中村 あゆみ", rank: "regular", status: "active", table: "テーブル2", amount: 0, time: "20:30" },
-  { id: "v7", name: "渡辺 優子", rank: "gold", status: "unassigned", table: "", amount: 0, time: "20:45" },
-  { id: "v8", name: "山本 翔太", rank: "silver", status: "unassigned", table: "", amount: 0, time: "21:00" },
+  { id: "v1", name: "タロウ", realName: "田中 太郎", rank: "gold", status: "active", table: "テーブル1", amount: 1500, time: "18:30" },
+  { id: "v2", name: "ハナ", realName: "鈴木 花子", rank: "vip", status: "active", table: "テーブル1", amount: 800, time: "19:15" },
+  { id: "v3", name: "ケン", realName: "佐藤 健一", rank: "silver", status: "active", table: "テーブル1", amount: 0, time: "20:00" },
+  { id: "v4", name: "ミィ", realName: "高橋 美咲", rank: "regular", status: "active", table: "テーブル3", amount: 300, time: "20:10" },
+  { id: "v5", name: "ダイ", realName: "伊藤 大輔", rank: "regular", status: "active", table: "テーブル3", amount: 0, time: "20:20" },
+  { id: "v6", name: "アユ", realName: "中村 あゆみ", rank: "regular", status: "active", table: "テーブル2", amount: 0, time: "20:30" },
+  { id: "v7", name: "ユウ", realName: "渡辺 優子", rank: "gold", status: "unassigned", table: "", amount: 0, time: "20:45" },
+  { id: "v8", name: "ショウ", realName: "山本 翔太", rank: "silver", status: "unassigned", table: "", amount: 0, time: "21:00" },
 ];
 
 // スタッフ
@@ -63,19 +63,19 @@ const INIT_STAFF: StaffMember[] = [
   { id: "s5", name: "伊藤 美咲", role: "フロア", status: "off", clockIn: null },
 ];
 
-// タイムライン
+// タイムライン（顧客はnickname、スタッフはそのまま本名）
 const INIT_TIMELINE: TimelineEvent[] = [
-  { id: "tl1", time: "21:00", type: "入店", name: "山本 翔太", rank: "silver" },
-  { id: "tl2", time: "20:45", type: "入店", name: "渡辺 優子", rank: "gold" },
-  { id: "tl3", time: "20:30", type: "入店", name: "中村 あゆみ", rank: "regular" },
-  { id: "tl4", time: "20:20", type: "入店", name: "伊藤 大輔", rank: "regular" },
-  { id: "tl5", time: "20:10", type: "入店", name: "高橋 美咲", rank: "regular" },
+  { id: "tl1", time: "21:00", type: "入店", name: "ショウ", realName: "山本 翔太", rank: "silver" },
+  { id: "tl2", time: "20:45", type: "入店", name: "ユウ", realName: "渡辺 優子", rank: "gold" },
+  { id: "tl3", time: "20:30", type: "入店", name: "アユ", realName: "中村 あゆみ", rank: "regular" },
+  { id: "tl4", time: "20:20", type: "入店", name: "ダイ", realName: "伊藤 大輔", rank: "regular" },
+  { id: "tl5", time: "20:10", type: "入店", name: "ミィ", realName: "高橋 美咲", rank: "regular" },
   { id: "tl6", time: "20:00", type: "イベント", name: "VIPナイト", detail: "開始" },
-  { id: "tl7", time: "20:00", type: "入店", name: "佐藤 健一", rank: "silver" },
-  { id: "tl8", time: "19:15", type: "注文", name: "鈴木 花子", detail: "ウイスキー ×1", amount: 800, rank: "vip" },
-  { id: "tl9", time: "19:15", type: "入店", name: "鈴木 花子", rank: "vip" },
-  { id: "tl10", time: "18:30", type: "注文", name: "田中 太郎", detail: "ビール ×2, 枝豆 ×1", amount: 1500, rank: "gold" },
-  { id: "tl11", time: "18:30", type: "入店", name: "田中 太郎", rank: "gold" },
+  { id: "tl7", time: "20:00", type: "入店", name: "ケン", realName: "佐藤 健一", rank: "silver" },
+  { id: "tl8", time: "19:15", type: "注文", name: "ハナ", realName: "鈴木 花子", detail: "ウイスキー ×1", amount: 800, rank: "vip" },
+  { id: "tl9", time: "19:15", type: "入店", name: "ハナ", realName: "鈴木 花子", rank: "vip" },
+  { id: "tl10", time: "18:30", type: "注文", name: "タロウ", realName: "田中 太郎", detail: "ビール ×2, 枝豆 ×1", amount: 1500, rank: "gold" },
+  { id: "tl11", time: "18:30", type: "入店", name: "タロウ", realName: "田中 太郎", rank: "gold" },
   { id: "tl12", time: "18:15", type: "出勤", name: "高橋 健", detail: "ディーラー" },
   { id: "tl13", time: "18:00", type: "出勤", name: "山田 太郎", detail: "ディーラー" },
   { id: "tl14", time: "18:00", type: "出勤", name: "鈴木 一郎", detail: "ディーラー" },

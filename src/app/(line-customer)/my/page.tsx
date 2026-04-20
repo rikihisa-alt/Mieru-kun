@@ -2,16 +2,18 @@ import Link from "next/link";
 import { Coins, Trophy, History, ChevronRight } from "lucide-react";
 
 export default function MyPage() {
-  const c = { name: "田中 太郎", rank: "ゴールド", chips: 5000, points: 1200, visits: 25 };
+  const c = { name: "田中 太郎", nickname: "タロウ", rank: "ゴールド", chips: 5000, points: 1200, visits: 25 };
+  const displayName = c.nickname || c.name;
 
   return (
     <div className="space-y-3">
       {/* プロフィール */}
       <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4 text-center">
         <div className="w-12 h-12 rounded-full bg-accent-light flex items-center justify-center mx-auto mb-2">
-          <span className="text-[18px] font-bold text-accent">{c.name.charAt(0)}</span>
+          <span className="text-[18px] font-bold text-accent">{displayName.charAt(0)}</span>
         </div>
-        <p className="text-[15px] font-bold">{c.name}</p>
+        <p className="text-[15px] font-bold">{displayName}</p>
+        {c.nickname && <p className="text-[11px] text-text-tertiary">{c.name}</p>}
         <span className="inline-block mt-1 px-2 py-0.5 text-[11px] font-medium rounded-[var(--radius-sm)] bg-status-warning-bg text-status-warning">
           {c.rank}
         </span>

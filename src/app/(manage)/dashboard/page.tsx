@@ -164,6 +164,7 @@ export default function DashboardPage() {
                       <span className="text-[10px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: t.color }}>{ev.type}</span>
                       {ev.rank && <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: RANK_DOT[ev.rank] }} />}
                       <span className="text-[12px] font-medium text-[#2c3e50] truncate">{ev.name}</span>
+                      {ev.realName && <span className="text-[11px] text-[#8e9baa] flex-shrink-0">（{ev.realName}）</span>}
                       {ev.detail && <span className="text-[11px] text-[#8e9baa] flex-shrink-0">{ev.detail}</span>}
                     </div>
                   </div>
