@@ -42,10 +42,10 @@ export function Sidebar() {
 
   return (
     <aside className="w-56 bg-bg-white border-r border-border flex flex-col h-full">
-      <div className="h-16 flex items-center px-3 border-b border-border">
-        <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
-          <Image src="/logo-icon.png" alt="みえるくん" width={44} height={44} className="shrink-0" />
-          <span className="text-[14px] font-bold text-text-primary tracking-tight whitespace-nowrap">てんぽみえるくん</span>
+      <div className="h-20 flex items-center px-2 border-b border-border">
+        <Link href="/dashboard" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity min-w-0">
+          <Image src="/logo-icon.png" alt="みえるくん" width={64} height={64} className="shrink-0" />
+          <span className="text-[13px] font-bold text-text-primary tracking-tight whitespace-nowrap">てんぽみえるくん</span>
         </Link>
       </div>
 
