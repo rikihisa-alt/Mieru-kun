@@ -42,9 +42,9 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 bg-bg-white border-r border-border flex flex-col h-full">
-      <div className="h-14 flex items-center px-1 border-b border-border overflow-visible">
-        <Link href="/dashboard" className="flex items-center gap-1 hover:opacity-80 transition-opacity min-w-0">
-          <Image src="/logo-icon.png" alt="みえるくん" width={120} height={120} className="shrink-0 -my-8" />
+      <div className="h-14 flex items-center px-2 border-b border-border">
+        <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
+          <Image src="/logo-icon.png" alt="みえるくん" width={48} height={48} className="shrink-0" />
           <span className="text-[13px] font-bold text-text-primary tracking-tight whitespace-nowrap">てんぽみえるくん</span>
         </Link>
       </div>
