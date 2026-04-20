@@ -26,15 +26,15 @@ export default function LiveStatusPage() {
       {/* 混雑度 */}
       <div>
         <div className="flex items-baseline gap-3 mb-3">
-          <h2 className="text-[15px] font-semibold text-[#2c3e50]">現在の混雑度</h2>
+          <h2 className="text-[15px] font-semibold text-text-primary">現在の混雑度</h2>
           <span className="text-[13px] font-semibold tracking-wider" style={{ color: level.color }}>
             {level.label}
           </span>
         </div>
-        <div className="h-2 bg-[#f3f0ec] rounded-full overflow-hidden">
+        <div className="h-2 bg-bg-hover rounded-full overflow-hidden">
           <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, backgroundColor: level.color }} />
         </div>
-        <div className="flex justify-between mt-1 text-[10px] text-[#8e9baa]">
+        <div className="flex justify-between mt-1 text-[10px] text-text-tertiary">
           <span>0</span><span>50</span><span>100</span>
         </div>
       </div>
@@ -49,14 +49,14 @@ export default function LiveStatusPage() {
 
       {/* 卓内訳 */}
       <div>
-        <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">卓別稼働</h3>
+        <h3 className="text-[13px] font-semibold text-text-primary mb-2">卓別稼働</h3>
         <table className="w-full text-[13px]">
           <thead>
-            <tr className="border-b border-[#e8e4df]">
-              <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">卓</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">種別</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">稼働</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">占有率</th>
+            <tr className="border-b border-border-light">
+              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">卓</th>
+              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">種別</th>
+              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">稼働</th>
+              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">占有率</th>
             </tr>
           </thead>
           <tbody>
@@ -64,15 +64,15 @@ export default function LiveStatusPage() {
               const pct = t.max > 0 ? (t.occupied / t.max) * 100 : 0;
               const color = pct >= 100 ? "#c0392b" : pct >= 70 ? "#c87b1a" : pct > 0 ? "#3a8f7c" : "#8e9baa";
               return (
-                <tr key={t.name} className="border-b border-[#f3f0ec]">
+                <tr key={t.name} className="border-b border-border-light">
                   <td className="px-3 py-2 font-medium">{t.name}</td>
-                  <td className="px-3 py-2 text-[#5a6977]">{t.type}</td>
+                  <td className="px-3 py-2 text-text-secondary">{t.type}</td>
                   <td className="px-3 py-2">
                     <span className="font-semibold" style={{ color }}>{t.occupied}</span>
-                    <span className="text-[#8e9baa]"> / {t.max}</span>
+                    <span className="text-text-tertiary"> / {t.max}</span>
                   </td>
                   <td className="px-3 py-2">
-                    <div className="h-[5px] w-32 bg-[#f3f0ec] rounded-full overflow-hidden">
+                    <div className="h-[5px] w-32 bg-bg-hover rounded-full overflow-hidden">
                       <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
                     </div>
                   </td>
@@ -83,8 +83,8 @@ export default function LiveStatusPage() {
         </table>
       </div>
 
-      <div className="pt-4 border-t border-[#e8e4df]">
-        <p className="text-[12px] text-[#8e9baa] flex items-center gap-1">
+      <div className="pt-4 border-t border-border-light">
+        <p className="text-[12px] text-text-tertiary flex items-center gap-1">
           <Timer className="w-3 h-3" />
           データは5秒ごとに自動更新（デモ環境では静的表示）
         </p>
@@ -95,11 +95,11 @@ export default function LiveStatusPage() {
 
 function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3 border border-[#e8e4df] rounded-[6px]">
-      <div className="w-8 h-8 rounded-[6px] bg-[#f3f0ec] flex items-center justify-center text-[#5a6977]">{icon}</div>
+    <div className="flex items-center gap-3 px-4 py-3 border border-border-light rounded-[6px]">
+      <div className="w-8 h-8 rounded-[6px] bg-bg-hover flex items-center justify-center text-text-secondary">{icon}</div>
       <div>
-        <div className="text-[11px] text-[#8e9baa]">{label}</div>
-        <div className="text-[16px] font-bold text-[#2c3e50]">{value}</div>
+        <div className="text-[11px] text-text-tertiary">{label}</div>
+        <div className="text-[16px] font-bold text-text-primary">{value}</div>
       </div>
     </div>
   );

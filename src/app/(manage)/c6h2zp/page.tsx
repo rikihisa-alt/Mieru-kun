@@ -76,14 +76,14 @@ export default function RankingPage() {
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex gap-1">
           {(Object.keys(METRIC_LABEL) as Metric[]).map((m) => (
-            <button key={m} onClick={() => setMetric(m)} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${metric === m ? "bg-[#2c3e50] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"}`}>
+            <button key={m} onClick={() => setMetric(m)} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${metric === m ? "bg-text-primary text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
               {METRIC_LABEL[m]}
             </button>
           ))}
         </div>
         <div className="ml-auto flex gap-1">
           {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
-            <button key={p} onClick={() => setPeriod(p)} className={`px-2 py-1 text-[11px] rounded-[4px] ${period === p ? "bg-[#3a8f7c] text-white" : "text-[#8e9baa] hover:bg-[#f3f0ec]"}`}>
+            <button key={p} onClick={() => setPeriod(p)} className={`px-2 py-1 text-[11px] rounded-[4px] ${period === p ? "bg-accent text-white" : "text-text-tertiary hover:bg-bg-hover"}`}>
               {PERIOD_LABEL[p]}
             </button>
           ))}
@@ -96,11 +96,11 @@ export default function RankingPage() {
           const display = r.publicLevel === "public" ? `${r.nickname} (${r.realName})` : r.publicLevel === "nickname_only" ? r.nickname : "非公開";
           const podiumColor = r.rank === 1 ? "#d97706" : r.rank === 2 ? "#6b7280" : "#a16207";
           return (
-            <div key={r.rank} className="border border-[#e8e4df] rounded-[8px] p-4 text-center bg-gradient-to-b from-[#faf8f5] to-white">
+            <div key={r.rank} className="border border-border-light rounded-[8px] p-4 text-center bg-gradient-to-b from-bg-hover to-white">
               <Medal className="w-6 h-6 mx-auto mb-1" style={{ color: podiumColor }} />
-              <div className="text-[11px] text-[#8e9baa] font-semibold tracking-wider">{r.rank === 1 ? "GOLD" : r.rank === 2 ? "SILVER" : "BRONZE"}</div>
-              <div className="text-[15px] font-bold text-[#2c3e50] mt-1">{display}</div>
-              <div className="text-[20px] font-bold text-[#2c3e50] mt-2">{r.value.toLocaleString()}</div>
+              <div className="text-[11px] text-text-tertiary font-semibold tracking-wider">{r.rank === 1 ? "GOLD" : r.rank === 2 ? "SILVER" : "BRONZE"}</div>
+              <div className="text-[15px] font-bold text-text-primary mt-1">{display}</div>
+              <div className="text-[20px] font-bold text-text-primary mt-2">{r.value.toLocaleString()}</div>
             </div>
           );
         })}
@@ -108,14 +108,14 @@ export default function RankingPage() {
 
       {/* 以降のランキング */}
       <div>
-        <h3 className="text-[13px] font-semibold text-[#2c3e50] mb-2">4位以降</h3>
+        <h3 className="text-[13px] font-semibold text-text-primary mb-2">4位以降</h3>
         <table className="w-full text-[13px]">
           <tbody>
             {rows.slice(3).map((r) => {
               const display = r.publicLevel === "public" ? `${r.nickname} (${r.realName})` : r.publicLevel === "nickname_only" ? r.nickname : "非公開";
               return (
-                <tr key={r.rank} className="border-b border-[#f3f0ec]">
-                  <td className="px-3 py-2 w-10 text-[#8e9baa] font-mono">{r.rank}</td>
+                <tr key={r.rank} className="border-b border-border-light">
+                  <td className="px-3 py-2 w-10 text-text-tertiary font-mono">{r.rank}</td>
                   <td className="px-3 py-2 font-medium">{display}</td>
                   <td className="px-3 py-2 text-right font-bold">{r.value.toLocaleString()}</td>
                 </tr>
@@ -123,14 +123,14 @@ export default function RankingPage() {
             })}
             {rows.length <= 3 && (
               <tr>
-                <td colSpan={3} className="px-3 py-6 text-center text-[#8e9baa] text-[12px]">4位以降は記録なし</td>
+                <td colSpan={3} className="px-3 py-6 text-center text-text-tertiary text-[12px]">4位以降は記録なし</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <div className="pt-2 text-[11px] text-[#8e9baa] flex items-center gap-1">
+      <div className="pt-2 text-[11px] text-text-tertiary flex items-center gap-1">
         <Trophy className="w-3 h-3" />公開範囲: フルネーム/ニックネームのみ/非公開 は会員設定で管理
       </div>
     </div>

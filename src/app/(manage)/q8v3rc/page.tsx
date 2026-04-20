@@ -38,7 +38,7 @@ export default function AuditLogPage() {
 
   return (
     <div className="space-y-4 max-w-5xl">
-      <div className="px-4 py-3 bg-[#e8f5f0] border border-[#3a8f7c]/20 rounded-[6px] text-[12px] text-[#2e7d5b] flex items-start gap-2">
+      <div className="px-4 py-3 bg-accent-light border border-accent/20 rounded-[6px] text-[12px] text-status-success flex items-start gap-2">
         <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
         <div>
           監査ログはオーナー権限のみ閲覧可能です。個人情報の閲覧・編集・削除・エクスポートは全て記録されます。
@@ -46,33 +46,33 @@ export default function AuditLogPage() {
       </div>
 
       <div className="flex items-center gap-1">
-        <button onClick={() => setFilter("all")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${filter === "all" ? "bg-[#2c3e50] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"}`}>
+        <button onClick={() => setFilter("all")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${filter === "all" ? "bg-text-primary text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
           すべて
         </button>
-        <button onClick={() => setFilter("sensitive")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${filter === "sensitive" ? "bg-[#c0392b] text-white" : "text-[#5a6977] hover:bg-[#f3f0ec]"}`}>
+        <button onClick={() => setFilter("sensitive")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${filter === "sensitive" ? "bg-[#c0392b] text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
           重要操作のみ
         </button>
-        <span className="ml-auto text-[11px] text-[#8e9baa]">{rows.length}件</span>
+        <span className="ml-auto text-[11px] text-text-tertiary">{rows.length}件</span>
       </div>
 
       <table className="w-full text-[13px]">
         <thead>
-          <tr className="border-b border-[#e8e4df]">
-            <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">日時</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">実行者</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">操作</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">対象</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider text-left">IP</th>
+          <tr className="border-b border-border-light">
+            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">日時</th>
+            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">実行者</th>
+            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">操作</th>
+            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">対象</th>
+            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">IP</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => {
             const meta = ACTION_META[r.action] ?? { icon: <FileText className="w-3 h-3" />, color: "#5a6977", label: r.action };
             return (
-              <tr key={r.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5]">
-                <td className="px-3 py-2 font-mono text-[11px] text-[#5a6977]">{r.createdAt}</td>
-                <td className="px-3 py-2 flex items-center gap-1 text-[#2c3e50]">
-                  <User className="w-3 h-3 text-[#8e9baa]" />
+              <tr key={r.id} className="border-b border-border-light hover:bg-bg-hover">
+                <td className="px-3 py-2 font-mono text-[11px] text-text-secondary">{r.createdAt}</td>
+                <td className="px-3 py-2 flex items-center gap-1 text-text-primary">
+                  <User className="w-3 h-3 text-text-tertiary" />
                   {r.actor}
                 </td>
                 <td className="px-3 py-2">
@@ -80,10 +80,10 @@ export default function AuditLogPage() {
                     {meta.icon}{meta.label}
                   </span>
                 </td>
-                <td className="px-3 py-2 font-mono text-[11px] text-[#5a6977]">
+                <td className="px-3 py-2 font-mono text-[11px] text-text-secondary">
                   {r.targetTable} / {r.targetId}
                 </td>
-                <td className="px-3 py-2 font-mono text-[11px] text-[#8e9baa]">{r.ip}</td>
+                <td className="px-3 py-2 font-mono text-[11px] text-text-tertiary">{r.ip}</td>
               </tr>
             );
           })}

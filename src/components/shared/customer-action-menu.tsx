@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, ShoppingBag, Coins, CreditCard, User } from "lucide-react";
 
@@ -40,7 +40,7 @@ export function CustomerActionMenu({ customer, x, y, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ left: x, top: y });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     let left = x - rect.width / 2;

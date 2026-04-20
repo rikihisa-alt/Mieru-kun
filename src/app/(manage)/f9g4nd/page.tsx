@@ -32,29 +32,29 @@ export default function MultikeBulkGrantPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <p className="text-[13px] text-[#5a6977] mb-4">キャンペーンや施策として、対象会員へマルチケを一括配布します。</p>
+        <p className="text-[13px] text-text-secondary mb-4">キャンペーンや施策として、対象会員へマルチケを一括配布します。</p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-2">配布対象</label>
+          <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-2">配布対象</label>
           <div className="grid grid-cols-2 gap-2">
             {(Object.keys(TARGET_LABEL) as Target[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTarget(t)}
                 className={`flex items-center justify-between p-3 text-[13px] border rounded-[6px] text-left transition-colors ${
-                  target === t ? "border-[#3a8f7c] bg-[#e8f5f0]" : "border-[#d8d3cc] hover:bg-[#f3f0ec]"
+                  target === t ? "border-accent bg-accent-light" : "border-border hover:bg-bg-hover"
                 }`}
               >
                 <div>
-                  <div className="font-medium text-[#2c3e50]">{TARGET_LABEL[t]}</div>
-                  <div className="text-[11px] text-[#8e9baa] mt-0.5 flex items-center gap-1">
+                  <div className="font-medium text-text-primary">{TARGET_LABEL[t]}</div>
+                  <div className="text-[11px] text-text-tertiary mt-0.5 flex items-center gap-1">
                     <Users className="w-3 h-3" />
                     {TARGET_COUNT[t]}名
                   </div>
                 </div>
-                {target === t && <div className="w-2 h-2 rounded-full bg-[#3a8f7c]" />}
+                {target === t && <div className="w-2 h-2 rounded-full bg-accent" />}
               </button>
             ))}
           </div>
@@ -62,29 +62,29 @@ export default function MultikeBulkGrantPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">1人あたり枚数</label>
+            <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">1人あたり枚数</label>
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#7c3aed]" />
               <input type="number" value={amount} onChange={(e) => setAmount(parseInt(e.target.value) || 0)} />
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">有効期限</label>
+            <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">有効期限</label>
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#8e9baa]" />
+              <Calendar className="w-4 h-4 text-text-tertiary" />
               <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} />
             </div>
           </div>
         </div>
 
         <div>
-          <label className="block text-[11px] font-semibold text-[#8e9baa] uppercase tracking-wider mb-1">配布理由（会員画面に表示されます）</label>
+          <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">配布理由（会員画面に表示されます）</label>
           <input type="text" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="春の感謝祭 キャンペーン" />
         </div>
 
         {/* 合計計算 */}
-        <div className="p-3 bg-[#faf8f5] rounded-[6px] flex items-center justify-between">
-          <span className="text-[12px] text-[#5a6977]">合計配布枚数</span>
+        <div className="p-3 bg-bg-hover rounded-[6px] flex items-center justify-between">
+          <span className="text-[12px] text-text-secondary">合計配布枚数</span>
           <span className="text-[18px] font-bold text-[#7c3aed]">
             {(TARGET_COUNT[target] * amount).toLocaleString()} 枚
           </span>
