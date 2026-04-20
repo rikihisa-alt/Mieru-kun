@@ -102,7 +102,7 @@ export function CustomerActionMenu({ customer, x, y, onClose }: Props) {
             注文登録
           </button>
           <button
-            onClick={() => go(`/a9k5dm/${customer.id}?tab=chip`)}
+            onClick={() => go(`/a9k5dm/${customer.id}?tab=ring`)}
             className="w-full flex items-center gap-2 px-2 py-2 text-[12px] text-[#2c3e50] hover:bg-[#f3f0ec] rounded-[6px] transition-colors"
           >
             <Coins className="w-3.5 h-3.5 text-[#d97706]" />

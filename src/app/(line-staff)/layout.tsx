@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Home, Clock, Grid3X3, LogOut } from "lucide-react";
+import { Home, Clock, Grid3X3, LogOut, QrCode } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
   { href: "/s6y4bp", label: "ホーム", icon: Home },
-  { href: "/b8q4ft", label: "出退勤", icon: Clock },
+  { href: "/w6n4gk", label: "QR", icon: QrCode },
   { href: "/r7d2pm", label: "卓確認", icon: Grid3X3 },
+  { href: "/b8q4ft", label: "出退勤", icon: Clock },
 ];
 
 export default function LineStaffLayout({ children }: { children: React.ReactNode }) {

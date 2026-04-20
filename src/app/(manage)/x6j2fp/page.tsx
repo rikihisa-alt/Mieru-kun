@@ -4,25 +4,47 @@ import Image from "next/image";
 import { useState } from "react";
 import { ShoppingBag, CreditCard, Plus, Minus, CheckCircle, X, ChevronDown } from "lucide-react";
 
-interface CartItem { name: string; price: number; qty: number; }
+export type OrderCategory = "entrance" | "drink" | "food" | "tournament_fee" | "tip_purchase" | "tip_use" | "discount" | "adjustment" | "other";
+
+const CATEGORY_LABEL: Record<OrderCategory, string> = {
+  entrance: "エントランス",
+  drink: "ドリンク",
+  food: "フード",
+  tournament_fee: "トナメ参加費",
+  tip_purchase: "チップ購入",
+  tip_use: "チップ利用",
+  discount: "割引",
+  adjustment: "調整",
+  other: "その他",
+};
+
+interface CartItem { name: string; price: number; qty: number; category: OrderCategory; }
 interface Visit {
   id: string; customer: string; customerNickname: string; rank: string; table: string;
-  items: CartItem[]; total: number; status: "active" | "settled";
+  items: CartItem[]; total: number; status: "active" | "settled"; outstanding?: number;
 }
 
-const PRODUCTS = [
-  { name: "ビール", price: 600 }, { name: "ハイボール", price: 500 },
-  { name: "ソフトドリンク", price: 300 }, { name: "ウイスキー", price: 800 },
-  { name: "カクテル", price: 700 }, { name: "ポテトフライ", price: 400 },
-  { name: "枝豆", price: 300 }, { name: "ピザ", price: 800 },
-  { name: "チップ 1000枚", price: 1000 }, { name: "チップ 5000枚", price: 5000 },
+const PRODUCTS: { name: string; price: number; category: OrderCategory }[] = [
+  { name: "エントランス", price: 1000, category: "entrance" },
+  { name: "トナメ参加費", price: 3000, category: "tournament_fee" },
+  { name: "ビール", price: 600, category: "drink" },
+  { name: "ハイボール", price: 500, category: "drink" },
+  { name: "ソフトドリンク", price: 300, category: "drink" },
+  { name: "ウイスキー", price: 800, category: "drink" },
+  { name: "カクテル", price: 700, category: "drink" },
+  { name: "ポテトフライ", price: 400, category: "food" },
+  { name: "枝豆", price: 300, category: "food" },
+  { name: "ピザ", price: 800, category: "food" },
+  { name: "チップ 1000枚", price: 1000, category: "tip_purchase" },
+  { name: "チップ 5000枚", price: 5000, category: "tip_purchase" },
+  { name: "会員割引", price: -500, category: "discount" },
 ];
 
 const INIT: Visit[] = [
-  { id: "v1", customer: "田中 太郎", customerNickname: "タロウ", rank: "gold", table: "T1", items: [{ name: "ビール", price: 600, qty: 2 }, { name: "枝豆", price: 300, qty: 1 }], total: 1500, status: "active" },
-  { id: "v2", customer: "鈴木 花子", customerNickname: "ハナ", rank: "vip", table: "T1", items: [{ name: "ウイスキー", price: 800, qty: 1 }], total: 800, status: "active" },
+  { id: "v1", customer: "田中 太郎", customerNickname: "タロウ", rank: "gold", table: "T1", items: [{ name: "ビール", price: 600, qty: 2, category: "drink" }, { name: "枝豆", price: 300, qty: 1, category: "food" }], total: 1500, status: "active" },
+  { id: "v2", customer: "鈴木 花子", customerNickname: "ハナ", rank: "vip", table: "T1", items: [{ name: "ウイスキー", price: 800, qty: 1, category: "drink" }], total: 800, status: "active" },
   { id: "v3", customer: "佐藤 健一", customerNickname: "ケン", rank: "silver", table: "T3", items: [], total: 0, status: "active" },
-  { id: "v4", customer: "高橋 美咲", customerNickname: "ミィ", rank: "regular", table: "T3", items: [{ name: "ソフトドリンク", price: 300, qty: 1 }], total: 300, status: "settled" },
+  { id: "v4", customer: "高橋 美咲", customerNickname: "ミィ", rank: "regular", table: "T3", items: [{ name: "ソフトドリンク", price: 300, qty: 1, category: "drink" }], total: 300, status: "settled" },
 ];
 
 export default function OrdersPage() {
@@ -42,7 +64,7 @@ export default function OrdersPage() {
     setCart(prev => {
       const ex = prev.find(i => i.name === p.name);
       if (ex) return prev.map(i => i.name === p.name ? { ...i, qty: i.qty + 1 } : i);
-      return [...prev, { name: p.name, price: p.price, qty: 1 }];
+      return [...prev, { name: p.name, price: p.price, qty: 1, category: p.category }];
     });
   }
   function updateQty(name: string, d: number) {
@@ -170,19 +192,30 @@ export default function OrdersPage() {
                 </div>
                 <button onClick={() => setOrderModalId(null)} className="p-1 hover:bg-[#f3f0ec] rounded-[4px]"><X className="w-4 h-4 text-[#8e9baa]" /></button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-1">
-                {PRODUCTS.map(p => {
-                  const inCart = cart.find(c => c.name === p.name);
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {(Object.keys(CATEGORY_LABEL) as OrderCategory[]).map((cat) => {
+                  const items = PRODUCTS.filter((p) => p.category === cat);
+                  if (items.length === 0) return null;
                   return (
-                    <div key={p.name} className="flex items-center justify-between px-2 py-1.5 rounded-[4px] hover:bg-[#f3f0ec] cursor-pointer" onClick={() => addToCart(p)}>
-                      <div><span className="text-[12px] font-medium">{p.name}</span><span className="text-[11px] text-[#8e9baa] ml-2">¥{p.price}</span></div>
-                      {inCart && (
-                        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                          <button onClick={() => updateQty(p.name, -1)} className="w-5 h-5 rounded border border-[#d8d3cc] flex items-center justify-center hover:bg-[#e8e4df]"><Minus className="w-3 h-3" /></button>
-                          <span className="text-[12px] font-bold w-5 text-center">{inCart.qty}</span>
-                          <button onClick={() => updateQty(p.name, 1)} className="w-5 h-5 rounded border border-[#d8d3cc] flex items-center justify-center hover:bg-[#e8e4df]"><Plus className="w-3 h-3" /></button>
-                        </div>
-                      )}
+                    <div key={cat}>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-[#8e9baa] mb-1">{CATEGORY_LABEL[cat]}</div>
+                      <div className="space-y-0.5">
+                        {items.map(p => {
+                          const inCart = cart.find(c => c.name === p.name);
+                          return (
+                            <div key={p.name} className="flex items-center justify-between px-2 py-1.5 rounded-[4px] hover:bg-[#f3f0ec] cursor-pointer" onClick={() => addToCart(p)}>
+                              <div><span className="text-[12px] font-medium">{p.name}</span><span className={`text-[11px] ml-2 ${p.price < 0 ? "text-[#c0392b]" : "text-[#8e9baa]"}`}>¥{p.price.toLocaleString()}</span></div>
+                              {inCart && (
+                                <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                                  <button onClick={() => updateQty(p.name, -1)} className="w-5 h-5 rounded border border-[#d8d3cc] flex items-center justify-center hover:bg-[#e8e4df]"><Minus className="w-3 h-3" /></button>
+                                  <span className="text-[12px] font-bold w-5 text-center">{inCart.qty}</span>
+                                  <button onClick={() => updateQty(p.name, 1)} className="w-5 h-5 rounded border border-[#d8d3cc] flex items-center justify-center hover:bg-[#e8e4df]"><Plus className="w-3 h-3" /></button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 })}
@@ -204,22 +237,8 @@ export default function OrdersPage() {
         if (!v) return null;
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setSettleId(null)}>
-            <div className="bg-white rounded-[8px] w-full max-w-sm p-5" onClick={e => e.stopPropagation()}>
-              <h3 className="text-[14px] font-semibold mb-4">精算確認</h3>
-              <div className="text-[12px] space-y-2 mb-4">
-                <div className="flex justify-between"><span className="text-[#8e9baa]">顧客</span><span className="font-medium">{v.customerNickname ? `${v.customerNickname}（${v.customer}）` : v.customer}</span></div>
-                <div className="flex justify-between items-end"><span className="text-[#8e9baa]">合計</span><span className="text-[22px] font-bold">¥{v.total.toLocaleString()}</span></div>
-                <div>
-                  <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">支払方法</label>
-                  <select className="mt-1" value={settleMethod} onChange={e => setSettleMethod(e.target.value)}>
-                    <option value="cash">現金</option><option value="card">カード</option><option value="electronic">電子マネー</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => settle(settleId)} className="flex-1 py-2.5 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">精算する</button>
-                <button onClick={() => setSettleId(null)} className="px-4 py-2.5 border border-[#d8d3cc] text-[13px] rounded-[6px] hover:bg-[#f3f0ec]">戻る</button>
-              </div>
+            <div className="bg-white rounded-[8px] w-full max-w-md p-5 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <SettleModalContent visit={v} method={settleMethod} setMethod={setSettleMethod} onSettle={() => settle(settleId)} onCancel={() => setSettleId(null)} />
             </div>
           </div>
         );
@@ -229,3 +248,111 @@ export default function OrdersPage() {
 }
 
 import React from "react";
+
+// ==================== 精算モーダル ====================
+type PaymentMethod = "cash" | "card" | "qr" | "tip_offset" | "multike";
+const METHOD_LABEL: Record<PaymentMethod, string> = {
+  cash: "現金",
+  card: "カード",
+  qr: "QR決済",
+  tip_offset: "チップ相殺",
+  multike: "マルチケ",
+};
+
+function SettleModalContent({
+  visit, method, setMethod, onSettle, onCancel,
+}: {
+  visit: Visit;
+  method: string;
+  setMethod: (m: string) => void;
+  onSettle: () => void;
+  onCancel: () => void;
+}) {
+  const [payments, setPayments] = React.useState<{ method: PaymentMethod; amount: number }[]>([
+    { method: "cash", amount: visit.total },
+  ]);
+  const [outstandingAmount, setOutstandingAmount] = React.useState(0);
+
+  const paidTotal = payments.reduce((s, p) => s + p.amount, 0);
+  const diff = visit.total - paidTotal - outstandingAmount;
+
+  function addPayment() {
+    setPayments((p) => [...p, { method: "cash", amount: Math.max(0, diff) }]);
+  }
+  function updatePayment(i: number, patch: Partial<{ method: PaymentMethod; amount: number }>) {
+    setPayments((p) => p.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
+  }
+  function removePayment(i: number) {
+    setPayments((p) => p.filter((_, idx) => idx !== i));
+  }
+
+  return (
+    <>
+      <h3 className="text-[14px] font-semibold mb-4">精算</h3>
+
+      <div className="mb-4 p-3 bg-[#faf8f5] rounded-[6px] space-y-1">
+        <div className="flex justify-between text-[12px]">
+          <span className="text-[#8e9baa]">顧客</span>
+          <span className="font-medium">{visit.customerNickname ? `${visit.customerNickname}（${visit.customer}）` : visit.customer}</span>
+        </div>
+        <div className="flex justify-between items-end">
+          <span className="text-[12px] text-[#8e9baa]">合計</span>
+          <span className="text-[22px] font-bold">¥{visit.total.toLocaleString()}</span>
+        </div>
+      </div>
+
+      {/* 支払方法（複数） */}
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-[11px] text-[#8e9baa] font-semibold uppercase tracking-wider">支払方法</label>
+          <button onClick={addPayment} className="text-[11px] text-[#3a8f7c] hover:underline">+ 支払を追加</button>
+        </div>
+        <div className="space-y-2">
+          {payments.map((p, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <select value={p.method} onChange={(e) => { const m = e.target.value as PaymentMethod; updatePayment(i, { method: m }); setMethod(m); }} className="flex-1 text-[13px]">
+                {(Object.keys(METHOD_LABEL) as PaymentMethod[]).map((m) => (
+                  <option key={m} value={m}>{METHOD_LABEL[m]}</option>
+                ))}
+              </select>
+              <input type="number" value={p.amount} onChange={(e) => updatePayment(i, { amount: parseInt(e.target.value) || 0 })} className="w-28 text-[13px] text-right" />
+              {payments.length > 1 && (
+                <button onClick={() => removePayment(i)} className="text-[#c5221f] p-1 hover:bg-[#fce8e6] rounded">
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 未収 */}
+      <div className="mb-3">
+        <label className="flex items-center gap-2 text-[12px] text-[#5a6977] cursor-pointer mb-1">
+          <input type="checkbox" checked={outstandingAmount > 0} onChange={(e) => setOutstandingAmount(e.target.checked ? Math.max(0, diff) : 0)} />
+          <span>未収を計上する</span>
+        </label>
+        {outstandingAmount > 0 && (
+          <input type="number" value={outstandingAmount} onChange={(e) => setOutstandingAmount(parseInt(e.target.value) || 0)} className="w-full text-[13px]" placeholder="未収金額" />
+        )}
+      </div>
+
+      {/* 差額表示 */}
+      <div className={`mb-4 px-3 py-2 rounded-[6px] text-[12px] font-medium flex items-center justify-between ${
+        diff === 0 ? "bg-[#e8f5f0] text-[#2e7d5b]" : diff > 0 ? "bg-[#fdf4e8] text-[#c87b1a]" : "bg-[#fce8e6] text-[#c0392b]"
+      }`}>
+        <span>差額</span>
+        <span>{diff === 0 ? "0（精算可能）" : diff > 0 ? `+¥${diff.toLocaleString()}（不足）` : `¥${diff.toLocaleString()}（過払）`}</span>
+      </div>
+
+      <div className="flex gap-2">
+        <button onClick={onSettle} disabled={diff !== 0} className="flex-1 py-2.5 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] disabled:opacity-40 disabled:cursor-not-allowed">
+          精算を確定
+        </button>
+        <button onClick={onCancel} className="px-4 py-2.5 border border-[#d8d3cc] text-[13px] rounded-[6px] hover:bg-[#f3f0ec]">
+          戻る
+        </button>
+      </div>
+    </>
+  );
+}

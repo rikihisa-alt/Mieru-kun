@@ -16,7 +16,10 @@ import {
   Plus,
   Gift,
   AlertTriangle,
+  Sparkles,
 } from "lucide-react";
+import { TipPanel, type TipEntry } from "@/components/customer/tip-panel";
+import { MultikePanel, type MultikeEntry } from "@/components/customer/multike-panel";
 
 type Rank = "regular" | "silver" | "gold" | "vip";
 
@@ -70,7 +73,7 @@ interface UnpaidEntry {
   note: string;
 }
 
-const TABS = ["基本情報", "来店履歴", "チップ・ポイント", "プライズ", "未払"] as const;
+const TABS = ["基本情報", "来店履歴", "リング", "サイド", "マルチケ", "プライズ", "未払"] as const;
 type Tab = (typeof TABS)[number];
 
 const PRIZE_OPTIONS = [
@@ -107,7 +110,9 @@ export default function CustomerDetailPage() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const initialTab: Tab =
-    tabParam === "chip" ? "チップ・ポイント"
+    tabParam === "ring" || tabParam === "chip" ? "リング"
+    : tabParam === "side" ? "サイド"
+    : tabParam === "multike" ? "マルチケ"
     : tabParam === "visit" ? "来店履歴"
     : tabParam === "prize" ? "プライズ"
     : tabParam === "unpaid" ? "未払"
@@ -223,11 +228,80 @@ export default function CustomerDetailPage() {
     setSelectedPrize(PRIZE_OPTIONS[0]);
   }
 
+  // ---- Phase 2: リング / サイド / マルチケ（デモstate）----
+  const initialRingBal = Math.floor(initial.chipBalance * 0.7);
+  const initialSideBal = initial.chipBalance - initialRingBal;
+  const [ringBalance, setRingBalance] = useState(initialRingBal);
+  const [sideBalance, setSideBalance] = useState(initialSideBal);
+  const [ringFrozen, setRingFrozen] = useState(false);
+  const [sideFrozen, setSideFrozen] = useState(false);
+  const [ringEntries, setRingEntries] = useState<TipEntry[]>([
+    { id: "r1", date: "2026-04-17", delta: 2000, reason: "来店ボーナス", reasonCode: "visit_bonus", balanceAfter: initialRingBal, performedBy: "山田" },
+    { id: "r2", date: "2026-04-15", delta: -1500, reason: "リング利用", reasonCode: "ring_play", balanceAfter: initialRingBal - 2000, performedBy: "鈴木" },
+  ]);
+  const [sideEntries, setSideEntries] = useState<TipEntry[]>([
+    { id: "s1", date: "2026-04-14", delta: 1000, reason: "サイド購入", reasonCode: "purchase", balanceAfter: initialSideBal, performedBy: "山田" },
+  ]);
+  const [multikeBalance, setMultikeBalance] = useState(12);
+  const [multikeEntries, setMultikeEntries] = useState<MultikeEntry[]>([
+    { id: "m1", date: "2026-04-10", delta: 5, reason: "キャンペーン配布: 春の感謝祭", reasonCode: "campaign_grant", balanceAfter: 12, expiresAt: "2026-06-30" },
+    { id: "m2", date: "2026-04-05", delta: 3, reason: "手動付与", reasonCode: "grant", balanceAfter: 7, expiresAt: "2026-05-30" },
+    { id: "m3", date: "2026-04-01", delta: -2, reason: "消化", reasonCode: "use", balanceAfter: 4 },
+  ]);
+
+  function addRingEntry(delta: number, reason: string, reasonCode: string) {
+    const newBal = ringBalance + delta;
+    setRingBalance(newBal);
+    setRingEntries((prev) => [
+      { id: `r${Date.now()}`, date: new Date().toISOString().split("T")[0], delta, reason, reasonCode, balanceAfter: newBal, performedBy: "自分" },
+      ...prev,
+    ]);
+  }
+  function addSideEntry(delta: number, reason: string, reasonCode: string) {
+    const newBal = sideBalance + delta;
+    setSideBalance(newBal);
+    setSideEntries((prev) => [
+      { id: `s${Date.now()}`, date: new Date().toISOString().split("T")[0], delta, reason, reasonCode, balanceAfter: newBal, performedBy: "自分" },
+      ...prev,
+    ]);
+  }
+  function transferRingToSide(amount: number) {
+    if (amount > ringBalance) return;
+    addRingEntry(-amount, "サイドへ移行", "transfer_out");
+    addSideEntry(amount, "リングから移行", "transfer_in");
+  }
+  function transferSideToRing(amount: number) {
+    if (amount > sideBalance) return;
+    addSideEntry(-amount, "リングへ移行", "transfer_out");
+    addRingEntry(amount, "サイドから移行", "transfer_in");
+  }
+  function addMultikeEntry(delta: number, reason: string, reasonCode: string, expiresAt?: string) {
+    const newBal = multikeBalance + delta;
+    setMultikeBalance(newBal);
+    setMultikeEntries((prev) => [
+      { id: `m${Date.now()}`, date: new Date().toISOString().split("T")[0], delta, reason, reasonCode, balanceAfter: newBal, expiresAt },
+      ...prev,
+    ]);
+  }
+
+  const multikeThisMonthGained = multikeEntries.filter((e) => e.delta > 0 && e.date.startsWith("2026-04")).reduce((s, e) => s + e.delta, 0);
+  const multikeExpiringSoon = multikeEntries
+    .filter((e) => e.delta > 0 && e.expiresAt)
+    .filter((e) => {
+      if (!e.expiresAt) return false;
+      const d = new Date(e.expiresAt);
+      const now = new Date();
+      return d.getTime() - now.getTime() <= 30 * 24 * 60 * 60 * 1000;
+    })
+    .reduce((s, e) => s + e.delta, 0);
+
   const stats = [
     { icon: <Trophy className="w-4 h-4" />, label: "来店回数", value: `${visits}回` },
     { icon: <DollarSign className="w-4 h-4" />, label: "累計利用額", value: `¥${totalSpent.toLocaleString()}` },
-    { icon: <Coins className="w-4 h-4" />, label: "チップ残高", value: chipBalance.toLocaleString() },
-    { icon: <Star className="w-4 h-4" />, label: "ポイント残高", value: pointBalance.toLocaleString() },
+    { icon: <Coins className="w-4 h-4" />, label: "リング", value: ringBalance.toLocaleString() },
+    { icon: <Coins className="w-4 h-4" />, label: "サイド", value: sideBalance.toLocaleString() },
+    { icon: <Sparkles className="w-4 h-4" />, label: "マルチケ", value: multikeBalance.toLocaleString() },
+    { icon: <Star className="w-4 h-4" />, label: "ポイント", value: pointBalance.toLocaleString() },
   ];
 
   return (
@@ -469,8 +543,47 @@ export default function CustomerDetailPage() {
             </div>
           )}
 
-          {/* Tab 3: Chips & Points */}
-          {activeTab === "チップ・ポイント" && (
+          {/* Tab 3a: リングチップ */}
+          {activeTab === "リング" && (
+            <TipPanel
+              kind="ring"
+              label="リング"
+              balance={ringBalance}
+              entries={ringEntries}
+              onAdd={addRingEntry}
+              onTransfer={transferRingToSide}
+              frozen={ringFrozen}
+              onToggleFreeze={() => setRingFrozen((v) => !v)}
+            />
+          )}
+
+          {/* Tab 3b: サイドチップ */}
+          {activeTab === "サイド" && (
+            <TipPanel
+              kind="side"
+              label="サイド"
+              balance={sideBalance}
+              entries={sideEntries}
+              onAdd={addSideEntry}
+              onTransfer={transferSideToRing}
+              frozen={sideFrozen}
+              onToggleFreeze={() => setSideFrozen((v) => !v)}
+            />
+          )}
+
+          {/* Tab 3c: マルチケ */}
+          {activeTab === "マルチケ" && (
+            <MultikePanel
+              balance={multikeBalance}
+              thisMonthGained={multikeThisMonthGained}
+              expiringSoon={multikeExpiringSoon}
+              entries={multikeEntries}
+              onAdd={addMultikeEntry}
+            />
+          )}
+
+          {/* 旧: チップ・ポイント タブ(互換のため保持しないが古いリンクが来た場合のフォールバック) */}
+          {false && (
             <div className="space-y-6">
               {/* Balances */}
               <div className="grid grid-cols-2 gap-3">
