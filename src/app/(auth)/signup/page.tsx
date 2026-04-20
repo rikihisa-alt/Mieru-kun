@@ -81,7 +81,7 @@ export default function SignupPage() {
       // ignore
     }
 
-    router.push("/dashboard");
+    router.push("/h7p2kx");
     router.refresh();
   }
 

@@ -27,7 +27,7 @@ export default async function StaffHomePage() {
 
       {/* 管理画面リンク */}
       <Link
-        href="/dashboard"
+        href="/h7p2kx"
         className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-bg-white border border-border rounded-[var(--radius)] text-[13px] font-medium text-accent hover:bg-accent-light transition-colors"
       >
         <Monitor className="w-4 h-4" />

@@ -85,7 +85,7 @@ export async function grantPrizeAction(formData: FormData) {
     });
 
     revalidatePath("/prizes");
-    revalidatePath("/customers");
+    revalidatePath("/a9k5dm");
     return { success: true };
   } catch (e) {
     console.error("grantPrize error:", e);

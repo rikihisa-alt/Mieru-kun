@@ -14,7 +14,7 @@ export default function ChipsPage() {
 
   return (
     <div className="space-y-4">
-      <Link href="/my" className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-secondary">
+      <Link href="/u3j5ny" className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-secondary">
         <ArrowLeft className="w-3.5 h-3.5" />戻る
       </Link>
 

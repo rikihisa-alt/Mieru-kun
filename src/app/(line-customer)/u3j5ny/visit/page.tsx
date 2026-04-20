@@ -10,7 +10,7 @@ export default function VisitHistoryPage() {
 
   return (
     <div className="space-y-3">
-      <Link href="/my" className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-secondary">
+      <Link href="/u3j5ny" className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-secondary">
         <ArrowLeft className="w-3.5 h-3.5" />戻る
       </Link>
       <h2 className="text-[15px] font-bold">来店履歴</h2>

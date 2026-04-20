@@ -40,8 +40,8 @@ export default function MyPage() {
 
       {/* メニュー */}
       <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] divide-y divide-border-light">
-        <MenuLink href="/my/visit" icon={<History />} label="来店履歴" />
-        <MenuLink href="/my/chips" icon={<Coins />} label="チップ・ポイント詳細" />
+        <MenuLink href="/u3j5ny/visit" icon={<History />} label="来店履歴" />
+        <MenuLink href="/u3j5ny/chips" icon={<Coins />} label="チップ・ポイント詳細" />
       </div>
     </div>
   );

@@ -59,12 +59,12 @@ export default function DashboardPage() {
       {isVisible("summary") && (
         <div className="flex items-center gap-2 flex-wrap text-[14px] pb-4 border-b border-[#e8e4df]">
           <span className="text-[#8e9baa] text-[13px] mr-1">本日集計：</span>
-          <Chip label="来店" value={`${kpis.visitors}名`} color="#3a8f7c" onClick={() => router.push("/floor")} />
+          <Chip label="来店" value={`${kpis.visitors}名`} color="#3a8f7c" onClick={() => router.push("/m4w9sq")} />
           <Chip label="売上" value={`¥${kpis.sales.toLocaleString()}`} />
           <Chip label="客単価" value={`¥${kpis.avgSpend.toLocaleString()}`} />
           <Chip label="達成率" value={`${progressPct}%`} color="#3a8f7c" />
-          <Chip label="出勤" value={`${kpis.onDuty}名`} onClick={() => router.push("/attendance")} />
-          {kpis.unpaid > 0 && <Chip label="未払" value={`${kpis.unpaid}件`} color="#c0392b" onClick={() => router.push("/orders")} />}
+          <Chip label="出勤" value={`${kpis.onDuty}名`} onClick={() => router.push("/z5b7lc")} />
+          {kpis.unpaid > 0 && <Chip label="未払" value={`${kpis.unpaid}件`} color="#c0392b" onClick={() => router.push("/x6j2fp")} />}
         </div>
       )}
 
@@ -73,8 +73,8 @@ export default function DashboardPage() {
         <div>
           <p className="text-[13px] font-semibold text-[#2c3e50] mb-2">要対応</p>
           <div className="space-y-1.5">
-            {hasUnpaidAlert && <AlertRow color="#c0392b" text={`未精算 ${kpis.unpaid}件 — 精算処理が必要です`} onClick={() => router.push("/orders")} />}
-            {hasFullAlert && <AlertRow color="#c87b1a" text={`満席卓 ${fullTables}卓 — 卓管理を確認してください`} onClick={() => router.push("/tables")} />}
+            {hasUnpaidAlert && <AlertRow color="#c0392b" text={`未精算 ${kpis.unpaid}件 — 精算処理が必要です`} onClick={() => router.push("/x6j2fp")} />}
+            {hasFullAlert && <AlertRow color="#c87b1a" text={`満席卓 ${fullTables}卓 — 卓管理を確認してください`} onClick={() => router.push("/v3r8nb")} />}
           </div>
         </div>
       )}
@@ -84,7 +84,7 @@ export default function DashboardPage() {
         <div>
           <div className="flex items-center justify-between mb-2">
             <p className="text-[13px] font-semibold text-[#2c3e50]">卓稼働 <span className="font-normal text-[#8e9baa]">{kpis.activeTables}/{kpis.totalTables}</span></p>
-            <button onClick={() => router.push("/tables")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">卓管理<ArrowUpRight className="w-3 h-3" /></button>
+            <button onClick={() => router.push("/v3r8nb")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">卓管理<ArrowUpRight className="w-3 h-3" /></button>
           </div>
           <div className="grid grid-cols-2 gap-x-8 max-h-[200px] overflow-y-auto">
             {[tables.slice(0, 4), tables.slice(4)].map((half, hi) => (
@@ -95,7 +95,7 @@ export default function DashboardPage() {
                     const full = pct >= 1; const empty = t.occupied === 0;
                     const c = full ? "#c0392b" : empty ? "#d8d3cc" : pct > 0.7 ? "#c87b1a" : "#3a8f7c";
                     return (
-                      <tr key={t.name} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer" onClick={() => router.push("/tables")}>
+                      <tr key={t.name} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] cursor-pointer" onClick={() => router.push("/v3r8nb")}>
                         <td className="py-1.5 pr-2 w-5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} /></td>
                         <td className="py-1.5 pr-4 font-medium">{t.name}</td>
                         <td className="py-1.5 pr-4 text-[#5a6977]">{t.occupied} / {t.max}</td>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
         <div>
           <div className="flex items-center justify-between mb-2">
             <p className="text-[13px] font-semibold text-[#2c3e50]">タイムライン</p>
-            <button onClick={() => router.push("/history")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">すべての履歴<ArrowUpRight className="w-3 h-3" /></button>
+            <button onClick={() => router.push("/n3k8xh")} className="flex items-center gap-0.5 text-[11px] text-[#3a8f7c] hover:underline">すべての履歴<ArrowUpRight className="w-3 h-3" /></button>
           </div>
 
           {/* イベント: タイムライン見出しの直下に横並び */}
@@ -149,10 +149,10 @@ export default function DashboardPage() {
                 return (
                   <div key={i} className="flex items-start gap-3 py-1.5 hover:bg-[#faf8f5] rounded-[4px] transition-colors cursor-pointer relative"
                     onClick={() => router.push(
-                      ev.type === "入店" || ev.type === "退店" ? "/floor" :
-                      ev.type === "注文" || ev.type === "精算" ? "/orders" :
-                      ev.type === "チップ" ? "/customers" :
-                      ev.type === "イベント" ? "/tables" : "/attendance"
+                      ev.type === "入店" || ev.type === "退店" ? "/m4w9sq" :
+                      ev.type === "注文" || ev.type === "精算" ? "/x6j2fp" :
+                      ev.type === "チップ" ? "/a9k5dm" :
+                      ev.type === "イベント" ? "/v3r8nb" : "/z5b7lc"
                     )}>
                     <span className="text-[11px] text-[#8e9baa] font-mono w-8 text-right pt-0.5 flex-shrink-0">{ev.time}</span>
                     <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10" style={{ backgroundColor: t.bg, color: t.color }}>

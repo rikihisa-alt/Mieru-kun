@@ -49,7 +49,7 @@ export async function createCustomerAction(formData: FormData) {
       after: { name: customer.name, rank: customer.rank },
     });
 
-    revalidatePath("/customers");
+    revalidatePath("/a9k5dm");
     return { success: true };
   } catch (e) {
     console.error("createCustomer error:", e);

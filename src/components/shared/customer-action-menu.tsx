@@ -95,28 +95,28 @@ export function CustomerActionMenu({ customer, x, y, onClose }: Props) {
 
         <div className="space-y-1">
           <button
-            onClick={() => go(`/orders?customer=${encodeURIComponent(customer.id)}`)}
+            onClick={() => go(`/x6j2fp?customer=${encodeURIComponent(customer.id)}`)}
             className="w-full flex items-center gap-2 px-2 py-2 text-[12px] text-[#2c3e50] hover:bg-[#f3f0ec] rounded-[6px] transition-colors"
           >
             <ShoppingBag className="w-3.5 h-3.5 text-[#3a8f7c]" />
             注文登録
           </button>
           <button
-            onClick={() => go(`/customers/${customer.id}?tab=chip`)}
+            onClick={() => go(`/a9k5dm/${customer.id}?tab=chip`)}
             className="w-full flex items-center gap-2 px-2 py-2 text-[12px] text-[#2c3e50] hover:bg-[#f3f0ec] rounded-[6px] transition-colors"
           >
             <Coins className="w-3.5 h-3.5 text-[#d97706]" />
             チップ購入・付与登録
           </button>
           <button
-            onClick={() => go(`/orders?settle=${encodeURIComponent(customer.id)}`)}
+            onClick={() => go(`/x6j2fp?settle=${encodeURIComponent(customer.id)}`)}
             className="w-full flex items-center gap-2 px-2 py-2 text-[12px] text-[#2c3e50] hover:bg-[#f3f0ec] rounded-[6px] transition-colors"
           >
             <CreditCard className="w-3.5 h-3.5 text-[#7c3aed]" />
             清算登録
           </button>
           <button
-            onClick={() => go(`/customers/${customer.id}`)}
+            onClick={() => go(`/a9k5dm/${customer.id}`)}
             className="w-full flex items-center gap-2 px-2 py-2 text-[12px] text-[#5a6977] hover:bg-[#f3f0ec] rounded-[6px] transition-colors"
           >
             <User className="w-3.5 h-3.5 text-[#8e9baa]" />

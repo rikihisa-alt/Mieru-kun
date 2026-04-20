@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 公開パス
-  const publicPaths = ["/", "/login", "/signup", "/auth", "/my"];
+  const publicPaths = ["/", "/login", "/signup", "/auth", "/u3j5ny"];
   const isPublic = publicPaths.some(
     (p) => pathname === p || pathname.startsWith(p + "/")
   );
@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
 
     if (user && (pathname === "/login" || pathname === "/signup")) {
       const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
+      url.pathname = "/h7p2kx";
       return NextResponse.redirect(url);
     }
   } catch {

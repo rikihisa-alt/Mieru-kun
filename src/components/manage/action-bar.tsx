@@ -13,10 +13,10 @@ export function ActionBar() {
   useEffect(() => { setOpen(false); }, [pathname]);
 
   const actions = [
-    { icon: <Plus />, label: "入店", color: "#3a8f7c", onClick: () => router.push("/floor") },
-    { icon: <Grid3X3 />, label: "卓配置", color: "#16a34a", onClick: () => router.push("/tables") },
-    { icon: <Coins />, label: "チップ", color: "#d97706", onClick: () => router.push("/customers") },
-    { icon: <CreditCard />, label: "精算", color: "#7c3aed", onClick: () => router.push("/orders") },
+    { icon: <Plus />, label: "入店", color: "#3a8f7c", onClick: () => router.push("/m4w9sq") },
+    { icon: <Grid3X3 />, label: "卓配置", color: "#16a34a", onClick: () => router.push("/v3r8nb") },
+    { icon: <Coins />, label: "チップ", color: "#d97706", onClick: () => router.push("/a9k5dm") },
+    { icon: <CreditCard />, label: "精算", color: "#7c3aed", onClick: () => router.push("/x6j2fp") },
   ];
 
   return (

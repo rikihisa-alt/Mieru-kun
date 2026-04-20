@@ -6,18 +6,18 @@ import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "ダッシュボード",
-  "/floor": "入店管理",
-  "/tables": "卓管理",
-  "/orders": "注文 / 精算",
-  "/customers/new": "顧客新規登録",
-  "/customers": "顧客管理",
-  "/staff": "従業員管理",
-  "/attendance": "勤怠管理",
-  "/closing": "締め処理",
-  "/history": "履歴",
-  "/products": "商品マスタ",
-  "/settings": "店舗設定",
+  "/h7p2kx": "ダッシュボード",
+  "/m4w9sq": "入店管理",
+  "/v3r8nb": "卓管理",
+  "/x6j2fp": "注文 / 精算",
+  "/a9k5dm/q7t3wc": "顧客新規登録",
+  "/a9k5dm": "顧客管理",
+  "/g8n4vr": "従業員管理",
+  "/z5b7lc": "勤怠管理",
+  "/w2f6yp": "締め処理",
+  "/n3k8xh": "履歴",
+  "/p5d7mg": "商品マスタ",
+  "/e4s9jq": "店舗設定",
 };
 
 export function Header() {

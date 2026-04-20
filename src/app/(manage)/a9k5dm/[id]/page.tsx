@@ -87,14 +87,14 @@ interface CustomerData {
   totalVisits: number; totalSpent: number; chipBalance: number; pointBalance: number;
 }
 const CUSTOMER_DATA: Record<string, CustomerData> = {
-  c1: { name: "田中 太郎", nickname: "タロウ", phone: "090-1234-5678", email: "tanaka@example.com", rank: "gold", notes: "常連客。ウイスキーがお好み。誕生日: 3/15", totalVisits: 25, totalSpent: 150000, chipBalance: 5000, pointBalance: 1200 },
-  c2: { name: "鈴木 花子", nickname: "ハナ", phone: "090-2345-6789", email: "suzuki@example.com", rank: "vip", notes: "VIP常連。カクテル好き。", totalVisits: 50, totalSpent: 350000, chipBalance: 12000, pointBalance: 3500 },
-  c3: { name: "佐藤 健一", nickname: "ケン", phone: "090-3456-7890", email: "sato@example.com", rank: "silver", notes: "", totalVisits: 10, totalSpent: 45000, chipBalance: 2000, pointBalance: 400 },
-  c4: { name: "高橋 美咲", nickname: "ミィ", phone: "", email: "", rank: "regular", notes: "", totalVisits: 3, totalSpent: 12000, chipBalance: 500, pointBalance: 100 },
-  c5: { name: "伊藤 大輔", nickname: "ダイ", phone: "090-4567-8901", email: "", rank: "regular", notes: "", totalVisits: 1, totalSpent: 3000, chipBalance: 0, pointBalance: 50 },
-  c6: { name: "渡辺 優子", nickname: "ユウ", phone: "090-5678-9012", email: "watanabe@example.com", rank: "gold", notes: "", totalVisits: 30, totalSpent: 200000, chipBalance: 8000, pointBalance: 2000 },
-  c7: { name: "山本 翔太", nickname: "ショウ", phone: "", email: "", rank: "silver", notes: "", totalVisits: 8, totalSpent: 32000, chipBalance: 1500, pointBalance: 300 },
-  c8: { name: "中村 あゆみ", nickname: "アユ", phone: "090-6789-0123", email: "", rank: "regular", notes: "", totalVisits: 2, totalSpent: 8000, chipBalance: 200, pointBalance: 80 },
+  "a8f3d9c2": { name: "田中 太郎", nickname: "タロウ", phone: "090-1234-5678", email: "tanaka@example.com", rank: "gold", notes: "常連客。ウイスキーがお好み。誕生日: 3/15", totalVisits: 25, totalSpent: 150000, chipBalance: 5000, pointBalance: 1200 },
+  "b4c9d2f1": { name: "鈴木 花子", nickname: "ハナ", phone: "090-2345-6789", email: "suzuki@example.com", rank: "vip", notes: "VIP常連。カクテル好き。", totalVisits: 50, totalSpent: 350000, chipBalance: 12000, pointBalance: 3500 },
+  "c2e5a9f3": { name: "佐藤 健一", nickname: "ケン", phone: "090-3456-7890", email: "sato@example.com", rank: "silver", notes: "", totalVisits: 10, totalSpent: 45000, chipBalance: 2000, pointBalance: 400 },
+  "d1b7f4c8": { name: "高橋 美咲", nickname: "ミィ", phone: "", email: "", rank: "regular", notes: "", totalVisits: 3, totalSpent: 12000, chipBalance: 500, pointBalance: 100 },
+  "e9a3b2d5": { name: "伊藤 大輔", nickname: "ダイ", phone: "090-4567-8901", email: "", rank: "regular", notes: "", totalVisits: 1, totalSpent: 3000, chipBalance: 0, pointBalance: 50 },
+  "f8d2e4a7": { name: "渡辺 優子", nickname: "ユウ", phone: "090-5678-9012", email: "watanabe@example.com", rank: "gold", notes: "", totalVisits: 30, totalSpent: 200000, chipBalance: 8000, pointBalance: 2000 },
+  "7c3f9a2d": { name: "山本 翔太", nickname: "ショウ", phone: "", email: "", rank: "silver", notes: "", totalVisits: 8, totalSpent: 32000, chipBalance: 1500, pointBalance: 300 },
+  "8b5d4e7f": { name: "中村 あゆみ", nickname: "アユ", phone: "090-6789-0123", email: "", rank: "regular", notes: "", totalVisits: 2, totalSpent: 8000, chipBalance: 200, pointBalance: 80 },
 };
 
 const DEFAULT_CUSTOMER: CustomerData = { name: "顧客", nickname: "", phone: "", email: "", rank: "regular", notes: "", totalVisits: 0, totalSpent: 0, chipBalance: 0, pointBalance: 0 };
@@ -227,7 +227,7 @@ export default function CustomerDetailPage() {
     <div className="space-y-4 max-w-4xl">
       {/* Back link */}
       <Link
-        href="/customers"
+        href="/a9k5dm"
         className="inline-flex items-center gap-1 text-[13px] text-[#5a6977] hover:text-[#2c3e50] transition-colors"
       >
         <ArrowLeft className="w-3.5 h-3.5" />

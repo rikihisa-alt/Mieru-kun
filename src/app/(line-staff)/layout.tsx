@@ -7,9 +7,9 @@ import { Home, Clock, Grid3X3, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
-  { href: "/staff-home", label: "ホーム", icon: Home },
-  { href: "/clock", label: "出退勤", icon: Clock },
-  { href: "/table-view", label: "卓確認", icon: Grid3X3 },
+  { href: "/s6y4bp", label: "ホーム", icon: Home },
+  { href: "/b8q4ft", label: "出退勤", icon: Clock },
+  { href: "/r7d2pm", label: "卓確認", icon: Grid3X3 },
 ];
 
 export default function LineStaffLayout({ children }: { children: React.ReactNode }) {

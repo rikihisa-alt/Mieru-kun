@@ -65,7 +65,7 @@ export async function adjustInventoryAction(formData: FormData) {
     });
 
     revalidatePath("/inventory");
-    revalidatePath("/products");
+    revalidatePath("/p5d7mg");
     return { success: true };
   } catch (e) {
     console.error("adjustInventory error:", e);

@@ -106,8 +106,8 @@ export async function executeClosingAction(formData: FormData) {
       after: closingData,
     });
 
-    revalidatePath("/closing");
-    revalidatePath("/dashboard");
+    revalidatePath("/w2f6yp");
+    revalidatePath("/h7p2kx");
     return { success: true };
   } catch (e) {
     console.error("closing error:", e);

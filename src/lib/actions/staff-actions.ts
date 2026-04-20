@@ -66,8 +66,8 @@ export async function changeStaffRoleAction(formData: FormData) {
       after: { role: parsed.data.new_role },
     });
 
-    revalidatePath("/staff");
-    revalidatePath("/settings");
+    revalidatePath("/g8n4vr");
+    revalidatePath("/e4s9jq");
     return { success: true };
   } catch (e) {
     console.error("changeStaffRole error:", e);

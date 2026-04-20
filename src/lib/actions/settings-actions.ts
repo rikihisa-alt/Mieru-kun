@@ -51,7 +51,7 @@ export async function updateStoreSettingAction(formData: FormData) {
       },
     });
 
-    revalidatePath("/settings");
+    revalidatePath("/e4s9jq");
     return { success: true };
   } catch (e) {
     console.error("updateStoreSetting error:", e);
@@ -94,7 +94,7 @@ export async function updateStoreInfoAction(formData: FormData) {
       after: parsed.data,
     });
 
-    revalidatePath("/settings");
+    revalidatePath("/e4s9jq");
     return { success: true };
   } catch (e) {
     console.error("updateStoreInfo error:", e);

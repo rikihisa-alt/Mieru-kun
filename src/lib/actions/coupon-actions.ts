@@ -81,7 +81,7 @@ export async function issueCouponAction(formData: FormData) {
     });
 
     revalidatePath("/coupons");
-    revalidatePath("/customers");
+    revalidatePath("/a9k5dm");
     return { success: true };
   } catch (e) {
     console.error("issueCoupon error:", e);

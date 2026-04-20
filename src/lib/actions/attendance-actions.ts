@@ -77,7 +77,7 @@ export async function attendanceAction(formData: FormData) {
       targetId,
     });
 
-    revalidatePath("/attendance");
+    revalidatePath("/z5b7lc");
     return { success: true };
   } catch (e) {
     console.error("attendance error:", e);

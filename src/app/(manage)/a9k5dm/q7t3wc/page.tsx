@@ -50,7 +50,7 @@ export default function NewCustomerPage() {
               className="px-4 py-[7px] border border-[#d8d3cc] text-[13px] font-medium rounded-[6px] hover:bg-[#f3f0ec]">
               続けて登録
             </button>
-            <button onClick={() => router.push("/customers")}
+            <button onClick={() => router.push("/a9k5dm")}
               className="px-4 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69]">
               顧客一覧へ
             </button>
@@ -62,7 +62,7 @@ export default function NewCustomerPage() {
 
   return (
     <div>
-      <Link href="/customers" className="flex items-center gap-1 text-[12px] text-[#8e9baa] hover:text-[#5a6977] mb-4">
+      <Link href="/a9k5dm" className="flex items-center gap-1 text-[12px] text-[#8e9baa] hover:text-[#5a6977] mb-4">
         <ArrowLeft className="w-3.5 h-3.5" />顧客一覧に戻る
       </Link>
 
@@ -109,7 +109,7 @@ export default function NewCustomerPage() {
               className="flex-1 py-2.5 bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] disabled:opacity-50 transition-colors">
               {loading ? "登録中..." : "登録する"}
             </button>
-            <Link href="/customers"
+            <Link href="/a9k5dm"
               className="px-4 py-2.5 border border-[#d8d3cc] text-[13px] font-medium rounded-[6px] hover:bg-[#f3f0ec] text-center transition-colors">
               キャンセル
             </Link>

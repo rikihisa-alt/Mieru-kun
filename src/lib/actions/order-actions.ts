@@ -96,7 +96,7 @@ export async function createOrderAction(input: {
       },
     });
 
-    revalidatePath("/orders");
+    revalidatePath("/x6j2fp");
     revalidatePath("/checkout");
     revalidatePath("/home");
     return { success: true };

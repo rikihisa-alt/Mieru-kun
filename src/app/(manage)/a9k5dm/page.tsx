@@ -14,14 +14,14 @@ interface Customer {
 }
 
 const DEMO: Customer[] = [
-  { id: "c1", name: "田中 太郎", nickname: "タロウ", rank: "gold", phone: "090-1234-5678", totalVisits: 25, totalSpent: 150000, chipBalance: 5000, pointBalance: 1200, lastVisit: "2026/04/10" },
-  { id: "c2", name: "鈴木 花子", nickname: "ハナ", rank: "vip", phone: "090-2345-6789", totalVisits: 50, totalSpent: 350000, chipBalance: 12000, pointBalance: 3500, lastVisit: "2026/04/12" },
-  { id: "c3", name: "佐藤 健一", nickname: "ケン", rank: "silver", phone: "090-3456-7890", totalVisits: 10, totalSpent: 45000, chipBalance: 2000, pointBalance: 400, lastVisit: "2026/04/08" },
-  { id: "c4", name: "高橋 美咲", nickname: "ミィ", rank: "regular", phone: "", totalVisits: 3, totalSpent: 12000, chipBalance: 500, pointBalance: 100, lastVisit: "2026/04/05" },
-  { id: "c5", name: "伊藤 大輔", nickname: "ダイ", rank: "regular", phone: "090-4567-8901", totalVisits: 1, totalSpent: 3000, chipBalance: 0, pointBalance: 50, lastVisit: "2026/04/01" },
-  { id: "c6", name: "渡辺 優子", nickname: "ユウ", rank: "gold", phone: "090-5678-9012", totalVisits: 30, totalSpent: 200000, chipBalance: 8000, pointBalance: 2000, lastVisit: "2026/04/11" },
-  { id: "c7", name: "山本 翔太", nickname: "ショウ", rank: "silver", phone: "", totalVisits: 8, totalSpent: 32000, chipBalance: 1500, pointBalance: 300, lastVisit: "2026/03/28" },
-  { id: "c8", name: "中村 あゆみ", nickname: "アユ", rank: "regular", phone: "090-6789-0123", totalVisits: 2, totalSpent: 8000, chipBalance: 200, pointBalance: 80, lastVisit: "2026/03/20" },
+  { id: "a8f3d9c2", name: "田中 太郎", nickname: "タロウ", rank: "gold", phone: "090-1234-5678", totalVisits: 25, totalSpent: 150000, chipBalance: 5000, pointBalance: 1200, lastVisit: "2026/04/10" },
+  { id: "b4c9d2f1", name: "鈴木 花子", nickname: "ハナ", rank: "vip", phone: "090-2345-6789", totalVisits: 50, totalSpent: 350000, chipBalance: 12000, pointBalance: 3500, lastVisit: "2026/04/12" },
+  { id: "c2e5a9f3", name: "佐藤 健一", nickname: "ケン", rank: "silver", phone: "090-3456-7890", totalVisits: 10, totalSpent: 45000, chipBalance: 2000, pointBalance: 400, lastVisit: "2026/04/08" },
+  { id: "d1b7f4c8", name: "高橋 美咲", nickname: "ミィ", rank: "regular", phone: "", totalVisits: 3, totalSpent: 12000, chipBalance: 500, pointBalance: 100, lastVisit: "2026/04/05" },
+  { id: "e9a3b2d5", name: "伊藤 大輔", nickname: "ダイ", rank: "regular", phone: "090-4567-8901", totalVisits: 1, totalSpent: 3000, chipBalance: 0, pointBalance: 50, lastVisit: "2026/04/01" },
+  { id: "f8d2e4a7", name: "渡辺 優子", nickname: "ユウ", rank: "gold", phone: "090-5678-9012", totalVisits: 30, totalSpent: 200000, chipBalance: 8000, pointBalance: 2000, lastVisit: "2026/04/11" },
+  { id: "7c3f9a2d", name: "山本 翔太", nickname: "ショウ", rank: "silver", phone: "", totalVisits: 8, totalSpent: 32000, chipBalance: 1500, pointBalance: 300, lastVisit: "2026/03/28" },
+  { id: "8b5d4e7f", name: "中村 あゆみ", nickname: "アユ", rank: "regular", phone: "090-6789-0123", totalVisits: 2, totalSpent: 8000, chipBalance: 200, pointBalance: 80, lastVisit: "2026/03/20" },
 ];
 
 const RANK_TEXT: Record<Rank, string> = {
@@ -57,7 +57,7 @@ export default function CustomersPage() {
             style={{ paddingLeft: "36px" }}
             className="w-full pr-3 py-[7px] text-[13px] border border-[#d8d3cc] rounded-[6px] focus:outline-none focus:border-[#3a8f7c]" />
         </div>
-        <Link href="/customers/new"
+        <Link href="/a9k5dm/q7t3wc"
           className="flex items-center gap-1 px-3 py-[7px] bg-[#3a8f7c] text-white text-[13px] font-medium rounded-[6px] hover:bg-[#2f7a69] transition-colors">
           <Plus className="w-3.5 h-3.5" />顧客登録
         </Link>

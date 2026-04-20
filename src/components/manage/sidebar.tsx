@@ -19,21 +19,21 @@ import {
 
 const NAV = [
   { section: "運営", items: [
-    { href: "/dashboard", label: "ダッシュボード", icon: LayoutGrid },
-    { href: "/floor", label: "入店管理", icon: DoorOpen },
-    { href: "/tables", label: "卓管理", icon: Grid3X3 },
-    { href: "/orders", label: "注文 / 精算", icon: ShoppingBag },
+    { href: "/h7p2kx", label: "ダッシュボード", icon: LayoutGrid },
+    { href: "/m4w9sq", label: "入店管理", icon: DoorOpen },
+    { href: "/v3r8nb", label: "卓管理", icon: Grid3X3 },
+    { href: "/x6j2fp", label: "注文 / 精算", icon: ShoppingBag },
   ]},
   { section: "管理", items: [
-    { href: "/customers", label: "顧客管理", icon: Users },
-    { href: "/staff", label: "従業員管理", icon: UserPlus },
-    { href: "/attendance", label: "勤怠管理", icon: Clock },
-    { href: "/closing", label: "締め処理", icon: Lock },
-    { href: "/history", label: "履歴", icon: History },
+    { href: "/a9k5dm", label: "顧客管理", icon: Users },
+    { href: "/g8n4vr", label: "従業員管理", icon: UserPlus },
+    { href: "/z5b7lc", label: "勤怠管理", icon: Clock },
+    { href: "/w2f6yp", label: "締め処理", icon: Lock },
+    { href: "/n3k8xh", label: "履歴", icon: History },
   ]},
   { section: "設定", items: [
-    { href: "/products", label: "商品マスタ", icon: Package },
-    { href: "/settings", label: "店舗設定", icon: Settings },
+    { href: "/p5d7mg", label: "商品マスタ", icon: Package },
+    { href: "/e4s9jq", label: "店舗設定", icon: Settings },
   ]},
 ];
 
@@ -43,7 +43,7 @@ export function Sidebar() {
   return (
     <aside className="w-64 bg-bg-white border-r border-border flex flex-col h-full">
       <div className="h-14 flex items-center px-2 border-b border-border">
-        <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
+        <Link href="/h7p2kx" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
           <Image src="/logo-icon.png" alt="みえるくん" width={48} height={48} className="shrink-0" />
           <span className="text-[13px] font-bold text-text-primary tracking-tight whitespace-nowrap">てんぽみえるくん</span>
         </Link>
@@ -59,10 +59,10 @@ export function Sidebar() {
             </div>
             {section.items.map((item) => {
               // customers/new は customers とは別の完全一致で判定
-              const active = item.href === "/customers/new"
-                ? pathname === "/customers/new"
-                : item.href === "/customers"
-                  ? pathname === "/customers" || (pathname.startsWith("/customers/") && pathname !== "/customers/new")
+              const active = item.href === "/a9k5dm/q7t3wc"
+                ? pathname === "/a9k5dm/q7t3wc"
+                : item.href === "/a9k5dm"
+                  ? pathname === "/a9k5dm" || (pathname.startsWith("/a9k5dm/") && pathname !== "/a9k5dm/q7t3wc")
                   : pathname === item.href || pathname.startsWith(item.href + "/");
               const Icon = item.icon;
               return (
