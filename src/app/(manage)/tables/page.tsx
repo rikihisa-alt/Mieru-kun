@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { useAppStore } from "@/lib/store/app-store";
 import {
@@ -15,6 +15,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { Dice5, X, Plus, Pencil, Trash2, ChevronDown, ChevronUp, User } from "lucide-react";
+import { CustomerActionMenu } from "@/components/shared/customer-action-menu";
 
 // --- 型 ---
 interface Player {
@@ -236,11 +237,23 @@ export default function TablesPage() {
 
       {/* プレイヤーポップオーバー */}
       {popoverPlayer && (
-        <PlayerPopover
-          player={popoverPlayer.player}
+        <CustomerActionMenu
+          customer={{
+            id: popoverPlayer.player.id,
+            name: popoverPlayer.player.name,
+            rank: popoverPlayer.player.rank,
+            chips: popoverPlayer.player.chips,
+            extra: popoverPlayer.player.tableId ? (
+              <button
+                onClick={() => { removeFromTable(popoverPlayer.player.id); setPopoverPlayer(null); }}
+                className="w-full flex items-center justify-center gap-1 py-1.5 text-[12px] text-[#c5221f] bg-[#fce8e6] rounded-[6px] hover:bg-[#f8d7d4] transition-colors"
+              >
+                <X className="w-3 h-3" />卓から外す
+              </button>
+            ) : null,
+          }}
           x={popoverPlayer.x}
           y={popoverPlayer.y}
-          onRemove={() => { removeFromTable(popoverPlayer.player.id); setPopoverPlayer(null); }}
           onClose={() => setPopoverPlayer(null)}
         />
       )}
@@ -260,7 +273,7 @@ function EditModal({ table, onSave, onClose }: {
   const [dealer, setDealer] = useState(table.dealer);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px]" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 backdrop-blur-[2px]" onClick={onClose}>
       <div className="bg-white rounded-[8px] border border-[#d8d3cc] shadow-xl w-[380px] p-5 space-y-4" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <span className="text-[15px] font-semibold text-[#2c3e50]">卓を編集</span>
@@ -304,59 +317,6 @@ function EditModal({ table, onSave, onClose }: {
         </div>
       </div>
     </div>
-  );
-}
-
-// ==================== プレイヤーポップオーバー ====================
-function PlayerPopover({ player, x, y, onRemove, onClose }: {
-  player: Player; x: number; y: number; onRemove: () => void; onClose: () => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ left: x, top: y });
-
-  useEffect(() => {
-    if (ref.current) {
-      const rect = ref.current.getBoundingClientRect();
-      let left = x - rect.width / 2;
-      let top = y - rect.height - 8;
-      // 画面外補正
-      if (left < 8) left = 8;
-      if (left + rect.width > window.innerWidth - 8) left = window.innerWidth - rect.width - 8;
-      if (top < 8) top = y + 40;
-      setPos({ left, top });
-    }
-  }, [x, y]);
-
-  return (
-    <>
-    <div className="fixed inset-0 z-40" onClick={onClose} />
-    <div ref={ref} className="fixed z-50 bg-white border border-[#d8d3cc] rounded-[8px] shadow-lg p-3 min-w-[180px]"
-      style={{ left: pos.left, top: pos.top }}
-      onClick={e => e.stopPropagation()}>
-      <div className="flex items-center gap-2 mb-2">
-        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold"
-          style={{ backgroundColor: RANK_COLORS[player.rank] }}>
-          {player.name.charAt(0)}
-        </div>
-        <div>
-          <div className="text-[13px] font-semibold text-[#2c3e50]">{player.name}</div>
-          <div className="text-[10px] text-[#8e9baa]">{RANK_LABELS[player.rank] || "Regular"}</div>
-        </div>
-        <button onClick={onClose} className="ml-auto p-0.5 hover:bg-[#f3f0ec] rounded-[4px]">
-          <X className="w-3.5 h-3.5 text-[#8e9baa]" />
-        </button>
-      </div>
-      <div className="text-[12px] text-[#5a6977] mb-2">
-        チップ: <strong className="text-[#2c3e50]">{player.chips.toLocaleString()}枚</strong>
-      </div>
-      {player.tableId && (
-        <button onClick={onRemove}
-          className="w-full flex items-center justify-center gap-1 py-1.5 text-[12px] text-[#c5221f] bg-[#fce8e6] rounded-[6px] hover:bg-[#f8d7d4] transition-colors">
-          <X className="w-3 h-3" />卓から外す
-        </button>
-      )}
-    </div>
-    </>
   );
 }
 

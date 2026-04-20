@@ -41,7 +41,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-56 bg-bg-white border-r border-border flex flex-col h-full relative z-30">
+    <aside className="w-56 bg-bg-white border-r border-border flex flex-col h-full relative z-50">
       <div className="h-14 flex items-center px-4 border-b border-border">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <Image src="/logo-icon.png" alt="みえるくん" width={36} height={36} />

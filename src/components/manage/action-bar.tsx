@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Plus, Grid3X3, Coins, CreditCard, X, ChevronUp } from "lucide-react";
 
 export function ActionBar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  // ルート変更時は自動で閉じる
+  useEffect(() => { setOpen(false); }, [pathname]);
 
   const actions = [
     { icon: <Plus />, label: "入店", color: "#3a8f7c", onClick: () => router.push("/floor") },
@@ -20,7 +24,7 @@ export function ActionBar() {
       {/* 展開時の背景オーバーレイ（外クリックで閉じる） */}
       {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />}
 
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+      <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end gap-2">
         {open && (
           <div className="flex flex-col gap-1.5 mb-1">
             {actions.map((a, i) => (

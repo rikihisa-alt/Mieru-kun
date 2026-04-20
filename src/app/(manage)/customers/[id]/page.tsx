@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Phone,
@@ -81,7 +82,15 @@ const PRIZE_OPTIONS = [
 ];
 
 export default function CustomerDetailPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("基本情報");
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const initialTab: Tab =
+    tabParam === "chip" ? "チップ・ポイント"
+    : tabParam === "visit" ? "来店履歴"
+    : tabParam === "prize" ? "プライズ"
+    : tabParam === "unpaid" ? "未払"
+    : "基本情報";
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
 
   // Basic info state
   const [name, setName] = useState("田中 太郎");

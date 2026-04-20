@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Plus, Users } from "lucide-react";
+import { Search, Plus } from "lucide-react";
+import { CustomerActionMenu } from "@/components/shared/customer-action-menu";
 
 type Rank = "regular" | "silver" | "gold" | "vip";
 
@@ -33,10 +34,17 @@ const RANK_LABEL: Record<Rank, string> = { regular: "レギュラー", silver: "
 
 export default function CustomersPage() {
   const [search, setSearch] = useState("");
+  const [menu, setMenu] = useState<{ customer: Customer; x: number; y: number } | null>(null);
 
   const filtered = search
     ? DEMO.filter(c => c.name.includes(search) || c.phone.includes(search))
     : DEMO;
+
+  function openMenu(c: Customer, e: React.MouseEvent) {
+    e.stopPropagation();
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setMenu({ customer: c, x: rect.left + rect.width / 2, y: rect.top });
+  }
 
   return (
     <div className="space-y-4">
@@ -74,9 +82,9 @@ export default function CustomersPage() {
                 <p className="text-[13px]">該当する顧客がいません</p>
               </td></tr>
             ) : filtered.map(c => (
-              <tr key={c.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] transition-colors cursor-pointer" onClick={() => window.location.href = `/customers/${c.id}`}>
+              <tr key={c.id} className="border-b border-[#f3f0ec] hover:bg-[#faf8f5] transition-colors cursor-pointer" onClick={(e) => openMenu(c, e)}>
                 <td className="px-4 py-2.5">
-                  <Link href={`/customers/${c.id}`} className="font-medium text-[#3a8f7c] hover:underline">{c.name}</Link>
+                  <Link href={`/customers/${c.id}`} onClick={(e) => e.stopPropagation()} className="font-medium text-[#3a8f7c] hover:underline">{c.name}</Link>
                 </td>
                 <td className="px-4 py-2.5">
                   <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${RANK_BADGE[c.rank]}`}>{RANK_LABEL[c.rank]}</span>
@@ -91,6 +99,15 @@ export default function CustomersPage() {
           </tbody>
         </table>
       </div>
+
+      {menu && (
+        <CustomerActionMenu
+          customer={{ id: menu.customer.id, name: menu.customer.name, rank: menu.customer.rank, chips: menu.customer.chipBalance }}
+          x={menu.x}
+          y={menu.y}
+          onClose={() => setMenu(null)}
+        />
+      )}
     </div>
   );
 }
