@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowRight, ChevronRight, ChevronDown, Check, Minus,
   DoorOpen, Grid3X3, ShoppingBag, CreditCard, ClipboardCheck, Clock,
@@ -11,6 +11,14 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  // プレビューiframeが /login にリダイレクトされないよう、
+  // LP表示時にデモモードcookieをセットしてからiframeを描画する。
+  const [previewReady, setPreviewReady] = useState(false);
+  useEffect(() => {
+    document.cookie = "demo_mode=true; path=/; max-age=86400; SameSite=Lax";
+    setPreviewReady(true);
+  }, []);
+
   function handleDemo() {
     document.cookie = "demo_mode=true; path=/; max-age=86400; SameSite=Lax";
     window.location.href = "/h7p2kx";
@@ -76,21 +84,38 @@ export default function Home() {
 
             {/* 右: 実際のダッシュボード画面 */}
             <div className="w-full lg:w-[50%]">
-              <div className="bg-white border border-border-light rounded-[12px] overflow-hidden shadow-sm">
+              <button
+                onClick={handleDemo}
+                className="block w-full text-left bg-white border border-border-light rounded-[12px] overflow-hidden shadow-sm hover:shadow-md hover:border-accent/40 transition-all group"
+                aria-label="デモダッシュボードを開く"
+              >
                 <div className="h-7 bg-bg-hover border-b border-border-light flex items-center px-3 gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-[#d8d3cc]" /><div className="w-2 h-2 rounded-full bg-[#d8d3cc]" /><div className="w-2 h-2 rounded-full bg-[#d8d3cc]" />
-                  <span className="text-[9px] text-text-tertiary ml-2">てんぽみえるくん — ダッシュボード</span>
+                  <span className="text-[9px] text-text-tertiary ml-2">mieru-kun.vercel.app/dashboard</span>
                 </div>
-                <div className="relative h-[420px] overflow-hidden">
-                  <iframe
-                    src="/h7p2kx"
-                    className="absolute top-0 left-0 border-0 pointer-events-none"
-                    style={{ width: "200%", height: "200%", transform: "scale(0.5)", transformOrigin: "top left" }}
-                    tabIndex={-1}
-                  />
+                <div className="relative aspect-[16/10] overflow-hidden bg-bg-hover">
+                  {previewReady ? (
+                    <iframe
+                      src="/h7p2kx"
+                      className="absolute top-0 left-0 border-0 pointer-events-none"
+                      style={{ width: "200%", height: "200%", transform: "scale(0.5)", transformOrigin: "top left" }}
+                      tabIndex={-1}
+                      title="ダッシュボードプレビュー"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
+                  {/* ホバー時のオーバーレイ */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-text-primary/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-6">
+                    <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-text-primary text-[13px] font-medium rounded-[6px] shadow-lg">
+                      <ArrowRight className="w-3.5 h-3.5" />この画面を触ってみる
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <p className="text-[10px] text-text-tertiary text-center mt-2">※ 実際のダッシュボード画面です</p>
+              </button>
+              <p className="text-[10px] text-text-tertiary text-center mt-2">※ 実際のダッシュボード画面(クリックでデモ体験)</p>
             </div>
           </div>
         </div>
