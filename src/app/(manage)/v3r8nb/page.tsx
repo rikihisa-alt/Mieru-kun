@@ -79,6 +79,9 @@ export default function TablesPage() {
   // プレイヤーポップオーバー
   const [popoverPlayer, setPopoverPlayer] = useState<{ player: Player; x: number; y: number } | null>(null);
 
+  // 空席ポップオーバー
+  const [seatPopover, setSeatPopover] = useState<{ tableId: string; seatIndex: number; x: number; y: number } | null>(null);
+
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const waitingPlayers = players.filter(p => p.tableId === null);
   const getTablePlayers = useCallback((tid: string) => players.filter(p => p.tableId === tid), [players]);
@@ -158,9 +161,47 @@ export default function TablesPage() {
     setPopoverPlayer({ player, x: rect.left + rect.width / 2, y: rect.top });
   }
 
+  function handleEmptySeatClick(tableId: string, seatIndex: number, event: React.MouseEvent) {
+    event.stopPropagation();
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    setSeatPopover({ tableId, seatIndex, x: rect.left + rect.width / 2, y: rect.top });
+  }
+
+  function seatPlayer(playerId: string) {
+    if (!seatPopover) return;
+    setPlayers(prev => prev.map(p =>
+      p.id === playerId ? { ...p, tableId: seatPopover.tableId, seatIndex: seatPopover.seatIndex } : p
+    ));
+    setSeatPopover(null);
+  }
+
+  function reduceSeat() {
+    if (!seatPopover) return;
+    const table = tables.find(t => t.id === seatPopover.tableId);
+    if (!table) return;
+    if (table.maxSeats <= 2) {
+      window.alert("席は最低2つ必要です");
+      return;
+    }
+    // 空席を1つ減らす（該当seatIndexが最後尾でない場合は後続を繰り上げ）
+    setTables(prev => prev.map(t =>
+      t.id === seatPopover.tableId ? { ...t, maxSeats: t.maxSeats - 1 } : t
+    ));
+    // 削除された席位置より後のプレイヤーは繰り上げ
+    setPlayers(prev => prev.map(p => {
+      if (p.tableId !== seatPopover.tableId) return p;
+      if (p.seatIndex !== null && p.seatIndex > seatPopover.seatIndex) {
+        return { ...p, seatIndex: p.seatIndex - 1 };
+      }
+      return p;
+    }));
+    setSeatPopover(null);
+  }
+
   // ページクリックでポップオーバー閉じる
   function handlePageClick() {
     if (popoverPlayer) setPopoverPlayer(null);
+    if (seatPopover) setSeatPopover(null);
   }
 
   return (
@@ -218,6 +259,7 @@ export default function TablesPage() {
               onDelete={() => deleteTable(table.id)}
               onRemovePlayer={removeFromTable}
               onPlayerClick={handlePlayerChipClick}
+              onEmptySeatClick={handleEmptySeatClick}
             />
           ))}
         </div>
@@ -258,7 +300,68 @@ export default function TablesPage() {
           onClose={() => setPopoverPlayer(null)}
         />
       )}
+
+      {/* 空席ポップオーバー */}
+      {seatPopover && (
+        <SeatActionMenu
+          waitingPlayers={waitingPlayers}
+          x={seatPopover.x}
+          y={seatPopover.y}
+          onSeat={seatPlayer}
+          onReduce={reduceSeat}
+          onClose={() => setSeatPopover(null)}
+        />
+      )}
     </DndContext>
+  );
+}
+
+// ==================== 空席アクションメニュー ====================
+function SeatActionMenu({ waitingPlayers, x, y, onSeat, onReduce, onClose }: {
+  waitingPlayers: Player[];
+  x: number;
+  y: number;
+  onSeat: (playerId: string) => void;
+  onReduce: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <>
+      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div
+        className="fixed z-[60] modal-card p-3 min-w-[240px] max-h-[320px] overflow-y-auto scrollbar-subtle"
+        style={{ left: x - 120, top: y + 12 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="t-label mb-2 px-1">待機中から着席</p>
+        {waitingPlayers.length === 0 ? (
+          <p className="text-[12px] text-text-tertiary px-1 py-2">待機中の顧客はいません</p>
+        ) : (
+          <div className="space-y-0.5 mb-2">
+            {waitingPlayers.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => onSeat(p.id)}
+                className="w-full flex items-center gap-2 px-2 py-2 rounded-[var(--radius-sm)] text-left hover:bg-white/70 transition-colors"
+              >
+                <span className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
+                  style={{ backgroundColor: p.rank === "vip" ? "#7c3aed" : p.rank === "gold" ? "#d97706" : p.rank === "silver" ? "#6b7280" : "#9ca3af" }}>
+                  {(p.nickname || p.name).charAt(0)}
+                </span>
+                <span className="text-[13px] font-medium">{p.nickname || p.name}</span>
+                {p.nickname && <span className="text-[11px] text-text-tertiary">{p.name}</span>}
+                <span className="ml-auto text-[11px] text-text-tertiary">{p.chips.toLocaleString()}枚</span>
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="pt-2 border-t border-border-light">
+          <button onClick={onReduce} className="btn btn-danger-soft btn-sm w-full">
+            この席を減らす
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -373,11 +476,12 @@ function PlayerChip({ player, isDragging }: { player: Player; isDragging?: boole
 }
 
 // ==================== 卓カード（全幅・横長楕円 + インライン詳細） ====================
-function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete, onRemovePlayer, onPlayerClick }: {
+function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete, onRemovePlayer, onPlayerClick, onEmptySeatClick }: {
   table: TableDef; players: Player[]; expanded: boolean;
   onToggleExpand: () => void; onEdit: () => void; onDelete: () => void;
   onRemovePlayer: (pid: string) => void;
   onPlayerClick: (player: Player, event: React.MouseEvent) => void;
+  onEmptySeatClick?: (tableId: string, seatIndex: number, event: React.MouseEvent) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: table.id });
   const occupancy = table.maxSeats > 0 ? players.length / table.maxSeats : 0;
@@ -436,7 +540,7 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
           const cy = 50 + ry * Math.sin(rad);
           const player = players.find(p => p.seatIndex === i);
           return (
-            <SeatSlot key={i} tableId={table.id} seatIndex={i} cx={cx} cy={cy} player={player} onPlayerClick={onPlayerClick} />
+            <SeatSlot key={i} tableId={table.id} seatIndex={i} cx={cx} cy={cy} player={player} onPlayerClick={onPlayerClick} onEmptyClick={onEmptySeatClick} />
           );
         })}
       </div>
@@ -505,9 +609,10 @@ function TableCard({ table, players, expanded, onToggleExpand, onEdit, onDelete,
 }
 
 // ==================== 席スロット（ドロップ対応） ====================
-function SeatSlot({ tableId, seatIndex, cx, cy, player, onPlayerClick }: {
+function SeatSlot({ tableId, seatIndex, cx, cy, player, onPlayerClick, onEmptyClick }: {
   tableId: string; seatIndex: number; cx: number; cy: number; player?: Player;
   onPlayerClick?: (player: Player, event: React.MouseEvent) => void;
+  onEmptyClick?: (tableId: string, seatIndex: number, event: React.MouseEvent) => void;
 }) {
   const seatId = `seat-${tableId}-${seatIndex}`;
   const { setNodeRef, isOver } = useDroppable({ id: seatId });
@@ -521,11 +626,15 @@ function SeatSlot({ tableId, seatIndex, cx, cy, player, onPlayerClick }: {
       {player ? (
         <DraggablePlayer player={player} onChipClick={onPlayerClick} />
       ) : (
-        <div className={`w-10 h-10 rounded-full border-2 border-dashed flex items-center justify-center ${
-          isOver ? "drop-target-active" : "border-border hover:border-accent/50 hover:bg-[#f0f9f6]"
-        }`} style={{ transition: "transform 0.1s, border-color 0.1s, background-color 0.1s" }}>
+        <button
+          type="button"
+          onClick={(e) => onEmptyClick?.(tableId, seatIndex, e)}
+          className={`w-10 h-10 rounded-full border-2 border-dashed flex items-center justify-center cursor-pointer transition-all ${
+            isOver ? "drop-target-active" : "border-border hover:border-accent hover:bg-[color:var(--primary-soft-bg)] hover:scale-105"
+          }`}
+        >
           <span className={`text-[10px] font-medium ${isOver ? "text-accent" : "text-text-tertiary"}`}>{seatIndex + 1}</span>
-        </div>
+        </button>
       )}
     </div>
   );

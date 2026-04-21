@@ -2,24 +2,25 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { FileDown, DoorOpen, LogIn, LogOut as LogOutIcon, CalendarDays, CreditCard, ShoppingBag, Coins, ChevronLeft, ChevronRight } from "lucide-react";
+import { FileDown, DoorOpen, LogIn, LogOut as LogOutIcon, CalendarDays, CreditCard, ShoppingBag, Coins, Gift, ChevronLeft, ChevronRight } from "lucide-react";
 
 // --- 型 ---
-type EventType = "入店" | "退店" | "出勤" | "退勤" | "注文" | "精算" | "チップ" | "イベント";
+type EventType = "入店" | "退店" | "出勤" | "退勤" | "注文" | "精算" | "チップ" | "イベント" | "プライズ";
 interface HistoryEntry {
   id: string; date: string; time: string; type: EventType;
   name: string; realName?: string; detail?: string; amount?: number; rank?: string;
 }
 
 const TYPE_META: Record<EventType, { icon: React.ReactNode; color: string; bg: string }> = {
-  "入店": { icon: <DoorOpen className="w-3 h-3" />, color: "#3a8f7c", bg: "#e8f5f0" },
-  "退店": { icon: <LogOutIcon className="w-3 h-3" />, color: "#8e9baa", bg: "#f3f0ec" },
-  "出勤": { icon: <LogIn className="w-3 h-3" />, color: "#2c3e50", bg: "#e8e4df" },
-  "退勤": { icon: <LogOutIcon className="w-3 h-3" />, color: "#5a6977", bg: "#f3f0ec" },
-  "注文": { icon: <ShoppingBag className="w-3 h-3" />, color: "#3a8f7c", bg: "#e8f5f0" },
-  "精算": { icon: <CreditCard className="w-3 h-3" />, color: "#2e7d5b", bg: "#e8f5f0" },
-  "チップ": { icon: <Coins className="w-3 h-3" />, color: "#d97706", bg: "#fdf4e8" },
+  "入店":     { icon: <DoorOpen className="w-3 h-3" />,   color: "#3a8f7c", bg: "#e8f5f0" },
+  "退店":     { icon: <LogOutIcon className="w-3 h-3" />, color: "#8e9baa", bg: "#f3f0ec" },
+  "出勤":     { icon: <LogIn className="w-3 h-3" />,      color: "#2c3e50", bg: "#e8e4df" },
+  "退勤":     { icon: <LogOutIcon className="w-3 h-3" />, color: "#5a6977", bg: "#f3f0ec" },
+  "注文":     { icon: <ShoppingBag className="w-3 h-3" />, color: "#3a8f7c", bg: "#e8f5f0" },
+  "精算":     { icon: <CreditCard className="w-3 h-3" />, color: "#2e7d5b", bg: "#e8f5f0" },
+  "チップ":   { icon: <Coins className="w-3 h-3" />,     color: "#d97706", bg: "#fdf4e8" },
   "イベント": { icon: <CalendarDays className="w-3 h-3" />, color: "#7c3aed", bg: "#f3e8fd" },
+  "プライズ": { icon: <Gift className="w-3 h-3" />,      color: "#b8337e", bg: "#fce8f0" },
 };
 
 // デモデータ (顧客はnickname=表示名、realName=本名を両方保持)
@@ -44,6 +45,9 @@ const ALL_HISTORY: HistoryEntry[] = [
   { id: "h18", date: "2026/04/13", time: "23:50", type: "精算", name: "ユウ", realName: "渡辺 優子", detail: "カード", amount: 12000, rank: "gold" },
   { id: "h19", date: "2026/04/13", time: "23:45", type: "退店", name: "ユウ", realName: "渡辺 優子", rank: "gold" },
   { id: "h20", date: "2026/04/13", time: "22:00", type: "イベント", name: "ポーカー大会", detail: "終了" },
+  { id: "h21", date: "2026/04/14", time: "22:30", type: "プライズ", name: "タロウ", realName: "田中 太郎", detail: "特製ウイスキー 引換", amount: 5000, rank: "gold" },
+  { id: "h22", date: "2026/04/14", time: "19:45", type: "プライズ", name: "ハナ", realName: "鈴木 花子", detail: "VIPルーム利用券", amount: 10000, rank: "vip" },
+  { id: "h23", date: "2026/04/13", time: "21:10", type: "プライズ", name: "ユウ", realName: "渡辺 優子", detail: "ノベルティTシャツ", amount: 2000, rank: "gold" },
 ];
 
 const TABS: { key: string; label: string; types: EventType[] }[] = [
@@ -52,6 +56,7 @@ const TABS: { key: string; label: string; types: EventType[] }[] = [
   { key: "attendance", label: "出退勤", types: ["出勤", "退勤"] },
   { key: "sales", label: "売上", types: ["注文", "精算"] },
   { key: "chip", label: "チップ", types: ["チップ"] },
+  { key: "prize", label: "プライズ", types: ["プライズ"] },
   { key: "event", label: "イベント", types: ["イベント"] },
 ];
 

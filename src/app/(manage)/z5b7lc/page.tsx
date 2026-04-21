@@ -308,6 +308,8 @@ export default function AttendancePage() {
 
   const working = staff.filter(s => s.status === "working").length;
   const onBreak = staff.filter(s => s.status === "on_break").length;
+  const finished = staff.filter(s => s.status === "finished").length;
+  const notStarted = staff.filter(s => s.status === "off").length;
   const pending = staff.filter(s => s.needsApproval).length;
 
   // 時間ラベル (1時間ごと)
@@ -318,10 +320,11 @@ export default function AttendancePage() {
       {/* KPI */}
       <section>
         <div className="flex items-end justify-between gap-6 flex-wrap">
-          <div className="flex items-end gap-8 flex-wrap">
-            <KpiItem label="出勤" value={working} unit="名" accent />
+          <div className="flex items-start gap-10 flex-wrap">
+            <KpiItem label="出勤中" value={working} unit="名" accent />
             <KpiItem label="休憩中" value={onBreak} unit="名" />
-            <KpiItem label="退勤" value={STAFF_LIST.length - working - onBreak} unit="名" />
+            <KpiItem label="退勤済" value={finished} unit="名" />
+            <KpiItem label="未出勤" value={notStarted} unit="名" />
             {pending > 0 && <KpiItem label="承認待ち" value={pending} unit="件" danger />}
           </div>
           {(tab === "shift" || tab === "create" || tab === "calendar") && (

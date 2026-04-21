@@ -67,11 +67,13 @@ export default function DashboardPage() {
       {isVisible("summary") && (
         <section>
           <p className="t-label mb-3">本日集計</p>
-          <div className="flex items-end gap-x-8 gap-y-5 flex-wrap">
+          <div className="flex items-start gap-x-10 gap-y-6 flex-wrap">
             <KpiItem label="来店"     value={kpis.visitors}                     unit="名" onClick={() => router.push("/m4w9sq")} />
             <KpiItem label="売上"     value={`¥${kpis.sales.toLocaleString()}`} />
             <KpiItem label="客単価"   value={`¥${kpis.avgSpend.toLocaleString()}`} />
-            <KpiProgress label="達成率" pct={progressPct} remaining={remaining} />
+            <KpiItem label="達成率"   value={`${progressPct}%`} accent extra={
+              <span className="t-xs text-text-tertiary tabular-nums">{progressPct >= 100 ? "目標達成" : `残 ¥${remaining.toLocaleString()}`}</span>
+            } />
             <KpiItem label="出勤"     value={kpis.onDuty}                       unit="名" onClick={() => router.push("/z5b7lc")} />
             {kpis.unpaid > 0 && (
               <KpiItem label="未払" value={kpis.unpaid} unit="件" danger onClick={() => router.push("/x6j2fp")} />
@@ -284,7 +286,7 @@ export default function DashboardPage() {
 }
 
 function KpiItem({
-  label, value, unit, accent, danger, onClick,
+  label, value, unit, accent, danger, onClick, extra,
 }: {
   label: string;
   value: string | number;
@@ -292,6 +294,7 @@ function KpiItem({
   accent?: boolean;
   danger?: boolean;
   onClick?: () => void;
+  extra?: React.ReactNode;
 }) {
   const valueColor = danger ? "var(--danger-text)" : accent ? "var(--primary-text)" : "var(--text-primary)";
   const underlineColor = danger ? "var(--danger-text)" : "var(--primary-solid)";
@@ -302,7 +305,6 @@ function KpiItem({
       className={`group flex flex-col items-start gap-1 pb-1 border-b-2 border-transparent transition-all ${
         onClick ? "cursor-pointer hover:-translate-y-0.5" : "cursor-default"
       }`}
-      style={onClick ? ({ "--hover-border": underlineColor } as React.CSSProperties) : undefined}
       onMouseEnter={(e) => { if (onClick) e.currentTarget.style.borderBottomColor = underlineColor; }}
       onMouseLeave={(e) => { if (onClick) e.currentTarget.style.borderBottomColor = "transparent"; }}
     >
@@ -314,32 +316,8 @@ function KpiItem({
         <span className="t-value" style={{ color: valueColor }}>{value}</span>
         {unit && <span className="text-[14px] text-text-tertiary font-normal">{unit}</span>}
       </span>
+      {extra}
     </button>
-  );
-}
-
-function KpiProgress({ label, pct, remaining }: { label: string; pct: number; remaining: number }) {
-  const achieved = pct >= 100;
-  return (
-    <div className="flex flex-col items-start gap-1 pb-1 min-w-[9rem]">
-      <span className="t-label">{label}</span>
-      <span className="flex items-baseline gap-1">
-        <span className="t-value" style={{ color: achieved ? "var(--primary-text)" : "var(--text-primary)" }}>{pct}</span>
-        <span className="text-[14px] text-text-tertiary font-normal">%</span>
-      </span>
-      <div className="w-full h-1 rounded-full bg-[rgba(28,46,60,0.06)] overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{
-            width: `${pct}%`,
-            background: achieved ? "#209c6e" : "linear-gradient(90deg, #209c6e 0%, #2dbf86 100%)",
-          }}
-        />
-      </div>
-      <span className="t-xs text-text-tertiary tabular-nums">
-        {achieved ? "目標達成" : `残 ¥${remaining.toLocaleString()}`}
-      </span>
-    </div>
   );
 }
 

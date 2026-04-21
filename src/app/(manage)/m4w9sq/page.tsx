@@ -9,6 +9,8 @@ import {
   Plus,
   UserPlus,
   MapPin,
+  DoorOpen,
+  AlertTriangle,
 } from "lucide-react";
 
 type Rank = "regular" | "silver" | "gold" | "vip";
@@ -22,6 +24,8 @@ interface Visitor {
   table: string | null;
   amount: number;
   status: "active" | "unpaid" | "assigned";
+  entranceFee: number;
+  entrancePaid: boolean;
 }
 
 const RANK_LABELS: Record<Rank, string> = {
@@ -72,15 +76,22 @@ function formatTimeOnly(isoStr: string): string {
   return d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
 }
 
+// エントランス料（ランク別プラン）
+function entranceFeeByRank(rank: Rank): number {
+  if (rank === "vip") return 0;
+  if (rank === "gold" || rank === "silver") return 1000;
+  return 1500;
+}
+
 const INITIAL_VISITORS: Visitor[] = [
-  { id: "v1", name: "田中 太郎", nickname: "タロウ", rank: "gold", checkInAt: new Date(Date.now() - 90 * 60000).toISOString(), table: "VIP-1", amount: 45000, status: "active" },
-  { id: "v2", name: "佐藤 花子", nickname: "ハナコ", rank: "vip", checkInAt: new Date(Date.now() - 120 * 60000).toISOString(), table: "VIP-2", amount: 82000, status: "active" },
-  { id: "v3", name: "鈴木 一郎", nickname: "イチ", rank: "regular", checkInAt: new Date(Date.now() - 45 * 60000).toISOString(), table: "A-3", amount: 12000, status: "active" },
-  { id: "v4", name: "高橋 美咲", nickname: "ミィ", rank: "silver", checkInAt: new Date(Date.now() - 30 * 60000).toISOString(), table: "B-1", amount: 8500, status: "active" },
-  { id: "v5", name: "渡辺 健太", nickname: "ケンタ", rank: "regular", checkInAt: new Date(Date.now() - 60 * 60000).toISOString(), table: null, amount: 0, status: "unpaid" },
-  { id: "v6", name: "伊藤 誠", nickname: "マコト", rank: "gold", checkInAt: new Date(Date.now() - 15 * 60000).toISOString(), table: null, amount: 0, status: "active" },
-  { id: "v7", name: "山本 さくら", nickname: "サクラ", rank: "vip", checkInAt: new Date(Date.now() - 10 * 60000).toISOString(), table: null, amount: 0, status: "active" },
-  { id: "v8", name: "中村 大輔", nickname: "ダイ", rank: "silver", checkInAt: new Date(Date.now() - 5 * 60000).toISOString(), table: null, amount: 0, status: "active" },
+  { id: "v1", name: "田中 太郎", nickname: "タロウ", rank: "gold", checkInAt: new Date(Date.now() - 90 * 60000).toISOString(), table: "VIP-1", amount: 45000, status: "active", entranceFee: 1000, entrancePaid: true },
+  { id: "v2", name: "佐藤 花子", nickname: "ハナコ", rank: "vip", checkInAt: new Date(Date.now() - 120 * 60000).toISOString(), table: "VIP-2", amount: 82000, status: "active", entranceFee: 0, entrancePaid: true },
+  { id: "v3", name: "鈴木 一郎", nickname: "イチ", rank: "regular", checkInAt: new Date(Date.now() - 45 * 60000).toISOString(), table: "A-3", amount: 12000, status: "active", entranceFee: 1500, entrancePaid: true },
+  { id: "v4", name: "高橋 美咲", nickname: "ミィ", rank: "silver", checkInAt: new Date(Date.now() - 30 * 60000).toISOString(), table: "B-1", amount: 8500, status: "active", entranceFee: 1000, entrancePaid: false },
+  { id: "v5", name: "渡辺 健太", nickname: "ケンタ", rank: "regular", checkInAt: new Date(Date.now() - 60 * 60000).toISOString(), table: null, amount: 0, status: "unpaid", entranceFee: 1500, entrancePaid: false },
+  { id: "v6", name: "伊藤 誠", nickname: "マコト", rank: "gold", checkInAt: new Date(Date.now() - 15 * 60000).toISOString(), table: null, amount: 0, status: "active", entranceFee: 1000, entrancePaid: true },
+  { id: "v7", name: "山本 さくら", nickname: "サクラ", rank: "vip", checkInAt: new Date(Date.now() - 10 * 60000).toISOString(), table: null, amount: 0, status: "active", entranceFee: 0, entrancePaid: true },
+  { id: "v8", name: "中村 大輔", nickname: "ダイ", rank: "silver", checkInAt: new Date(Date.now() - 5 * 60000).toISOString(), table: null, amount: 0, status: "active", entranceFee: 1000, entrancePaid: false },
 ];
 
 export default function FloorPage() {
@@ -103,6 +114,11 @@ export default function FloorPage() {
   const activeCount = visitors.filter((v) => v.status === "active" || v.status === "assigned").length;
   const unassignedCount = visitors.filter((v) => v.table === null && v.status !== "unpaid").length;
   const unpaidCount = visitors.filter((v) => v.status === "unpaid").length;
+  const entranceUnpaidCount = visitors.filter((v) => v.entranceFee > 0 && !v.entrancePaid).length;
+
+  function markEntrancePaid(id: string) {
+    setVisitors(prev => prev.map(v => v.id === id ? { ...v, entrancePaid: true } : v));
+  }
 
   const assignedVisitors = visitors.filter((v) => v.table !== null);
   const unassignedVisitors = visitors.filter((v) => v.table === null && v.status !== "unpaid");
@@ -138,6 +154,8 @@ export default function FloorPage() {
       table: null,
       amount: 0,
       status: "active",
+      entranceFee: entranceFeeByRank(rank),
+      entrancePaid: entranceFeeByRank(rank) === 0,
     };
 
     setVisitors((prev) => [newVisitor, ...prev]);
@@ -207,6 +225,7 @@ export default function FloorPage() {
             <KpiItem label="来店" value={activeCount + unpaidCount} unit="名" />
             <KpiItem label="未配置" value={unassignedCount} unit="名" />
             <KpiItem label="未払" value={unpaidCount} unit="名" danger />
+            <KpiItem label="エントランス未徴収" value={entranceUnpaidCount} unit="名" danger={entranceUnpaidCount > 0} />
           </div>
           <button
             onClick={() => { setShowNewForm(false); setSelectedPreset(""); setShowCheckinModal(true); }}
@@ -228,6 +247,7 @@ export default function FloorPage() {
               <th>入店</th>
               <th>卓</th>
               <th>金額</th>
+              <th>エントランス</th>
               <th>状態</th>
               <th>操作</th>
             </tr>
@@ -235,7 +255,7 @@ export default function FloorPage() {
           <tbody>
             {assignedVisitors.length === 0 && visitors.filter((v) => v.status === "unpaid").length === 0 && (
               <tr>
-                <td colSpan={7} className="!py-10 text-center text-text-tertiary">
+                <td colSpan={8} className="!py-10 text-center text-text-tertiary">
                   配置済の来店客はいません
                 </td>
               </tr>
@@ -269,14 +289,36 @@ export default function FloorPage() {
                   {v.amount > 0 ? `¥${v.amount.toLocaleString()}` : "--"}
                 </td>
                 <td>
+                  {v.entranceFee === 0 ? (
+                    <span className="text-[12px] text-text-tertiary">無料</span>
+                  ) : v.entrancePaid ? (
+                    <span className="inline-flex items-center gap-1 text-[12px] text-status-success">
+                      <DoorOpen className="w-3 h-3" />
+                      ¥{v.entranceFee.toLocaleString()}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[12px] text-status-danger" title="未徴収">
+                      <AlertTriangle className="w-3 h-3" />
+                      ¥{v.entranceFee.toLocaleString()} 未
+                    </span>
+                  )}
+                </td>
+                <td>
                   <span className={`chip chip-sm ${statusBadge(v.status)}`}>
                     {statusLabel(v.status)}
                   </span>
                 </td>
                 <td>
-                  <button onClick={() => handleSettle(v.id)} className="btn btn-subtle btn-xs">
-                    <CreditCard className="w-3 h-3" />精算
-                  </button>
+                  <div className="flex gap-1 flex-wrap">
+                    {v.entranceFee > 0 && !v.entrancePaid && (
+                      <button onClick={() => markEntrancePaid(v.id)} className="btn btn-subtle btn-xs" title="エントランス料を徴収済にする">
+                        <DoorOpen className="w-3 h-3" />徴収
+                      </button>
+                    )}
+                    <button onClick={() => handleSettle(v.id)} className="btn btn-subtle btn-xs">
+                      <CreditCard className="w-3 h-3" />精算
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

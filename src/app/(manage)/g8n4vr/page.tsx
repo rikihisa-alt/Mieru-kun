@@ -4,20 +4,25 @@ import { useState } from "react";
 import Image from "next/image";
 import { Plus, Pencil, X, ArrowUpRight } from "lucide-react";
 
+type StaffStatus = "active" | "leave" | "retired";
+
 interface Staff {
   id: string; name: string; role: string; hourlyWage: number;
-  phone: string; status: "active" | "inactive"; joinDate: string;
+  phone: string; status: StaffStatus; joinDate: string;
 }
 
 const ROLES = ["ディーラー", "フロア", "マネージャー", "キッチン"];
+
+const STATUS_LABEL: Record<StaffStatus, string> = { active: "在籍", leave: "休職", retired: "退職" };
+const STATUS_CHIP: Record<StaffStatus, string> = { active: "chip-success", leave: "chip-warning", retired: "chip-neutral" };
 
 const INIT: Staff[] = [
   { id: "s1", name: "山田 太郎", role: "ディーラー", hourlyWage: 1500, phone: "090-1111-2222", status: "active", joinDate: "2024/04" },
   { id: "s2", name: "鈴木 一郎", role: "ディーラー", hourlyWage: 1500, phone: "090-2222-3333", status: "active", joinDate: "2024/06" },
   { id: "s3", name: "佐藤 花", role: "フロア", hourlyWage: 1200, phone: "090-3333-4444", status: "active", joinDate: "2025/01" },
   { id: "s4", name: "高橋 健", role: "ディーラー", hourlyWage: 1500, phone: "090-4444-5555", status: "active", joinDate: "2024/09" },
-  { id: "s5", name: "伊藤 美咲", role: "フロア", hourlyWage: 1200, phone: "090-5555-6666", status: "active", joinDate: "2025/03" },
-  { id: "s6", name: "中村 翔", role: "マネージャー", hourlyWage: 2000, phone: "090-6666-7777", status: "inactive", joinDate: "2023/08" },
+  { id: "s5", name: "伊藤 美咲", role: "フロア", hourlyWage: 1200, phone: "090-5555-6666", status: "leave", joinDate: "2025/03" },
+  { id: "s6", name: "中村 翔", role: "マネージャー", hourlyWage: 2000, phone: "090-6666-7777", status: "retired", joinDate: "2023/08" },
 ];
 
 export default function StaffPage() {
@@ -27,6 +32,8 @@ export default function StaffPage() {
   const [form, setForm] = useState({ name: "", role: "ディーラー", hourlyWage: 1200, phone: "" });
 
   const activeCount = staffList.filter(s => s.status === "active").length;
+  const leaveCount = staffList.filter(s => s.status === "leave").length;
+  const retiredCount = staffList.filter(s => s.status === "retired").length;
 
   function addStaff() {
     if (!form.name.trim()) return;
@@ -45,8 +52,8 @@ export default function StaffPage() {
     setEditId(null);
   }
 
-  function toggleStatus(id: string) {
-    setStaffList(prev => prev.map(s => s.id === id ? { ...s, status: s.status === "active" ? "inactive" : "active" } : s));
+  function setStatus(id: string, status: StaffStatus) {
+    setStaffList(prev => prev.map(s => s.id === id ? { ...s, status } : s));
   }
 
   return (
@@ -54,10 +61,11 @@ export default function StaffPage() {
       {/* KPI */}
       <section>
         <div className="flex items-end justify-between gap-6 flex-wrap">
-          <div className="flex items-end gap-8 flex-wrap">
+          <div className="flex items-start gap-10 flex-wrap">
             <KpiItem label="従業員" value={staffList.length} unit="名" />
             <KpiItem label="在籍" value={activeCount} unit="名" accent />
-            <KpiItem label="休職" value={staffList.length - activeCount} unit="名" />
+            <KpiItem label="休職" value={leaveCount} unit="名" />
+            <KpiItem label="退職" value={retiredCount} unit="名" />
           </div>
           <button
             onClick={() => { setShowAdd(true); setForm({ name: "", role: "ディーラー", hourlyWage: 1200, phone: "" }); }}
@@ -121,18 +129,23 @@ export default function StaffPage() {
               <td className="py-2.5 text-text-secondary text-[12px]">{s.phone || "—"}</td>
               <td className="py-2.5 text-text-tertiary text-[12px]">{s.joinDate}</td>
               <td className="py-2.5">
-                <span className={`${s.status === "active" ? "chip chip-success" : "bg-bg-hover text-text-tertiary"}`}>
-                  {s.status === "active" ? "在籍" : "退職"}
+                <span className={`chip ${STATUS_CHIP[s.status]} chip-sm`}>
+                  {STATUS_LABEL[s.status]}
                 </span>
               </td>
               <td className="py-2.5">
-                <div className="flex gap-1">
+                <div className="flex gap-1 flex-wrap">
                   <button onClick={() => { setEditId(s.id); setForm({ name: s.name, role: s.role, hourlyWage: s.hourlyWage, phone: s.phone }); }}
-                    className="px-2 py-0.5 text-[11px] text-accent hover:bg-accent-light rounded-[4px]"><Pencil className="w-3 h-3 inline" /> 編集</button>
-                  <button onClick={() => toggleStatus(s.id)}
-                    className={`px-2 py-0.5 text-[11px] rounded-[4px] ${s.status === "active" ? "text-text-tertiary hover:bg-bg-hover" : "text-accent hover:bg-accent-light"}`}>
-                    {s.status === "active" ? "退職" : "復帰"}
-                  </button>
+                    className="btn btn-subtle btn-xs"><Pencil className="w-3 h-3" />編集</button>
+                  {s.status !== "active" && (
+                    <button onClick={() => setStatus(s.id, "active")} className="btn btn-subtle btn-xs">復帰</button>
+                  )}
+                  {s.status !== "leave" && (
+                    <button onClick={() => setStatus(s.id, "leave")} className="btn btn-ghost btn-xs">休職</button>
+                  )}
+                  {s.status !== "retired" && (
+                    <button onClick={() => setStatus(s.id, "retired")} className="btn btn-danger btn-xs">退職</button>
+                  )}
                 </div>
               </td>
             </tr>

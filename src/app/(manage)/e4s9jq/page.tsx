@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { MessageCircle, Trophy, Coins, Star, Plus, X, Check } from "lucide-react";
+import { MessageCircle, Trophy, Coins, Star, Plus, X, Check, DoorOpen } from "lucide-react";
 
 interface RankDef { id: string; name: string; label: string; minVisits: number; color: string; }
 interface ChipSetting { unit: string; symbol: string; label: string; prices: { amount: number; price: number }[]; }
 interface PointRule { id: string; trigger: string; amount: number; }
+interface EntrancePlan { id: string; label: string; price: number; note?: string; }
 
 export default function SettingsPage() {
   const [saved, setSaved] = useState("");
@@ -36,6 +37,22 @@ export default function SettingsPage() {
     { id: "pr2", trigger: "¥10,000利用", amount: 500 },
     { id: "pr3", trigger: "イベント参加", amount: 200 },
   ]);
+
+  // エントランス料設定
+  const [entranceEnabled, setEntranceEnabled] = useState(true);
+  const [entranceRequired, setEntranceRequired] = useState(true);
+  const [entrancePlans, setEntrancePlans] = useState<EntrancePlan[]>([
+    { id: "ep1", label: "通常", price: 1500, note: "すべての来店客" },
+    { id: "ep2", label: "会員(SILVER以上)", price: 1000 },
+    { id: "ep3", label: "VIP", price: 0, note: "無料" },
+  ]);
+  const [entranceSettlementMode, setEntranceSettlementMode] = useState<"prepay" | "on_settlement">("prepay");
+  function addEntrancePlan() {
+    setEntrancePlans(prev => [...prev, { id: `ep${Date.now()}`, label: "", price: 0 }]);
+  }
+  function removeEntrancePlan(id: string) {
+    setEntrancePlans(prev => prev.filter(p => p.id !== id));
+  }
 
   function toggleDay(d: string) {
     setClosedDays(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d]);
@@ -199,6 +216,98 @@ export default function SettingsPage() {
           <div className="flex items-center gap-2">
             <button onClick={() => showSaved("point")} className={SaveBtn}>保存</button>
             {saved === "point" && <span className="text-[12px] text-status-success flex items-center gap-1"><Check className="w-3 h-3" />保存しました</span>}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== エントランス料設定 ===== */}
+      <section className={Card}>
+        <div className="flex items-center gap-2 mb-4">
+          <DoorOpen className="w-4 h-4 text-accent" />
+          <p className="t-label">エントランス料</p>
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-center gap-4 flex-wrap">
+            <label className="flex items-center gap-2 text-[13px] text-text-primary cursor-pointer">
+              <input type="checkbox" checked={entranceEnabled} onChange={e => setEntranceEnabled(e.target.checked)} />
+              <span>エントランス料を徴収する</span>
+            </label>
+            {entranceEnabled && (
+              <label className="flex items-center gap-2 text-[13px] text-text-primary cursor-pointer">
+                <input type="checkbox" checked={entranceRequired} onChange={e => setEntranceRequired(e.target.checked)} />
+                <span>入店時に必ず徴収（未徴収は警告表示）</span>
+              </label>
+            )}
+          </div>
+
+          {entranceEnabled && (
+            <>
+              <div>
+                <label className={L}>徴収タイミング</label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setEntranceSettlementMode("prepay")}
+                    className={`px-3 py-[7px] text-[12px] rounded-[6px] border ${entranceSettlementMode === "prepay" ? "bg-accent text-white border-accent" : "border-border text-text-secondary hover:bg-bg-hover"}`}
+                  >
+                    入店時前払い
+                  </button>
+                  <button
+                    onClick={() => setEntranceSettlementMode("on_settlement")}
+                    className={`px-3 py-[7px] text-[12px] rounded-[6px] border ${entranceSettlementMode === "on_settlement" ? "bg-accent text-white border-accent" : "border-border text-text-secondary hover:bg-bg-hover"}`}
+                  >
+                    退店時精算に合算
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className={L}>プラン別料金</label>
+                <div className="space-y-1.5">
+                  {entrancePlans.map((p, i) => (
+                    <div key={p.id} className="flex items-center gap-2 bg-bg-hover rounded-[6px] px-3 py-2">
+                      <input
+                        type="text"
+                        value={p.label}
+                        onChange={e => setEntrancePlans(prev => prev.map((x, j) => j === i ? { ...x, label: e.target.value } : x))}
+                        placeholder="プラン名"
+                        className="text-[13px] bg-transparent border-none flex-1 px-0 py-0 focus:outline-none min-w-0"
+                      />
+                      <span className="text-[11px] text-text-tertiary">¥</span>
+                      <input
+                        type="number"
+                        min={0}
+                        value={p.price}
+                        onChange={e => setEntrancePlans(prev => prev.map((x, j) => j === i ? { ...x, price: parseInt(e.target.value) || 0 } : x))}
+                        className="text-[12px] w-24 text-right bg-white border border-border rounded-[4px] py-0.5"
+                      />
+                      <input
+                        type="text"
+                        value={p.note ?? ""}
+                        onChange={e => setEntrancePlans(prev => prev.map((x, j) => j === i ? { ...x, note: e.target.value } : x))}
+                        placeholder="備考"
+                        className="text-[12px] bg-white border border-border rounded-[4px] px-2 py-0.5 w-40"
+                      />
+                      {entrancePlans.length > 1 && (
+                        <button onClick={() => removeEntrancePlan(p.id)} className="p-0.5 hover:bg-status-danger-bg rounded">
+                          <X className="w-3 h-3 text-status-danger" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={addEntrancePlan}
+                  className="flex items-center gap-1 mt-2 px-3 py-[6px] text-[12px] text-accent bg-accent-light rounded-[6px] hover:bg-[#d0ebe4]"
+                >
+                  <Plus className="w-3 h-3" />プラン追加
+                </button>
+              </div>
+            </>
+          )}
+
+          <div className="flex items-center gap-2">
+            <button onClick={() => showSaved("entrance")} className={SaveBtn}>保存</button>
+            {saved === "entrance" && <span className="text-[12px] text-status-success flex items-center gap-1"><Check className="w-3 h-3" />保存しました</span>}
           </div>
         </div>
       </section>
