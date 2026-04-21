@@ -59,30 +59,44 @@ export default function PointRulesPage() {
 
   const showModal = creating || editing !== null;
 
+  const activeCount = rules.filter(r => r.isActive).length;
+
   return (
     <div className="page-stack">
-      <div className="flex items-center justify-between">
-        <p className="text-[13px] text-text-secondary">{rules.filter(r => r.isActive).length}件がアクティブ / 全{rules.length}件</p>
-        <button onClick={startCreate} className="flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover">
-          <Plus className="w-3.5 h-3.5" />ルール追加
-        </button>
-      </div>
-
-      <div className="px-4 py-3 bg-status-warning-bg border border-status-warning/20 rounded-[var(--radius)] text-[12px] text-[#8a5a10] flex items-start gap-2">
-        <Sparkles className="w-4 h-4 shrink-0 mt-0.5" />
-        <div>
-          ポイントルールは <strong>条件 + 加算値</strong> の形で登録できます。変更は即時反映されますが、既存の付与履歴は遡及しません。
+      {/* KPI */}
+      <section>
+        <div className="flex items-end justify-between gap-6 flex-wrap">
+          <div className="flex items-end gap-8 flex-wrap">
+            <KpiItem label="ルール" value={rules.length} unit="件" />
+            <KpiItem label="アクティブ" value={activeCount} unit="件" accent />
+            <KpiItem label="停止中" value={rules.length - activeCount} unit="件" />
+          </div>
+          <button onClick={startCreate} className="btn btn-primary">
+            <Plus className="w-3.5 h-3.5" />ルール追加
+          </button>
         </div>
+      </section>
+
+      {/* 情報バナー */}
+      <div className="flex items-start gap-3 px-4 py-3 rounded-[var(--radius)]"
+        style={{ background: "var(--warning-soft-bg)", border: "1px solid rgba(200,123,26,0.22)", backdropFilter: "blur(8px)" }}>
+        <Sparkles className="w-4 h-4 shrink-0 mt-0.5 text-[color:var(--warning-text)]" />
+        <p className="text-[13px] text-[color:var(--warning-text)] leading-relaxed">
+          ポイントルールは <strong>条件 + 加算値</strong> の形で登録できます。変更は即時反映されますが、既存の付与履歴は遡及しません。
+        </p>
       </div>
 
-      <table className="w-full text-[13px]">
+      {/* テーブル */}
+      <section className="glass-panel">
+        <p className="t-label mb-3">ルール一覧</p>
+      <table className="data-table">
         <thead>
-          <tr className="border-b border-border-light">
-            <th className="px-3 py-2 data-th w-12">優先度</th>
-            <th className="px-3 py-2 data-th">ルール</th>
-            <th className="px-3 py-2 data-th">条件</th>
-            <th className="px-3 py-2 data-th">加算</th>
-            <th className="px-3 py-2 data-th">期間</th>
+          <tr>
+            <th className="w-12">優先度</th>
+            <th>ルール</th>
+            <th>条件</th>
+            <th>加算</th>
+            <th>期間</th>
             <th className="px-3 py-2 data-th">状態</th>
             <th className="px-3 py-2 data-th"></th>
           </tr>
@@ -115,6 +129,7 @@ export default function PointRulesPage() {
           ))}
         </tbody>
       </table>
+      </section>
 
       {showModal && (
         <div className="modal-overlay" onClick={() => { setCreating(false); setEditing(null); }}>
@@ -165,6 +180,18 @@ export default function PointRulesPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function KpiItem({ label, value, unit, accent }: { label: string; value: string | number; unit?: string; accent?: boolean }) {
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <span className="t-label">{label}</span>
+      <span className="flex items-baseline gap-1">
+        <span className="t-value" style={{ color: accent ? "var(--primary-text)" : "var(--text-primary)" }}>{value}</span>
+        {unit && <span className="text-[14px] text-text-tertiary">{unit}</span>}
+      </span>
     </div>
   );
 }

@@ -315,36 +315,43 @@ export default function AttendancePage() {
 
   return (
     <div className="page-stack">
-      {/* タブ */}
-      <div className="flex items-center gap-1">
-        <button onClick={() => setTab("today")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "today" ? "bg-accent text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-          <Clock className="w-3 h-3 inline mr-1" />本日の勤怠
-        </button>
-        <button onClick={() => setTab("shift")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "shift" ? "bg-accent text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-          <Calendar className="w-3 h-3 inline mr-1" />シフト確認
-        </button>
-        <button onClick={() => setTab("create")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "create" ? "bg-accent text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-          <Plus className="w-3 h-3 inline mr-1" />シフト作成
-        </button>
-        <button onClick={() => setTab("calendar")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "calendar" ? "bg-accent text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-          <Calendar className="w-3 h-3 inline mr-1" />カレンダー
-        </button>
-        <button onClick={() => setTab("history")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "history" ? "bg-accent text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-          <FileDown className="w-3 h-3 inline mr-1" />履歴・出勤簿
-        </button>
-        {tab === "today" && (
-          <div className="ml-auto flex items-center gap-3 text-[12px]">
-            <span className="text-text-secondary">出勤 <strong className="text-status-success">{working}</strong></span>
-            <span className="text-text-secondary">休憩 <strong className="text-[#e37400]">{onBreak}</strong></span>
-            {pending > 0 && <span className="flex items-center gap-1 text-[#d93025]"><AlertCircle className="w-3 h-3" />承認待ち {pending}</span>}
+      {/* KPI */}
+      <section>
+        <div className="flex items-end justify-between gap-6 flex-wrap">
+          <div className="flex items-end gap-8 flex-wrap">
+            <KpiItem label="出勤" value={working} unit="名" accent />
+            <KpiItem label="休憩中" value={onBreak} unit="名" />
+            <KpiItem label="退勤" value={STAFF_LIST.length - working - onBreak} unit="名" />
+            {pending > 0 && <KpiItem label="承認待ち" value={pending} unit="件" danger />}
           </div>
-        )}
-        {(tab === "shift" || tab === "create" || tab === "calendar") && (
-          <button onClick={exportPDF} className="ml-auto flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-text-secondary hover:bg-bg-hover rounded-[6px]">
-            <FileDown className="w-3.5 h-3.5" />PDF出力
+          {(tab === "shift" || tab === "create" || tab === "calendar") && (
+            <button onClick={exportPDF} className="btn btn-secondary">
+              <FileDown className="w-3.5 h-3.5" />PDF出力
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* タブ */}
+      <section>
+        <div className="tabs">
+          <button onClick={() => setTab("today")} className={`tab ${tab === "today" ? "tab-active" : ""}`}>
+            <Clock className="w-3 h-3 inline mr-1" />本日の勤怠
           </button>
-        )}
-      </div>
+          <button onClick={() => setTab("shift")} className={`tab ${tab === "shift" ? "tab-active" : ""}`}>
+            <Calendar className="w-3 h-3 inline mr-1" />シフト確認
+          </button>
+          <button onClick={() => setTab("create")} className={`tab ${tab === "create" ? "tab-active" : ""}`}>
+            <Plus className="w-3 h-3 inline mr-1" />シフト作成
+          </button>
+          <button onClick={() => setTab("calendar")} className={`tab ${tab === "calendar" ? "tab-active" : ""}`}>
+            <Calendar className="w-3 h-3 inline mr-1" />カレンダー
+          </button>
+          <button onClick={() => setTab("history")} className={`tab ${tab === "history" ? "tab-active" : ""}`}>
+            <FileDown className="w-3 h-3 inline mr-1" />履歴・出勤簿
+          </button>
+        </div>
+      </section>
 
       {/* ===== 本日の勤怠 ===== */}
       {tab === "today" && (
@@ -652,6 +659,19 @@ export default function AttendancePage() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function KpiItem({ label, value, unit, accent, danger }: { label: string; value: string | number; unit?: string; accent?: boolean; danger?: boolean }) {
+  const color = danger ? "var(--danger-text)" : accent ? "var(--primary-text)" : "var(--text-primary)";
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <span className="t-label">{label}</span>
+      <span className="flex items-baseline gap-1">
+        <span className="t-value" style={{ color }}>{value}</span>
+        {unit && <span className="text-[14px] text-text-tertiary">{unit}</span>}
+      </span>
     </div>
   );
 }

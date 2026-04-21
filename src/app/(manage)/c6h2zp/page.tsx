@@ -73,66 +73,74 @@ export default function RankingPage() {
   return (
     <div className="page-stack">
       {/* セレクタ */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="tabs">
-          {(Object.keys(METRIC_LABEL) as Metric[]).map((m) => (
-            <button key={m} onClick={() => setMetric(m)} className={`tab ${metric === m ? "tab-active" : ""}`}>
-              {METRIC_LABEL[m]}
-            </button>
-          ))}
+      <section>
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="tabs">
+            {(Object.keys(METRIC_LABEL) as Metric[]).map((m) => (
+              <button key={m} onClick={() => setMetric(m)} className={`tab ${metric === m ? "tab-active" : ""}`}>
+                {METRIC_LABEL[m]}
+              </button>
+            ))}
+          </div>
+          <div className="ml-auto tabs">
+            {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
+              <button key={p} onClick={() => setPeriod(p)} className={`tab ${period === p ? "tab-active" : ""}`}>
+                {PERIOD_LABEL[p]}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="ml-auto tabs">
-          {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
-            <button key={p} onClick={() => setPeriod(p)} className={`tab ${period === p ? "tab-active" : ""}`}>
-              {PERIOD_LABEL[p]}
-            </button>
-          ))}
-        </div>
-      </div>
+      </section>
 
-      {/* Top3カード */}
-      <div className="grid grid-cols-3 gap-3">
-        {rows.slice(0, 3).map((r) => {
-          const display = r.publicLevel === "public" ? `${r.nickname} (${r.realName})` : r.publicLevel === "nickname_only" ? r.nickname : "非公開";
-          const podiumColor = r.rank === 1 ? "#d97706" : r.rank === 2 ? "#6b7280" : "#a16207";
-          return (
-            <div key={r.rank} className="border border-border-light rounded-[8px] p-4 text-center bg-gradient-to-b from-bg-hover to-white">
-              <Medal className="w-6 h-6 mx-auto mb-1" style={{ color: podiumColor }} />
-              <div className="text-[11px] text-text-tertiary font-semibold tracking-wider">{r.rank === 1 ? "GOLD" : r.rank === 2 ? "SILVER" : "BRONZE"}</div>
-              <div className="text-[15px] font-bold text-text-primary mt-1">{display}</div>
-              <div className="text-[20px] font-bold text-text-primary mt-2">{r.value.toLocaleString()}</div>
-            </div>
-          );
-        })}
-      </div>
+      {/* Top3カード (Glass Podium) */}
+      <section>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {rows.slice(0, 3).map((r) => {
+            const display = r.publicLevel === "public" ? `${r.nickname} (${r.realName})` : r.publicLevel === "nickname_only" ? r.nickname : "非公開";
+            const podiumLabel = r.rank === 1 ? "GOLD" : r.rank === 2 ? "SILVER" : "BRONZE";
+            const podiumColor = r.rank === 1 ? "#d97706" : r.rank === 2 ? "#6b7280" : "#a16207";
+            const chipClass = r.rank === 1 ? "chip-gold" : r.rank === 2 ? "chip-neutral" : "chip-warning";
+            return (
+              <div key={r.rank} className="glass-panel text-center" style={{ padding: 24 }}>
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <Medal className="w-5 h-5" style={{ color: podiumColor }} />
+                  <span className={`chip ${chipClass} chip-sm`}>{podiumLabel}</span>
+                </div>
+                <div className="text-[16px] font-semibold text-text-primary">{display}</div>
+                <div className="text-[28px] font-bold text-text-primary mt-3 tabular-nums">{r.value.toLocaleString()}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* 以降のランキング */}
-      <div>
-        <h3 className="t-subhead mb-2">4位以降</h3>
-        <table className="w-full text-[13px]">
+      <section className="glass-panel">
+        <p className="t-label mb-3">4位以降</p>
+        <table className="data-table">
           <tbody>
             {rows.slice(3).map((r) => {
               const display = r.publicLevel === "public" ? `${r.nickname} (${r.realName})` : r.publicLevel === "nickname_only" ? r.nickname : "非公開";
               return (
-                <tr key={r.rank} className="border-b border-border-light">
-                  <td className="px-3 py-2 w-10 text-text-tertiary font-mono">{r.rank}</td>
-                  <td className="px-3 py-2 font-medium">{display}</td>
-                  <td className="px-3 py-2 text-right font-bold">{r.value.toLocaleString()}</td>
+                <tr key={r.rank}>
+                  <td className="w-12 text-text-tertiary font-mono">{r.rank}</td>
+                  <td className="font-medium">{display}</td>
+                  <td className="text-right font-bold tabular-nums">{r.value.toLocaleString()}</td>
                 </tr>
               );
             })}
             {rows.length <= 3 && (
               <tr>
-                <td colSpan={3} className="px-3 py-6 text-center text-text-tertiary text-[12px]">4位以降は記録なし</td>
+                <td colSpan={3} className="!py-8 text-center text-text-tertiary">4位以降は記録なし</td>
               </tr>
             )}
           </tbody>
         </table>
-      </div>
+      </section>
 
-      <div className="pt-2 text-[11px] text-text-tertiary flex items-center gap-1">
+      <p className="t-xs text-text-tertiary flex items-center gap-1">
         <Trophy className="w-3 h-3" />公開範囲: フルネーム/ニックネームのみ/非公開 は会員設定で管理
-      </div>
+      </p>
     </div>
   );
 }

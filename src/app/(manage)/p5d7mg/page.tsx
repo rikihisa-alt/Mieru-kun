@@ -78,27 +78,30 @@ export default function ProductsPage() {
     { value: "other", label: "その他" },
   ];
 
+  const activeCount = products.filter(p => p.is_active).length;
+
   return (
     <div className="page-stack">
-      {/* ツールバー */}
-      <div className="flex items-center justify-between">
-        <span className="text-[13px] text-text-secondary">
-          商品数 <strong className="text-text-primary">{products.length}</strong>件
-        </span>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-1.5 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          商品を追加
-        </button>
-      </div>
+      {/* KPI */}
+      <section>
+        <div className="flex items-end justify-between gap-6 flex-wrap">
+          <div className="flex items-end gap-8 flex-wrap">
+            <KpiItem label="商品" value={products.length} unit="件" />
+            <KpiItem label="販売中" value={activeCount} unit="件" />
+            <KpiItem label="停止" value={products.length - activeCount} unit="件" />
+          </div>
+          <button onClick={() => setShowForm(!showForm)} className="btn btn-primary">
+            <Plus className="w-3.5 h-3.5" />
+            商品を追加
+          </button>
+        </div>
+      </section>
 
       {/* インラインフォーム */}
       {showForm && (
-        <div className="pb-4 border-b border-border-light">
+        <section className="glass-panel">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="t-subhead">新規商品</h3>
+            <p className="t-label">新規商品</p>
             <button onClick={() => setShowForm(false)} className="text-text-tertiary hover:text-text-primary">
               <X className="w-4 h-4" />
             </button>
@@ -165,20 +168,21 @@ export default function ProductsPage() {
               追加
             </button>
           </div>
-        </div>
+        </section>
       )}
 
       {/* テーブル */}
-      <div className="glass-panel">
-        <table className="w-full text-[13px]">
+      <section className="glass-panel">
+        <p className="t-label mb-3">商品一覧</p>
+        <table className="data-table">
           <thead>
-            <tr className="border-b border-border-light">
-              <th className="px-4 py-2.5 data-th">商品名</th>
-              <th className="px-4 py-2.5 data-th">カテゴリ</th>
-              <th className="px-4 py-2.5 data-th">価格</th>
-              <th className="px-4 py-2.5 data-th">原価</th>
-              <th className="px-4 py-2.5 data-th">在庫</th>
-              <th className="px-4 py-2.5 data-th">ステータス</th>
+            <tr>
+              <th>商品名</th>
+              <th>カテゴリ</th>
+              <th>価格</th>
+              <th>原価</th>
+              <th>在庫</th>
+              <th>ステータス</th>
               <th className="px-4 py-2.5 data-th">操作</th>
             </tr>
           </thead>
@@ -222,7 +226,19 @@ export default function ProductsPage() {
             )}
           </tbody>
         </table>
-      </div>
+      </section>
+    </div>
+  );
+}
+
+function KpiItem({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <span className="t-label">{label}</span>
+      <span className="flex items-baseline gap-1">
+        <span className="t-value">{value}</span>
+        {unit && <span className="text-[14px] text-text-tertiary">{unit}</span>}
+      </span>
     </div>
   );
 }

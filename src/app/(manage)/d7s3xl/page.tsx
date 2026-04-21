@@ -62,26 +62,39 @@ export default function EventsPage() {
 
   const showModal = creating || editing !== null;
 
+  const publicEvents = events.filter(e => e.isPublic).length;
+  const totalReserved = events.reduce((s, e) => s + e.reservedCount, 0);
+
   return (
     <div className="page-stack">
-      <div className="flex items-center justify-between">
-        <p className="text-[13px] text-text-secondary">{events.length} 件のイベント</p>
-        <button onClick={startCreate} className="flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors">
-          <Plus className="w-3.5 h-3.5" />イベント追加
-        </button>
-      </div>
+      {/* KPI + アクション */}
+      <section>
+        <div className="flex items-end justify-between gap-6 flex-wrap">
+          <div className="flex items-end gap-8 flex-wrap">
+            <KpiItem label="イベント" value={events.length} unit="件" />
+            <KpiItem label="公開中" value={publicEvents} unit="件" />
+            <KpiItem label="予約総数" value={totalReserved} unit="名" />
+          </div>
+          <button onClick={startCreate} className="btn btn-primary">
+            <Plus className="w-3.5 h-3.5" />イベント追加
+          </button>
+        </div>
+      </section>
 
-      <table className="w-full text-[13px]">
-        <thead>
-          <tr className="border-b border-border-light">
-            <th className="px-3 py-2 data-th">タイトル</th>
-            <th className="px-3 py-2 data-th">日時</th>
-            <th className="px-3 py-2 data-th">受付締切</th>
-            <th className="px-3 py-2 data-th">予約</th>
-            <th className="px-3 py-2 data-th">公開</th>
-            <th className="px-3 py-2 data-th">操作</th>
-          </tr>
-        </thead>
+      {/* テーブル */}
+      <section className="glass-panel">
+        <p className="t-label mb-3">イベント一覧</p>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>タイトル</th>
+              <th>日時</th>
+              <th>受付締切</th>
+              <th>予約</th>
+              <th>公開</th>
+              <th>操作</th>
+            </tr>
+          </thead>
         <tbody>
           {events.map((e) => {
             const pct = e.capacity > 0 ? (e.reservedCount / e.capacity) * 100 : 0;
@@ -121,6 +134,7 @@ export default function EventsPage() {
           })}
         </tbody>
       </table>
+      </section>
 
       {showModal && (
         <div className="modal-overlay" onClick={() => { setCreating(false); setEditing(null); }}>
@@ -166,6 +180,18 @@ export default function EventsPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function KpiItem({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <span className="t-label">{label}</span>
+      <span className="flex items-baseline gap-1">
+        <span className="t-value">{value}</span>
+        {unit && <span className="text-[14px] text-text-tertiary">{unit}</span>}
+      </span>
     </div>
   );
 }

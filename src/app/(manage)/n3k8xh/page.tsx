@@ -103,63 +103,65 @@ export default function HistoryPage() {
   return (
     <div className="page-stack">
       {/* タブ + フィルタ */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="tabs">
-          {TABS.map(t => (
-            <button key={t.key} onClick={() => setActiveTab(t.key)}
-              className={`tab ${activeTab === t.key ? "tab-active" : ""}`}>
-              {t.label}
+      <section>
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="tabs">
+            {TABS.map(t => (
+              <button key={t.key} onClick={() => setActiveTab(t.key)}
+                className={`tab ${activeTab === t.key ? "tab-active" : ""}`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 ml-auto">
+            <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)} className="max-w-[160px]" />
+            {dateFilter && <button onClick={() => setDateFilter("")} className="btn btn-ghost btn-xs">クリア</button>}
+            <button onClick={exportPDF} className="btn btn-secondary btn-sm">
+              <FileDown className="w-3.5 h-3.5" />PDF出力
             </button>
-          ))}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)}
-            className="text-[12px] px-2 py-1 border border-border rounded-[4px] w-36" />
-          {dateFilter && <button onClick={() => setDateFilter("")} className="text-[11px] text-text-tertiary hover:text-text-secondary">クリア</button>}
-          <button onClick={exportPDF} className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-text-secondary hover:bg-bg-hover rounded-[6px]">
-            <FileDown className="w-3.5 h-3.5" />PDF出力
-          </button>
-        </div>
-      </div>
-
-      {/* 件数 */}
-      <p className="text-[12px] text-text-tertiary">{filtered.length}件</p>
+        <p className="t-xs text-text-tertiary mt-3">{filtered.length}件</p>
+      </section>
 
       {/* タイムライン表示 */}
       {Object.entries(grouped).map(([date, entries]) => (
-        <div key={date}>
-          <p className="text-[12px] font-semibold text-text-primary pb-1.5 mb-0 border-b border-border">{date}</p>
+        <section key={date} className="glass-panel">
+          <p className="t-label mb-3">{date}</p>
           <div className="relative">
-            <div className="absolute left-[39px] top-0 bottom-0 w-px bg-border-light" />
+            <div className="absolute left-[40px] top-2 bottom-2 w-px bg-[rgba(28,46,60,0.08)]" />
             {entries.map(e => {
               const meta = TYPE_META[e.type];
               return (
-                <div key={e.id} className="flex items-start gap-3 py-2 hover:bg-bg-hover rounded-[4px] transition-colors relative">
-                  <span className="text-[11px] text-text-tertiary font-mono w-8 text-right pt-0.5 flex-shrink-0">{e.time}</span>
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10" style={{ backgroundColor: meta.bg, color: meta.color }}>
+                <div key={e.id} className="flex items-center gap-3 py-2.5 px-2 rounded-[var(--radius-sm)] hover:bg-white/60 transition-colors">
+                  <span className="text-[12px] text-text-tertiary font-mono w-10 text-right flex-shrink-0">{e.time}</span>
+                  <div
+                    className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 z-10 border"
+                    style={{ background: "rgba(255,255,255,0.7)", borderColor: `${meta.color}33`, color: meta.color, backdropFilter: "blur(4px)" }}
+                  >
                     {meta.icon}
                   </div>
-                  <div className="flex items-center gap-2 pt-0.5 flex-1 min-w-0">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
                     <span className="t-micro flex-shrink-0" style={{ color: meta.color }}>{e.type}</span>
-                    <span className="text-[12px] font-medium text-text-primary truncate">{e.name}</span>
-                    {e.realName && <span className="text-[11px] text-text-tertiary truncate">（{e.realName}）</span>}
-                    {e.detail && <span className="text-[11px] text-text-tertiary truncate">{e.detail}</span>}
+                    <span className="text-[14px] font-medium text-text-primary truncate">{e.name}</span>
+                    {e.realName && <span className="text-[12px] text-text-tertiary truncate">（{e.realName}）</span>}
+                    {e.detail && <span className="text-[12px] text-text-tertiary truncate">{e.detail}</span>}
                   </div>
                   {e.amount != null && (
-                    <span className="text-[12px] font-semibold text-text-primary flex-shrink-0">¥{e.amount.toLocaleString()}</span>
+                    <span className="text-[14px] font-semibold text-text-primary flex-shrink-0 tabular-nums">¥{e.amount.toLocaleString()}</span>
                   )}
                 </div>
               );
             })}
           </div>
-        </div>
+        </section>
       ))}
 
       {filtered.length === 0 && (
-        <div className="text-center py-12">
-          <Image src="/logo-icon.png" alt="みえるくん" width={32} height={32} className="mx-auto mb-2 opacity-30" />
-          <p className="text-[13px] text-text-tertiary">該当する履歴がありません</p>
-        </div>
+        <section className="glass-panel text-center py-16">
+          <Image src="/logo-icon.png" alt="みえるくん" width={32} height={32} className="mx-auto mb-3 opacity-30" />
+          <p className="text-[14px] text-text-tertiary">該当する履歴がありません</p>
+        </section>
       )}
     </div>
   );

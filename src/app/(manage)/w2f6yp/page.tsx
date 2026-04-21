@@ -39,17 +39,14 @@ export default function ClosingPage() {
 
   if (result?.success) {
     return (
-      <div className="max-w-lg mx-auto mt-12 text-center">
-        <div className="p-8">
-          <CheckCircle className="w-12 h-12 mx-auto mb-3 text-status-success" />
-          <h2 className="t-heading mb-1">締め処理が完了しました</h2>
-          <p className="text-[13px] text-text-secondary mb-4">{date} の締め処理が正常に実行されました。</p>
+      <div className="page-stack">
+        <div className="glass-panel max-w-xl mx-auto text-center p-12">
+          <CheckCircle className="w-12 h-12 mx-auto mb-3 text-[color:var(--success-text)]" />
+          <h2 className="t-md mb-1">締め処理が完了しました</h2>
+          <p className="text-[14px] text-text-secondary mb-6">{date} の締め処理が正常に実行されました。</p>
           <button
-            onClick={() => {
-              setResult(null);
-              setNotes("");
-            }}
-            className="px-3 py-[7px] text-[13px] font-medium text-accent hover:bg-accent-light rounded-[6px] transition-colors"
+            onClick={() => { setResult(null); setNotes(""); }}
+            className="btn btn-subtle"
           >
             別の日付で締め処理
           </button>
@@ -60,106 +57,104 @@ export default function ClosingPage() {
 
   return (
     <div className="page-stack">
-      {/* Summary bar */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-1.5">
-          <span className="text-text-tertiary text-[13px]">対象日</span>
-          <span className="text-[15px] font-bold text-text-primary">{date}</span>
+      {/* KPI横一列 */}
+      <section>
+        <div className="flex items-end justify-between gap-6 flex-wrap">
+          <div className="flex items-end gap-8 flex-wrap">
+            <KpiItem label="対象日" value={date} />
+            <KpiItem label="売上" value={formatCurrency(summary.total_sales)} />
+            <KpiItem label="来店" value={summary.total_visitors} unit="人" />
+            <KpiItem label="注文" value={summary.total_orders} unit="件" />
+          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="btn btn-primary"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            {loading ? "処理中..." : "締め処理を実行"}
+          </button>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-text-tertiary text-[13px]">売上</span>
-          <span className="text-[15px] font-bold text-text-primary">{formatCurrency(summary.total_sales)}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-text-tertiary text-[13px]">来店</span>
-          <span className="text-[15px] font-bold text-text-primary">{summary.total_visitors}人</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-text-tertiary text-[13px]">注文</span>
-          <span className="text-[15px] font-bold text-text-primary">{summary.total_orders}件</span>
-        </div>
-      </div>
+      </section>
 
-      {/* 日付入力 */}
-      <div className="pb-4 border-b border-border-light">
-        <label className="block t-label mb-2">
-          締め対象日
-        </label>
+      {/* 締め対象日 */}
+      <section className="glass-panel">
+        <label className="block t-label mb-3">締め対象日</label>
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="max-w-xs text-[13px]"
+          className="max-w-xs"
         />
-      </div>
+      </section>
 
-      {/* サマリカード */}
-      <div className="pb-4 border-b border-border-light">
-        <h2 className="t-subhead mb-3">売上サマリ</h2>
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div>
-            <span className="block text-[11px] text-text-tertiary mb-0.5">売上合計</span>
-            <span className="text-[18px] font-bold text-text-primary">{formatCurrency(summary.total_sales)}</span>
-          </div>
-          <div>
-            <span className="block text-[11px] text-text-tertiary mb-0.5">来店数</span>
-            <span className="text-[18px] font-bold text-text-primary">{summary.total_visitors}人</span>
-          </div>
-          <div>
-            <span className="block text-[11px] text-text-tertiary mb-0.5">注文数</span>
-            <span className="text-[18px] font-bold text-text-primary">{summary.total_orders}件</span>
+      {/* 売上サマリ */}
+      <section className="glass-panel">
+        <p className="t-label mb-4">売上サマリ</p>
+        <div className="grid grid-cols-3 gap-6 pb-5 border-b border-border-light">
+          <SummaryStat label="売上合計" value={formatCurrency(summary.total_sales)} />
+          <SummaryStat label="来店数" value={`${summary.total_visitors}人`} />
+          <SummaryStat label="注文数" value={`${summary.total_orders}件`} />
+        </div>
+        <div className="pt-5">
+          <p className="t-label mb-3">支払方法内訳</p>
+          <div className="space-y-2">
+            <PaymentRow label="現金" value={formatCurrency(summary.cash_amount)} />
+            <PaymentRow label="カード" value={formatCurrency(summary.card_amount)} />
+            <PaymentRow label="電子マネー" value={formatCurrency(summary.electronic_amount)} />
           </div>
         </div>
-        <div className="border-t border-border-light pt-3">
-          <h3 className="text-[12px] font-medium text-text-secondary mb-2">支払方法内訳</h3>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-[13px]">
-              <span className="text-text-secondary">現金</span>
-              <span className="font-medium">{formatCurrency(summary.cash_amount)}</span>
-            </div>
-            <div className="flex items-center justify-between text-[13px]">
-              <span className="text-text-secondary">カード</span>
-              <span className="font-medium">{formatCurrency(summary.card_amount)}</span>
-            </div>
-            <div className="flex items-center justify-between text-[13px]">
-              <span className="text-text-secondary">電子マネー</span>
-              <span className="font-medium">{formatCurrency(summary.electronic_amount)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      </section>
 
-      {/* メモ */}
-      <div className="pb-4 border-b border-border-light">
-        <label className="block t-label mb-2">
-          備考
-        </label>
+      {/* 備考 */}
+      <section className="glass-panel">
+        <label className="block t-label mb-3">備考</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
           placeholder="締め処理に関するメモを入力..."
-          className="text-[13px]"
         />
-      </div>
+      </section>
 
-      {/* エラー表示 */}
+      {/* エラー */}
       {result?.error && (
-        <div className="flex items-center gap-2 px-4 py-3 bg-status-danger-bg border border-[#c5221f]/20 rounded-[6px] text-[13px]">
-          <AlertTriangle className="w-4 h-4 text-status-danger flex-shrink-0" />
-          <span className="text-status-danger font-medium">{result.error}</span>
+        <div className="flex items-center gap-2 px-4 py-3 rounded-[var(--radius)] text-[14px]"
+          style={{ background: "var(--danger-soft-bg)", color: "var(--danger-text)", border: "1px solid rgba(220,60,60,0.20)" }}>
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+          <span className="font-medium">{result.error}</span>
         </div>
       )}
+    </div>
+  );
+}
 
-      {/* 実行ボタン */}
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        className="flex items-center gap-1.5 px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors disabled:opacity-50"
-      >
-        <Lock className="w-3.5 h-3.5" />
-        {loading ? "処理中..." : "締め処理を実行"}
-      </button>
+function KpiItem({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <span className="t-label">{label}</span>
+      <span className="flex items-baseline gap-1">
+        <span className="t-value">{value}</span>
+        {unit && <span className="text-[14px] text-text-tertiary">{unit}</span>}
+      </span>
+    </div>
+  );
+}
+
+function SummaryStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className="block t-xs text-text-tertiary mb-1">{label}</span>
+      <span className="text-[20px] font-bold text-text-primary tabular-nums">{value}</span>
+    </div>
+  );
+}
+
+function PaymentRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between px-3 py-2 rounded-[var(--radius-sm)] hover:bg-white/50 transition-colors">
+      <span className="text-[14px] text-text-secondary">{label}</span>
+      <span className="text-[14px] font-medium tabular-nums">{value}</span>
     </div>
   );
 }

@@ -51,21 +51,22 @@ export default function StaffPage() {
 
   return (
     <div className="page-stack">
-      {/* サマリー */}
-      <div className="flex items-center gap-6 pb-4 border-b border-border-light">
-        <div className="flex items-center gap-1.5">
-          <span className="text-text-tertiary text-[13px]">従業員数</span>
-          <span className="text-[15px] font-bold text-text-primary">{staffList.length}名</span>
+      {/* KPI */}
+      <section>
+        <div className="flex items-end justify-between gap-6 flex-wrap">
+          <div className="flex items-end gap-8 flex-wrap">
+            <KpiItem label="従業員" value={staffList.length} unit="名" />
+            <KpiItem label="在籍" value={activeCount} unit="名" accent />
+            <KpiItem label="休職" value={staffList.length - activeCount} unit="名" />
+          </div>
+          <button
+            onClick={() => { setShowAdd(true); setForm({ name: "", role: "ディーラー", hourlyWage: 1200, phone: "" }); }}
+            className="btn btn-primary"
+          >
+            <Plus className="w-3.5 h-3.5" />従業員追加
+          </button>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-text-tertiary text-[13px]">在籍</span>
-          <span className="text-[15px] font-bold text-accent">{activeCount}名</span>
-        </div>
-        <button onClick={() => { setShowAdd(true); setForm({ name: "", role: "ディーラー", hourlyWage: 1200, phone: "" }); }}
-          className="ml-auto flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">
-          <Plus className="w-3.5 h-3.5" />従業員追加
-        </button>
-      </div>
+      </section>
 
       {/* 追加フォーム */}
       {showAdd && (
@@ -174,6 +175,18 @@ export default function StaffPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function KpiItem({ label, value, unit, accent }: { label: string; value: string | number; unit?: string; accent?: boolean }) {
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <span className="t-label">{label}</span>
+      <span className="flex items-baseline gap-1">
+        <span className="t-value" style={{ color: accent ? "var(--primary-text)" : "var(--text-primary)" }}>{value}</span>
+        {unit && <span className="text-[14px] text-text-tertiary">{unit}</span>}
+      </span>
     </div>
   );
 }

@@ -66,30 +66,40 @@ export default function PopManagePage() {
 
   const showModal = creating || editing !== null;
 
+  const publicCount = pops.filter(p => p.isPublic).length;
+
   return (
     <div className="page-stack">
-      <div className="flex items-center justify-between">
-        <p className="text-[13px] text-text-secondary">{pops.length} 件のPOP</p>
-        <button onClick={startCreate} className="flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover">
-          <Plus className="w-3.5 h-3.5" />POP作成
-        </button>
-      </div>
+      {/* KPI */}
+      <section>
+        <div className="flex items-end justify-between gap-6 flex-wrap">
+          <div className="flex items-end gap-8 flex-wrap">
+            <KpiItem label="POP" value={pops.length} unit="件" />
+            <KpiItem label="公開中" value={publicCount} unit="件" />
+          </div>
+          <button onClick={startCreate} className="btn btn-primary">
+            <Plus className="w-3.5 h-3.5" />POP作成
+          </button>
+        </div>
+      </section>
 
-      <div className="grid grid-cols-3 gap-4">
+      <section>
+        <p className="t-label mb-3">POP一覧</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {pops.map((p) => (
-          <div key={p.id} className="border border-border-light rounded-[var(--radius-lg)] overflow-hidden bg-bg-white">
-            <div className="aspect-square bg-bg-hover flex items-center justify-center">
+          <div key={p.id} className="glass-panel overflow-hidden !p-0">
+            <div className="aspect-square flex items-center justify-center" style={{ background: "rgba(28,46,60,0.03)" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {p.imageUrl ? <img src={p.imageUrl} alt={p.title} className="w-full h-full object-cover" /> : <ImageIcon className="w-12 h-12 text-border" />}
+              {p.imageUrl ? <img src={p.imageUrl} alt={p.title} className="w-full h-full object-cover" /> : <ImageIcon className="w-12 h-12 text-[rgba(28,46,60,0.15)]" />}
             </div>
-            <div className="p-3 space-y-1">
+            <div className="p-4 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <h4 className="t-subhead truncate">{p.title}</h4>
-                  {p.linkedEvent && <p className="text-[11px] text-text-tertiary truncate">→ {p.linkedEvent}</p>}
+                  <h4 className="text-[15px] font-semibold text-text-primary truncate">{p.title}</h4>
+                  {p.linkedEvent && <p className="t-xs text-text-tertiary truncate mt-0.5">→ {p.linkedEvent}</p>}
                 </div>
-                <button onClick={() => togglePublic(p.id)} className="p-1 hover:bg-bg-hover rounded shrink-0">
-                  {p.isPublic ? <Eye className="w-3.5 h-3.5 text-accent" /> : <EyeOff className="w-3.5 h-3.5 text-text-tertiary" />}
+                <button onClick={() => togglePublic(p.id)} className="btn btn-ghost btn-xs shrink-0">
+                  {p.isPublic ? <Eye className="w-3.5 h-3.5 text-[color:var(--primary-text)]" /> : <EyeOff className="w-3.5 h-3.5 text-text-tertiary" />}
                 </button>
               </div>
               <div className="flex justify-between items-center pt-2">
@@ -104,7 +114,8 @@ export default function PopManagePage() {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      </section>
 
       {showModal && (
         <div className="modal-overlay" onClick={() => { setCreating(false); setEditing(null); }}>
@@ -154,6 +165,18 @@ export default function PopManagePage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function KpiItem({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <span className="t-label">{label}</span>
+      <span className="flex items-baseline gap-1">
+        <span className="t-value">{value}</span>
+        {unit && <span className="text-[14px] text-text-tertiary">{unit}</span>}
+      </span>
     </div>
   );
 }

@@ -52,15 +52,15 @@ export default function SettingsPage() {
   function addChipPrice() { setChipSetting(prev => ({ ...prev, prices: [...prev.prices, { amount: 0, price: 0 }] })); }
   function addPointRule() { setPointRules(prev => [...prev, { id: `pr${Date.now()}`, trigger: "", amount: 0 }]); }
 
-  const L = "block t-label mb-1.5";
-  const Card = "pb-5 border-b border-border-light";
-  const SaveBtn = "px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors";
+  const L = "block t-label mb-2";
+  const Card = "glass-panel";
+  const SaveBtn = "btn btn-primary btn-sm";
 
   return (
-    <div className="space-y-4">
+    <div className="page-stack">
       {/* 店舗情報 */}
-      <div className={Card}>
-        <h2 className="text-[13px] font-semibold mb-4">店舗情報</h2>
+      <section className={Card}>
+        <p className="t-label mb-4">店舗情報</p>
         <div className="space-y-3">
           <div><label className={L}>店舗名</label><input type="text" defaultValue="Come On Casino" className="text-[13px]" /></div>
           <div><label className={L}>表示名</label><input type="text" defaultValue="カモンカジノ" className="text-[13px]" /></div>
@@ -73,11 +73,11 @@ export default function SettingsPage() {
             {saved === "store" && <span className="text-[12px] text-status-success flex items-center gap-1"><Check className="w-3 h-3" />保存しました</span>}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* 営業時間 */}
-      <div className={Card}>
-        <h2 className="text-[13px] font-semibold mb-4">営業時間</h2>
+      <section className={Card}>
+        <p className="t-label mb-4">営業時間</p>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div><label className={L}>開店</label><input type="time" defaultValue="18:00" className="text-[13px]" /></div>
@@ -98,13 +98,13 @@ export default function SettingsPage() {
             {saved === "hours" && <span className="text-[12px] text-status-success flex items-center gap-1"><Check className="w-3 h-3" />保存しました</span>}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ===== ランク設定 ===== */}
-      <div className={Card}>
+      <section className={Card}>
         <div className="flex items-center gap-2 mb-4">
           <Star className="w-4 h-4 text-status-warning" />
-          <h2 className="text-[13px] font-semibold">ランク設定</h2>
+          <p className="t-label">ランク設定</p>
         </div>
         <div className="space-y-3">
           <div><label className={L}>ランクの呼び方</label><input type="text" value={rankLabel} onChange={e => setRankLabel(e.target.value)} className="text-[13px] max-w-[200px]" placeholder="例: ランク, グレード, ステータス" /></div>
@@ -133,13 +133,13 @@ export default function SettingsPage() {
             {saved === "rank" && <span className="text-[12px] text-status-success flex items-center gap-1"><Check className="w-3 h-3" />保存しました</span>}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ===== チップ設定 ===== */}
-      <div className={Card}>
+      <section className={Card}>
         <div className="flex items-center gap-2 mb-4">
           <Coins className="w-4 h-4 text-status-warning" />
-          <h2 className="text-[13px] font-semibold">チップ設定</h2>
+          <p className="t-label">チップ設定</p>
         </div>
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-3">
@@ -168,13 +168,13 @@ export default function SettingsPage() {
             {saved === "chip" && <span className="text-[12px] text-status-success flex items-center gap-1"><Check className="w-3 h-3" />保存しました</span>}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ===== ポイント設定 ===== */}
-      <div className={Card}>
+      <section className={Card}>
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="w-4 h-4 text-accent" />
-          <h2 className="text-[13px] font-semibold">ポイント設定</h2>
+          <p className="t-label">ポイント設定</p>
         </div>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
@@ -201,20 +201,20 @@ export default function SettingsPage() {
             {saved === "point" && <span className="text-[12px] text-status-success flex items-center gap-1"><Check className="w-3 h-3" />保存しました</span>}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* LINE連携 */}
-      <div className={Card}>
+      <section className={Card}>
         <div className="flex items-center gap-2 mb-4">
           <MessageCircle className="w-4 h-4 text-text-tertiary" />
-          <h2 className="text-[13px] font-semibold">LINE連携</h2>
+          <p className="t-label">LINE連携</p>
         </div>
         <div className="space-y-3">
           <div><label className={L}>Channel ID</label><input type="text" placeholder="未設定" className="text-[13px] bg-bg-hover" disabled /></div>
           <div><label className={L}>Channel Secret</label><input type="text" placeholder="未設定" className="text-[13px] bg-bg-hover" disabled /></div>
           <p className="text-[11px] text-text-tertiary">LINE連携は今後のアップデートで対応予定です。</p>
         </div>
-      </div>
+      </section>
 
       {/* フッター */}
       <div className="flex items-center justify-center gap-2 py-4">

@@ -319,7 +319,7 @@ export default function CustomerDetailPage() {
           ))}
         </div>
 
-        <div>
+        <div className="glass-panel">
           {/* Tab 1: Basic Info */}
           {activeTab === "基本情報" && (
             <div className="space-y-4 max-w-lg">
