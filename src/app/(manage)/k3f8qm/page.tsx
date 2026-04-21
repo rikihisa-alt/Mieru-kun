@@ -112,7 +112,7 @@ export default function ReservationPage() {
 
       {showForm && (
         <div className="modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="bg-bg-white rounded-[var(--radius-lg)] w-full max-w-md p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-card modal-card-md p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h3 className="text-[15px] font-semibold">店頭予約を追加</h3>
               <button onClick={() => setShowForm(false)} className="p-1 hover:bg-bg-hover rounded"><X className="w-4 h-4 text-text-tertiary" /></button>

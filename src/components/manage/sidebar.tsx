@@ -94,11 +94,16 @@ export function Sidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`group flex items-center gap-2.5 mx-2 px-3 py-[7px] rounded-[var(--radius)] text-[13px] font-medium transition-colors ${
+                  className={`group flex items-center gap-2.5 mx-2 px-3 py-2 rounded-[var(--radius)] text-[14px] font-medium transition-colors ${
                     active
-                      ? "bg-accent-light text-accent"
-                      : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                      ? ""
+                      : "text-text-secondary hover:bg-white/60 hover:text-text-primary"
                   }`}
+                  style={
+                    active
+                      ? { background: "var(--primary-soft-bg)", color: "var(--primary-text)", border: "1px solid rgba(32,156,110,0.18)" }
+                      : undefined
+                  }
                 >
                   <Icon className="w-[16px] h-[16px] shrink-0" strokeWidth={active ? 2.4 : 1.8} />
                   <span className="truncate">{item.label}</span>

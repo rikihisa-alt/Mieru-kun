@@ -1,13 +1,15 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Settings2, X, GripVertical, AlertTriangle, ArrowUpRight, DoorOpen, LogIn, LogOut as LogOutIcon, CalendarDays, Clock, ShoppingBag, Coins, CreditCard } from "lucide-react";
+import {
+  Settings2, X, GripVertical, AlertTriangle, ArrowUpRight,
+  DoorOpen, LogIn, LogOut as LogOutIcon, CalendarDays, ShoppingBag, Coins, CreditCard,
+} from "lucide-react";
 import { useAppStore } from "@/lib/store/app-store";
 
 interface DashSection { id: string; label: string; visible: boolean; }
-interface AlertSetting { id: string; label: string; enabled: boolean; color: string; }
+interface AlertSetting { id: string; label: string; enabled: boolean; }
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -23,14 +25,14 @@ export default function DashboardPage() {
     { id: "timeline", label: "タイムライン", visible: true },
   ]);
   const [alertSettings, setAlertSettings] = useState<AlertSetting[]>([
-    { id: "unpaid", label: "未精算アラート", enabled: true, color: "#c0392b" },
-    { id: "full_table", label: "満席アラート", enabled: true, color: "#c87b1a" },
+    { id: "unpaid", label: "未精算アラート", enabled: true },
+    { id: "full_table", label: "満席アラート", enabled: true },
   ]);
 
   function toggleSection(id: string) { setSections(p => p.map(s => s.id === id ? { ...s, visible: !s.visible } : s)); }
   function toggleAlert(id: string) { setAlertSettings(p => p.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a)); }
-  function moveSection(id: string, dir: -1|1) {
-    setSections(p => { const i = p.findIndex(s => s.id === id); if (i < 0) return p; const n = i+dir; if (n<0||n>=p.length) return p; const a=[...p]; [a[i],a[n]]=[a[n],a[i]]; return a; });
+  function moveSection(id: string, dir: -1 | 1) {
+    setSections(p => { const i = p.findIndex(s => s.id === id); if (i < 0) return p; const n = i + dir; if (n < 0 || n >= p.length) return p; const a = [...p]; [a[i], a[n]] = [a[n], a[i]]; return a; });
   }
 
   const fullTables = tables.filter(t => t.occupied >= t.max).length;
@@ -38,169 +40,204 @@ export default function DashboardPage() {
   const hasUnpaidAlert = alertSettings.find(a => a.id === "unpaid")?.enabled && kpis.unpaid > 0;
   const hasFullAlert = alertSettings.find(a => a.id === "full_table")?.enabled && fullTables > 0;
 
-  const TYPE_ICON: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
-    "入店": { icon: <DoorOpen className="w-3 h-3" />, color: "#3a8f7c", bg: "#e8f5f0" },
-    "退店": { icon: <LogOutIcon className="w-3 h-3" />, color: "#8e9baa", bg: "#f3f0ec" },
-    "出勤": { icon: <LogIn className="w-3 h-3" />, color: "#2c3e50", bg: "#e8e4df" },
-    "退勤": { icon: <LogOutIcon className="w-3 h-3" />, color: "#5a6977", bg: "#f3f0ec" },
-    "注文": { icon: <ShoppingBag className="w-3 h-3" />, color: "#3a8f7c", bg: "#e8f5f0" },
-    "精算": { icon: <CreditCard className="w-3 h-3" />, color: "#2e7d5b", bg: "#e8f5f0" },
-    "チップ": { icon: <Coins className="w-3 h-3" />, color: "#d97706", bg: "#fdf4e8" },
-    "イベント": { icon: <CalendarDays className="w-3 h-3" />, color: "#7c3aed", bg: "#f3e8fd" },
+  const TYPE_ICON: Record<string, { icon: React.ReactNode; chip: string }> = {
+    "入店":      { icon: <DoorOpen className="w-3.5 h-3.5" />,  chip: "chip chip-success" },
+    "退店":      { icon: <LogOutIcon className="w-3.5 h-3.5" />, chip: "chip chip-neutral" },
+    "出勤":      { icon: <LogIn className="w-3.5 h-3.5" />,     chip: "chip chip-accent" },
+    "退勤":      { icon: <LogOutIcon className="w-3.5 h-3.5" />, chip: "chip chip-neutral" },
+    "注文":      { icon: <ShoppingBag className="w-3.5 h-3.5" />,chip: "chip chip-success" },
+    "精算":      { icon: <CreditCard className="w-3.5 h-3.5" />, chip: "chip chip-success" },
+    "チップ":    { icon: <Coins className="w-3.5 h-3.5" />,     chip: "chip chip-warning" },
+    "イベント":  { icon: <CalendarDays className="w-3.5 h-3.5" />,chip: "chip chip-vip" },
   };
 
   return (
-    <div className="space-y-5 relative">
-      <div className="absolute top-0 right-0">
-        <button onClick={() => setShowSettings(true)} className="flex items-center gap-1 px-2 py-1 text-[11px] text-text-tertiary hover:bg-bg-hover rounded-[4px]"><Settings2 className="w-3 h-3" /></button>
-      </div>
+    <div className="page-stack relative">
+      {/* 設定ボタン */}
+      <button
+        onClick={() => setShowSettings(true)}
+        className="absolute top-0 right-0 btn btn-ghost btn-xs"
+      >
+        <Settings2 className="w-3.5 h-3.5" />
+      </button>
 
-      {/* ===== 本日集計 ===== */}
+      {/* ===== 本日集計 (横一列、枠なし、数字強調) ===== */}
       {isVisible("summary") && (
-        <div className="flex items-center gap-2 flex-wrap text-[14px] pb-4 border-b border-border-light">
-          <span className="text-text-tertiary text-[13px] mr-1">本日集計：</span>
-          <Chip label="来店" value={`${kpis.visitors}名`} color="#3a8f7c" onClick={() => router.push("/m4w9sq")} />
-          <Chip label="売上" value={`¥${kpis.sales.toLocaleString()}`} />
-          <Chip label="客単価" value={`¥${kpis.avgSpend.toLocaleString()}`} />
-          <Chip label="達成率" value={`${progressPct}%`} color="#3a8f7c" />
-          <Chip label="出勤" value={`${kpis.onDuty}名`} onClick={() => router.push("/z5b7lc")} />
-          {kpis.unpaid > 0 && <Chip label="未払" value={`${kpis.unpaid}件`} color="#c0392b" onClick={() => router.push("/x6j2fp")} />}
-        </div>
+        <section>
+          <p className="t-label mb-3">本日集計</p>
+          <div className="flex items-end gap-8 flex-wrap">
+            <KpiItem label="来店"     value={kpis.visitors}                     unit="名"  onClick={() => router.push("/m4w9sq")} />
+            <KpiItem label="売上"     value={`¥${kpis.sales.toLocaleString()}`} />
+            <KpiItem label="客単価"   value={`¥${kpis.avgSpend.toLocaleString()}`} />
+            <KpiItem label="達成率"   value={`${progressPct}%`} accent />
+            <KpiItem label="出勤"     value={kpis.onDuty}                       unit="名" onClick={() => router.push("/z5b7lc")} />
+            {kpis.unpaid > 0 && (
+              <KpiItem label="未払" value={kpis.unpaid} unit="件" danger onClick={() => router.push("/x6j2fp")} />
+            )}
+          </div>
+        </section>
       )}
 
       {/* ===== 要対応 ===== */}
       {isVisible("alerts") && (hasUnpaidAlert || hasFullAlert) && (
-        <div>
-          <p className="t-subhead mb-2">要対応</p>
-          <div className="space-y-1.5">
-            {hasUnpaidAlert && <AlertRow color="#c0392b" text={`未精算 ${kpis.unpaid}件 — 精算処理が必要です`} onClick={() => router.push("/x6j2fp")} />}
-            {hasFullAlert && <AlertRow color="#c87b1a" text={`満席卓 ${fullTables}卓 — 卓管理を確認してください`} onClick={() => router.push("/v3r8nb")} />}
+        <section>
+          <p className="t-label mb-3">要対応</p>
+          <div className="space-y-2">
+            {hasUnpaidAlert && (
+              <AlertRow
+                tone="danger"
+                text={`未精算 ${kpis.unpaid}件 — 精算処理が必要です`}
+                onClick={() => router.push("/x6j2fp")}
+              />
+            )}
+            {hasFullAlert && (
+              <AlertRow
+                tone="warning"
+                text={`満席卓 ${fullTables}卓 — 卓管理を確認してください`}
+                onClick={() => router.push("/v3r8nb")}
+              />
+            )}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* ===== 卓稼働 (全幅2列) ===== */}
-      {isVisible("tables") && (
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <p className="t-subhead">卓稼働 <span className="font-normal text-text-tertiary">{kpis.activeTables}/{kpis.totalTables}</span></p>
-            <button onClick={() => router.push("/v3r8nb")} className="flex items-center gap-0.5 text-[11px] text-accent hover:underline">卓管理<ArrowUpRight className="w-3 h-3" /></button>
-          </div>
-          <div className="grid grid-cols-2 gap-x-8 max-h-[200px] overflow-y-auto">
-            {[tables.slice(0, 4), tables.slice(4)].map((half, hi) => (
-              <table key={hi} className="w-full text-[12px]">
-                <tbody>
-                  {half.map(t => {
-                    const pct = t.max > 0 ? t.occupied / t.max : 0;
-                    const full = pct >= 1; const empty = t.occupied === 0;
-                    const c = full ? "#c0392b" : empty ? "#d8d3cc" : pct > 0.7 ? "#c87b1a" : "#3a8f7c";
-                    return (
-                      <tr key={t.name} className="border-b border-border-light hover:bg-bg-hover cursor-pointer" onClick={() => router.push("/v3r8nb")}>
-                        <td className="py-1.5 pr-2 w-5"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} /></td>
-                        <td className="py-1.5 pr-4 font-medium">{t.name}</td>
-                        <td className="py-1.5 pr-4 text-text-secondary">{t.occupied} / {t.max}</td>
-                        <td className="py-1.5 pr-4 text-text-tertiary">{t.type}</td>
-                        <td className="py-1.5">
-                          <div className="h-[5px] bg-bg-hover rounded-full overflow-hidden">
-                            <div className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: c }} />
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ===== タイムライン ===== */}
-      {isVisible("timeline") && (
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <p className="t-subhead">タイムライン</p>
-            <button onClick={() => router.push("/n3k8xh")} className="flex items-center gap-0.5 text-[11px] text-accent hover:underline">すべての履歴<ArrowUpRight className="w-3 h-3" /></button>
-          </div>
-
-          {/* イベント: タイムライン見出しの直下に横並び */}
-          {events.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-3 mb-2">
-              {events.map((ev, i) => {
-                const st = ev.status === "進行中" ? { bg: "#e8f5f0", text: "#2e7d5b" } : ev.status === "準備中" ? { bg: "#fdf4e8", text: "#c87b1a" } : { bg: "#f3f0ec", text: "#5a6977" };
+      {/* ===== 卓稼働 + タイムライン (2カラム) ===== */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
+        {isVisible("tables") && (
+          <section className="glass-panel">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-baseline gap-3">
+                <h2 className="t-md">卓稼働</h2>
+                <span className="t-xs text-text-tertiary">{kpis.activeTables} / {kpis.totalTables}</span>
+              </div>
+              <button onClick={() => router.push("/v3r8nb")} className="btn btn-ghost btn-xs">
+                卓管理 <ArrowUpRight className="w-3 h-3" />
+              </button>
+            </div>
+            <div className="space-y-2">
+              {tables.map((t) => {
+                const pct = t.max > 0 ? (t.occupied / t.max) * 100 : 0;
+                const full = pct >= 100; const empty = t.occupied === 0;
                 return (
-                  <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] border border-border-light hover:border-border cursor-pointer flex-shrink-0 whitespace-nowrap transition-colors">
-                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-[3px]" style={{ backgroundColor: st.bg, color: st.text }}>{ev.status}</span>
-                    <span className="text-[12px] font-medium text-text-primary">{ev.title}</span>
-                    <span className="text-[11px] text-text-tertiary">{ev.time}</span>
-                    <span className="text-[11px] text-text-tertiary">{ev.participants}名</span>
-                  </div>
+                  <button
+                    key={t.name}
+                    onClick={() => router.push("/v3r8nb")}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-[var(--radius)] hover:bg-white/60 transition-colors text-left"
+                  >
+                    <span className={`chip-dot ${full ? "!bg-[#c0392b]" : empty ? "!bg-[rgba(28,46,60,0.15)]" : "!bg-[#209c6e]"}`} />
+                    <span className="flex-1 text-[14px] font-medium">{t.name}</span>
+                    <span className="t-xs text-text-tertiary">{t.type}</span>
+                    <span className="text-[14px] font-semibold tabular-nums min-w-[4em] text-right">
+                      {t.occupied} / {t.max}
+                    </span>
+                    <div className="w-16 h-[3px] rounded-full bg-[rgba(28,46,60,0.08)] overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${pct}%`,
+                          background: full ? "#c0392b" : empty ? "transparent" : "#209c6e",
+                        }}
+                      />
+                    </div>
+                  </button>
                 );
               })}
             </div>
-          )}
+          </section>
+        )}
 
-          {/* タイムライン本体（スクロール） */}
-          <div className="relative max-h-[360px] overflow-y-auto">
-            <div className="absolute left-[39px] top-0 bottom-0 w-px bg-border-light" />
-            <div className="space-y-0">
-              {timeline.map((ev, i) => {
-                const t = TYPE_ICON[ev.type];
-                return (
-                  <div key={i} className="flex items-start gap-3 py-1.5 hover:bg-bg-hover rounded-[4px] transition-colors cursor-pointer relative"
-                    onClick={() => router.push(
-                      ev.type === "入店" || ev.type === "退店" ? "/m4w9sq" :
-                      ev.type === "注文" || ev.type === "精算" ? "/x6j2fp" :
-                      ev.type === "チップ" ? "/a9k5dm" :
-                      ev.type === "イベント" ? "/v3r8nb" : "/z5b7lc"
-                    )}>
-                    <span className="text-[11px] text-text-tertiary font-mono w-8 text-right pt-0.5 flex-shrink-0">{ev.time}</span>
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10" style={{ backgroundColor: t.bg, color: t.color }}>
-                      {t.icon}
-                    </div>
-                    <div className="flex items-center gap-2 pt-0.5 min-w-0">
-                      <span className="t-micro flex-shrink-0" style={{ color: t.color }}>{ev.type}</span>
-                      <span className="text-[12px] font-medium text-text-primary truncate">{ev.name}</span>
-                      {ev.realName && <span className="text-[11px] text-text-tertiary flex-shrink-0">（{ev.realName}）</span>}
-                      {ev.detail && <span className="text-[11px] text-text-tertiary flex-shrink-0">{ev.detail}</span>}
-                    </div>
-                  </div>
-                );
-              })}
+        {isVisible("timeline") && (
+          <section className="glass-panel">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="t-md">タイムライン</h2>
+              <button onClick={() => router.push("/n3k8xh")} className="btn btn-ghost btn-xs">
+                すべての履歴 <ArrowUpRight className="w-3 h-3" />
+              </button>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* 設定パネル */}
+            {events.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-3 mb-3 border-b border-border-light">
+                {events.map((ev, i) => {
+                  const cls = ev.status === "進行中" ? "chip chip-success" : ev.status === "準備中" ? "chip chip-warning" : "chip chip-neutral";
+                  return (
+                    <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius)] bg-white/40 border border-glass-border flex-shrink-0 whitespace-nowrap">
+                      <span className={`${cls} chip-sm`}>{ev.status}</span>
+                      <span className="text-[14px] font-medium">{ev.title}</span>
+                      <span className="t-xs text-text-tertiary">{ev.time} / {ev.participants}名</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="relative max-h-[460px] overflow-y-auto scrollbar-subtle">
+              <div className="space-y-1">
+                {timeline.map((ev, i) => {
+                  const meta = TYPE_ICON[ev.type] ?? TYPE_ICON["入店"];
+                  return (
+                    <button
+                      key={i}
+                      onClick={() =>
+                        router.push(
+                          ev.type === "入店" || ev.type === "退店" ? "/m4w9sq" :
+                          ev.type === "注文" || ev.type === "精算" ? "/x6j2fp" :
+                          ev.type === "チップ" ? "/a9k5dm" :
+                          ev.type === "イベント" ? "/v3r8nb" : "/z5b7lc"
+                        )
+                      }
+                      className="w-full flex items-center gap-3 px-2 py-2 rounded-[var(--radius)] hover:bg-white/60 transition-colors text-left"
+                    >
+                      <span className="t-xs text-text-tertiary font-mono w-10 flex-shrink-0">{ev.time}</span>
+                      <span className={meta.chip + " chip-sm flex-shrink-0"}>
+                        <span className="opacity-75">{meta.icon}</span>
+                        {ev.type}
+                      </span>
+                      <span className="text-[14px] font-medium truncate">{ev.name}</span>
+                      {ev.realName && <span className="t-xs text-text-tertiary flex-shrink-0">（{ev.realName}）</span>}
+                      {ev.detail && <span className="t-xs text-text-tertiary truncate">{ev.detail}</span>}
+                      {ev.amount != null && (
+                        <span className="ml-auto text-[14px] font-semibold tabular-nums flex-shrink-0">¥{ev.amount.toLocaleString()}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+      </div>
+
+      {/* 設定ドロワー */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setShowSettings(false)}>
-          <div className="w-72 bg-white h-full shadow-lg overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
-              <span className="text-[13px] font-semibold">表示設定</span>
-              <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-bg-hover rounded-[4px]"><X className="w-4 h-4 text-text-tertiary" /></button>
+        <div className="fixed inset-0 z-50 flex justify-end" style={{ background: "rgba(28,46,60,0.18)", backdropFilter: "blur(6px)" }} onClick={() => setShowSettings(false)}>
+          <div className="w-80 h-full bg-white/90 backdrop-blur-xl border-l border-glass-border overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border-light">
+              <span className="t-md">表示設定</span>
+              <button onClick={() => setShowSettings(false)} className="btn btn-ghost btn-xs">
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <div className="p-4 space-y-1">
+            <div className="p-5 space-y-1">
               {sections.map((s, idx) => (
-                <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 rounded-[4px] hover:bg-bg-hover">
-                  <GripVertical className="w-3 h-3 text-[#d8d3cc]" />
+                <div key={s.id} className="flex items-center gap-2 px-2 py-2 rounded-[var(--radius-sm)] hover:bg-white/60">
+                  <GripVertical className="w-3 h-3 text-text-tertiary" />
                   <label className="flex items-center gap-2 flex-1 cursor-pointer">
-                    <input type="checkbox" checked={s.visible} onChange={() => toggleSection(s.id)} className="accent-[#3a8f7c]" />
-                    <span className="text-[12px]">{s.label}</span>
+                    <input type="checkbox" checked={s.visible} onChange={() => toggleSection(s.id)} className="!w-4 !h-4 accent-[#209c6e]" />
+                    <span className="text-[14px]">{s.label}</span>
                   </label>
                   <div className="flex gap-0.5">
-                    <button onClick={() => moveSection(s.id, -1)} disabled={idx === 0} className="text-[10px] px-1 text-text-tertiary disabled:opacity-30">↑</button>
-                    <button onClick={() => moveSection(s.id, 1)} disabled={idx === sections.length - 1} className="text-[10px] px-1 text-text-tertiary disabled:opacity-30">↓</button>
+                    <button onClick={() => moveSection(s.id, -1)} disabled={idx === 0} className="text-[12px] px-1.5 text-text-tertiary disabled:opacity-30">↑</button>
+                    <button onClick={() => moveSection(s.id, 1)} disabled={idx === sections.length - 1} className="text-[12px] px-1.5 text-text-tertiary disabled:opacity-30">↓</button>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="p-4 border-t border-border-light space-y-1">
-              <p className="text-[10px] text-text-tertiary font-semibold uppercase tracking-wider mb-1">アラート</p>
-              {alertSettings.map(a => (
-                <label key={a.id} className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-bg-hover rounded-[4px]">
-                  <input type="checkbox" checked={a.enabled} onChange={() => toggleAlert(a.id)} className="accent-[#3a8f7c]" />
-                  <span className="text-[12px]">{a.label}</span>
+            <div className="px-5 pb-5 space-y-1 border-t border-border-light pt-4">
+              <p className="t-label mb-2">アラート</p>
+              {alertSettings.map((a) => (
+                <label key={a.id} className="flex items-center gap-2 px-2 py-2 cursor-pointer hover:bg-white/60 rounded-[var(--radius-sm)]">
+                  <input type="checkbox" checked={a.enabled} onChange={() => toggleAlert(a.id)} className="!w-4 !h-4 accent-[#209c6e]" />
+                  <span className="text-[14px]">{a.label}</span>
                 </label>
               ))}
             </div>
@@ -211,21 +248,45 @@ export default function DashboardPage() {
   );
 }
 
-function Chip({ label, value, color, onClick }: { label: string; value: string; color?: string; onClick?: () => void }) {
+function KpiItem({
+  label, value, unit, accent, danger, onClick,
+}: {
+  label: string;
+  value: string | number;
+  unit?: string;
+  accent?: boolean;
+  danger?: boolean;
+  onClick?: () => void;
+}) {
+  const valueColor = danger ? "var(--danger-text)" : accent ? "var(--primary-text)" : "var(--text-primary)";
   return (
-    <span className={`inline-flex items-center gap-1.5 ${onClick ? "cursor-pointer hover:opacity-70" : ""}`} onClick={onClick}>
-      <span className="text-text-tertiary text-[13px]">{label}</span>
-      <span className="text-[15px] font-bold" style={{ color: color ?? "#2c3e50" }}>{value}</span>
-    </span>
+    <button
+      onClick={onClick}
+      disabled={!onClick}
+      className={`flex flex-col items-start gap-1 ${onClick ? "cursor-pointer hover:opacity-75" : "cursor-default"} transition-opacity`}
+    >
+      <span className="t-label">{label}</span>
+      <span className="flex items-baseline gap-1">
+        <span className="t-value" style={{ color: valueColor }}>{value}</span>
+        {unit && <span className="text-[14px] text-text-tertiary font-normal">{unit}</span>}
+      </span>
+    </button>
   );
 }
 
-function AlertRow({ color, text, onClick }: { color: string; text: string; onClick?: () => void }) {
+function AlertRow({ tone, text, onClick }: { tone: "danger" | "warning"; text: string; onClick?: () => void }) {
+  const bg = tone === "danger" ? "var(--danger-soft-bg)" : "var(--warning-soft-bg)";
+  const color = tone === "danger" ? "var(--danger-text)" : "var(--warning-text)";
+  const border = tone === "danger" ? "rgba(220,60,60,0.20)" : "rgba(255,170,0,0.25)";
   return (
-    <div onClick={onClick} className="flex items-center gap-2 py-2 px-3 rounded-[6px] cursor-pointer hover:opacity-80" style={{ backgroundColor: `${color}0a` }}>
-      <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color }} />
-      <span className="text-[13px]" style={{ color }}>{text}</span>
-      <ArrowUpRight className="w-3.5 h-3.5 ml-auto" style={{ color }} />
-    </div>
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-2 px-4 py-3 rounded-[var(--radius)] text-left transition-all hover:brightness-[1.02]"
+      style={{ background: bg, color, border: `1px solid ${border}`, backdropFilter: "blur(6px)" }}
+    >
+      <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+      <span className="text-[14px] font-medium">{text}</span>
+      <ArrowUpRight className="w-3.5 h-3.5 ml-auto" />
+    </button>
   );
 }

@@ -118,7 +118,7 @@ export default function PointRulesPage() {
 
       {showModal && (
         <div className="modal-overlay" onClick={() => { setCreating(false); setEditing(null); }}>
-          <div className="bg-bg-white rounded-[var(--radius-lg)] w-full max-w-lg p-5 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-card modal-card-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h3 className="text-[15px] font-semibold">{editing ? "ルール編集" : "ルール追加"}</h3>
               <button onClick={() => { setCreating(false); setEditing(null); }} className="p-1 hover:bg-bg-hover rounded"><X className="w-4 h-4 text-text-tertiary" /></button>
