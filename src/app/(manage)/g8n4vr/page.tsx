@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Plus, Pencil, X, ArrowUpRight } from "lucide-react";
+import { Plus, Pencil, X, Search } from "lucide-react";
 
 type StaffStatus = "active" | "leave" | "retired";
 
@@ -15,6 +15,13 @@ const ROLES = ["ディーラー", "フロア", "マネージャー", "キッチ�
 
 const STATUS_LABEL: Record<StaffStatus, string> = { active: "在籍", leave: "休職", retired: "退職" };
 const STATUS_CHIP: Record<StaffStatus, string> = { active: "chip-success", leave: "chip-warning", retired: "chip-neutral" };
+
+// ひらがな⇔カタカナ吸収
+function normalizeJa(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[\u30a1-\u30f6]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
+}
 
 const INIT: Staff[] = [
   { id: "s1", name: "山田 太郎", role: "ディーラー", hourlyWage: 1500, phone: "090-1111-2222", status: "active", joinDate: "2024/04" },
@@ -30,10 +37,21 @@ export default function StaffPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", role: "ディーラー", hourlyWage: 1200, phone: "" });
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | StaffStatus>("all");
 
   const activeCount = staffList.filter(s => s.status === "active").length;
   const leaveCount = staffList.filter(s => s.status === "leave").length;
   const retiredCount = staffList.filter(s => s.status === "retired").length;
+
+  const q = normalizeJa(search.trim());
+  const filtered = staffList.filter(s => {
+    if (roleFilter !== "all" && s.role !== roleFilter) return false;
+    if (statusFilter !== "all" && s.status !== statusFilter) return false;
+    if (!q) return true;
+    return normalizeJa(s.name).includes(q) || s.phone.includes(search) || normalizeJa(s.role).includes(q);
+  });
 
   function addStaff() {
     if (!form.name.trim()) return;
@@ -107,51 +125,78 @@ export default function StaffPage() {
         </div>
       )}
 
-      {/* 一覧 */}
-      <table className="w-full text-[13px]">
-        <thead>
-          <tr className="border-b border-border-light">
-            <th className="pb-2 data-th">名前</th>
-            <th className="pb-2 data-th">役割</th>
-            <th className="pb-2 data-th">時給</th>
-            <th className="pb-2 data-th">電話番号</th>
-            <th className="pb-2 data-th">入社</th>
-            <th className="pb-2 data-th">状態</th>
-            <th className="pb-2 data-th">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {staffList.map(s => (
-            <tr key={s.id} className="border-b border-border-light hover:bg-bg-hover transition-colors">
-              <td className="py-2.5 font-medium text-text-primary">{s.name}</td>
-              <td className="py-2.5 text-text-secondary">{s.role}</td>
-              <td className="py-2.5 text-text-secondary">¥{s.hourlyWage.toLocaleString()}</td>
-              <td className="py-2.5 text-text-secondary text-[12px]">{s.phone || "—"}</td>
-              <td className="py-2.5 text-text-tertiary text-[12px]">{s.joinDate}</td>
-              <td className="py-2.5">
-                <span className={`chip ${STATUS_CHIP[s.status]} chip-sm`}>
-                  {STATUS_LABEL[s.status]}
-                </span>
-              </td>
-              <td className="py-2.5">
-                <div className="flex gap-1 flex-wrap">
-                  <button onClick={() => { setEditId(s.id); setForm({ name: s.name, role: s.role, hourlyWage: s.hourlyWage, phone: s.phone }); }}
-                    className="btn btn-subtle btn-xs"><Pencil className="w-3 h-3" />編集</button>
-                  {s.status !== "active" && (
-                    <button onClick={() => setStatus(s.id, "active")} className="btn btn-subtle btn-xs">復帰</button>
-                  )}
-                  {s.status !== "leave" && (
-                    <button onClick={() => setStatus(s.id, "leave")} className="btn btn-ghost btn-xs">休職</button>
-                  )}
-                  {s.status !== "retired" && (
-                    <button onClick={() => setStatus(s.id, "retired")} className="btn btn-danger btn-xs">退職</button>
-                  )}
-                </div>
-              </td>
+      {/* 検索 + 一覧 */}
+      <section className="glass-panel">
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none z-10" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="名前・役割・電話番号で検索"
+              style={{ paddingLeft: "40px" }}
+            />
+          </div>
+          <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="text-[13px] max-w-[140px]">
+            <option value="all">役割: すべて</option>
+            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as "all" | StaffStatus)} className="text-[13px] max-w-[140px]">
+            <option value="all">状態: すべて</option>
+            <option value="active">在籍</option>
+            <option value="leave">休職</option>
+            <option value="retired">退職</option>
+          </select>
+          <span className="ml-auto t-xs text-text-tertiary">{filtered.length}件</span>
+        </div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>名前</th>
+              <th>役割</th>
+              <th>時給</th>
+              <th>電話番号</th>
+              <th>入社</th>
+              <th>状態</th>
+              <th>操作</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={7} className="!py-10 text-center text-text-tertiary text-[13px]">該当する従業員がいません</td></tr>
+            ) : filtered.map(s => (
+              <tr key={s.id}>
+                <td className="font-medium text-text-primary">{s.name}</td>
+                <td className="text-text-secondary">{s.role}</td>
+                <td className="text-text-secondary">¥{s.hourlyWage.toLocaleString()}</td>
+                <td className="text-text-secondary text-[12px]">{s.phone || "—"}</td>
+                <td className="text-text-tertiary text-[12px]">{s.joinDate}</td>
+                <td>
+                  <span className={`chip ${STATUS_CHIP[s.status]} chip-sm`}>
+                    {STATUS_LABEL[s.status]}
+                  </span>
+                </td>
+                <td>
+                  <div className="flex gap-1 flex-wrap">
+                    <button onClick={() => { setEditId(s.id); setForm({ name: s.name, role: s.role, hourlyWage: s.hourlyWage, phone: s.phone }); }}
+                      className="btn btn-subtle btn-xs"><Pencil className="w-3 h-3" />編集</button>
+                    {s.status !== "active" && (
+                      <button onClick={() => setStatus(s.id, "active")} className="btn btn-subtle btn-xs">復帰</button>
+                    )}
+                    {s.status !== "leave" && (
+                      <button onClick={() => setStatus(s.id, "leave")} className="btn btn-ghost btn-xs">休職</button>
+                    )}
+                    {s.status !== "retired" && (
+                      <button onClick={() => setStatus(s.id, "retired")} className="btn btn-danger btn-xs">退職</button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
 
       {/* 編集モーダル */}
       {editId && (
