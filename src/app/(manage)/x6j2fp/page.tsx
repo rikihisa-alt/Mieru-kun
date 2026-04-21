@@ -81,61 +81,65 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="page-stack">
       {/* フィルタ + 完了トースト */}
-      <div className="flex items-center gap-3">
-        <div className="tabs">
-          {(["all", "active", "settled"] as const).map(f => (
-            <button key={f} onClick={() => setFilter(f)} className={`tab ${filter === f ? "tab-active" : ""}`}>
-              {f === "all" ? "すべて" : f === "active" ? "来店中" : "精算済"}
-            </button>
-          ))}
+      <section>
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="tabs">
+            {(["all", "active", "settled"] as const).map(f => (
+              <button key={f} onClick={() => setFilter(f)} className={`tab ${filter === f ? "tab-active" : ""}`}>
+                {f === "all" ? "すべて" : f === "active" ? "来店中" : "精算済"}
+              </button>
+            ))}
+          </div>
+          <span className="ml-auto text-[12px] text-text-tertiary">{filtered.length}件</span>
+          {done && <span className="text-[14px] text-[color:var(--success-text)] font-medium toast-in">✓ 精算完了</span>}
         </div>
-        <span className="ml-auto text-[12px] text-text-tertiary">{filtered.length}件</span>
-        {done && <span className="text-[12px] text-status-success font-medium toast-in">✓ 精算完了</span>}
-      </div>
+      </section>
 
       {/* 一覧（インライン展開付き） */}
-      <div className="overflow-hidden">
-        <table className="w-full text-[13px]">
-          <thead><tr className="border-b border-border-light">
-            <th className="px-4 py-2.5 data-th w-8"></th>
-            <th className="px-4 py-2.5 data-th">ニックネーム / 本名</th>
-            <th className="px-4 py-2.5 data-th">卓</th>
-            <th className="px-4 py-2.5 data-th">注文</th>
-            <th className="px-4 py-2.5 data-th">金額</th>
-            <th className="px-4 py-2.5 data-th">状態</th>
-            <th className="px-4 py-2.5 data-th">操作</th>
-          </tr></thead>
+      <section className="glass-panel">
+        <p className="t-label mb-3">来店セッション</p>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th className="w-8"></th>
+              <th>ニックネーム / 本名</th>
+              <th>卓</th>
+              <th>注文</th>
+              <th>金額</th>
+              <th>状態</th>
+              <th>操作</th>
+            </tr>
+          </thead>
           <tbody>{filtered.map(v => (
             <React.Fragment key={v.id}>
-              <tr onClick={() => setExpandedId(expandedId === v.id ? null : v.id)}
-                className={`border-b border-border-light cursor-pointer hover:bg-bg-hover ${expandedId === v.id ? "bg-bg-hover" : ""}`}>
-                <td className="px-4 py-2.5">
+              <tr onClick={() => setExpandedId(expandedId === v.id ? null : v.id)} className="cursor-pointer">
+                <td>
                   <ChevronDown className={`w-3.5 h-3.5 text-text-tertiary transition-transform ${expandedId === v.id ? "rotate-180" : ""}`} />
                 </td>
-                <td className="px-4 py-2.5 font-medium">
+                <td className="font-medium">
                   <div className="flex items-baseline gap-2">
                     <span>{v.customerNickname || v.customer}</span>
-                    {v.customerNickname && <span className="text-[11px] text-text-tertiary font-normal">{v.customer}</span>}
+                    {v.customerNickname && <span className="text-[12px] text-text-tertiary font-normal">{v.customer}</span>}
                   </div>
                 </td>
-                <td className="px-4 py-2.5 text-text-secondary">{v.table}</td>
-                <td className="px-4 py-2.5 text-text-secondary">{v.items.reduce((s, i) => s + i.qty, 0)}点</td>
-                <td className="px-4 py-2.5 font-medium">¥{v.total.toLocaleString()}</td>
-                <td className="px-4 py-2.5">
-                  <span className={`${v.status === "active" ? "chip chip-success" : "bg-bg-hover text-text-secondary"}`}>
+                <td><span className="chip chip-neutral chip-sm">{v.table}</span></td>
+                <td className="text-text-secondary">{v.items.reduce((s, i) => s + i.qty, 0)}点</td>
+                <td className="font-medium">¥{v.total.toLocaleString()}</td>
+                <td>
+                  <span className={`chip chip-sm ${v.status === "active" ? "chip-success" : "chip-neutral"}`}>
                     {v.status === "active" ? "来店中" : "精算済"}
                   </span>
                 </td>
-                <td className="px-4 py-2.5">
+                <td>
                   {v.status === "active" && (
                     <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => { setOrderModalId(v.id); setCart([]); }} className="px-2 py-0.5 text-[11px] text-accent bg-accent-light rounded-[4px] hover:bg-[#d0ebe4]">
-                        <Plus className="w-3 h-3 inline" /> 注文
+                      <button onClick={() => { setOrderModalId(v.id); setCart([]); }} className="btn btn-subtle btn-xs">
+                        <Plus className="w-3 h-3" />注文
                       </button>
-                      <button onClick={() => setSettleId(v.id)} className="px-2 py-0.5 text-[11px] text-text-secondary hover:bg-bg-hover rounded-[4px]">
-                        <CreditCard className="w-3 h-3 inline" /> 精算
+                      <button onClick={() => setSettleId(v.id)} className="btn btn-ghost btn-xs">
+                        <CreditCard className="w-3 h-3" />精算
                       </button>
                     </div>
                   )}
@@ -176,7 +180,7 @@ export default function OrdersPage() {
             </React.Fragment>
           ))}</tbody>
         </table>
-      </div>
+      </section>
 
       {/* ===== 注文追加モーダル ===== */}
       {orderModalId && (() => {

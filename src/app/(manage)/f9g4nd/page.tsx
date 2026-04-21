@@ -30,12 +30,12 @@ export default function MultikeBulkGrantPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="page-stack max-w-3xl">
       <div>
         <p className="text-[13px] text-text-secondary mb-4">キャンペーンや施策として、対象会員へマルチケを一括配布します。</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="page-stack">
         <div>
           <label className="block t-label mb-2">配布対象</label>
           <div className="grid grid-cols-2 gap-2">

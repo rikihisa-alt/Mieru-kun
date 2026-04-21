@@ -33,12 +33,12 @@ const INIT: Reservation[] = [
   { id: "rv5", customerName: "山本 翔太", nickname: "ショウ", date: "2026-04-23", slot: "19:00-23:00", partySize: 4, status: "confirmed", source: "member_line", note: "トナメ参加" },
 ];
 
-const STATUS_LABEL: Record<ResvStatus, { label: string; color: string; bg: string }> = {
-  pending:   { label: "未確定",  color: "#c87b1a", bg: "#fdf4e8" },
-  confirmed: { label: "確定",    color: "#2e7d5b", bg: "#e8f5f0" },
-  canceled:  { label: "取消",    color: "#8e9baa", bg: "#f3f0ec" },
-  no_show:   { label: "No Show", color: "#c0392b", bg: "#fce8e6" },
-  arrived:   { label: "来店済",  color: "#2c3e50", bg: "#e8e4df" },
+const STATUS_CHIP: Record<ResvStatus, { label: string; chip: string }> = {
+  pending:   { label: "未確定",  chip: "chip-warning" },
+  confirmed: { label: "確定",    chip: "chip-success" },
+  canceled:  { label: "取消",    chip: "chip-neutral" },
+  no_show:   { label: "No Show", chip: "chip-danger"  },
+  arrived:   { label: "来店済",  chip: "chip-accent"  },
 };
 
 const SOURCE_LABEL: Record<Reservation["source"], string> = {
@@ -83,32 +83,28 @@ export default function ReservationPage() {
   });
 
   return (
-    <div className="space-y-4 max-w-4xl">
-      {/* 日付セレクタ */}
-      <div className="flex items-center gap-1 flex-wrap">
-        {days.map((d) => {
-          const count = (byDate[d] ?? []).length;
-          const active = selectedDate === d;
-          return (
-            <button
-              key={d}
-              onClick={() => setSelectedDate(d)}
-              className={`px-3 py-1.5 text-[12px] rounded-[6px] border transition-colors ${
-                active
-                  ? "bg-accent text-white border-accent"
-                  : "border-border text-text-secondary hover:bg-bg-hover"
-              }`}
-            >
-              <Calendar className="w-3 h-3 inline mr-1" />
-              {d.slice(5)}
-              {count > 0 && <span className="ml-1 text-[10px] opacity-75">({count})</span>}
-            </button>
-          );
-        })}
-        <button onClick={() => { setDraft((d) => ({ ...d, date: selectedDate })); setShowForm(true); }} className="ml-auto flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-[12px] font-medium rounded-[var(--radius)] hover:bg-accent-hover">
-          <Plus className="w-3 h-3" />店頭予約を追加
-        </button>
-      </div>
+    <div className="page-stack">
+      {/* 日付セレクタ + アクション */}
+      <section>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="tabs">
+            {days.map((d) => {
+              const count = (byDate[d] ?? []).length;
+              const active = selectedDate === d;
+              return (
+                <button key={d} onClick={() => setSelectedDate(d)} className={`tab ${active ? "tab-active" : ""}`}>
+                  <Calendar className="w-3 h-3 inline mr-1" />
+                  {d.slice(5)}
+                  {count > 0 && <span className="ml-1 text-[10px] opacity-75">({count})</span>}
+                </button>
+              );
+            })}
+          </div>
+          <button onClick={() => { setDraft((d) => ({ ...d, date: selectedDate })); setShowForm(true); }} className="btn btn-primary ml-auto">
+            <Plus className="w-3.5 h-3.5" />店頭予約を追加
+          </button>
+        </div>
+      </section>
 
       {showForm && (
         <div className="modal-overlay" onClick={() => setShowForm(false)}>
@@ -170,58 +166,59 @@ export default function ReservationPage() {
       )}
 
       {/* 一覧 */}
-      <div>
-        <h3 className="t-subhead mb-2">{selectedDate} の予約 ({today.length}件)</h3>
+      <section className="glass-panel">
+        <div className="flex items-baseline gap-3 mb-3">
+          <p className="t-label">{selectedDate} の予約</p>
+          <span className="t-xs text-text-tertiary">{today.length}件</span>
+        </div>
         {today.length === 0 ? (
-          <p className="text-[13px] text-text-tertiary py-8 text-center">この日の予約はありません</p>
+          <p className="text-[14px] text-text-tertiary py-10 text-center">この日の予約はありません</p>
         ) : (
-          <table className="w-full text-[13px]">
+          <table className="data-table">
             <thead>
-              <tr className="border-b border-border-light">
-                <th className="px-3 py-2 data-th">時間帯</th>
-                <th className="px-3 py-2 data-th">顧客</th>
-                <th className="px-3 py-2 data-th">人数</th>
-                <th className="px-3 py-2 data-th">経路</th>
-                <th className="px-3 py-2 data-th">備考</th>
-                <th className="px-3 py-2 data-th">状態</th>
-                <th className="px-3 py-2 data-th">操作</th>
+              <tr>
+                <th>時間帯</th>
+                <th>顧客</th>
+                <th>人数</th>
+                <th>経路</th>
+                <th>備考</th>
+                <th>状態</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody>
               {today.map((r) => {
-                const meta = STATUS_LABEL[r.status];
+                const meta = STATUS_CHIP[r.status];
                 return (
-                  <tr key={r.id} className="border-b border-border-light hover:bg-bg-hover">
-                    <td className="px-3 py-2 font-medium">{r.slot}</td>
-                    <td className="px-3 py-2">
+                  <tr key={r.id}>
+                    <td className="font-medium">{r.slot}</td>
+                    <td>
                       <div className="flex items-baseline gap-2">
                         <span className="font-medium">{r.nickname || r.customerName}</span>
-                        {r.nickname && <span className="text-[11px] text-text-tertiary">{r.customerName}</span>}
+                        {r.nickname && <span className="text-[12px] text-text-tertiary">{r.customerName}</span>}
                       </div>
                     </td>
-                    <td className="px-3 py-2 text-text-secondary">{r.partySize}名</td>
-                    <td className="px-3 py-2 text-text-secondary">{SOURCE_LABEL[r.source]}</td>
-                    <td className="px-3 py-2 text-text-secondary text-[12px] truncate max-w-[200px]">{r.note || "-"}</td>
-                    <td className="px-3 py-2">
-                      <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-[3px]" style={{ color: meta.color, backgroundColor: meta.bg }}>
-                        {meta.label}
-                      </span>
+                    <td className="text-text-secondary">{r.partySize}名</td>
+                    <td>
+                      <span className="chip chip-neutral chip-sm">{SOURCE_LABEL[r.source]}</span>
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="text-text-secondary truncate max-w-[200px]">{r.note || "-"}</td>
+                    <td>
+                      <span className={`chip ${meta.chip} chip-sm`}>{meta.label}</span>
+                    </td>
+                    <td>
                       <div className="flex items-center gap-1">
                         {r.status === "pending" && (
-                          <button onClick={() => updateStatus(r.id, "confirmed")} className="text-[11px] text-status-success hover:bg-accent-light px-2 py-1 rounded-[4px]">
-                            <Check className="w-3 h-3 inline mr-0.5" />確定
+                          <button onClick={() => updateStatus(r.id, "confirmed")} className="btn btn-subtle btn-xs">
+                            <Check className="w-3 h-3" />確定
                           </button>
                         )}
                         {r.status !== "canceled" && r.status !== "arrived" && (
-                          <button onClick={() => updateStatus(r.id, "arrived")} className="text-[11px] text-text-secondary hover:bg-bg-hover px-2 py-1 rounded-[4px]">
-                            来店
-                          </button>
+                          <button onClick={() => updateStatus(r.id, "arrived")} className="btn btn-ghost btn-xs">来店</button>
                         )}
                         {r.status !== "canceled" && (
-                          <button onClick={() => updateStatus(r.id, "canceled")} className="text-[11px] text-status-danger hover:bg-status-danger-bg px-2 py-1 rounded-[4px]">
-                            <X className="w-3 h-3 inline" />
+                          <button onClick={() => updateStatus(r.id, "canceled")} className="btn btn-danger btn-xs">
+                            <X className="w-3 h-3" />
                           </button>
                         )}
                       </div>
@@ -232,7 +229,7 @@ export default function ReservationPage() {
             </tbody>
           </table>
         )}
-      </div>
+      </section>
     </div>
   );
 }

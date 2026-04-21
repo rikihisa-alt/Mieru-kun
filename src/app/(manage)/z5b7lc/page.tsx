@@ -314,7 +314,7 @@ export default function AttendancePage() {
   const hourLabels = Array.from({ length: TL_END_H - TL_START_H + 1 }, (_, i) => TL_START_H + i);
 
   return (
-    <div className="space-y-4">
+    <div className="page-stack">
       {/* タブ */}
       <div className="flex items-center gap-1">
         <button onClick={() => setTab("today")} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${tab === "today" ? "bg-accent text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
@@ -349,7 +349,7 @@ export default function AttendancePage() {
       {/* ===== 本日の勤怠 ===== */}
       {tab === "today" && (
         <>
-          <div className="overflow-hidden">
+          <div className="glass-panel">
             <table className="w-full text-[13px]">
               <thead><tr className="border-b border-border-light">
                 {["スタッフ","役割","出勤","退勤","休憩","勤務","状態","操作"].map(h => (
@@ -611,13 +611,13 @@ export default function AttendancePage() {
 
       {/* ===== 履歴・出勤簿 ===== */}
       {tab === "history" && (
-        <div className="space-y-4">
+        <div className="page-stack">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <label className="text-[12px] text-text-secondary">対象月:</label>
               <input type="month" value={historyMonth} onChange={e => setHistoryMonth(e.target.value)} className="text-[13px] py-1 px-2 border border-border rounded-[6px]" />
             </div>
-            <button onClick={exportAttendancePDF} className="flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">
+            <button onClick={exportAttendancePDF} className="btn btn-primary">
               <FileDown className="w-3.5 h-3.5" />出勤簿PDF出力
             </button>
           </div>

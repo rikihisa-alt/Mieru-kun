@@ -47,63 +47,75 @@ export default function CustomersPage() {
   }
 
   return (
-    <div className="space-y-4">
-      {/* ツールバー */}
-      <div className="flex items-center justify-between">
-        <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none z-10" />
-          <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="ニックネーム・本名・電話番号で検索"
-            style={{ paddingLeft: "36px" }}
-            className="w-full pr-3 py-[7px] text-[13px] border border-border rounded-[6px] focus:outline-none focus:border-accent" />
+    <div className="page-stack">
+      {/* ヘッダーストリップ: 顧客統計 + アクション */}
+      <section>
+        <div className="flex items-end justify-between gap-6 flex-wrap">
+          <div className="flex items-end gap-8 flex-wrap">
+            <KpiItem label="登録顧客" value={DEMO.length} unit="名" />
+            <KpiItem label="VIP/GOLD" value={DEMO.filter(c => c.rank === "vip" || c.rank === "gold").length} unit="名" />
+            <KpiItem label="今月来店" value={DEMO.filter(c => c.lastVisit >= "2026/04").length} unit="名" />
+          </div>
+          <Link href="/a9k5dm/q7t3wc" className="btn btn-primary">
+            <Plus className="w-3.5 h-3.5" />顧客登録
+          </Link>
         </div>
-        <Link href="/a9k5dm/q7t3wc"
-          className="flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors">
-          <Plus className="w-3.5 h-3.5" />顧客登録
-        </Link>
-      </div>
+      </section>
 
-      {/* テーブル */}
-      <div className="overflow-hidden">
-        <table className="w-full text-[13px]">
+      {/* 検索 + 一覧 */}
+      <section className="glass-panel">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none z-10" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="ニックネーム・本名・電話番号で検索"
+              style={{ paddingLeft: "40px" }}
+            />
+          </div>
+          <span className="ml-auto t-xs text-text-tertiary">{filtered.length}件</span>
+        </div>
+        <table className="data-table">
           <thead>
-            <tr className="border-b border-border-light">
-              <th className="px-4 py-2.5 data-th">ニックネーム / 本名</th>
-              <th className="px-4 py-2.5 data-th">ランク</th>
-              <th className="px-4 py-2.5 data-th">来店</th>
-              <th className="px-4 py-2.5 data-th">累計利用額</th>
-              <th className="px-4 py-2.5 data-th">チップ</th>
-              <th className="px-4 py-2.5 data-th">ポイント</th>
-              <th className="px-4 py-2.5 data-th">最終来店</th>
+            <tr>
+              <th>ニックネーム / 本名</th>
+              <th>ランク</th>
+              <th>来店</th>
+              <th>累計利用額</th>
+              <th>チップ</th>
+              <th>ポイント</th>
+              <th>最終来店</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan={7} className="px-4 py-10 text-center text-text-tertiary">
+              <tr><td colSpan={7} className="!py-12 text-center text-text-tertiary">
                 <Image src="/logo-icon.png" alt="みえるくん" width={32} height={32} className="mx-auto mb-2 opacity-30" />
-                <p className="text-[13px]">該当する顧客がいません</p>
+                <p className="text-[14px]">該当する顧客がいません</p>
               </td></tr>
             ) : filtered.map(c => (
-              <tr key={c.id} className="border-b border-border-light hover:bg-bg-hover transition-colors cursor-pointer" onClick={(e) => openMenu(c, e)}>
-                <td className="px-4 py-2.5">
+              <tr key={c.id} className="cursor-pointer" onClick={(e) => openMenu(c, e)}>
+                <td>
                   <div className="flex items-baseline gap-2">
-                    <span className="font-medium text-accent hover:underline">{c.nickname || c.name}</span>
-                    {c.nickname && <span className="text-[11px] text-text-tertiary">{c.name}</span>}
+                    <span className="font-medium text-[color:var(--primary-text)]">{c.nickname || c.name}</span>
+                    {c.nickname && <span className="text-[12px] text-text-tertiary">{c.name}</span>}
                   </div>
                 </td>
-                <td className="px-4 py-2.5">
+                <td>
                   <span className={`text-[12px] font-semibold tracking-wider ${RANK_TEXT[c.rank]}`}>{RANK_LABEL[c.rank]}</span>
                 </td>
-                <td className="px-4 py-2.5 text-text-secondary">{c.totalVisits}回</td>
-                <td className="px-4 py-2.5 font-medium">¥{c.totalSpent.toLocaleString()}</td>
-                <td className="px-4 py-2.5 text-text-secondary">{c.chipBalance.toLocaleString()}</td>
-                <td className="px-4 py-2.5 text-text-secondary">{c.pointBalance.toLocaleString()}</td>
-                <td className="px-4 py-2.5 text-text-secondary text-[12px]">{c.lastVisit}</td>
+                <td className="text-text-secondary">{c.totalVisits}回</td>
+                <td className="font-medium">¥{c.totalSpent.toLocaleString()}</td>
+                <td className="text-text-secondary">{c.chipBalance.toLocaleString()}</td>
+                <td className="text-text-secondary">{c.pointBalance.toLocaleString()}</td>
+                <td className="text-text-secondary">{c.lastVisit}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      </section>
 
       {menu && (
         <CustomerActionMenu
@@ -119,6 +131,18 @@ export default function CustomersPage() {
           onClose={() => setMenu(null)}
         />
       )}
+    </div>
+  );
+}
+
+function KpiItem({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <span className="t-label">{label}</span>
+      <span className="flex items-baseline gap-1">
+        <span className="t-value">{value}</span>
+        {unit && <span className="text-[14px] text-text-tertiary">{unit}</span>}
+      </span>
     </div>
   );
 }

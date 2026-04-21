@@ -60,7 +60,7 @@ export default function PointRulesPage() {
   const showModal = creating || editing !== null;
 
   return (
-    <div className="space-y-4 max-w-4xl">
+    <div className="page-stack">
       <div className="flex items-center justify-between">
         <p className="text-[13px] text-text-secondary">{rules.filter(r => r.isActive).length}件がアクティブ / 全{rules.length}件</p>
         <button onClick={startCreate} className="flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover">
@@ -158,7 +158,7 @@ export default function PointRulesPage() {
               <button onClick={save} disabled={!draft.name.trim()} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover disabled:opacity-50">
                 {editing ? "更新" : "作成"}
               </button>
-              <button onClick={() => { setCreating(false); setEditing(null); }} className="px-4 py-2.5 border border-border text-[13px] rounded-[var(--radius)] hover:bg-bg-hover">
+              <button onClick={() => { setCreating(false); setEditing(null); }} className="btn btn-secondary">
                 取消
               </button>
             </div>

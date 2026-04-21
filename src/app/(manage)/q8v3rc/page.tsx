@@ -37,7 +37,7 @@ export default function AuditLogPage() {
   const rows = filter === "sensitive" ? INIT.filter((r) => sensitive.includes(r.action)) : INIT;
 
   return (
-    <div className="space-y-4 max-w-5xl">
+    <div className="page-stack">
       <div className="px-4 py-3 bg-accent-light border border-accent/20 rounded-[6px] text-[12px] text-status-success flex items-start gap-2">
         <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
         <div>

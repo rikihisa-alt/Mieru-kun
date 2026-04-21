@@ -59,7 +59,7 @@ export default function ClosingPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="page-stack">
       {/* Summary bar */}
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-1.5">

@@ -79,7 +79,7 @@ export default function ProductsPage() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="page-stack">
       {/* ツールバー */}
       <div className="flex items-center justify-between">
         <span className="text-[13px] text-text-secondary">
@@ -169,7 +169,7 @@ export default function ProductsPage() {
       )}
 
       {/* テーブル */}
-      <div className="overflow-hidden">
+      <div className="glass-panel">
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-border-light">

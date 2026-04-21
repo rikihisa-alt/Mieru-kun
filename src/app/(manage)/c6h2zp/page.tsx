@@ -71,7 +71,7 @@ export default function RankingPage() {
   const rows = DEMO[metric] || [];
 
   return (
-    <div className="space-y-4 max-w-4xl">
+    <div className="page-stack">
       {/* セレクタ */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="tabs">

@@ -50,7 +50,7 @@ export default function StaffPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="page-stack">
       {/* サマリー */}
       <div className="flex items-center gap-6 pb-4 border-b border-border-light">
         <div className="flex items-center gap-1.5">

@@ -57,7 +57,7 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="space-y-4 max-w-5xl">
+    <div className="page-stack">
       <div className="flex items-center gap-3">
         <div className="tabs">
           <button onClick={() => setTab("daily")} className={`tab ${tab === "daily" ? "tab-active" : ""}`}>日次売上</button>
