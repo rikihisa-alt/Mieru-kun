@@ -174,7 +174,7 @@ export default function DashboardPage() {
 
       {/* 設定パネル */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/20" onClick={() => setShowSettings(false)}>
+        <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setShowSettings(false)}>
           <div className="w-72 bg-white h-full shadow-lg overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
               <span className="text-[13px] font-semibold">表示設定</span>

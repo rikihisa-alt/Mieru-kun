@@ -60,7 +60,14 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-bg-white border-r border-border-light flex flex-col h-full">
+    <aside
+      className="w-64 border-r border-border-light flex flex-col h-full"
+      style={{
+        background: "rgba(255,255,255,0.6)",
+        backdropFilter: "blur(16px) saturate(140%)",
+        WebkitBackdropFilter: "blur(16px) saturate(140%)",
+      }}
+    >
       <div className="h-14 flex items-center px-3 border-b border-border-light">
         <Link href="/h7p2kx" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
           <Image src="/logo-icon.png" alt="みえるくん" width={44} height={44} className="shrink-0" />

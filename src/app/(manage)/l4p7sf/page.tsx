@@ -58,17 +58,13 @@ export default function ReportPage() {
 
   return (
     <div className="space-y-4 max-w-5xl">
-      <div className="flex items-center gap-1">
-        <button onClick={() => setTab("daily")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${tab === "daily" ? "bg-text-primary text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-          日次売上
-        </button>
-        <button onClick={() => setTab("method")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${tab === "method" ? "bg-text-primary text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-          支払方法別
-        </button>
-        <button onClick={() => setTab("staff")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${tab === "staff" ? "bg-text-primary text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-          スタッフ別
-        </button>
-        <button onClick={exportCSV} className="ml-auto flex items-center gap-1 px-3 py-1.5 text-[12px] text-text-secondary hover:bg-bg-hover rounded-[var(--radius)]">
+      <div className="flex items-center gap-3">
+        <div className="tabs">
+          <button onClick={() => setTab("daily")} className={`tab ${tab === "daily" ? "tab-active" : ""}`}>日次売上</button>
+          <button onClick={() => setTab("method")} className={`tab ${tab === "method" ? "tab-active" : ""}`}>支払方法別</button>
+          <button onClick={() => setTab("staff")} className={`tab ${tab === "staff" ? "tab-active" : ""}`}>スタッフ別</button>
+        </div>
+        <button onClick={exportCSV} className="btn btn-secondary btn-sm ml-auto">
           <Download className="w-3.5 h-3.5" />CSV出力
         </button>
       </div>

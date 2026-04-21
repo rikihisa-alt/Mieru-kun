@@ -1,41 +1,64 @@
 @import "tailwindcss";
 
-/* ============================================
-   てんぽみえるくん デザインシステム v3
-   UX重視: 軽快・即時反応・直感操作
-   ============================================ */
+/* ============================================================
+   てんぽみえるくん デザインシステム v5
+   "Soft Glass" — translucent / calm / modern SaaS
+   ============================================================ */
 
 :root {
-  --bg: #faf8f5;
+  /* ---- 背景 (ほんの少し冷色を含んだ明るい白) ---- */
+  --bg: #f4f7f6;
+  --bg-soft: #fafbfa;
   --bg-white: #ffffff;
-  --bg-hover: #f3f0ec;
-  --bg-active: #ebe7e2;
-  --text-primary: #2c3e50;
-  --text-secondary: #5a6977;
-  --text-tertiary: #8e9baa;
+  --bg-hover: rgba(28, 46, 60, 0.028);
+  --bg-active: rgba(28, 46, 60, 0.05);
+
+  /* ---- テキスト ---- */
+  --text-primary: #1f2b34;
+  --text-secondary: #4e5d69;
+  --text-tertiary: #8a96a1;
   --text-inverse: #ffffff;
+
+  /* ---- アクセント (穏やかな深緑) ---- */
   --accent: #3a8f7c;
-  --accent-hover: #2f7a69;
-  --accent-light: #e8f5f0;
-  --accent-bg: #f0f9f6;
-  --border: #d8d3cc;
-  --border-light: #e8e4df;
-  --border-focus: #3a8f7c;
-  --status-success: #2e7d5b;
-  --status-success-bg: #e8f5f0;
-  --status-warning: #c87b1a;
-  --status-warning-bg: #fdf4e8;
-  --status-danger: #c0392b;
-  --status-danger-bg: #fce8e6;
-  --status-info: #3a8f7c;
-  --status-info-bg: #e8f5f0;
-  --radius-sm: 4px;
-  --radius: 6px;
-  --radius-lg: 8px;
+  --accent-hover: #2e7b69;
+  --accent-light: rgba(58, 143, 124, 0.10);
+  --accent-bg: rgba(58, 143, 124, 0.06);
+
+  /* ---- ボーダー (囲うのではなく整える) ---- */
+  --border:        rgba(28, 46, 60, 0.10);
+  --border-light:  rgba(28, 46, 60, 0.055);
+  --border-strong: rgba(28, 46, 60, 0.14);
+  --border-focus:  rgba(58, 143, 124, 0.55);
+
+  /* ---- ステータス ---- */
+  --status-success:    #2e7d5b;
+  --status-success-bg: rgba(58, 143, 124, 0.10);
+  --status-warning:    #8a5a10;
+  --status-warning-bg: rgba(200, 123, 26, 0.10);
+  --status-danger:     #9e2b1f;
+  --status-danger-bg:  rgba(192, 57, 43, 0.08);
+  --status-info:       var(--accent);
+  --status-info-bg:    var(--accent-light);
+
+  /* ---- 角丸 ---- */
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 14px;
+
+  /* ---- フォント ---- */
   --font-base: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", -apple-system, sans-serif;
   --font-mono: "SF Mono", "Consolas", monospace;
+
+  /* ---- トランジション ---- */
   --transition-fast: 0.1s ease;
-  --transition: 0.15s ease;
+  --transition:      0.18s cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* ---- シャドウ (薄く浮き上がる) ---- */
+  --shadow-xs: 0 1px 2px rgba(28, 46, 60, 0.04);
+  --shadow-sm: 0 1px 3px rgba(28, 46, 60, 0.05), 0 1px 2px rgba(28, 46, 60, 0.03);
+  --shadow-md: 0 4px 14px -4px rgba(28, 46, 60, 0.10), 0 1px 3px rgba(28, 46, 60, 0.04);
+  --shadow-lg: 0 12px 40px -8px rgba(28, 46, 60, 0.15), 0 2px 6px rgba(28, 46, 60, 0.05);
 }
 
 @theme inline {
@@ -68,24 +91,32 @@
 * { box-sizing: border-box; }
 
 body {
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(at 8% -10%,  rgba(58,143,124,0.06) 0%, transparent 45%),
+    radial-gradient(at 95% 5%,  rgba(124,158,178,0.05) 0%, transparent 40%);
   color: var(--text-primary);
   font-family: var(--font-base);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 table { border-collapse: collapse; }
 th { font-weight: 600; text-align: left; }
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
+/* スクロールバー: 極細・控えめ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(28,46,60,0.12); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(28,46,60,0.22); }
 
 :focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
 /* ===== 入力フィールド ===== */
@@ -99,21 +130,34 @@ input[type="month"],
 input[type="datetime-local"],
 input[type="url"],
 input[type="password"],
+input[type="search"],
 select,
 textarea {
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 13px;
   color: var(--text-primary);
   background: var(--bg-white);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
   width: 100%;
+  line-height: 1.4;
+}
+input::placeholder, textarea::placeholder { color: var(--text-tertiary); }
+input:hover:not(:focus):not(:disabled),
+select:hover:not(:focus):not(:disabled),
+textarea:hover:not(:focus):not(:disabled) {
+  border-color: var(--border-strong);
 }
 input:focus, select:focus, textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(58,143,124,0.12);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(58,143,124,0.12);
   outline: none;
+}
+input:disabled, select:disabled, textarea:disabled {
+  background: var(--bg-hover);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
 }
 
 /* ===== マイクロインタラクション ===== */
@@ -232,26 +276,91 @@ tbody tr {
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 500;
+  line-height: 1;
   border-radius: var(--radius);
   border: 1px solid transparent;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color var(--transition), border-color var(--transition), color var(--transition), opacity var(--transition-fast);
+  letter-spacing: 0.01em;
+  transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), opacity var(--transition-fast);
 }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.btn-sm { padding: 6px 10px; font-size: 12px; }
-.btn-xs { padding: 4px 8px; font-size: 11px; }
+.btn-sm { padding: 6px 11px; font-size: 12px; border-radius: var(--radius-sm); }
+.btn-xs { padding: 4px 9px;  font-size: 11px; border-radius: var(--radius-sm); }
 
-.btn-primary   { background: var(--accent); color: #fff; }
-.btn-primary:hover:not(:disabled)   { background: var(--accent-hover); }
-.btn-secondary { background: var(--bg-white); color: var(--text-secondary); border-color: var(--border); }
-.btn-secondary:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-primary); }
-.btn-ghost     { background: transparent; color: var(--text-secondary); }
-.btn-ghost:hover:not(:disabled)     { background: var(--bg-hover); color: var(--text-primary); }
-.btn-danger    { background: var(--status-danger); color: #fff; }
-.btn-danger:hover:not(:disabled)    { filter: brightness(0.95); }
-.btn-danger-soft { background: var(--status-danger-bg); color: var(--status-danger); }
-.btn-danger-soft:hover:not(:disabled) { filter: brightness(0.95); }
+/* Primary: 柔らかいグラデ + 光沢 */
+.btn-primary {
+  background: linear-gradient(180deg, #45a090 0%, #33826f 100%);
+  color: #fff;
+  border-color: rgba(58,143,124,0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.28),
+    0 1px 2px rgba(58,143,124,0.25);
+}
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #4faa9a 0%, #3a8f7c 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    0 2px 6px rgba(58,143,124,0.28);
+}
+.btn-primary:active:not(:disabled) {
+  background: linear-gradient(180deg, #33826f 0%, #2a7060 100%);
+}
+
+/* Secondary: 半透明ガラス */
+.btn-secondary {
+  background: rgba(255,255,255,0.7);
+  color: var(--text-primary);
+  border-color: var(--border);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    0 1px 2px rgba(28,46,60,0.03);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255,255,255,0.95);
+  border-color: var(--border-strong);
+}
+
+/* Ghost: 透明、ホバーで淡く */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Subtle: accent 薄グラデ、リンク的プライマリ */
+.btn-subtle {
+  background: linear-gradient(180deg, rgba(58,143,124,0.12) 0%, rgba(58,143,124,0.06) 100%);
+  color: var(--accent);
+  border-color: rgba(58,143,124,0.20);
+}
+.btn-subtle:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(58,143,124,0.18) 0%, rgba(58,143,124,0.10) 100%);
+  border-color: rgba(58,143,124,0.35);
+}
+
+/* Danger */
+.btn-danger {
+  background: linear-gradient(180deg, #b53525 0%, #942716 100%);
+  color: #fff;
+  border-color: rgba(158,43,31,0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 1px 2px rgba(158,43,31,0.25);
+}
+.btn-danger:hover:not(:disabled) { background: linear-gradient(180deg, #c03a29 0%, #9e2b1f 100%); }
+
+.btn-danger-soft {
+  background: var(--status-danger-bg);
+  color: var(--status-danger);
+  border-color: rgba(192,57,43,0.18);
+}
+.btn-danger-soft:hover:not(:disabled) { background: rgba(192,57,43,0.12); }
 
 /* ===== Chip (Jelly Glass style) =====
    パステル単色バッジを廃止し、淡いグラデ + 光沢 + ドットの
@@ -346,8 +455,108 @@ tbody tr {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
   padding: 20px;
+  box-shadow: var(--shadow-xs);
 }
-.card-compact { padding: 12px; }
+.card-compact { padding: 14px; }
+
+/* 半透明ガラスカード (KPIや重要パネル用) */
+.card-glass {
+  position: relative;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    0 1px 2px rgba(28,46,60,0.04);
+}
+
+/* ===== Modal ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(28, 46, 60, 0.22);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fade-in 0.15s ease;
+}
+.modal-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 100%;
+}
+.modal-card-sm { max-width: 420px; }
+.modal-card-md { max-width: 560px; }
+.modal-card-lg { max-width: 720px; }
+
+/* ===== Tab (Pill Group) ===== */
+.tabs {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 12px;
+  background: rgba(28, 46, 60, 0.04);
+  border: 1px solid var(--border-light);
+  gap: 2px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.tab {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: 9px;
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+  cursor: pointer;
+  white-space: nowrap;
+  border: 0;
+  background: transparent;
+}
+.tab:hover:not(.tab-active) { color: var(--text-primary); }
+.tab-active {
+  background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.85) 100%);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow:
+    0 1px 2px rgba(28,46,60,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* 下線タブ (顧客詳細など) */
+.tabs-underline {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-light);
+  overflow-x: auto;
+}
+.tab-underline {
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition), border-color var(--transition);
+  cursor: pointer;
+  background: transparent;
+  white-space: nowrap;
+}
+.tab-underline:hover { color: var(--text-primary); }
+.tab-underline-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
 
 /* ===== Table Header shortcut ===== */
 .data-th {

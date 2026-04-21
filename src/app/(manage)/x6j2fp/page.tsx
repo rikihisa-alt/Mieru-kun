@@ -83,14 +83,16 @@ export default function OrdersPage() {
   return (
     <div className="space-y-3">
       {/* フィルタ + 完了トースト */}
-      <div className="flex items-center gap-1">
-        {(["all", "active", "settled"] as const).map(f => (
-          <button key={f} onClick={() => setFilter(f)} className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] ${filter === f ? "bg-accent text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-            {f === "all" ? "すべて" : f === "active" ? "来店中" : "精算済"}
-          </button>
-        ))}
+      <div className="flex items-center gap-3">
+        <div className="tabs">
+          {(["all", "active", "settled"] as const).map(f => (
+            <button key={f} onClick={() => setFilter(f)} className={`tab ${filter === f ? "tab-active" : ""}`}>
+              {f === "all" ? "すべて" : f === "active" ? "来店中" : "精算済"}
+            </button>
+          ))}
+        </div>
         <span className="ml-auto text-[12px] text-text-tertiary">{filtered.length}件</span>
-        {done && <span className="ml-2 text-[12px] text-status-success font-medium toast-in">✓ 精算完了</span>}
+        {done && <span className="text-[12px] text-status-success font-medium toast-in">✓ 精算完了</span>}
       </div>
 
       {/* 一覧（インライン展開付き） */}
@@ -181,7 +183,7 @@ export default function OrdersPage() {
         const v = visits.find(x => x.id === orderModalId);
         if (!v) return null;
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setOrderModalId(null)}>
+          <div className="modal-overlay z-50" onClick={() => setOrderModalId(null)}>
             <div className="bg-white rounded-[8px] w-full max-w-md max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between px-5 py-3 border-b border-border-light">
                 <div>
@@ -235,7 +237,7 @@ export default function OrdersPage() {
         const v = visits.find(x => x.id === settleId);
         if (!v) return null;
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setSettleId(null)}>
+          <div className="modal-overlay z-50" onClick={() => setSettleId(null)}>
             <div className="bg-white rounded-[8px] w-full max-w-md p-5 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               <SettleModalContent visit={v} method={settleMethod} setMethod={setSettleMethod} onSettle={() => settle(settleId)} onCancel={() => setSettleId(null)} />
             </div>

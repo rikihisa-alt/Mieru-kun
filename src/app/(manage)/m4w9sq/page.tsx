@@ -336,7 +336,7 @@ export default function FloorPage() {
         )}
       {/* 入店登録モーダル */}
       {showCheckinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setShowCheckinModal(false)}>
+        <div className="modal-overlay z-50" onClick={() => setShowCheckinModal(false)}>
           <div className="bg-white rounded-[8px] w-full max-w-sm p-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[14px] font-semibold flex items-center gap-2"><UserPlus className="w-4 h-4 text-accent" />入店登録</h3>

@@ -123,7 +123,7 @@ export default function EventsPage() {
       </table>
 
       {showModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 p-4" onClick={() => { setCreating(false); setEditing(null); }}>
+        <div className="modal-overlay" onClick={() => { setCreating(false); setEditing(null); }}>
           <div className="bg-bg-white rounded-[var(--radius-lg)] w-full max-w-lg p-5 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(ev) => ev.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h3 className="text-[15px] font-semibold">{editing ? "イベント編集" : "イベント追加"}</h3>

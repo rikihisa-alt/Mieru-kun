@@ -44,10 +44,17 @@ export function Header() {
   }
 
   return (
-    <header className="h-14 bg-bg-white border-b border-border-light flex items-center justify-between px-6">
+    <header
+      className="h-14 flex items-center justify-between px-6 border-b border-border-light"
+      style={{
+        background: "rgba(255,255,255,0.72)",
+        backdropFilter: "blur(14px) saturate(140%)",
+        WebkitBackdropFilter: "blur(14px) saturate(140%)",
+      }}
+    >
       <h1 className="t-title" style={{ fontSize: 17 }}>{title}</h1>
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 pr-4 border-r border-border-light">
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 pr-3 border-r border-border-light">
           <Image src="/logo-icon.png" alt="みえるくん" width={20} height={20} className="opacity-50" />
           <span className="t-caption">
             {new Date().toLocaleDateString("ja-JP", { month: "long", day: "numeric", weekday: "short" })}

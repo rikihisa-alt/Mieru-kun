@@ -141,7 +141,7 @@ export default function StaffPage() {
 
       {/* 編集モーダル */}
       {editId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setEditId(null)}>
+        <div className="modal-overlay z-50" onClick={() => setEditId(null)}>
           <div className="bg-white rounded-[8px] w-full max-w-md p-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <p className="text-[14px] font-semibold">従業員編集</p>

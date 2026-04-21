@@ -95,10 +95,10 @@ export default function LiveStatusPage() {
 
 function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3 border border-border-light rounded-[6px]">
-      <div className="w-8 h-8 rounded-[6px] bg-bg-hover flex items-center justify-center text-text-secondary">{icon}</div>
+    <div className="card-glass flex items-center gap-3 !p-4">
+      <div className="w-9 h-9 rounded-[10px] bg-accent-light flex items-center justify-center text-accent">{icon}</div>
       <div>
-        <div className="text-[11px] text-text-tertiary">{label}</div>
+        <div className="t-caption">{label}</div>
         <div className="t-heading">{value}</div>
       </div>
     </div>

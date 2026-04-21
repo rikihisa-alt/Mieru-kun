@@ -45,13 +45,11 @@ export default function AuditLogPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-1">
-        <button onClick={() => setFilter("all")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${filter === "all" ? "bg-text-primary text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-          すべて
-        </button>
-        <button onClick={() => setFilter("sensitive")} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${filter === "sensitive" ? "bg-status-danger text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
-          重要操作のみ
-        </button>
+      <div className="flex items-center gap-3">
+        <div className="tabs">
+          <button onClick={() => setFilter("all")} className={`tab ${filter === "all" ? "tab-active" : ""}`}>すべて</button>
+          <button onClick={() => setFilter("sensitive")} className={`tab ${filter === "sensitive" ? "tab-active" : ""}`}>重要操作のみ</button>
+        </div>
         <span className="ml-auto text-[11px] text-text-tertiary">{rows.length}件</span>
       </div>
 

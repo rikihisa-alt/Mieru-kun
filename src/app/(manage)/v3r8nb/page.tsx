@@ -274,7 +274,7 @@ function EditModal({ table, onSave, onClose }: {
   const [dealer, setDealer] = useState(table.dealer);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 backdrop-blur-[2px]" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose}>
       <div className="bg-white rounded-[8px] border border-border shadow-xl w-[380px] p-5 space-y-4" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <span className="t-heading">卓を編集</span>

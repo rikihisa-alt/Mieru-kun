@@ -104,12 +104,10 @@ export default function HistoryPage() {
     <div className="space-y-4">
       {/* タブ + フィルタ */}
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-1">
+        <div className="tabs">
           {TABS.map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
-              className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] transition-colors ${
-                activeTab === t.key ? "bg-accent text-white" : "text-text-secondary hover:bg-bg-hover"
-              }`}>
+              className={`tab ${activeTab === t.key ? "tab-active" : ""}`}>
               {t.label}
             </button>
           ))}

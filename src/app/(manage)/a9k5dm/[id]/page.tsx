@@ -307,16 +307,12 @@ export default function CustomerDetailPage() {
 
       {/* Tabs */}
       <div>
-        <div className="flex gap-1 border-b border-border-light mb-4">
+        <div className="tabs-underline mb-4">
           {TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-3 py-2 text-[13px] font-medium transition-colors border-b-2 ${
-                activeTab === tab
-                  ? "text-accent border-accent"
-                  : "text-text-tertiary border-transparent hover:text-text-primary"
-              }`}
+              className={`tab-underline ${activeTab === tab ? "tab-underline-active" : ""}`}
             >
               {tab}
             </button>

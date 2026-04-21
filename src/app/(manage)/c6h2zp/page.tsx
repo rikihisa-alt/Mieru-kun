@@ -73,17 +73,17 @@ export default function RankingPage() {
   return (
     <div className="space-y-4 max-w-4xl">
       {/* セレクタ */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <div className="flex gap-1">
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="tabs">
           {(Object.keys(METRIC_LABEL) as Metric[]).map((m) => (
-            <button key={m} onClick={() => setMetric(m)} className={`px-3 py-1.5 text-[12px] rounded-[6px] ${metric === m ? "bg-text-primary text-white" : "text-text-secondary hover:bg-bg-hover"}`}>
+            <button key={m} onClick={() => setMetric(m)} className={`tab ${metric === m ? "tab-active" : ""}`}>
               {METRIC_LABEL[m]}
             </button>
           ))}
         </div>
-        <div className="ml-auto flex gap-1">
+        <div className="ml-auto tabs">
           {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
-            <button key={p} onClick={() => setPeriod(p)} className={`px-2 py-1 text-[11px] rounded-[4px] ${period === p ? "bg-accent text-white" : "text-text-tertiary hover:bg-bg-hover"}`}>
+            <button key={p} onClick={() => setPeriod(p)} className={`tab ${period === p ? "tab-active" : ""}`}>
               {PERIOD_LABEL[p]}
             </button>
           ))}
