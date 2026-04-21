@@ -70,24 +70,24 @@ export default function StaffPage() {
       {/* 追加フォーム */}
       {showAdd && (
         <div className="pb-4 border-b border-border-light space-y-3">
-          <p className="text-[13px] font-semibold text-text-primary">従業員追加</p>
+          <p className="t-subhead">従業員追加</p>
           <div className="grid grid-cols-4 gap-3">
             <div>
-              <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">名前 *</label>
+              <label className="t-label">名前 *</label>
               <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="名前" className="mt-1 text-[13px]" />
             </div>
             <div>
-              <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">役割</label>
+              <label className="t-label">役割</label>
               <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} className="mt-1 text-[13px]">
                 {ROLES.map(r => <option key={r}>{r}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">時給</label>
+              <label className="t-label">時給</label>
               <input type="number" value={form.hourlyWage} onChange={e => setForm(f => ({ ...f, hourlyWage: parseInt(e.target.value) || 0 }))} className="mt-1 text-[13px]" />
             </div>
             <div>
-              <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">電話番号</label>
+              <label className="t-label">電話番号</label>
               <input type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="090-0000-0000" className="mt-1 text-[13px]" />
             </div>
           </div>
@@ -102,13 +102,13 @@ export default function StaffPage() {
       <table className="w-full text-[13px]">
         <thead>
           <tr className="border-b border-border-light">
-            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">名前</th>
-            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">役割</th>
-            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">時給</th>
-            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">電話番号</th>
-            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">入社</th>
-            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">状態</th>
-            <th className="pb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">操作</th>
+            <th className="pb-2 data-th">名前</th>
+            <th className="pb-2 data-th">役割</th>
+            <th className="pb-2 data-th">時給</th>
+            <th className="pb-2 data-th">電話番号</th>
+            <th className="pb-2 data-th">入社</th>
+            <th className="pb-2 data-th">状態</th>
+            <th className="pb-2 data-th">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -149,21 +149,21 @@ export default function StaffPage() {
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">名前</label>
+                <label className="t-label">名前</label>
                 <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="mt-1 text-[13px]" />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">役割</label>
+                <label className="t-label">役割</label>
                 <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} className="mt-1 text-[13px]">
                   {ROLES.map(r => <option key={r}>{r}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">時給</label>
+                <label className="t-label">時給</label>
                 <input type="number" value={form.hourlyWage} onChange={e => setForm(f => ({ ...f, hourlyWage: parseInt(e.target.value) || 0 }))} className="mt-1 text-[13px]" />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">電話番号</label>
+                <label className="t-label">電話番号</label>
                 <input type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="mt-1 text-[13px]" />
               </div>
             </div>

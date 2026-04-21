@@ -37,7 +37,7 @@ export default function MultikeBulkGrantPage() {
 
       <div className="space-y-4">
         <div>
-          <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-2">配布対象</label>
+          <label className="block t-label mb-2">配布対象</label>
           <div className="grid grid-cols-2 gap-2">
             {(Object.keys(TARGET_LABEL) as Target[]).map((t) => (
               <button
@@ -62,14 +62,14 @@ export default function MultikeBulkGrantPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">1人あたり枚数</label>
+            <label className="block t-label mb-1">1人あたり枚数</label>
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#7c3aed]" />
               <input type="number" value={amount} onChange={(e) => setAmount(parseInt(e.target.value) || 0)} />
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">有効期限</label>
+            <label className="block t-label mb-1">有効期限</label>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-text-tertiary" />
               <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} />
@@ -78,7 +78,7 @@ export default function MultikeBulkGrantPage() {
         </div>
 
         <div>
-          <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">配布理由（会員画面に表示されます）</label>
+          <label className="block t-label mb-1">配布理由（会員画面に表示されます）</label>
           <input type="text" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="春の感謝祭 キャンペーン" />
         </div>
 

@@ -237,7 +237,7 @@ export default function Home() {
       {/* ===== 中間CTA ===== */}
       <section className="py-10 border-t border-border-light bg-[#f0f9f6]">
         <div className="text-center">
-          <h3 className="text-[16px] font-bold text-text-primary mb-2">まずは無料で触ってみてください</h3>
+          <h3 className="t-heading mb-2">まずは無料で触ってみてください</h3>
           <p className="text-[12px] text-text-secondary mb-4">アカウント登録不要。デモモードで全機能をお試しいただけます</p>
           <button onClick={handleDemo} className="group inline-flex items-center gap-2 px-6 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-hover">
             デモを体験する<ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -270,7 +270,7 @@ export default function Home() {
                   {f.icon}
                 </div>
                 <div>
-                  <h3 className="text-[15px] font-semibold text-text-primary mb-0.5">{f.title}</h3>
+                  <h3 className="t-heading mb-0.5">{f.title}</h3>
                   <p className="text-[13px] text-text-secondary leading-[1.7]">{f.desc}</p>
                 </div>
               </div>
@@ -300,7 +300,7 @@ export default function Home() {
                   {b.icon}
                 </div>
                 <div>
-                  <h3 className="text-[15px] font-semibold text-text-primary mb-0.5">{b.title}</h3>
+                  <h3 className="t-heading mb-0.5">{b.title}</h3>
                   <p className="text-[13px] text-text-secondary leading-[1.7]">{b.desc}</p>
                 </div>
               </div>
@@ -377,7 +377,7 @@ export default function Home() {
             ].map((s, i) => (
               <div key={i}>
                 <div className="w-10 h-10 rounded-full border-2 border-accent text-accent flex items-center justify-center text-[16px] font-bold mx-auto mb-2">{s.n}</div>
-                <h3 className="text-[13px] font-semibold text-text-primary mb-1">{s.t}</h3>
+                <h3 className="t-subhead mb-1">{s.t}</h3>
                 <p className="text-[11px] text-text-secondary">{s.d}</p>
               </div>
             ))}

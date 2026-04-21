@@ -277,7 +277,7 @@ function EditModal({ table, onSave, onClose }: {
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 backdrop-blur-[2px]" onClick={onClose}>
       <div className="bg-white rounded-[8px] border border-border shadow-xl w-[380px] p-5 space-y-4" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <span className="text-[15px] font-semibold text-text-primary">卓を編集</span>
+          <span className="t-heading">卓を編集</span>
           <button onClick={onClose} className="p-1 hover:bg-bg-hover rounded-[4px]">
             <X className="w-4 h-4 text-text-secondary" />
           </button>
@@ -330,7 +330,7 @@ function WaitingArea({ players, onPlayerClick }: {
   return (
     <div ref={setNodeRef} className={`pb-3 border-b transition-colors ${isOver ? "border-accent bg-accent-light rounded-[6px] px-3 py-2" : "border-border-light"}`}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">待機中</span>
+        <span className="t-label">待機中</span>
         <span className="text-[12px] font-bold text-accent">{players.length}名</span>
       </div>
       <div className="flex flex-wrap gap-1.5 min-h-[36px]">

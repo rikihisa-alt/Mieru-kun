@@ -71,7 +71,7 @@ export default function DashboardPage() {
       {/* ===== 要対応 ===== */}
       {isVisible("alerts") && (hasUnpaidAlert || hasFullAlert) && (
         <div>
-          <p className="text-[13px] font-semibold text-text-primary mb-2">要対応</p>
+          <p className="t-subhead mb-2">要対応</p>
           <div className="space-y-1.5">
             {hasUnpaidAlert && <AlertRow color="#c0392b" text={`未精算 ${kpis.unpaid}件 — 精算処理が必要です`} onClick={() => router.push("/x6j2fp")} />}
             {hasFullAlert && <AlertRow color="#c87b1a" text={`満席卓 ${fullTables}卓 — 卓管理を確認してください`} onClick={() => router.push("/v3r8nb")} />}
@@ -83,7 +83,7 @@ export default function DashboardPage() {
       {isVisible("tables") && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-[13px] font-semibold text-text-primary">卓稼働 <span className="font-normal text-text-tertiary">{kpis.activeTables}/{kpis.totalTables}</span></p>
+            <p className="t-subhead">卓稼働 <span className="font-normal text-text-tertiary">{kpis.activeTables}/{kpis.totalTables}</span></p>
             <button onClick={() => router.push("/v3r8nb")} className="flex items-center gap-0.5 text-[11px] text-accent hover:underline">卓管理<ArrowUpRight className="w-3 h-3" /></button>
           </div>
           <div className="grid grid-cols-2 gap-x-8 max-h-[200px] overflow-y-auto">
@@ -119,7 +119,7 @@ export default function DashboardPage() {
       {isVisible("timeline") && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-[13px] font-semibold text-text-primary">タイムライン</p>
+            <p className="t-subhead">タイムライン</p>
             <button onClick={() => router.push("/n3k8xh")} className="flex items-center gap-0.5 text-[11px] text-accent hover:underline">すべての履歴<ArrowUpRight className="w-3 h-3" /></button>
           </div>
 
@@ -159,7 +159,7 @@ export default function DashboardPage() {
                       {t.icon}
                     </div>
                     <div className="flex items-center gap-2 pt-0.5 min-w-0">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: t.color }}>{ev.type}</span>
+                      <span className="t-micro flex-shrink-0" style={{ color: t.color }}>{ev.type}</span>
                       <span className="text-[12px] font-medium text-text-primary truncate">{ev.name}</span>
                       {ev.realName && <span className="text-[11px] text-text-tertiary flex-shrink-0">（{ev.realName}）</span>}
                       {ev.detail && <span className="text-[11px] text-text-tertiary flex-shrink-0">{ev.detail}</span>}

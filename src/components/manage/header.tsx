@@ -44,19 +44,22 @@ export function Header() {
   }
 
   return (
-    <header className="h-14 bg-bg-white border-b border-border flex items-center justify-between px-6">
-      <h1 className="text-[15px] font-semibold text-text-primary">{title}</h1>
-      <div className="flex items-center gap-3">
-        <Image src="/logo-icon.png" alt="みえるくん" width={22} height={22} className="opacity-25" />
-        <span className="text-[12px] text-text-tertiary">
-          {new Date().toLocaleDateString("ja-JP", { month: "long", day: "numeric", weekday: "short" })}
-        </span>
+    <header className="h-14 bg-bg-white border-b border-border-light flex items-center justify-between px-6">
+      <h1 className="t-title" style={{ fontSize: 17 }}>{title}</h1>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 pr-4 border-r border-border-light">
+          <Image src="/logo-icon.png" alt="みえるくん" width={20} height={20} className="opacity-50" />
+          <span className="t-caption">
+            {new Date().toLocaleDateString("ja-JP", { month: "long", day: "numeric", weekday: "short" })}
+          </span>
+        </div>
         <button
           onClick={handleLogout}
-          className="p-1.5 rounded-[var(--radius)] text-text-tertiary hover:bg-bg-hover hover:text-text-secondary transition-colors"
+          className="btn btn-ghost btn-sm"
           title="ログアウト"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-3.5 h-3.5" />
+          <span>ログアウト</span>
         </button>
       </div>
     </header>

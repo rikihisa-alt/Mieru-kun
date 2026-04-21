@@ -86,13 +86,13 @@ export default function ReportPage() {
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-border-light">
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">日付</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-right">売上合計</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-right">現金</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-right">カード</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-right">QR</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-right">チップ相殺</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-right">件数</th>
+              <th className="px-3 py-2 data-th">日付</th>
+              <th className="px-3 py-2 data-th text-right">売上合計</th>
+              <th className="px-3 py-2 data-th text-right">現金</th>
+              <th className="px-3 py-2 data-th text-right">カード</th>
+              <th className="px-3 py-2 data-th text-right">QR</th>
+              <th className="px-3 py-2 data-th text-right">チップ相殺</th>
+              <th className="px-3 py-2 data-th text-right">件数</th>
             </tr>
           </thead>
           <tbody>
@@ -132,10 +132,10 @@ export default function ReportPage() {
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-border-light">
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">スタッフ</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">役割</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-right">処理件数</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-right">売上担当額</th>
+              <th className="px-3 py-2 data-th">スタッフ</th>
+              <th className="px-3 py-2 data-th">役割</th>
+              <th className="px-3 py-2 data-th text-right">処理件数</th>
+              <th className="px-3 py-2 data-th text-right">売上担当額</th>
             </tr>
           </thead>
           <tbody>

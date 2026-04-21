@@ -98,7 +98,7 @@ export default function ProductsPage() {
       {showForm && (
         <div className="pb-4 border-b border-border-light">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-[13px] font-semibold text-text-primary">新規商品</h3>
+            <h3 className="t-subhead">新規商品</h3>
             <button onClick={() => setShowForm(false)} className="text-text-tertiary hover:text-text-primary">
               <X className="w-4 h-4" />
             </button>
@@ -173,13 +173,13 @@ export default function ProductsPage() {
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-border-light">
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">商品名</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">カテゴリ</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">価格</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">原価</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">在庫</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ステータス</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">操作</th>
+              <th className="px-4 py-2.5 data-th">商品名</th>
+              <th className="px-4 py-2.5 data-th">カテゴリ</th>
+              <th className="px-4 py-2.5 data-th">価格</th>
+              <th className="px-4 py-2.5 data-th">原価</th>
+              <th className="px-4 py-2.5 data-th">在庫</th>
+              <th className="px-4 py-2.5 data-th">ステータス</th>
+              <th className="px-4 py-2.5 data-th">操作</th>
             </tr>
           </thead>
           <tbody>

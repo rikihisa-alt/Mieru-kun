@@ -199,7 +199,7 @@ export default function NewCustomerPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-3">
-      <h3 className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">{title}</h3>
+      <h3 className="t-label">{title}</h3>
       <div className="space-y-3">{children}</div>
     </div>
   );

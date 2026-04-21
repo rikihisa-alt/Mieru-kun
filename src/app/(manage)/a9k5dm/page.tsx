@@ -68,13 +68,13 @@ export default function CustomersPage() {
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-border-light">
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ニックネーム / 本名</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ランク</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">来店</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">累計利用額</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">チップ</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ポイント</th>
-              <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">最終来店</th>
+              <th className="px-4 py-2.5 data-th">ニックネーム / 本名</th>
+              <th className="px-4 py-2.5 data-th">ランク</th>
+              <th className="px-4 py-2.5 data-th">来店</th>
+              <th className="px-4 py-2.5 data-th">累計利用額</th>
+              <th className="px-4 py-2.5 data-th">チップ</th>
+              <th className="px-4 py-2.5 data-th">ポイント</th>
+              <th className="px-4 py-2.5 data-th">最終来店</th>
             </tr>
           </thead>
           <tbody>

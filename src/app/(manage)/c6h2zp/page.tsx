@@ -108,7 +108,7 @@ export default function RankingPage() {
 
       {/* 以降のランキング */}
       <div>
-        <h3 className="text-[13px] font-semibold text-text-primary mb-2">4位以降</h3>
+        <h3 className="t-subhead mb-2">4位以降</h3>
         <table className="w-full text-[13px]">
           <tbody>
             {rows.slice(3).map((r) => {

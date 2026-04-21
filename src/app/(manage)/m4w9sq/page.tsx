@@ -226,17 +226,17 @@ export default function FloorPage() {
 
         {/* Section A: Checked-in visitors */}
         <div>
-          <h2 className="text-[13px] font-semibold text-text-primary mb-2">来店中</h2>
+          <h2 className="t-subhead mb-2">来店中</h2>
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-border-light">
-                <th className="px-4 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ニックネーム / 本名</th>
-                <th className="px-4 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ランク</th>
-                <th className="px-4 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">入店</th>
-                <th className="px-4 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">卓</th>
-                <th className="px-4 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">金額</th>
-                <th className="px-4 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">状態</th>
-                <th className="px-4 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">操作</th>
+                <th className="px-4 py-2 data-th">ニックネーム / 本名</th>
+                <th className="px-4 py-2 data-th">ランク</th>
+                <th className="px-4 py-2 data-th">入店</th>
+                <th className="px-4 py-2 data-th">卓</th>
+                <th className="px-4 py-2 data-th">金額</th>
+                <th className="px-4 py-2 data-th">状態</th>
+                <th className="px-4 py-2 data-th">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -307,7 +307,7 @@ export default function FloorPage() {
         {/* Section B: Unassigned */}
         {unassignedVisitors.length > 0 && (
           <div>
-            <h2 className="text-[13px] font-semibold text-text-primary mb-2">未配置 ({unassignedVisitors.length}名)</h2>
+            <h2 className="t-subhead mb-2">未配置 ({unassignedVisitors.length}名)</h2>
             <div className="divide-y divide-[#f3f0ec]">
               {unassignedVisitors.map((v) => (
                 <div

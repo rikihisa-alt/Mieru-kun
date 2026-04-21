@@ -58,11 +58,11 @@ export default function AuditLogPage() {
       <table className="w-full text-[13px]">
         <thead>
           <tr className="border-b border-border-light">
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">日時</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">実行者</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">操作</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">対象</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">IP</th>
+            <th className="px-3 py-2 data-th">日時</th>
+            <th className="px-3 py-2 data-th">実行者</th>
+            <th className="px-3 py-2 data-th">操作</th>
+            <th className="px-3 py-2 data-th">対象</th>
+            <th className="px-3 py-2 data-th">IP</th>
           </tr>
         </thead>
         <tbody>

@@ -26,7 +26,7 @@ export default function LiveStatusPage() {
       {/* 混雑度 */}
       <div>
         <div className="flex items-baseline gap-3 mb-3">
-          <h2 className="text-[15px] font-semibold text-text-primary">現在の混雑度</h2>
+          <h2 className="t-heading">現在の混雑度</h2>
           <span className="text-[13px] font-semibold tracking-wider" style={{ color: level.color }}>
             {level.label}
           </span>
@@ -49,14 +49,14 @@ export default function LiveStatusPage() {
 
       {/* 卓内訳 */}
       <div>
-        <h3 className="text-[13px] font-semibold text-text-primary mb-2">卓別稼働</h3>
+        <h3 className="t-subhead mb-2">卓別稼働</h3>
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-border-light">
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">卓</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">種別</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">稼働</th>
-              <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">占有率</th>
+              <th className="px-3 py-2 data-th">卓</th>
+              <th className="px-3 py-2 data-th">種別</th>
+              <th className="px-3 py-2 data-th">稼働</th>
+              <th className="px-3 py-2 data-th">占有率</th>
             </tr>
           </thead>
           <tbody>
@@ -99,7 +99,7 @@ function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; 
       <div className="w-8 h-8 rounded-[6px] bg-bg-hover flex items-center justify-center text-text-secondary">{icon}</div>
       <div>
         <div className="text-[11px] text-text-tertiary">{label}</div>
-        <div className="text-[16px] font-bold text-text-primary">{value}</div>
+        <div className="t-heading">{value}</div>
       </div>
     </div>
   );

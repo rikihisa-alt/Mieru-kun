@@ -74,12 +74,12 @@ export default function EventsPage() {
       <table className="w-full text-[13px]">
         <thead>
           <tr className="border-b border-border-light">
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">タイトル</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">日時</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">受付締切</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">予約</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">公開</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">操作</th>
+            <th className="px-3 py-2 data-th">タイトル</th>
+            <th className="px-3 py-2 data-th">日時</th>
+            <th className="px-3 py-2 data-th">受付締切</th>
+            <th className="px-3 py-2 data-th">予約</th>
+            <th className="px-3 py-2 data-th">公開</th>
+            <th className="px-3 py-2 data-th">操作</th>
           </tr>
         </thead>
         <tbody>

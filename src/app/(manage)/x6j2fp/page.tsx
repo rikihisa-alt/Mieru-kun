@@ -97,13 +97,13 @@ export default function OrdersPage() {
       <div className="overflow-hidden">
         <table className="w-full text-[13px]">
           <thead><tr className="border-b border-border-light">
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left w-8"></th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ニックネーム / 本名</th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">卓</th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">注文</th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">金額</th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">状態</th>
-            <th className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">操作</th>
+            <th className="px-4 py-2.5 data-th w-8"></th>
+            <th className="px-4 py-2.5 data-th">ニックネーム / 本名</th>
+            <th className="px-4 py-2.5 data-th">卓</th>
+            <th className="px-4 py-2.5 data-th">注文</th>
+            <th className="px-4 py-2.5 data-th">金額</th>
+            <th className="px-4 py-2.5 data-th">状態</th>
+            <th className="px-4 py-2.5 data-th">操作</th>
           </tr></thead>
           <tbody>{filtered.map(v => (
             <React.Fragment key={v.id}>
@@ -197,7 +197,7 @@ export default function OrdersPage() {
                   if (items.length === 0) return null;
                   return (
                     <div key={cat}>
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-text-tertiary mb-1">{CATEGORY_LABEL[cat]}</div>
+                      <div className="t-micro text-text-tertiary mb-1">{CATEGORY_LABEL[cat]}</div>
                       <div className="space-y-0.5">
                         {items.map(p => {
                           const inCart = cart.find(c => c.name === p.name);

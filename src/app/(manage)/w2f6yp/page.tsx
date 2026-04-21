@@ -42,7 +42,7 @@ export default function ClosingPage() {
       <div className="max-w-lg mx-auto mt-12 text-center">
         <div className="p-8">
           <CheckCircle className="w-12 h-12 mx-auto mb-3 text-status-success" />
-          <h2 className="text-[16px] font-bold text-text-primary mb-1">締め処理が完了しました</h2>
+          <h2 className="t-heading mb-1">締め処理が完了しました</h2>
           <p className="text-[13px] text-text-secondary mb-4">{date} の締め処理が正常に実行されました。</p>
           <button
             onClick={() => {
@@ -82,7 +82,7 @@ export default function ClosingPage() {
 
       {/* 日付入力 */}
       <div className="pb-4 border-b border-border-light">
-        <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-2">
+        <label className="block t-label mb-2">
           締め対象日
         </label>
         <input
@@ -95,7 +95,7 @@ export default function ClosingPage() {
 
       {/* サマリカード */}
       <div className="pb-4 border-b border-border-light">
-        <h2 className="text-[13px] font-semibold text-text-primary mb-3">売上サマリ</h2>
+        <h2 className="t-subhead mb-3">売上サマリ</h2>
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
             <span className="block text-[11px] text-text-tertiary mb-0.5">売上合計</span>
@@ -131,7 +131,7 @@ export default function ClosingPage() {
 
       {/* メモ */}
       <div className="pb-4 border-b border-border-light">
-        <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-2">
+        <label className="block t-label mb-2">
           備考
         </label>
         <textarea

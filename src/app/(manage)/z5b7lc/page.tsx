@@ -353,7 +353,7 @@ export default function AttendancePage() {
             <table className="w-full text-[13px]">
               <thead><tr className="border-b border-border-light">
                 {["スタッフ","役割","出勤","退勤","休憩","勤務","状態","操作"].map(h => (
-                  <th key={h} className="px-4 py-2.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">{h}</th>
+                  <th key={h} className="px-4 py-2.5 data-th">{h}</th>
                 ))}
               </tr></thead>
               <tbody>{staff.map(s => (

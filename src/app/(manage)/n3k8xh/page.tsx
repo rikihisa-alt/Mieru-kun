@@ -142,7 +142,7 @@ export default function HistoryPage() {
                     {meta.icon}
                   </div>
                   <div className="flex items-center gap-2 pt-0.5 flex-1 min-w-0">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: meta.color }}>{e.type}</span>
+                    <span className="t-micro flex-shrink-0" style={{ color: meta.color }}>{e.type}</span>
                     <span className="text-[12px] font-medium text-text-primary truncate">{e.name}</span>
                     {e.realName && <span className="text-[11px] text-text-tertiary truncate">（{e.realName}）</span>}
                     {e.detail && <span className="text-[11px] text-text-tertiary truncate">{e.detail}</span>}

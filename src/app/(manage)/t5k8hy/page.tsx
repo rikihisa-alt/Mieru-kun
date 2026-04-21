@@ -78,13 +78,13 @@ export default function PointRulesPage() {
       <table className="w-full text-[13px]">
         <thead>
           <tr className="border-b border-border-light">
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left w-12">優先度</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ルール</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">条件</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">加算</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">期間</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">状態</th>
-            <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left"></th>
+            <th className="px-3 py-2 data-th w-12">優先度</th>
+            <th className="px-3 py-2 data-th">ルール</th>
+            <th className="px-3 py-2 data-th">条件</th>
+            <th className="px-3 py-2 data-th">加算</th>
+            <th className="px-3 py-2 data-th">期間</th>
+            <th className="px-3 py-2 data-th">状態</th>
+            <th className="px-3 py-2 data-th"></th>
           </tr>
         </thead>
         <tbody>

@@ -85,7 +85,7 @@ export default function PopManagePage() {
             <div className="p-3 space-y-1">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <h4 className="text-[13px] font-semibold text-text-primary truncate">{p.title}</h4>
+                  <h4 className="t-subhead truncate">{p.title}</h4>
                   {p.linkedEvent && <p className="text-[11px] text-text-tertiary truncate">→ {p.linkedEvent}</p>}
                 </div>
                 <button onClick={() => togglePublic(p.id)} className="p-1 hover:bg-bg-hover rounded shrink-0">

@@ -171,20 +171,20 @@ export default function ReservationPage() {
 
       {/* 一覧 */}
       <div>
-        <h3 className="text-[13px] font-semibold text-text-primary mb-2">{selectedDate} の予約 ({today.length}件)</h3>
+        <h3 className="t-subhead mb-2">{selectedDate} の予約 ({today.length}件)</h3>
         {today.length === 0 ? (
           <p className="text-[13px] text-text-tertiary py-8 text-center">この日の予約はありません</p>
         ) : (
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-border-light">
-                <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">時間帯</th>
-                <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">顧客</th>
-                <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">人数</th>
-                <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">経路</th>
-                <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">備考</th>
-                <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">状態</th>
-                <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">操作</th>
+                <th className="px-3 py-2 data-th">時間帯</th>
+                <th className="px-3 py-2 data-th">顧客</th>
+                <th className="px-3 py-2 data-th">人数</th>
+                <th className="px-3 py-2 data-th">経路</th>
+                <th className="px-3 py-2 data-th">備考</th>
+                <th className="px-3 py-2 data-th">状態</th>
+                <th className="px-3 py-2 data-th">操作</th>
               </tr>
             </thead>
             <tbody>

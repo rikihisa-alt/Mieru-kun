@@ -60,19 +60,19 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-bg-white border-r border-border flex flex-col h-full">
-      <div className="h-14 flex items-center px-2 border-b border-border">
+    <aside className="w-64 bg-bg-white border-r border-border-light flex flex-col h-full">
+      <div className="h-14 flex items-center px-3 border-b border-border-light">
         <Link href="/h7p2kx" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
-          <Image src="/logo-icon.png" alt="みえるくん" width={48} height={48} className="shrink-0" />
+          <Image src="/logo-icon.png" alt="みえるくん" width={44} height={44} className="shrink-0" />
           <span className="text-[13px] font-bold text-text-primary tracking-tight whitespace-nowrap">てんぽみえるくん</span>
         </Link>
       </div>
 
-      <nav className="flex-1 py-2 overflow-y-auto">
-        {NAV.map((section) => (
-          <div key={section.section} className="mb-1">
-            <div className="px-4 pt-3 pb-1">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-text-tertiary">
+      <nav className="flex-1 py-3 overflow-y-auto scrollbar-subtle">
+        {NAV.map((section, si) => (
+          <div key={section.section} className={si > 0 ? "mt-5" : ""}>
+            <div className="px-5 pb-2">
+              <span className="t-micro">
                 {section.section}
               </span>
             </div>
@@ -87,14 +87,14 @@ export function Sidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2.5 mx-2 px-3 py-[7px] rounded-[var(--radius)] text-[13px] font-medium transition-colors ${
+                  className={`group flex items-center gap-2.5 mx-2 px-3 py-[7px] rounded-[var(--radius)] text-[13px] font-medium transition-colors ${
                     active
                       ? "bg-accent-light text-accent"
                       : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
                   }`}
                 >
-                  <Icon className="w-[16px] h-[16px]" strokeWidth={active ? 2.2 : 1.8} />
-                  {item.label}
+                  <Icon className="w-[16px] h-[16px] shrink-0" strokeWidth={active ? 2.4 : 1.8} />
+                  <span className="truncate">{item.label}</span>
                 </Link>
               );
             })}
@@ -103,8 +103,8 @@ export function Sidebar() {
       </nav>
 
       <div className="px-4 py-3 border-t border-border-light flex items-center gap-2">
-        <Image src="/logo-icon.png" alt="みえるくん" width={20} height={20} className="opacity-40" />
-        <div className="text-[11px] text-text-tertiary">Come On Casino</div>
+        <Image src="/logo-icon.png" alt="みえるくん" width={18} height={18} className="opacity-40" />
+        <div className="t-caption">Come On Casino</div>
       </div>
     </aside>
   );

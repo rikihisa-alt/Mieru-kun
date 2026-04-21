@@ -52,7 +52,7 @@ export default function SettingsPage() {
   function addChipPrice() { setChipSetting(prev => ({ ...prev, prices: [...prev.prices, { amount: 0, price: 0 }] })); }
   function addPointRule() { setPointRules(prev => [...prev, { id: `pr${Date.now()}`, trigger: "", amount: 0 }]); }
 
-  const L = "block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5";
+  const L = "block t-label mb-1.5";
   const Card = "pb-5 border-b border-border-light";
   const SaveBtn = "px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors";
 

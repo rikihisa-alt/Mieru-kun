@@ -328,7 +328,7 @@ export default function CustomerDetailPage() {
           {activeTab === "基本情報" && (
             <div className="space-y-4 max-w-lg">
               <div>
-                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">ニックネーム（ポーカーネーム）</label>
+                <label className="block t-label mb-1">ニックネーム（ポーカーネーム）</label>
                 <input
                   type="text"
                   value={nickname}
@@ -338,7 +338,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">本名</label>
+                <label className="block t-label mb-1">本名</label>
                 <input
                   type="text"
                   value={name}
@@ -347,7 +347,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">電話番号</label>
+                <label className="block t-label mb-1">電話番号</label>
                 <input
                   type="text"
                   value={phone}
@@ -356,7 +356,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">メールアドレス</label>
+                <label className="block t-label mb-1">メールアドレス</label>
                 <input
                   type="text"
                   value={email}
@@ -365,7 +365,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">ランク</label>
+                <label className="block t-label mb-1">ランク</label>
                 <select
                   value={rank}
                   onChange={(e) => setRank(e.target.value as Rank)}
@@ -378,7 +378,7 @@ export default function CustomerDetailPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">生年月日</label>
+                <label className="block t-label mb-1">生年月日</label>
                 <input
                   type="date"
                   value={dateOfBirth}
@@ -387,7 +387,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">LINE ID</label>
+                <label className="block t-label mb-1">LINE ID</label>
                 <input
                   type="text"
                   value={lineId}
@@ -397,7 +397,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">注意事項（ヘッダー常時表示）</label>
+                <label className="block t-label mb-1">注意事項（ヘッダー常時表示）</label>
                 <textarea
                   value={cautionText}
                   onChange={(e) => setCautionText(e.target.value)}
@@ -407,7 +407,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">備考（一般メモ）</label>
+                <label className="block t-label mb-1">備考（一般メモ）</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -416,7 +416,7 @@ export default function CustomerDetailPage() {
                 />
               </div>
               <div className="pt-2 border-t border-border-light space-y-2">
-                <p className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">管理フラグ</p>
+                <p className="t-label mb-1">管理フラグ</p>
                 <label className="flex items-center gap-2 text-[13px] text-text-primary cursor-pointer">
                   <input type="checkbox" checked={isBlacklisted} onChange={(e) => setIsBlacklisted(e.target.checked)} />
                   <span>ブラックリスト（入店拒否）</span>
@@ -451,11 +451,11 @@ export default function CustomerDetailPage() {
               <table className="w-full text-[13px]">
                 <thead>
                   <tr className="border-b border-border-light">
-                    <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">日時</th>
-                    <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">卓</th>
-                    <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">金額</th>
-                    <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">滞在時間</th>
-                    <th className="px-3 py-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider text-left">ステータス</th>
+                    <th className="px-3 py-2 data-th">日時</th>
+                    <th className="px-3 py-2 data-th">卓</th>
+                    <th className="px-3 py-2 data-th">金額</th>
+                    <th className="px-3 py-2 data-th">滞在時間</th>
+                    <th className="px-3 py-2 data-th">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -529,7 +529,7 @@ export default function CustomerDetailPage() {
           {activeTab === "プライズ" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-[13px] font-semibold text-text-primary">付与済みプライズ</h3>
+                <h3 className="t-subhead">付与済みプライズ</h3>
                 {!showPrizeForm && (
                   <button
                     onClick={() => setShowPrizeForm(true)}
@@ -625,7 +625,7 @@ export default function CustomerDetailPage() {
 
               {/* Unpaid history */}
               <div>
-                <h3 className="text-[13px] font-semibold text-text-primary mb-2">未払履歴</h3>
+                <h3 className="t-subhead mb-2">未払履歴</h3>
                 <div className="space-y-2">
                   {unpaidHistory.map((u) => (
                     <div key={u.id} className="flex items-center justify-between px-3 py-2.5 border-b border-border-light">
