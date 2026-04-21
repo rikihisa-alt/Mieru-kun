@@ -44,10 +44,10 @@ export default function MyPage() {
         <MenuLink href="/u3j5ny/k3f8qm" icon={<CalendarPlus />} label="来店予約" />
         <MenuLink href="/u3j5ny/d7s3xl" icon={<Calendar />} label="スケジュール" />
         <MenuLink href="/u3j5ny/c6h2zp" icon={<Trophy />} label="ランキング" />
-        <MenuLink href="/u3j5ny/chips" icon={<Coins />} label="チップ残高" />
-        <MenuLink href="/u3j5ny/points" icon={<Trophy />} label="ポイント" />
-        <MenuLink href="/u3j5ny/multike" icon={<Sparkles />} label="マルチケ" />
-        <MenuLink href="/u3j5ny/visit" icon={<History />} label="来店履歴" />
+        <MenuLink href="/u3j5ny/h4n6pw" icon={<Coins />} label="チップ残高" />
+        <MenuLink href="/u3j5ny/q2s9xf" icon={<Trophy />} label="ポイント" />
+        <MenuLink href="/u3j5ny/m7k3rb" icon={<Sparkles />} label="マルチケ" />
+        <MenuLink href="/u3j5ny/v5f8wz" icon={<History />} label="来店履歴" />
       </div>
     </div>
   );
