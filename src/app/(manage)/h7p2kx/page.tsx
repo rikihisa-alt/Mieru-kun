@@ -16,7 +16,6 @@ export default function DashboardPage() {
   const { kpis, tables, timeline, events } = useAppStore();
 
   const progressPct = Math.min(100, Math.round((kpis.sales / kpis.targetSales) * 100));
-  const remaining = Math.max(0, kpis.targetSales - kpis.sales);
 
   const [showSettings, setShowSettings] = useState(false);
   const [sections, setSections] = useState<DashSection[]>([
@@ -71,9 +70,7 @@ export default function DashboardPage() {
             <KpiItem label="来店"     value={kpis.visitors}                     unit="名" onClick={() => router.push("/m4w9sq")} />
             <KpiItem label="売上"     value={`¥${kpis.sales.toLocaleString()}`} />
             <KpiItem label="客単価"   value={`¥${kpis.avgSpend.toLocaleString()}`} />
-            <KpiItem label="達成率"   value={`${progressPct}%`} accent extra={
-              <span className="t-xs text-text-tertiary tabular-nums">{progressPct >= 100 ? "目標達成" : `残 ¥${remaining.toLocaleString()}`}</span>
-            } />
+            <KpiItem label="達成率"   value={`${progressPct}%`} accent />
             <KpiItem label="出勤"     value={kpis.onDuty}                       unit="名" onClick={() => router.push("/z5b7lc")} />
             {kpis.unpaid > 0 && (
               <KpiItem label="未払" value={kpis.unpaid} unit="件" danger onClick={() => router.push("/x6j2fp")} />

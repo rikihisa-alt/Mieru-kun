@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Trophy, Medal } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Trophy, Medal, Settings2, RotateCcw } from "lucide-react";
 
-type Metric = "visits" | "points" | "ring_net" | "tournaments" | "multike" | "sns" | "total";
+type Metric = "visits" | "points" | "ring_net" | "tournaments" | "multike" | "sns";
+type Tab = Metric | "total";
 type Period = "monthly" | "season" | "all_time";
 
 const METRIC_LABEL: Record<Metric, string> = {
@@ -13,7 +14,9 @@ const METRIC_LABEL: Record<Metric, string> = {
   tournaments: "トナメ参加",
   multike: "マルチケ獲得",
   sns: "SNS投稿",
-  total: "総合",
+};
+const METRIC_UNIT: Record<Metric, string> = {
+  visits: "回", points: "pt", ring_net: "枚", tournaments: "回", multike: "枚", sns: "回",
 };
 const PERIOD_LABEL: Record<Period, string> = {
   monthly: "月間",
@@ -21,54 +24,79 @@ const PERIOD_LABEL: Record<Period, string> = {
   all_time: "通期",
 };
 
-interface Row {
-  rank: number;
+const METRICS: Metric[] = ["visits", "points", "ring_net", "tournaments", "multike", "sns"];
+
+interface Player {
+  id: string;
   nickname: string;
   realName: string;
-  value: number;
   publicLevel: "public" | "nickname_only" | "private";
+  values: Record<Metric, number>;
 }
 
-const DEMO: Record<Metric, Row[]> = {
-  visits: [
-    { rank: 1, nickname: "ハナ", realName: "鈴木 花子", value: 28, publicLevel: "nickname_only" },
-    { rank: 2, nickname: "タロウ", realName: "田中 太郎", value: 22, publicLevel: "public" },
-    { rank: 3, nickname: "ユウ", realName: "渡辺 優子", value: 19, publicLevel: "nickname_only" },
-    { rank: 4, nickname: "ケン", realName: "佐藤 健一", value: 12, publicLevel: "nickname_only" },
-    { rank: 5, nickname: "ショウ", realName: "山本 翔太", value: 10, publicLevel: "private" },
-  ],
-  points: [
-    { rank: 1, nickname: "ハナ", realName: "鈴木 花子", value: 3800, publicLevel: "nickname_only" },
-    { rank: 2, nickname: "タロウ", realName: "田中 太郎", value: 2900, publicLevel: "public" },
-    { rank: 3, nickname: "ユウ", realName: "渡辺 優子", value: 2500, publicLevel: "nickname_only" },
-  ],
-  ring_net: [
-    { rank: 1, nickname: "ハナ", realName: "鈴木 花子", value: 18000, publicLevel: "nickname_only" },
-    { rank: 2, nickname: "タロウ", realName: "田中 太郎", value: 12000, publicLevel: "public" },
-  ],
-  tournaments: [
-    { rank: 1, nickname: "タロウ", realName: "田中 太郎", value: 15, publicLevel: "public" },
-    { rank: 2, nickname: "ケン", realName: "佐藤 健一", value: 12, publicLevel: "nickname_only" },
-  ],
-  multike: [
-    { rank: 1, nickname: "ハナ", realName: "鈴木 花子", value: 42, publicLevel: "nickname_only" },
-    { rank: 2, nickname: "ユウ", realName: "渡辺 優子", value: 38, publicLevel: "nickname_only" },
-  ],
-  sns: [
-    { rank: 1, nickname: "ハナ", realName: "鈴木 花子", value: 24, publicLevel: "nickname_only" },
-  ],
-  total: [
-    { rank: 1, nickname: "ハナ", realName: "鈴木 花子", value: 8420, publicLevel: "nickname_only" },
-    { rank: 2, nickname: "タロウ", realName: "田中 太郎", value: 6830, publicLevel: "public" },
-    { rank: 3, nickname: "ユウ", realName: "渡辺 優子", value: 5120, publicLevel: "nickname_only" },
-  ],
+// デモデータ: 1人ごとに全メトリクスの値を保持
+const PLAYERS: Player[] = [
+  { id: "p1", nickname: "ハナ", realName: "鈴木 花子", publicLevel: "nickname_only",
+    values: { visits: 28, points: 3800, ring_net: 18000, tournaments: 8, multike: 42, sns: 24 } },
+  { id: "p2", nickname: "タロウ", realName: "田中 太郎", publicLevel: "public",
+    values: { visits: 22, points: 2900, ring_net: 12000, tournaments: 15, multike: 18, sns: 6 } },
+  { id: "p3", nickname: "ユウ", realName: "渡辺 優子", publicLevel: "nickname_only",
+    values: { visits: 19, points: 2500, ring_net: 8500, tournaments: 6, multike: 38, sns: 12 } },
+  { id: "p4", nickname: "ケン", realName: "佐藤 健一", publicLevel: "nickname_only",
+    values: { visits: 12, points: 1400, ring_net: 3200, tournaments: 12, multike: 9, sns: 3 } },
+  { id: "p5", nickname: "ショウ", realName: "山本 翔太", publicLevel: "private",
+    values: { visits: 10, points: 1200, ring_net: 1500, tournaments: 4, multike: 6, sns: 0 } },
+  { id: "p6", nickname: "ダイ", realName: "伊藤 大輔", publicLevel: "nickname_only",
+    values: { visits: 7, points: 800, ring_net: 900, tournaments: 3, multike: 4, sns: 1 } },
+  { id: "p7", nickname: "アユ", realName: "中村 あゆみ", publicLevel: "public",
+    values: { visits: 5, points: 500, ring_net: 200, tournaments: 2, multike: 2, sns: 8 } },
+];
+
+// 総合スコアの既定係数
+const DEFAULT_WEIGHTS: Record<Metric, number> = {
+  visits: 10,       // 1来店 = 10pt
+  points: 1,        // 1pt = 1pt
+  ring_net: 0.1,    // 100枚純増 = 10pt
+  tournaments: 20,  // 1トナメ参加 = 20pt
+  multike: 5,       // 1マルチケ獲得 = 5pt
+  sns: 15,          // 1投稿 = 15pt
 };
 
-export default function RankingPage() {
-  const [metric, setMetric] = useState<Metric>("total");
-  const [period, setPeriod] = useState<Period>("monthly");
+function displayName(p: Player): string {
+  if (p.publicLevel === "public") return `${p.nickname} (${p.realName})`;
+  if (p.publicLevel === "nickname_only") return p.nickname;
+  return "非公開";
+}
 
-  const rows = DEMO[metric] || [];
+export default function RankingPage() {
+  const [tab, setTab] = useState<Tab>("total");
+  const [period, setPeriod] = useState<Period>("monthly");
+  const [weights, setWeights] = useState<Record<Metric, number>>(DEFAULT_WEIGHTS);
+  const [showWeightsEditor, setShowWeightsEditor] = useState(false);
+
+  // 各メトリクスのランキング
+  const metricRows = useMemo(() => {
+    if (tab === "total") return [];
+    const m = tab as Metric;
+    return [...PLAYERS]
+      .map(p => ({ ...p, value: p.values[m] }))
+      .sort((a, b) => b.value - a.value)
+      .map((p, i) => ({ ...p, rank: i + 1 }));
+  }, [tab]);
+
+  // 総合スコアの計算
+  const totalRows = useMemo(() => {
+    return [...PLAYERS]
+      .map(p => {
+        const score = METRICS.reduce((s, m) => s + p.values[m] * weights[m], 0);
+        const breakdown = METRICS.map(m => ({ metric: m, contribution: p.values[m] * weights[m] }));
+        return { ...p, value: Math.round(score), breakdown };
+      })
+      .sort((a, b) => b.value - a.value)
+      .map((p, i) => ({ ...p, rank: i + 1 }));
+  }, [weights]);
+
+  const rows = tab === "total" ? totalRows : metricRows;
 
   return (
     <div className="page-stack">
@@ -76,59 +104,106 @@ export default function RankingPage() {
       <section>
         <div className="flex items-center gap-3 flex-wrap">
           <div className="tabs">
-            {(Object.keys(METRIC_LABEL) as Metric[]).map((m) => (
-              <button key={m} onClick={() => setMetric(m)} className={`tab ${metric === m ? "tab-active" : ""}`}>
+            <button onClick={() => setTab("total")} className={`tab ${tab === "total" ? "tab-active" : ""}`}>
+              <Trophy className="w-3 h-3 inline mr-1" />総合
+            </button>
+            {METRICS.map(m => (
+              <button key={m} onClick={() => setTab(m)} className={`tab ${tab === m ? "tab-active" : ""}`}>
                 {METRIC_LABEL[m]}
               </button>
             ))}
           </div>
-          <div className="ml-auto tabs">
-            {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
-              <button key={p} onClick={() => setPeriod(p)} className={`tab ${period === p ? "tab-active" : ""}`}>
-                {PERIOD_LABEL[p]}
+          <div className="ml-auto flex items-center gap-2">
+            <div className="tabs">
+              {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
+                <button key={p} onClick={() => setPeriod(p)} className={`tab ${period === p ? "tab-active" : ""}`}>
+                  {PERIOD_LABEL[p]}
+                </button>
+              ))}
+            </div>
+            {tab === "total" && (
+              <button onClick={() => setShowWeightsEditor(v => !v)} className="btn btn-subtle btn-sm">
+                <Settings2 className="w-3.5 h-3.5" />係数
               </button>
-            ))}
+            )}
           </div>
         </div>
       </section>
 
-      {/* Top3カード (Glass Podium) */}
+      {/* 係数エディタ(総合タブ時) */}
+      {tab === "total" && showWeightsEditor && (
+        <section className="glass-panel">
+          <div className="flex items-center justify-between mb-3">
+            <p className="t-label">総合スコア係数</p>
+            <button
+              onClick={() => setWeights(DEFAULT_WEIGHTS)}
+              className="btn btn-ghost btn-xs"
+              title="既定値に戻す"
+            >
+              <RotateCcw className="w-3 h-3" />既定値
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {METRICS.map(m => (
+              <div key={m} className="flex items-center gap-2 bg-bg-hover rounded-[6px] px-3 py-2">
+                <span className="text-[12px] font-medium text-text-primary flex-1 truncate">{METRIC_LABEL[m]}</span>
+                <span className="text-[11px] text-text-tertiary">×</span>
+                <input
+                  type="number"
+                  step={0.1}
+                  value={weights[m]}
+                  onChange={e => setWeights(w => ({ ...w, [m]: parseFloat(e.target.value) || 0 }))}
+                  className="w-20 text-[12px] text-right bg-white border border-border rounded-[4px] px-2 py-0.5"
+                />
+              </div>
+            ))}
+          </div>
+          <p className="t-xs text-text-tertiary mt-3">
+            総合スコア = Σ(各項目の値 × 係数)。0を入れるとその項目は総合から除外されます。
+          </p>
+        </section>
+      )}
+
+      {/* Top3カード */}
       <section>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {rows.slice(0, 3).map((r) => {
-            const display = r.publicLevel === "public" ? `${r.nickname} (${r.realName})` : r.publicLevel === "nickname_only" ? r.nickname : "非公開";
             const podiumLabel = r.rank === 1 ? "GOLD" : r.rank === 2 ? "SILVER" : "BRONZE";
             const podiumColor = r.rank === 1 ? "#d97706" : r.rank === 2 ? "#6b7280" : "#a16207";
             const chipClass = r.rank === 1 ? "chip-gold" : r.rank === 2 ? "chip-neutral" : "chip-warning";
+            const unit = tab === "total" ? "pt" : METRIC_UNIT[tab as Metric];
             return (
-              <div key={r.rank} className="glass-panel text-center" style={{ padding: 24 }}>
+              <div key={r.id} className="glass-panel text-center" style={{ padding: 24 }}>
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <Medal className="w-5 h-5" style={{ color: podiumColor }} />
                   <span className={`chip ${chipClass} chip-sm`}>{podiumLabel}</span>
                 </div>
-                <div className="text-[16px] font-semibold text-text-primary">{display}</div>
-                <div className="text-[28px] font-bold text-text-primary mt-3 tabular-nums">{r.value.toLocaleString()}</div>
+                <div className="text-[16px] font-semibold text-text-primary">{displayName(r)}</div>
+                <div className="text-[28px] font-bold text-text-primary mt-3 tabular-nums">
+                  {r.value.toLocaleString()}
+                  <span className="text-[14px] text-text-tertiary ml-1">{unit}</span>
+                </div>
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* 以降のランキング */}
+      {/* 4位以降 */}
       <section className="glass-panel">
         <p className="t-label mb-3">4位以降</p>
         <table className="data-table">
           <tbody>
-            {rows.slice(3).map((r) => {
-              const display = r.publicLevel === "public" ? `${r.nickname} (${r.realName})` : r.publicLevel === "nickname_only" ? r.nickname : "非公開";
-              return (
-                <tr key={r.rank}>
-                  <td className="w-12 text-text-tertiary font-mono">{r.rank}</td>
-                  <td className="font-medium">{display}</td>
-                  <td className="text-right font-bold tabular-nums">{r.value.toLocaleString()}</td>
-                </tr>
-              );
-            })}
+            {rows.slice(3).map((r) => (
+              <tr key={r.id}>
+                <td className="w-12 text-text-tertiary font-mono">{r.rank}</td>
+                <td className="font-medium">{displayName(r)}</td>
+                <td className="text-right font-bold tabular-nums">
+                  {r.value.toLocaleString()}
+                  <span className="text-[11px] text-text-tertiary ml-1">{tab === "total" ? "pt" : METRIC_UNIT[tab as Metric]}</span>
+                </td>
+              </tr>
+            ))}
             {rows.length <= 3 && (
               <tr>
                 <td colSpan={3} className="!py-8 text-center text-text-tertiary">4位以降は記録なし</td>

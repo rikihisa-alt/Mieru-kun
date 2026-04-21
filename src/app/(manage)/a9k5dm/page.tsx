@@ -33,12 +33,24 @@ const RANK_TEXT: Record<Rank, string> = {
 };
 const RANK_LABEL: Record<Rank, string> = { regular: "Regular", silver: "SILVER", gold: "GOLD", vip: "VIP" };
 
+// ひらがな⇔カタカナを吸収するための正規化
+function normalizeJa(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[\u30a1-\u30f6]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
+}
+
 export default function CustomersPage() {
   const [search, setSearch] = useState("");
   const [menu, setMenu] = useState<{ customer: Customer; x: number; y: number } | null>(null);
 
-  const filtered = search
-    ? DEMO.filter(c => c.name.includes(search) || c.nickname.includes(search) || c.phone.includes(search))
+  const q = normalizeJa(search.trim());
+  const filtered = q
+    ? DEMO.filter(c =>
+        normalizeJa(c.name).includes(q) ||
+        normalizeJa(c.nickname).includes(q) ||
+        c.phone.includes(search)
+      )
     : DEMO;
 
   function openMenu(c: Customer, e: React.MouseEvent) {

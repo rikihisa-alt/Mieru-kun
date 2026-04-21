@@ -325,41 +325,48 @@ function SeatActionMenu({ waitingPlayers, x, y, onSeat, onReduce, onClose }: {
   onReduce: () => void;
   onClose: () => void;
 }) {
+  const [showList, setShowList] = useState(false);
   return (
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
       <div
-        className="fixed z-[60] modal-card p-3 min-w-[240px] max-h-[320px] overflow-y-auto scrollbar-subtle"
-        style={{ left: x - 120, top: y + 12 }}
+        className="fixed z-[60] modal-card p-1.5 min-w-[160px] max-h-[260px] overflow-y-auto scrollbar-subtle"
+        style={{ left: x - 80, top: y + 10 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="t-label mb-2 px-1">待機中から着席</p>
-        {waitingPlayers.length === 0 ? (
-          <p className="text-[12px] text-text-tertiary px-1 py-2">待機中の顧客はいません</p>
+        {!showList ? (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowList(true)}
+              className="flex-1 px-2.5 py-1.5 text-[12px] font-medium rounded-[4px] hover:bg-white/70 text-text-primary transition-colors"
+            >
+              着席
+            </button>
+            <span className="w-px h-4 bg-border-light" />
+            <button
+              onClick={onReduce}
+              className="px-2 py-1.5 text-[12px] rounded-[4px] hover:bg-status-danger-bg text-status-danger transition-colors"
+              title="この席を減らす"
+            >
+              −席
+            </button>
+          </div>
+        ) : waitingPlayers.length === 0 ? (
+          <p className="text-[11px] text-text-tertiary px-2 py-1.5">待機中なし</p>
         ) : (
-          <div className="space-y-0.5 mb-2">
+          <div className="space-y-0.5">
             {waitingPlayers.map((p) => (
               <button
                 key={p.id}
                 onClick={() => onSeat(p.id)}
-                className="w-full flex items-center gap-2 px-2 py-2 rounded-[var(--radius-sm)] text-left hover:bg-white/70 transition-colors"
+                className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-[4px] text-left hover:bg-white/70 transition-colors"
               >
-                <span className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
-                  style={{ backgroundColor: p.rank === "vip" ? "#7c3aed" : p.rank === "gold" ? "#d97706" : p.rank === "silver" ? "#6b7280" : "#9ca3af" }}>
-                  {(p.nickname || p.name).charAt(0)}
-                </span>
-                <span className="text-[13px] font-medium">{p.nickname || p.name}</span>
-                {p.nickname && <span className="text-[11px] text-text-tertiary">{p.name}</span>}
-                <span className="ml-auto text-[11px] text-text-tertiary">{p.chips.toLocaleString()}枚</span>
+                <span className="text-[12px] font-medium truncate">{p.nickname || p.name}</span>
+                <span className="ml-auto text-[10px] text-text-tertiary">{p.chips.toLocaleString()}</span>
               </button>
             ))}
           </div>
         )}
-        <div className="pt-2 border-t border-border-light">
-          <button onClick={onReduce} className="btn btn-danger-soft btn-sm w-full">
-            この席を減らす
-          </button>
-        </div>
       </div>
     </>
   );
