@@ -346,9 +346,9 @@ function SeatActionMenu({ waitingPlayers, x, y, onSeat, onReduce, onClose }: {
             <button
               onClick={onReduce}
               className="px-2 py-1.5 text-[12px] rounded-[4px] hover:bg-status-danger-bg text-status-danger transition-colors"
-              title="この席を減らす"
+              title="この席を削除"
             >
-              −席
+              削除
             </button>
           </div>
         ) : waitingPlayers.length === 0 ? (
