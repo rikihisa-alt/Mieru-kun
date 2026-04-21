@@ -101,7 +101,7 @@ export default function PointRulesPage() {
                 {r.startsAt ? (<><Calendar className="w-3 h-3 inline mr-0.5" />{r.startsAt.slice(5)}〜{r.endsAt?.slice(5) ?? "無期限"}</>) : "無期限"}
               </td>
               <td className="px-3 py-2.5">
-                <button onClick={() => toggle(r.id)} className={`text-[11px] font-medium px-2 py-0.5 rounded-[var(--radius-sm)] ${r.isActive ? "bg-status-success-bg text-status-success" : "bg-bg-hover text-text-tertiary"}`}>
+                <button onClick={() => toggle(r.id)} className={`${r.isActive ? "chip chip-success" : "bg-bg-hover text-text-tertiary"}`}>
                   {r.isActive ? "有効" : "停止中"}
                 </button>
               </td>

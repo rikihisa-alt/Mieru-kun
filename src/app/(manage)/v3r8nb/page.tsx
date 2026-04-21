@@ -533,6 +533,6 @@ function SeatSlot({ tableId, seatIndex, cx, cy, player, onPlayerClick }: {
 
 // ==================== 共通 ====================
 function TypeBadge({ type }: { type: string }) {
-  const c = type === "トナメ" ? "bg-accent-light text-accent" : type === "リング" ? "bg-[#e6f4ea] text-status-success" : "bg-bg-hover text-text-secondary";
+  const c = type === "トナメ" ? "chip chip-accent" : type === "リング" ? "chip chip-success" : "bg-bg-hover text-text-secondary";
   return <span className={`text-[10px] px-1.5 py-0.5 rounded-[4px] font-medium ${c}`}>{type}</span>;
 }

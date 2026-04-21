@@ -122,7 +122,7 @@ export default function OrdersPage() {
                 <td className="px-4 py-2.5 text-text-secondary">{v.items.reduce((s, i) => s + i.qty, 0)}点</td>
                 <td className="px-4 py-2.5 font-medium">¥{v.total.toLocaleString()}</td>
                 <td className="px-4 py-2.5">
-                  <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${v.status === "active" ? "bg-accent-light text-status-success" : "bg-bg-hover text-text-secondary"}`}>
+                  <span className={`${v.status === "active" ? "chip chip-success" : "bg-bg-hover text-text-secondary"}`}>
                     {v.status === "active" ? "来店中" : "精算済"}
                   </span>
                 </td>
@@ -338,7 +338,7 @@ function SettleModalContent({
 
       {/* 差額表示 */}
       <div className={`mb-4 px-3 py-2 rounded-[6px] text-[12px] font-medium flex items-center justify-between ${
-        diff === 0 ? "bg-accent-light text-status-success" : diff > 0 ? "bg-status-warning-bg text-status-warning" : "bg-status-danger-bg text-status-danger"
+        diff === 0 ? "chip chip-success" : diff > 0 ? "chip chip-warning" : "chip chip-danger"
       }`}>
         <span>差額</span>
         <span>{diff === 0 ? "0（精算可能）" : diff > 0 ? `+¥${diff.toLocaleString()}（不足）` : `¥${diff.toLocaleString()}（過払）`}</span>

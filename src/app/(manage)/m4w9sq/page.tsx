@@ -175,11 +175,11 @@ export default function FloorPage() {
   function statusBadge(status: string) {
     switch (status) {
       case "active":
-        return "bg-[#e6f4ea] text-status-success";
+        return "chip chip-success";
       case "unpaid":
-        return "bg-status-danger-bg text-status-danger";
+        return "chip chip-danger";
       case "assigned":
-        return "bg-accent-light text-accent";
+        return "chip chip-accent";
       default:
         return "bg-bg-hover text-text-secondary";
     }

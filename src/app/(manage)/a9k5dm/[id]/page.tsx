@@ -474,7 +474,7 @@ export default function CustomerDetailPage() {
                         <td className="px-3 py-2.5 font-medium text-text-primary">¥{v.amount.toLocaleString()}</td>
                         <td className="px-3 py-2.5 text-text-secondary">{stayStr}</td>
                         <td className="px-3 py-2.5">
-                          <span className="inline px-1.5 py-0.5 text-[10px] font-semibold rounded-[3px] bg-accent-light text-accent">
+                          <span className="chip chip-accent">
                             精算済
                           </span>
                         </td>

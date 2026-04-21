@@ -56,9 +56,9 @@ export default function ClockPage() {
         <div className="flex items-center justify-between mb-3">
           <span className="text-[12px] text-text-tertiary">ステータス</span>
           <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[var(--radius-sm)] ${
-            isWorking ? "bg-status-success-bg text-status-success" :
-            isBreak ? "bg-status-warning-bg text-status-warning" :
-            notStarted && att?.status === "finished" ? "bg-accent-light text-accent" :
+            isWorking ? "chip chip-success" :
+            isBreak ? "chip chip-warning" :
+            notStarted && att?.status === "finished" ? "chip chip-accent" :
             "bg-bg text-text-tertiary"
           }`}>
             {isWorking ? "勤務中" : isBreak ? "休憩中" : att?.status === "finished" ? "退勤済" : "未出勤"}

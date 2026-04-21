@@ -14,7 +14,7 @@ export default function MyPage() {
         </div>
         <p className="text-[15px] font-bold">{displayName}</p>
         {c.nickname && <p className="text-[11px] text-text-tertiary">{c.name}</p>}
-        <span className="inline-block mt-1 px-2 py-0.5 text-[11px] font-medium rounded-[var(--radius-sm)] bg-status-warning-bg text-status-warning">
+        <span className="mt-1 chip chip-warning">
           {c.rank}
         </span>
         <p className="text-[11px] text-text-tertiary mt-1">来店 {c.visits}回</p>

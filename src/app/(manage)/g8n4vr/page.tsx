@@ -120,7 +120,7 @@ export default function StaffPage() {
               <td className="py-2.5 text-text-secondary text-[12px]">{s.phone || "—"}</td>
               <td className="py-2.5 text-text-tertiary text-[12px]">{s.joinDate}</td>
               <td className="py-2.5">
-                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-[3px] ${s.status === "active" ? "bg-accent-light text-status-success" : "bg-bg-hover text-text-tertiary"}`}>
+                <span className={`${s.status === "active" ? "chip chip-success" : "bg-bg-hover text-text-tertiary"}`}>
                   {s.status === "active" ? "在籍" : "退職"}
                 </span>
               </td>

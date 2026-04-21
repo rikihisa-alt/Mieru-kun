@@ -85,7 +85,7 @@ export default function QRScanPage() {
             </div>
             <div className="flex flex-col items-end gap-1">
               <span className={`text-[11px] font-semibold tracking-wider ${RANK_TEXT[member.rank]}`}>{RANK_LABEL[member.rank]}</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-[3px] ${member.todayCheckedIn ? "bg-status-success-bg text-status-success" : "bg-bg text-text-tertiary border border-border"}`}>
+              <span className={`${member.todayCheckedIn ? "chip chip-success" : "bg-bg text-text-tertiary border border-border"}`}>
                 {member.todayCheckedIn ? "本日来店済" : "未チェックイン"}
               </span>
             </div>

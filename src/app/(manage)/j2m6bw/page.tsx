@@ -93,7 +93,7 @@ export default function PopManagePage() {
                 </button>
               </div>
               <div className="flex justify-between items-center pt-2">
-                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-[var(--radius-sm)] ${p.isPublic ? "bg-status-success-bg text-status-success" : "bg-bg-hover text-text-tertiary"}`}>
+                <span className={`${p.isPublic ? "chip chip-success" : "bg-bg-hover text-text-tertiary"}`}>
                   {p.isPublic ? "公開中" : "非公開"}
                 </span>
                 <div className="flex gap-1">

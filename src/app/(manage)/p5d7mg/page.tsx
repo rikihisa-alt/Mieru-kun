@@ -200,7 +200,7 @@ export default function ProductsPage() {
                   <td className="px-4 py-2.5 text-text-secondary">{p.stock}</td>
                   <td className="px-4 py-2.5">
                     {p.is_active ? (
-                      <span className="inline px-1.5 py-0.5 text-[10px] font-semibold rounded-[3px] bg-[#e6f4ea] text-status-success">
+                      <span className="chip chip-success">
                         有効
                       </span>
                     ) : (

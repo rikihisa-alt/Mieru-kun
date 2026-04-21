@@ -366,7 +366,7 @@ export default function AttendancePage() {
                   <td className="px-4 py-2.5 text-[12px] font-medium">{s.workMin != null ? `${Math.floor(s.workMin/60)}h${s.workMin%60}m` : "—"}</td>
                   <td className="px-4 py-2.5">
                     <span className={`inline-block px-2 py-0.5 text-[11px] font-medium rounded-[4px] ${
-                      s.status==="working"?"bg-[#e6f4ea] text-status-success":s.status==="on_break"?"bg-[#fef7e0] text-[#e37400]":s.status==="finished"?"bg-accent-light text-accent":"bg-bg-hover text-text-tertiary"
+                      s.status==="working"?"chip chip-success":s.status==="on_break"?"chip chip-warning":s.status==="finished"?"chip chip-accent":"bg-bg-hover text-text-tertiary"
                     }`}>{s.status==="working"?"勤務中":s.status==="on_break"?"休憩中":s.status==="finished"?"退勤済":"未出勤"}</span>
                   </td>
                   <td className="px-4 py-2.5 space-x-1">
