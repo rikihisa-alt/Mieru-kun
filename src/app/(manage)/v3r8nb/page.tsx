@@ -330,8 +330,8 @@ function SeatActionMenu({ waitingPlayers, x, y, onSeat, onReduce, onClose }: {
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
       <div
-        className="fixed z-[60] modal-card p-1.5 min-w-[160px] max-h-[260px] overflow-y-auto scrollbar-subtle"
-        style={{ left: x - 80, top: y + 10 }}
+        className="fixed z-[60] p-1.5 max-h-[260px] overflow-y-auto scrollbar-subtle bg-white rounded-[8px] border border-border shadow-lg"
+        style={{ left: x - 70, top: y + 10, width: 140 }}
         onClick={(e) => e.stopPropagation()}
       >
         {!showList ? (
