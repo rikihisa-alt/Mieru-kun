@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import Link from "next/link";
 import { Plus, Pencil, X, Search } from "lucide-react";
 
 type StaffStatus = "active" | "leave" | "retired";
@@ -34,7 +34,6 @@ const INIT: Staff[] = [
 
 export default function StaffPage() {
   const [staffList, setStaffList] = useState<Staff[]>(INIT);
-  const [showAdd, setShowAdd] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", role: "ディーラー", hourlyWage: 1200, phone: "" });
   const [search, setSearch] = useState("");
@@ -52,17 +51,6 @@ export default function StaffPage() {
     if (!q) return true;
     return normalizeJa(s.name).includes(q) || s.phone.includes(search) || normalizeJa(s.role).includes(q);
   });
-
-  function addStaff() {
-    if (!form.name.trim()) return;
-    setStaffList(prev => [...prev, {
-      id: `s${Date.now()}`, name: form.name, role: form.role,
-      hourlyWage: form.hourlyWage, phone: form.phone,
-      status: "active", joinDate: new Date().toISOString().slice(0, 7).replace("-", "/"),
-    }]);
-    setForm({ name: "", role: "ディーラー", hourlyWage: 1200, phone: "" });
-    setShowAdd(false);
-  }
 
   function saveEdit() {
     if (!editId) return;
@@ -85,45 +73,11 @@ export default function StaffPage() {
             <KpiItem label="休職" value={leaveCount} unit="名" />
             <KpiItem label="退職" value={retiredCount} unit="名" />
           </div>
-          <button
-            onClick={() => { setShowAdd(true); setForm({ name: "", role: "ディーラー", hourlyWage: 1200, phone: "" }); }}
-            className="btn btn-primary"
-          >
-            <Plus className="w-3.5 h-3.5" />従業員追加
-          </button>
+          <Link href="/g8n4vr/q9m4tx" className="btn btn-primary">
+            <Plus className="w-3.5 h-3.5" />従業員登録
+          </Link>
         </div>
       </section>
-
-      {/* 追加フォーム */}
-      {showAdd && (
-        <div className="pb-4 border-b border-border-light space-y-3">
-          <p className="t-subhead">従業員追加</p>
-          <div className="grid grid-cols-4 gap-3">
-            <div>
-              <label className="t-label">名前 *</label>
-              <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="名前" className="mt-1 text-[13px]" />
-            </div>
-            <div>
-              <label className="t-label">役割</label>
-              <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} className="mt-1 text-[13px]">
-                {ROLES.map(r => <option key={r}>{r}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="t-label">時給</label>
-              <input type="number" value={form.hourlyWage} onChange={e => setForm(f => ({ ...f, hourlyWage: parseInt(e.target.value) || 0 }))} className="mt-1 text-[13px]" />
-            </div>
-            <div>
-              <label className="t-label">電話番号</label>
-              <input type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="090-0000-0000" className="mt-1 text-[13px]" />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={addStaff} className="px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">追加</button>
-            <button onClick={() => setShowAdd(false)} className="px-4 py-[7px] border border-border text-[13px] rounded-[6px] hover:bg-bg-hover">キャンセル</button>
-          </div>
-        </div>
-      )}
 
       {/* 検索 + 一覧 */}
       <section className="glass-panel">
@@ -167,7 +121,11 @@ export default function StaffPage() {
               <tr><td colSpan={7} className="!py-10 text-center text-text-tertiary text-[13px]">該当する従業員がいません</td></tr>
             ) : filtered.map(s => (
               <tr key={s.id}>
-                <td className="font-medium text-text-primary">{s.name}</td>
+                <td>
+                  <Link href={`/g8n4vr/${s.id}`} className="font-medium text-text-primary hover:text-accent transition-colors">
+                    {s.name}
+                  </Link>
+                </td>
                 <td className="text-text-secondary">{s.role}</td>
                 <td className="text-text-secondary">¥{s.hourlyWage.toLocaleString()}</td>
                 <td className="text-text-secondary text-[12px]">{s.phone || "—"}</td>

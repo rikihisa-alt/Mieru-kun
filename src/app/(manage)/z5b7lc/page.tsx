@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Clock, Check, AlertCircle, Calendar, ChevronLeft, ChevronRight, Plus, FileDown } from "lucide-react";
 
 // ===== 型 =====
@@ -368,7 +369,11 @@ export default function AttendancePage() {
               </tr></thead>
               <tbody>{staff.map(s => (
                 <tr key={s.id} className={`border-b border-border-light ${s.needsApproval ? "bg-[#fef7e0]/30" : ""}`}>
-                  <td className="px-4 py-2.5 font-medium">{s.name}</td>
+                  <td className="px-4 py-2.5">
+                    <Link href={`/g8n4vr/${s.id}`} className="font-medium text-text-primary hover:text-accent transition-colors">
+                      {s.name}
+                    </Link>
+                  </td>
                   <td className="px-4 py-2.5 text-text-secondary text-[12px]">{s.role}</td>
                   <td className="px-4 py-2.5 font-mono text-[12px]">{s.clockIn ?? "—"}</td>
                   <td className="px-4 py-2.5 font-mono text-[12px]">{s.clockOut ?? "—"}</td>
@@ -448,7 +453,9 @@ export default function AttendancePage() {
               <div key={s.id} className="flex border-b border-border-light hover:bg-[#fafafa] transition-colors">
                 <div className="w-28 flex-shrink-0 px-3 py-3 text-[12px] font-medium flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-                  {s.name.split(" ")[0]}
+                  <Link href={`/g8n4vr/${s.id}`} className="hover:text-accent transition-colors">
+                    {s.name.split(" ")[0]}
+                  </Link>
                 </div>
                 <div className="flex-1 relative h-12 cursor-crosshair"
                   onMouseDown={tab === "create" ? (e) => handleTimelineMouseDown(s.id, e) : undefined}>
@@ -592,7 +599,11 @@ export default function AttendancePage() {
                 <tbody>
                   {STAFF_LIST.map(staff => (
                     <tr key={staff.id} className="border-b border-border-light">
-                      <td className="px-3 py-2 font-medium text-[12px] sticky left-0 bg-white z-10">{staff.name}</td>
+                      <td className="px-3 py-2 font-medium text-[12px] sticky left-0 bg-white z-10">
+                        <Link href={`/g8n4vr/${staff.id}`} className="hover:text-accent transition-colors">
+                          {staff.name}
+                        </Link>
+                      </td>
                       {allDates.map(d => {
                         const shift = shifts.find(s => s.staffId === staff.id && s.date === d.dateStr);
                         return (
@@ -637,7 +648,9 @@ export default function AttendancePage() {
           {historyData.map(s => (
             <div key={s.id} className="overflow-hidden">
               <div className="px-4 py-2.5 border-b border-border-light flex items-center justify-between">
-                <span className="text-[13px] font-semibold">{s.name}</span>
+                <Link href={`/g8n4vr/${s.id}`} className="text-[13px] font-semibold hover:text-accent transition-colors">
+                  {s.name}
+                </Link>
                 <span className="text-[11px] text-text-tertiary">{s.role} | 合計 {s.days.reduce((sum, d) => sum + d.workMin, 0)}分 ({Math.floor(s.days.reduce((sum, d) => sum + d.workMin, 0) / 60)}h{s.days.reduce((sum, d) => sum + d.workMin, 0) % 60}m)</span>
               </div>
               <table className="w-full text-[12px]">
