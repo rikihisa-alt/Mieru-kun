@@ -23,6 +23,7 @@ import {
   Sparkles,
   ShieldCheck,
   BarChart3,
+  Coins,
 } from "lucide-react";
 
 const NAV = [
@@ -40,6 +41,7 @@ const NAV = [
     { href: "/z5b7lc", label: "勤怠管理", icon: Clock },
     { href: "/w2f6yp", label: "締め処理", icon: Lock },
     { href: "/l4p7sf", label: "集計レポート", icon: BarChart3 },
+    { href: "/k4r9hs", label: "チップフロー", icon: Coins },
     { href: "/n3k8xh", label: "履歴", icon: History },
   ]},
   { section: "会員施策", items: [

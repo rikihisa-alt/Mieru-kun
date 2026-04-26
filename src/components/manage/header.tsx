@@ -18,6 +18,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/z5b7lc": "勤怠管理",
   "/w2f6yp": "締め処理",
   "/l4p7sf": "集計レポート",
+  "/k4r9hs": "チップフロー",
   "/n3k8xh": "履歴",
   "/c6h2zp": "ランキング",
   "/f9g4nd": "マルチケ配布",
