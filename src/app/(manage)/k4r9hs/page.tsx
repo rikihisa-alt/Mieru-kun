@@ -2,100 +2,138 @@
 
 import { useState, useMemo } from "react";
 import {
-  ArrowDownToLine, ArrowUpFromLine, TrendingUp, TrendingDown,
   Coins, ChevronDown, ChevronRight, FileDown,
+  Banknote, Ticket, Star, Gift, Trophy, Spade, Diamond, Layers,
 } from "lucide-react";
 
-// チップの動きカテゴリ
-type FlowCategory = "ring" | "baccarat" | "purchase" | "payout" | "prize" | "adjustment";
+// ===== カテゴリ定義 =====
+// 購入系 = 払出のみ / ゲーム系 = 払出(勝ち) + 回収(賭け)
+type FlowCategory =
+  | "purchase_cash"     // 現金で購入
+  | "purchase_multike"  // マルチケで購入
+  | "purchase_point"    // ポイントで購入
+  | "prize"             // プライズで付与
+  | "tournament"        // トーナメント
+  | "bj"                // ブラックジャック
+  | "baccarat"          // バカラ
+  | "ring";             // リング
 
-// direction: "out" = 店から顧客へチップが出る / "in" = 顧客から店にチップが戻る
+// direction: "out" = 払出(店→顧客)、"in" = 回収(顧客→店)
 type Direction = "out" | "in";
 
 interface FlowEntry {
   id: string;
-  date: string;        // YYYY-MM-DD
+  date: string;
   category: FlowCategory;
   direction: Direction;
-  amount: number;      // 枚数(常に正)
-  customer?: string;   // 顧客のニックネーム
-  table?: string;      // 卓
+  amount: number;
+  customer?: string;
+  table?: string;
   staff?: string;
-  note?: string;
 }
 
 const CATEGORY_LABEL: Record<FlowCategory, string> = {
-  ring: "リング",
+  purchase_cash: "購入(現金)",
+  purchase_multike: "マルチケで購入",
+  purchase_point: "ポイントで購入",
+  prize: "プライズで付与",
+  tournament: "トーナメント",
+  bj: "ブラックジャック",
   baccarat: "バカラ",
-  purchase: "チップ購入",
-  payout: "精算(現金化)",
-  prize: "プライズ付与",
-  adjustment: "調整",
-};
-const CATEGORY_COLOR: Record<FlowCategory, string> = {
-  ring: "#3a8f7c",
-  baccarat: "#8b5cf6",
-  purchase: "#0ea5e9",
-  payout: "#f59e0b",
-  prize: "#ec4899",
-  adjustment: "#6b7280",
+  ring: "リング",
 };
 
-// デモエントリ(直近30日)
+const CATEGORY_COLOR: Record<FlowCategory, string> = {
+  purchase_cash: "#0ea5e9",
+  purchase_multike: "#7c3aed",
+  purchase_point: "#f59e0b",
+  prize: "#ec4899",
+  tournament: "#10b981",
+  bj: "#1e293b",
+  baccarat: "#8b5cf6",
+  ring: "#3a8f7c",
+};
+
+const CATEGORY_ICON: Record<FlowCategory, React.ReactNode> = {
+  purchase_cash: <Banknote className="w-3 h-3" />,
+  purchase_multike: <Ticket className="w-3 h-3" />,
+  purchase_point: <Star className="w-3 h-3" />,
+  prize: <Gift className="w-3 h-3" />,
+  tournament: <Trophy className="w-3 h-3" />,
+  bj: <Spade className="w-3 h-3" />,
+  baccarat: <Diamond className="w-3 h-3" />,
+  ring: <Layers className="w-3 h-3" />,
+};
+
+// ゲーム系のみ「回収」が発生する
+const GAME_CATEGORIES: FlowCategory[] = ["tournament", "bj", "baccarat", "ring"];
+
+// ===== デモデータ生成 =====
 function generateDemoFlows(): FlowEntry[] {
   const flows: FlowEntry[] = [];
   const today = new Date("2026-04-23");
   let id = 1;
+  const customers = ["タロウ", "ハナ", "ユウ", "ケン", "ミィ", "ショウ", "ダイ", "アユ"];
+  const staffs = ["山田", "鈴木", "佐藤", "高橋"];
+  const ringTables = ["A-1", "A-2", "A-3", "B-1", "B-2", "VIP-1", "VIP-2"];
+
   for (let dayOffset = 29; dayOffset >= 0; dayOffset--) {
     const d = new Date(today); d.setDate(d.getDate() - dayOffset);
     const dateStr = d.toISOString().split("T")[0];
     const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-    const baseCount = isWeekend ? 22 : 14;
+    const baseCount = isWeekend ? 30 : 20;
+
     for (let i = 0; i < baseCount; i++) {
       const r = Math.random();
       let cat: FlowCategory;
-      if (r < 0.30) cat = "purchase";
-      else if (r < 0.55) cat = "ring";
-      else if (r < 0.75) cat = "baccarat";
-      else if (r < 0.90) cat = "payout";
-      else if (r < 0.96) cat = "prize";
-      else cat = "adjustment";
+      if (r < 0.20) cat = "purchase_cash";
+      else if (r < 0.26) cat = "purchase_multike";
+      else if (r < 0.32) cat = "purchase_point";
+      else if (r < 0.38) cat = "prize";
+      else if (r < 0.50) cat = "tournament";
+      else if (r < 0.62) cat = "bj";
+      else if (r < 0.78) cat = "baccarat";
+      else cat = "ring";
 
-      let dir: Direction;
-      let amt: number;
-      switch (cat) {
-        case "purchase":
-          // 顧客がチップを買う = 店からチップが出る
-          dir = "out"; amt = [1000, 3000, 5000, 10000][Math.floor(Math.random() * 4)]; break;
-        case "ring":
-        case "baccarat":
-          // 勝ち負け両方発生する
-          dir = Math.random() < 0.5 ? "out" : "in";
-          amt = Math.floor(Math.random() * 8000) + 500; break;
-        case "payout":
-          // 顧客がチップを返して現金化 = チップが戻る
-          dir = "in"; amt = [2000, 5000, 8000, 15000][Math.floor(Math.random() * 4)]; break;
-        case "prize":
-          dir = "out"; amt = [500, 1000, 2000][Math.floor(Math.random() * 3)]; break;
-        case "adjustment":
-          dir = Math.random() < 0.5 ? "out" : "in";
-          amt = Math.floor(Math.random() * 1000) + 100; break;
+      const isGame = GAME_CATEGORIES.includes(cat);
+      const customer = customers[Math.floor(Math.random() * customers.length)];
+      const staff = staffs[Math.floor(Math.random() * staffs.length)];
+
+      if (isGame) {
+        // ゲーム系: 賭け(回収) + 結果(払出)を1セットで記録
+        const wager = [500, 1000, 2000, 3000, 5000][Math.floor(Math.random() * 5)];
+        flows.push({
+          id: `f${id++}`,
+          date: dateStr, category: cat, direction: "in", amount: wager,
+          customer, staff,
+          table: cat === "ring" ? ringTables[Math.floor(Math.random() * ringTables.length)] : undefined,
+        });
+        const winRate = cat === "tournament" ? 0.3 : 0.48; // トナメは勝者少ない
+        if (Math.random() < winRate) {
+          const payout = Math.round(wager * (cat === "tournament" ? 3 : 1.9));
+          flows.push({
+            id: `f${id++}`,
+            date: dateStr, category: cat, direction: "out", amount: payout,
+            customer, staff,
+            table: cat === "ring" ? ringTables[Math.floor(Math.random() * ringTables.length)] : undefined,
+          });
+        }
+      } else {
+        // 購入系・プライズ: 払出のみ
+        let amt: number;
+        switch (cat) {
+          case "purchase_cash": amt = [1000, 3000, 5000, 10000, 20000][Math.floor(Math.random() * 5)]; break;
+          case "purchase_multike": amt = [500, 1000, 2000][Math.floor(Math.random() * 3)]; break;
+          case "purchase_point": amt = [300, 500, 1000][Math.floor(Math.random() * 3)]; break;
+          case "prize": amt = [500, 1000, 2000][Math.floor(Math.random() * 3)]; break;
+          default: amt = 1000;
+        }
+        flows.push({
+          id: `f${id++}`,
+          date: dateStr, category: cat, direction: "out", amount: amt,
+          customer, staff,
+        });
       }
-
-      const tables = ["A-1","A-2","A-3","B-1","B-2","VIP-1","VIP-2","BAC-1"];
-      const customers = ["タロウ","ハナ","ユウ","ケン","ミィ","ショウ","ダイ","アユ"];
-      const staffs = ["山田","鈴木","佐藤","高橋"];
-
-      flows.push({
-        id: `f${id++}`,
-        date: dateStr,
-        category: cat,
-        direction: dir,
-        amount: amt,
-        customer: customers[Math.floor(Math.random() * customers.length)],
-        table: cat === "ring" || cat === "baccarat" ? tables[Math.floor(Math.random() * tables.length)] : undefined,
-        staff: staffs[Math.floor(Math.random() * staffs.length)],
-      });
     }
   }
   return flows;
@@ -103,6 +141,7 @@ function generateDemoFlows(): FlowEntry[] {
 
 const ALL_FLOWS = generateDemoFlows();
 
+// ===== 期間 =====
 type RangeKey = "7d" | "30d" | "month" | "all";
 const RANGE_LABEL: Record<RangeKey, string> = {
   "7d": "直近7日", "30d": "直近30日", "month": "今月", "all": "全期間",
@@ -113,7 +152,6 @@ export default function ChipFlowPage() {
   const [catFilter, setCatFilter] = useState<"all" | FlowCategory>("all");
   const [expandedDate, setExpandedDate] = useState<string | null>(null);
 
-  // 期間フィルタ
   const today = new Date("2026-04-23");
   const filteredByRange = useMemo(() => {
     if (range === "all") return ALL_FLOWS;
@@ -129,49 +167,66 @@ export default function ChipFlowPage() {
     return catFilter === "all" ? filteredByRange : filteredByRange.filter(f => f.category === catFilter);
   }, [filteredByRange, catFilter]);
 
-  // 日付ごとに集計
+  // 日付ごと集計
   const dailyAgg = useMemo(() => {
-    const map = new Map<string, { date: string; out: number; in: number; entries: FlowEntry[]; byCat: Record<FlowCategory, { out: number; in: number }> }>();
+    const map = new Map<string, {
+      date: string; out: number; in: number; entries: FlowEntry[];
+      byCat: Record<FlowCategory, { out: number; in: number }>;
+    }>();
     filtered.forEach(f => {
       if (!map.has(f.date)) {
-        map.set(f.date, {
-          date: f.date, out: 0, in: 0, entries: [],
-          byCat: {
-            ring: { out: 0, in: 0 }, baccarat: { out: 0, in: 0 },
-            purchase: { out: 0, in: 0 }, payout: { out: 0, in: 0 },
-            prize: { out: 0, in: 0 }, adjustment: { out: 0, in: 0 },
-          },
-        });
+        const init: Record<FlowCategory, { out: number; in: number }> = {
+          purchase_cash: { out: 0, in: 0 },
+          purchase_multike: { out: 0, in: 0 },
+          purchase_point: { out: 0, in: 0 },
+          prize: { out: 0, in: 0 },
+          tournament: { out: 0, in: 0 },
+          bj: { out: 0, in: 0 },
+          baccarat: { out: 0, in: 0 },
+          ring: { out: 0, in: 0 },
+        };
+        map.set(f.date, { date: f.date, out: 0, in: 0, entries: [], byCat: init });
       }
       const agg = map.get(f.date)!;
-      if (f.direction === "out") {
-        agg.out += f.amount;
-        agg.byCat[f.category].out += f.amount;
-      } else {
-        agg.in += f.amount;
-        agg.byCat[f.category].in += f.amount;
-      }
+      if (f.direction === "out") { agg.out += f.amount; agg.byCat[f.category].out += f.amount; }
+      else { agg.in += f.amount; agg.byCat[f.category].in += f.amount; }
       agg.entries.push(f);
     });
     return Array.from(map.values()).sort((a, b) => b.date.localeCompare(a.date));
   }, [filtered]);
 
-  // 期間総計
+  // カテゴリ別集計(期間トータル)
+  const catTotals = useMemo(() => {
+    const totals: Record<FlowCategory, { out: number; in: number }> = {
+      purchase_cash: { out: 0, in: 0 },
+      purchase_multike: { out: 0, in: 0 },
+      purchase_point: { out: 0, in: 0 },
+      prize: { out: 0, in: 0 },
+      tournament: { out: 0, in: 0 },
+      bj: { out: 0, in: 0 },
+      baccarat: { out: 0, in: 0 },
+      ring: { out: 0, in: 0 },
+    };
+    filteredByRange.forEach(f => {
+      if (f.direction === "out") totals[f.category].out += f.amount;
+      else totals[f.category].in += f.amount;
+    });
+    return totals;
+  }, [filteredByRange]);
+
   const totalOut = dailyAgg.reduce((s, d) => s + d.out, 0);
   const totalIn = dailyAgg.reduce((s, d) => s + d.in, 0);
-  const net = totalIn - totalOut;
-  const peak = dailyAgg.reduce((max, d) => (d.out + d.in) > (max.out + max.in) ? d : max, { date: "—", out: 0, in: 0, entries: [], byCat: {} as Record<FlowCategory, { out: number; in: number }> });
+  const netOut = totalOut - totalIn; // 店からの正味流出
+  const peak = dailyAgg.reduce((max, d) => (d.out + d.in) > (max.out + max.in) ? d : max,
+    { date: "—", out: 0, in: 0, entries: [], byCat: {} as Record<FlowCategory, { out: number; in: number }> });
   const maxDay = Math.max(...dailyAgg.map(d => Math.max(d.out, d.in)), 1);
 
   function exportCSV() {
-    const header = "日付,出(店→客),戻(客→店),純増減,リング出,リング戻,バカラ出,バカラ戻,購入,精算,プライズ出,調整";
+    const cols = (Object.keys(CATEGORY_LABEL) as FlowCategory[]);
+    const header = ["日付", "払出計", "回収計", "純払出", ...cols.flatMap(c => [`${CATEGORY_LABEL[c]}-払出`, `${CATEGORY_LABEL[c]}-回収`])].join(",");
     const rows = dailyAgg.map(d => [
-      d.date, d.out, d.in, d.in - d.out,
-      d.byCat.ring.out, d.byCat.ring.in,
-      d.byCat.baccarat.out, d.byCat.baccarat.in,
-      d.byCat.purchase.out, d.byCat.payout.in,
-      d.byCat.prize.out,
-      d.byCat.adjustment.out + d.byCat.adjustment.in,
+      d.date, d.out, d.in, d.out - d.in,
+      ...cols.flatMap(c => [d.byCat[c].out, d.byCat[c].in]),
     ].join(","));
     const csv = "\ufeff" + [header, ...rows].join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -183,7 +238,7 @@ export default function ChipFlowPage() {
 
   function dateLabel(iso: string): string {
     const d = new Date(iso);
-    const dow = ["日","月","火","水","木","金","土"][d.getDay()];
+    const dow = ["日", "月", "火", "水", "木", "金", "土"][d.getDay()];
     return `${d.getMonth() + 1}/${d.getDate()}(${dow})`;
   }
 
@@ -193,16 +248,21 @@ export default function ChipFlowPage() {
       <section>
         <div className="flex items-end justify-between gap-6 flex-wrap">
           <div className="flex items-start gap-10 flex-wrap">
-            <KpiItem label="期間内 出ていった" value={totalOut.toLocaleString()} unit="枚" arrowDown danger />
-            <KpiItem label="期間内 戻ってきた" value={totalIn.toLocaleString()} unit="枚" arrowUp accent />
+            <KpiItem label="期間内 払出" value={totalOut.toLocaleString()} unit="枚" danger />
+            <KpiItem label="期間内 回収" value={totalIn.toLocaleString()} unit="枚" accent />
             <KpiItem
-              label="純増減 (戻−出)"
-              value={`${net > 0 ? "+" : ""}${net.toLocaleString()}`}
+              label="純払出 (払出−回収)"
+              value={`${netOut > 0 ? "+" : ""}${netOut.toLocaleString()}`}
               unit="枚"
-              accent={net >= 0}
-              danger={net < 0}
+              danger={netOut > 0}
+              accent={netOut <= 0}
+              subText={netOut > 0 ? "店内チップが減少" : "店内チップが増加"}
             />
-            <KpiItem label="ピーク日" value={peak.date === "—" ? "—" : dateLabel(peak.date)} subText={peak.date === "—" ? "" : `${(peak.out + peak.in).toLocaleString()}枚動いた`} />
+            <KpiItem
+              label="ピーク日"
+              value={peak.date === "—" ? "—" : dateLabel(peak.date)}
+              subText={peak.date === "—" ? "" : `${(peak.out + peak.in).toLocaleString()}枚動いた`}
+            />
           </div>
           <button onClick={exportCSV} className="btn btn-secondary">
             <FileDown className="w-3.5 h-3.5" />CSV出力
@@ -210,7 +270,7 @@ export default function ChipFlowPage() {
         </div>
       </section>
 
-      {/* フィルタ */}
+      {/* 期間 + カテゴリフィルタ */}
       <section>
         <div className="flex items-center gap-3 flex-wrap">
           <div className="tabs">
@@ -220,7 +280,7 @@ export default function ChipFlowPage() {
               </button>
             ))}
           </div>
-          <div className="tabs ml-auto">
+          <div className="tabs ml-auto flex-wrap">
             <button onClick={() => setCatFilter("all")} className={`tab ${catFilter === "all" ? "tab-active" : ""}`}>すべて</button>
             {(Object.keys(CATEGORY_LABEL) as FlowCategory[]).map(c => (
               <button key={c} onClick={() => setCatFilter(c)} className={`tab ${catFilter === c ? "tab-active" : ""}`}>
@@ -231,13 +291,55 @@ export default function ChipFlowPage() {
         </div>
       </section>
 
-      {/* グラフ(日次バーチャート) */}
+      {/* カテゴリ別サマリ */}
+      <section className="glass-panel">
+        <p className="t-label mb-3">カテゴリ別集計（{RANGE_LABEL[range]}）</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+          {(Object.keys(CATEGORY_LABEL) as FlowCategory[]).map(c => {
+            const t = catTotals[c];
+            const isGame = GAME_CATEGORIES.includes(c);
+            const cnet = t.out - t.in;
+            return (
+              <div key={c} className="bg-white border border-border-light rounded-[6px] p-2.5">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <span className="w-5 h-5 rounded-[4px] flex items-center justify-center text-white" style={{ backgroundColor: CATEGORY_COLOR[c] }}>
+                    {CATEGORY_ICON[c]}
+                  </span>
+                  <span className="text-[12px] font-medium text-text-primary truncate">{CATEGORY_LABEL[c]}</span>
+                </div>
+                <div className="space-y-0.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-text-tertiary">払出</span>
+                    <span className="font-semibold tabular-nums">{t.out.toLocaleString()}</span>
+                  </div>
+                  {isGame && (
+                    <>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-text-tertiary">回収</span>
+                        <span className="font-semibold tabular-nums">{t.in.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] pt-0.5 border-t border-border-light">
+                        <span className="text-text-tertiary">店収支</span>
+                        <span className={`font-bold tabular-nums ${cnet > 0 ? "text-status-danger" : "text-status-success"}`}>
+                          {cnet > 0 ? "−" : "+"}{Math.abs(cnet).toLocaleString()}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 日次双方向グラフ */}
       <section className="glass-panel">
         <div className="flex items-center justify-between mb-3">
           <p className="t-label flex items-center gap-1.5"><Coins className="w-4 h-4 text-text-tertiary" />日次フロー</p>
           <div className="flex items-center gap-3 text-[11px]">
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-status-danger" />出(店→客)</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-status-success" />戻(客→店)</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-status-danger" />払出</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-status-success" />回収</span>
           </div>
         </div>
         <div className="space-y-1">
@@ -246,24 +348,22 @@ export default function ChipFlowPage() {
           ) : dailyAgg.slice().reverse().map(d => {
             const outPct = (d.out / maxDay) * 100;
             const inPct = (d.in / maxDay) * 100;
-            const dayNet = d.in - d.out;
+            const dayNet = d.out - d.in;
             return (
               <div key={d.date} className="flex items-center gap-3 text-[11px]">
                 <span className="w-14 flex-shrink-0 text-text-tertiary tabular-nums">{dateLabel(d.date)}</span>
                 <div className="flex-1 grid grid-cols-2 gap-1 items-center">
-                  {/* 出 (左、左寄せの逆向きバー) */}
                   <div className="flex items-center justify-end gap-1.5">
                     <span className="text-text-tertiary tabular-nums">{d.out.toLocaleString()}</span>
                     <div className="h-3 bg-status-danger/80 rounded-l-sm" style={{ width: `${outPct}%`, minWidth: d.out > 0 ? 2 : 0 }} />
                   </div>
-                  {/* 戻 (右、左寄せ) */}
                   <div className="flex items-center gap-1.5">
                     <div className="h-3 bg-status-success/80 rounded-r-sm" style={{ width: `${inPct}%`, minWidth: d.in > 0 ? 2 : 0 }} />
                     <span className="text-text-tertiary tabular-nums">{d.in.toLocaleString()}</span>
                   </div>
                 </div>
-                <span className={`w-20 flex-shrink-0 text-right tabular-nums font-semibold ${dayNet > 0 ? "text-status-success" : dayNet < 0 ? "text-status-danger" : "text-text-tertiary"}`}>
-                  {dayNet > 0 ? "+" : ""}{dayNet.toLocaleString()}
+                <span className={`w-20 flex-shrink-0 text-right tabular-nums font-semibold ${dayNet > 0 ? "text-status-danger" : dayNet < 0 ? "text-status-success" : "text-text-tertiary"}`}>
+                  {dayNet > 0 ? "−" : dayNet < 0 ? "+" : ""}{Math.abs(dayNet).toLocaleString()}
                 </span>
               </div>
             );
@@ -271,7 +371,7 @@ export default function ChipFlowPage() {
         </div>
       </section>
 
-      {/* 日次テーブル(展開でカテゴリ内訳/エントリ表示) */}
+      {/* 日次明細(展開) */}
       <section className="glass-panel">
         <p className="t-label mb-3">日次明細</p>
         <table className="data-table">
@@ -279,9 +379,9 @@ export default function ChipFlowPage() {
             <tr>
               <th></th>
               <th>日付</th>
-              <th className="text-right">出ていった</th>
-              <th className="text-right">戻ってきた</th>
-              <th className="text-right">純増減</th>
+              <th className="text-right">払出</th>
+              <th className="text-right">回収</th>
+              <th className="text-right">純払出</th>
               <th className="text-right">件数</th>
             </tr>
           </thead>
@@ -290,7 +390,7 @@ export default function ChipFlowPage() {
               <tr><td colSpan={6} className="!py-10 text-center text-text-tertiary text-[13px]">該当データなし</td></tr>
             ) : dailyAgg.map(d => {
               const expanded = expandedDate === d.date;
-              const dayNet = d.in - d.out;
+              const dayNet = d.out - d.in;
               return (
                 <tr key={d.date}>
                   <td colSpan={6} className="!p-0">
@@ -308,8 +408,8 @@ export default function ChipFlowPage() {
                       <span className="text-right text-[13px] tabular-nums text-status-success font-semibold">
                         +{d.in.toLocaleString()}
                       </span>
-                      <span className={`text-right text-[13px] tabular-nums font-bold ${dayNet > 0 ? "text-status-success" : dayNet < 0 ? "text-status-danger" : "text-text-tertiary"}`}>
-                        {dayNet > 0 ? "+" : ""}{dayNet.toLocaleString()}
+                      <span className={`text-right text-[13px] tabular-nums font-bold ${dayNet > 0 ? "text-status-danger" : dayNet < 0 ? "text-status-success" : "text-text-tertiary"}`}>
+                        {dayNet > 0 ? "−" : dayNet < 0 ? "+" : ""}{Math.abs(dayNet).toLocaleString()}
                       </span>
                       <span className="text-right text-[12px] text-text-tertiary tabular-nums">
                         {d.entries.length}
@@ -318,23 +418,22 @@ export default function ChipFlowPage() {
 
                     {expanded && (
                       <div className="px-4 pb-4 pt-2 border-t border-border-light bg-white/30 space-y-3">
-                        {/* カテゴリ別内訳 */}
                         <div>
                           <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">カテゴリ別内訳</p>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                             {(Object.keys(CATEGORY_LABEL) as FlowCategory[]).map(c => {
                               const cd = d.byCat[c];
                               if (cd.out === 0 && cd.in === 0) return null;
+                              const isGame = GAME_CATEGORIES.includes(c);
                               return (
                                 <div key={c} className="bg-white rounded-[6px] border border-border-light px-2.5 py-1.5">
                                   <div className="flex items-center gap-1.5 mb-1">
                                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: CATEGORY_COLOR[c] }} />
-                                    <span className="text-[11px] font-medium">{CATEGORY_LABEL[c]}</span>
+                                    <span className="text-[11px] font-medium truncate">{CATEGORY_LABEL[c]}</span>
                                   </div>
-                                  <div className="flex items-center justify-between text-[11px] tabular-nums">
-                                    <span className="text-status-danger">−{cd.out.toLocaleString()}</span>
-                                    <span className="text-text-tertiary">/</span>
-                                    <span className="text-status-success">+{cd.in.toLocaleString()}</span>
+                                  <div className="text-[11px] tabular-nums space-y-0.5">
+                                    <div className="flex justify-between"><span className="text-text-tertiary">払出</span><span>{cd.out.toLocaleString()}</span></div>
+                                    {isGame && <div className="flex justify-between"><span className="text-text-tertiary">回収</span><span>{cd.in.toLocaleString()}</span></div>}
                                   </div>
                                 </div>
                               );
@@ -342,7 +441,6 @@ export default function ChipFlowPage() {
                           </div>
                         </div>
 
-                        {/* エントリ一覧 */}
                         <div>
                           <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">明細 ({d.entries.length}件)</p>
                           <div className="max-h-[280px] overflow-y-auto scrollbar-subtle bg-white rounded-[6px] border border-border-light">
@@ -350,6 +448,7 @@ export default function ChipFlowPage() {
                               <thead className="sticky top-0 bg-white border-b border-border-light">
                                 <tr>
                                   <th className="px-2 py-1.5 text-left text-text-tertiary font-semibold">区分</th>
+                                  <th className="px-2 py-1.5 text-left text-text-tertiary font-semibold">向き</th>
                                   <th className="px-2 py-1.5 text-left text-text-tertiary font-semibold">顧客</th>
                                   <th className="px-2 py-1.5 text-left text-text-tertiary font-semibold">卓</th>
                                   <th className="px-2 py-1.5 text-right text-text-tertiary font-semibold">枚数</th>
@@ -363,6 +462,11 @@ export default function ChipFlowPage() {
                                       <span className="inline-flex items-center gap-1">
                                         <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: CATEGORY_COLOR[e.category] }} />
                                         {CATEGORY_LABEL[e.category]}
+                                      </span>
+                                    </td>
+                                    <td className="px-2 py-1.5">
+                                      <span className={`text-[10px] font-medium ${e.direction === "out" ? "text-status-danger" : "text-status-success"}`}>
+                                        {e.direction === "out" ? "払出" : "回収"}
                                       </span>
                                     </td>
                                     <td className="px-2 py-1.5">{e.customer || "—"}</td>
@@ -387,26 +491,23 @@ export default function ChipFlowPage() {
         </table>
       </section>
 
-      <p className="t-xs text-text-tertiary">
-        ※ 「出」= 店→顧客にチップが流れた量(購入・勝ち・プライズ等)、「戻」= 顧客→店に戻った量(精算・負け等)。
-        純増減 = 戻 − 出。プラスなら期間内で店内のチップ在庫が増加。
+      <p className="t-xs text-text-tertiary leading-[1.7]">
+        ※ 「払出」= 店から顧客にチップが渡る量(購入・プライズ・ゲームでの勝ち)。
+        「回収」= 顧客から店にチップが戻る量(ゲームでの賭け額)。
+        ゲーム系(トナメ/BJ/バカラ/リング)は同じ卓内で払出と回収が両方発生し、差分が店の収支になります。
       </p>
     </div>
   );
 }
 
-function KpiItem({ label, value, unit, subText, accent, danger, arrowUp, arrowDown }: {
+function KpiItem({ label, value, unit, subText, accent, danger }: {
   label: string; value: string | number; unit?: string; subText?: string;
-  accent?: boolean; danger?: boolean; arrowUp?: boolean; arrowDown?: boolean;
+  accent?: boolean; danger?: boolean;
 }) {
   const color = danger ? "var(--danger-text)" : accent ? "var(--primary-text)" : "var(--text-primary)";
   return (
     <div className="flex flex-col items-start gap-1">
-      <span className="t-label flex items-center gap-1">
-        {arrowUp && <ArrowUpFromLine className="w-3 h-3 text-status-success" />}
-        {arrowDown && <ArrowDownToLine className="w-3 h-3 text-status-danger" />}
-        {label}
-      </span>
+      <span className="t-label">{label}</span>
       <span className="flex items-baseline gap-1">
         <span className="t-value" style={{ color }}>{value}</span>
         {unit && <span className="text-[14px] text-text-tertiary">{unit}</span>}
