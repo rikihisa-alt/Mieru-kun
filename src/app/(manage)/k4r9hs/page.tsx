@@ -55,14 +55,14 @@ const CATEGORY_COLOR: Record<FlowCategory, string> = {
 };
 
 const CATEGORY_ICON: Record<FlowCategory, React.ReactNode> = {
-  purchase_cash: <Banknote className="w-3 h-3" />,
-  purchase_multike: <Ticket className="w-3 h-3" />,
-  purchase_point: <Star className="w-3 h-3" />,
-  prize: <Gift className="w-3 h-3" />,
-  tournament: <Trophy className="w-3 h-3" />,
-  bj: <Spade className="w-3 h-3" />,
-  baccarat: <Diamond className="w-3 h-3" />,
-  ring: <Layers className="w-3 h-3" />,
+  purchase_cash: <Banknote className="w-3.5 h-3.5" strokeWidth={2} />,
+  purchase_multike: <Ticket className="w-3.5 h-3.5" strokeWidth={2} />,
+  purchase_point: <Star className="w-3.5 h-3.5" strokeWidth={2} />,
+  prize: <Gift className="w-3.5 h-3.5" strokeWidth={2} />,
+  tournament: <Trophy className="w-3.5 h-3.5" strokeWidth={2} />,
+  bj: <Spade className="w-3.5 h-3.5" strokeWidth={2} />,
+  baccarat: <Diamond className="w-3.5 h-3.5" strokeWidth={2} />,
+  ring: <Layers className="w-3.5 h-3.5" strokeWidth={2} />,
 };
 
 // ゲーム系のみ「回収」が発生する
@@ -293,34 +293,62 @@ export default function ChipFlowPage() {
 
       {/* カテゴリ別サマリ */}
       <section className="glass-panel">
-        <p className="t-label mb-3">カテゴリ別集計（{RANGE_LABEL[range]}）</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+        <p className="t-label mb-4">カテゴリ別集計（{RANGE_LABEL[range]}）</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {(Object.keys(CATEGORY_LABEL) as FlowCategory[]).map(c => {
             const t = catTotals[c];
             const isGame = GAME_CATEGORIES.includes(c);
             const cnet = t.out - t.in;
+            const color = CATEGORY_COLOR[c];
             return (
-              <div key={c} className="bg-white border border-border-light rounded-[6px] p-2.5">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <span className="w-5 h-5 rounded-[4px] flex items-center justify-center text-white" style={{ backgroundColor: CATEGORY_COLOR[c] }}>
+              <div
+                key={c}
+                className="relative rounded-[var(--radius)] p-3.5 transition-all hover:-translate-y-0.5"
+                style={{
+                  background: "rgba(255,255,255,0.55)",
+                  backdropFilter: "blur(10px) saturate(140%)",
+                  WebkitBackdropFilter: "blur(10px) saturate(140%)",
+                  border: "1px solid rgba(255,255,255,0.65)",
+                  boxShadow: "0 1px 2px rgba(28,46,60,0.04), 0 4px 12px -4px rgba(28,46,60,0.06)",
+                }}
+              >
+                {/* 左サイドのカラーアクセント(うっすら) */}
+                <span
+                  className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full"
+                  style={{ background: `${color}55` }}
+                />
+
+                <div className="flex items-center gap-2 mb-2.5">
+                  <span
+                    className="w-6 h-6 rounded-[6px] flex items-center justify-center"
+                    style={{
+                      background: `${color}1a`,
+                      color,
+                      border: `1px solid ${color}26`,
+                    }}
+                  >
                     {CATEGORY_ICON[c]}
                   </span>
-                  <span className="text-[12px] font-medium text-text-primary truncate">{CATEGORY_LABEL[c]}</span>
+                  <span className="text-[12px] font-semibold text-text-primary truncate tracking-tight">{CATEGORY_LABEL[c]}</span>
                 </div>
-                <div className="space-y-0.5">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-text-tertiary">払出</span>
-                    <span className="font-semibold tabular-nums">{t.out.toLocaleString()}</span>
+
+                <div className="space-y-1">
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider">払出</span>
+                    <span className="text-[14px] font-semibold tabular-nums text-text-primary">{t.out.toLocaleString()}</span>
                   </div>
                   {isGame && (
                     <>
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-text-tertiary">回収</span>
-                        <span className="font-semibold tabular-nums">{t.in.toLocaleString()}</span>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider">回収</span>
+                        <span className="text-[14px] font-semibold tabular-nums text-text-primary">{t.in.toLocaleString()}</span>
                       </div>
-                      <div className="flex items-center justify-between text-[11px] pt-0.5 border-t border-border-light">
-                        <span className="text-text-tertiary">店収支</span>
-                        <span className={`font-bold tabular-nums ${cnet > 0 ? "text-status-danger" : "text-status-success"}`}>
+                      <div className="flex items-baseline justify-between pt-1.5 mt-1 border-t" style={{ borderColor: "rgba(28,46,60,0.06)" }}>
+                        <span className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider">店収支</span>
+                        <span
+                          className="text-[13px] font-bold tabular-nums"
+                          style={{ color: cnet > 0 ? "var(--danger-text)" : "var(--primary-text)" }}
+                        >
                           {cnet > 0 ? "−" : "+"}{Math.abs(cnet).toLocaleString()}
                         </span>
                       </div>
@@ -425,15 +453,34 @@ export default function ChipFlowPage() {
                               const cd = d.byCat[c];
                               if (cd.out === 0 && cd.in === 0) return null;
                               const isGame = GAME_CATEGORIES.includes(c);
+                              const color = CATEGORY_COLOR[c];
                               return (
-                                <div key={c} className="bg-white rounded-[6px] border border-border-light px-2.5 py-1.5">
+                                <div
+                                  key={c}
+                                  className="relative rounded-[var(--radius-sm)] px-2.5 py-2"
+                                  style={{
+                                    background: "rgba(255,255,255,0.6)",
+                                    backdropFilter: "blur(8px)",
+                                    border: "1px solid rgba(255,255,255,0.7)",
+                                    boxShadow: "0 1px 1px rgba(28,46,60,0.03)",
+                                  }}
+                                >
+                                  <span
+                                    className="absolute left-0 top-2 bottom-2 w-[2px] rounded-r-full"
+                                    style={{ background: `${color}55` }}
+                                  />
                                   <div className="flex items-center gap-1.5 mb-1">
-                                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: CATEGORY_COLOR[c] }} />
-                                    <span className="text-[11px] font-medium truncate">{CATEGORY_LABEL[c]}</span>
+                                    <span
+                                      className="w-4 h-4 rounded-[4px] flex items-center justify-center"
+                                      style={{ background: `${color}1a`, color, border: `1px solid ${color}26` }}
+                                    >
+                                      <span className="[&>svg]:w-2.5 [&>svg]:h-2.5">{CATEGORY_ICON[c]}</span>
+                                    </span>
+                                    <span className="text-[11px] font-semibold truncate">{CATEGORY_LABEL[c]}</span>
                                   </div>
                                   <div className="text-[11px] tabular-nums space-y-0.5">
-                                    <div className="flex justify-between"><span className="text-text-tertiary">払出</span><span>{cd.out.toLocaleString()}</span></div>
-                                    {isGame && <div className="flex justify-between"><span className="text-text-tertiary">回収</span><span>{cd.in.toLocaleString()}</span></div>}
+                                    <div className="flex justify-between"><span className="text-text-tertiary">払出</span><span className="font-semibold">{cd.out.toLocaleString()}</span></div>
+                                    {isGame && <div className="flex justify-between"><span className="text-text-tertiary">回収</span><span className="font-semibold">{cd.in.toLocaleString()}</span></div>}
                                   </div>
                                 </div>
                               );
