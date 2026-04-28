@@ -229,6 +229,65 @@ export default function ChipFlowPage() {
 
   const isPurchaseOnly = catFilter !== "all" && PURCHASE_CATS.includes(catFilter);
 
+  // ルート別内訳: 期間と一致するflowsをカテゴリ x 方向で集計(全カテゴリ対象、catFilterは無視)
+  const routeBreakdown = useMemo(() => {
+    // 期間内のflowsを抽出(カレンダーモードは月内、それ以外はバケット範囲)
+    let dateRange: { from: string; to: string };
+    if (view === "calendar") {
+      const inMonthCells = calendar.filter(c => c.inMonth);
+      if (inMonthCells.length === 0) return null;
+      dateRange = { from: inMonthCells[0].date, to: inMonthCells[inMonthCells.length - 1].date };
+    } else {
+      if (buckets.length === 0) return null;
+      const first = buckets[0];
+      const last = buckets[buckets.length - 1];
+      // 月別の場合は last.date 月末まで含める
+      if (view === "month") {
+        const [y, m] = last.date.split("-").map(Number);
+        const lastDay = new Date(y, m, 0).getDate();
+        dateRange = { from: first.date, to: `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}` };
+      } else if (view === "week") {
+        const lastEnd = new Date(last.date); lastEnd.setDate(lastEnd.getDate() + 6);
+        dateRange = { from: first.date, to: dayKey(lastEnd) };
+      } else {
+        dateRange = { from: first.date, to: last.date };
+      }
+    }
+
+    const totals: Record<FlowCategory, { out: number; in: number; count: number }> = {
+      purchase_cash: { out: 0, in: 0, count: 0 },
+      purchase_multike: { out: 0, in: 0, count: 0 },
+      purchase_point: { out: 0, in: 0, count: 0 },
+      prize: { out: 0, in: 0, count: 0 },
+      tournament: { out: 0, in: 0, count: 0 },
+      bj: { out: 0, in: 0, count: 0 },
+      baccarat: { out: 0, in: 0, count: 0 },
+      ring: { out: 0, in: 0, count: 0 },
+    };
+    ALL_FLOWS.forEach(f => {
+      if (f.date < dateRange.from || f.date > dateRange.to) return;
+      if (f.direction === "out") totals[f.category].out += f.amount;
+      else totals[f.category].in += f.amount;
+      totals[f.category].count += 1;
+    });
+
+    // 獲得側 = 顧客がチップを獲得したルート(=店からみたら払出)
+    // すべてのカテゴリのoutが該当
+    const acquired = ALL_CATS.map(c => ({ category: c, amount: totals[c].out, count: totals[c].count }))
+      .filter(r => r.amount > 0)
+      .sort((a, b) => b.amount - a.amount);
+
+    // 使用側 = 顧客がチップを使ったルート(=店からみたら回収)
+    // ゲーム系のみのin
+    const used = GAME_CATS.map(c => ({ category: c, amount: totals[c].in, count: totals[c].count }))
+      .filter(r => r.amount > 0)
+      .sort((a, b) => b.amount - a.amount);
+
+    const acquiredTotal = acquired.reduce((s, r) => s + r.amount, 0);
+    const usedTotal = used.reduce((s, r) => s + r.amount, 0);
+    return { acquired, used, acquiredTotal, usedTotal };
+  }, [view, buckets, calendar]);
+
   function exportCSV() {
     if (view === "calendar") {
       const header = "日付,払出,回収,純利益,件数";
@@ -295,6 +354,16 @@ export default function ChipFlowPage() {
         />
       </section>
 
+      {/* ===== ルート別内訳 ===== */}
+      {routeBreakdown && (
+        <RouteBreakdown
+          acquired={routeBreakdown.acquired}
+          used={routeBreakdown.used}
+          acquiredTotal={routeBreakdown.acquiredTotal}
+          usedTotal={routeBreakdown.usedTotal}
+        />
+      )}
+
       {/* ===== メインビュー ===== */}
       {view === "calendar" ? (
         <CalendarView
@@ -306,6 +375,87 @@ export default function ChipFlowPage() {
       ) : (
         <ChartAndTable buckets={buckets} view={view} isPurchaseOnly={isPurchaseOnly} />
       )}
+    </div>
+  );
+}
+
+// ============================================================
+// ルート別内訳: 「何で獲得したか」「何で使ったか」を横棒で並列表示
+function RouteBreakdown({ acquired, used, acquiredTotal, usedTotal }: {
+  acquired: { category: FlowCategory; amount: number; count: number }[];
+  used: { category: FlowCategory; amount: number; count: number }[];
+  acquiredTotal: number;
+  usedTotal: number;
+}) {
+  return (
+    <section>
+      <h2 className="text-[14px] font-semibold text-text-primary tracking-tight mb-2.5">ルート別内訳</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[rgba(28,46,60,0.08)] border border-[rgba(28,46,60,0.08)] rounded-[8px] overflow-hidden">
+        {/* 獲得側 */}
+        <div className="bg-white p-4">
+          <div className="flex items-baseline justify-between mb-3 pb-2 border-b border-[rgba(28,46,60,0.06)]">
+            <div>
+              <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-[0.18em]">獲得ルート</p>
+              <p className="text-[10px] text-text-tertiary mt-0.5">何でチップを得たか</p>
+            </div>
+            <p className="text-[16px] font-semibold tabular-nums">¥{acquiredTotal.toLocaleString()}</p>
+          </div>
+          <BreakdownList rows={acquired} total={acquiredTotal} />
+        </div>
+
+        {/* 使用側 */}
+        <div className="bg-white p-4">
+          <div className="flex items-baseline justify-between mb-3 pb-2 border-b border-[rgba(28,46,60,0.06)]">
+            <div>
+              <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-[0.18em]">使用ルート</p>
+              <p className="text-[10px] text-text-tertiary mt-0.5">何にチップを使ったか</p>
+            </div>
+            <p className="text-[16px] font-semibold tabular-nums">¥{usedTotal.toLocaleString()}</p>
+          </div>
+          <BreakdownList rows={used} total={usedTotal} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BreakdownList({ rows, total }: {
+  rows: { category: FlowCategory; amount: number; count: number }[];
+  total: number;
+}) {
+  if (rows.length === 0) {
+    return <p className="text-[12px] text-text-tertiary py-4 text-center">期間内のデータがありません</p>;
+  }
+  const max = Math.max(...rows.map(r => r.amount), 1);
+  return (
+    <div className="space-y-2">
+      {rows.map(r => {
+        const pct = (r.amount / max) * 100;
+        const sharePct = total > 0 ? (r.amount / total) * 100 : 0;
+        return (
+          <div key={r.category}>
+            <div className="flex items-baseline justify-between gap-2 mb-1">
+              <span className="flex items-center gap-1.5 min-w-0">
+                <span
+                  className="w-4 h-4 rounded-[3px] flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${CATEGORY_COLOR[r.category]}14`, color: CATEGORY_COLOR[r.category] }}
+                >
+                  <span className="[&>svg]:w-2.5 [&>svg]:h-2.5">{CATEGORY_ICON[r.category]}</span>
+                </span>
+                <span className="text-[12px] font-medium text-text-primary truncate">{CATEGORY_LABEL[r.category]}</span>
+                <span className="text-[10px] text-text-tertiary tabular-nums whitespace-nowrap">{sharePct.toFixed(1)}%</span>
+              </span>
+              <span className="text-[12px] tabular-nums font-semibold text-text-primary whitespace-nowrap">¥{r.amount.toLocaleString()}</span>
+            </div>
+            <div className="h-1.5 bg-[rgba(28,46,60,0.05)] rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{ width: `${pct}%`, background: CATEGORY_COLOR[r.category], opacity: 0.8 }}
+              />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
