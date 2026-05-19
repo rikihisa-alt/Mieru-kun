@@ -11,6 +11,8 @@ const PAGE_TITLES: Record<string, string> = {
   "/k3f8qm": "来店予約",
   "/y4r9vt": "店内状況",
   "/v3r8nb": "卓管理",
+  "/r8w3kc/h9j4dy": "注文履歴",
+  "/r8w3kc": "ライブ注文",
   "/x6j2fp": "注文 / 精算",
   "/a9k5dm/q7t3wc": "顧客新規登録",
   "/a9k5dm": "顧客管理",

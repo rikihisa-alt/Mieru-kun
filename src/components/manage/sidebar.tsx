@@ -24,6 +24,7 @@ import {
   ShieldCheck,
   BarChart3,
   Coins,
+  Bell,
 } from "lucide-react";
 
 const NAV = [
@@ -33,6 +34,7 @@ const NAV = [
     { href: "/k3f8qm", label: "来店予約", icon: CalendarDays },
     { href: "/y4r9vt", label: "店内状況", icon: Activity },
     { href: "/v3r8nb", label: "卓管理", icon: Grid3X3 },
+    { href: "/r8w3kc", label: "ライブ注文", icon: Bell },
     { href: "/x6j2fp", label: "注文 / 精算", icon: ShoppingBag },
   ]},
   { section: "管理", items: [

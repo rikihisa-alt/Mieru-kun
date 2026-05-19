@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Coins, Trophy, History, ChevronRight, Activity, Calendar, CalendarPlus, Sparkles } from "lucide-react";
+import { Coins, Trophy, History, ChevronRight, Activity, Calendar, CalendarPlus, Sparkles, Bell } from "lucide-react";
 
 export default function MyPage() {
   const c = { name: "田中 太郎", nickname: "タロウ", rank: "ゴールド", chips: 5000, points: 1200, visits: 25 };
@@ -40,6 +40,7 @@ export default function MyPage() {
 
       {/* メニュー */}
       <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] divide-y divide-border-light">
+        <MenuLink href="/u3j5ny/p2x7nq" icon={<Bell />} label="注文・店員呼び出し" />
         <MenuLink href="/u3j5ny/y4r9vt" icon={<Activity />} label="店内状況" />
         <MenuLink href="/u3j5ny/k3f8qm" icon={<CalendarPlus />} label="来店予約" />
         <MenuLink href="/u3j5ny/d7s3xl" icon={<Calendar />} label="スケジュール" />
