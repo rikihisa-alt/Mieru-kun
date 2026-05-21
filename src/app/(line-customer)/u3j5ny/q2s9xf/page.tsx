@@ -2,14 +2,8 @@ import Link from "next/link";
 import { ArrowLeft, Trophy } from "lucide-react";
 
 export default function PointsPage() {
-  const balance = 1200;
-  const points = [
-    { id: "1", date: "04/10", change: +100, reason: "来店ポイント", balance: 1200 },
-    { id: "2", date: "04/05", change: +150, reason: "来店ポイント", balance: 1100 },
-    { id: "3", date: "04/01", change: +200, reason: "イベント参加", balance: 950 },
-    { id: "4", date: "03/25", change: +500, reason: "¥10,000利用特典", balance: 750 },
-    { id: "5", date: "03/20", change: +100, reason: "来店ポイント", balance: 250 },
-  ];
+  const balance = 0;
+  const points: { id: string; date: string; change: number; reason: string; balance: number }[] = [];
 
   return (
     <div className="space-y-4">

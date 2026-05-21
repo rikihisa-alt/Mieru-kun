@@ -27,24 +27,9 @@ interface TableDef {
   maxSeats: number; dealer: string; dealerMinutes: number;
 }
 
-// --- 初期データ ---
-const INIT_TABLES: TableDef[] = [
-  { id: "t1", name: "テーブル1", type: "トナメ", maxSeats: 9, dealer: "山田", dealerMinutes: 45 },
-  { id: "t2", name: "テーブル2", type: "トナメ", maxSeats: 9, dealer: "鈴木", dealerMinutes: 20 },
-  { id: "t3", name: "テーブル3", type: "リング", maxSeats: 10, dealer: "佐藤", dealerMinutes: 60 },
-  { id: "t4", name: "テーブル4", type: "サイド", maxSeats: 6, dealer: "—", dealerMinutes: 0 },
-];
-
-const INIT_PLAYERS: Player[] = [
-  { id: "p1", name: "田中 太郎", nickname: "タロウ", rank: "gold", chips: 5000, tableId: "t1", seatIndex: 0 },
-  { id: "p2", name: "鈴木 花子", nickname: "ハナ", rank: "vip", chips: 12000, tableId: "t1", seatIndex: 2 },
-  { id: "p3", name: "佐藤 健一", nickname: "ケン", rank: "silver", chips: 2000, tableId: "t1", seatIndex: 4 },
-  { id: "p4", name: "高橋 美咲", nickname: "ミィ", rank: "regular", chips: 500, tableId: "t3", seatIndex: 1 },
-  { id: "p5", name: "伊藤 大輔", nickname: "ダイ", rank: "regular", chips: 0, tableId: "t3", seatIndex: 3 },
-  { id: "p6", name: "渡辺 優子", nickname: "ユウ", rank: "gold", chips: 8000, tableId: null, seatIndex: null },
-  { id: "p7", name: "山本 翔太", nickname: "ショウ", rank: "silver", chips: 1500, tableId: null, seatIndex: null },
-  { id: "p8", name: "中村 あゆみ", nickname: "アユ", rank: "regular", chips: 200, tableId: null, seatIndex: null },
-];
+// --- 初期データ(出荷状態: 空) ---
+const INIT_TABLES: TableDef[] = [];
+const INIT_PLAYERS: Player[] = [];
 
 const RANK_COLORS: Record<string, string> = { vip: "#7c3aed", gold: "#d97706", silver: "#6b7280", regular: "#9ca3af" };
 const RANK_LABELS: Record<string, string> = { vip: "VIP", gold: "Gold", silver: "Silver", regular: "" };

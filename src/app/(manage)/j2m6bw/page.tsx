@@ -11,11 +11,7 @@ interface Pop {
   linkedEvent?: string;
 }
 
-const INIT: Pop[] = [
-  { id: "p1", title: "春の感謝祭", imageUrl: "/illustrations/before-chip.png", isPublic: true, linkedEvent: "春のVIPナイト" },
-  { id: "p2", title: "ウィークエンドトーナメント", imageUrl: "/illustrations/after-chip.png", isPublic: true, linkedEvent: "ホールデム・ウィークエンドトーナメント" },
-  { id: "p3", title: "新作メニュー", imageUrl: "/illustrations/before-table.png", isPublic: false },
-];
+const INIT: Pop[] = [];
 
 const EVENT_OPTIONS = [
   "なし",

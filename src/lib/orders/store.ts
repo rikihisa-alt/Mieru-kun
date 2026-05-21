@@ -8,8 +8,8 @@ import type { Order, OrderStatus } from "./types";
 // 本番接続時はこのファイルをSupabase Realtime実装に差し替え可能。
 // =================================================================
 
-const STORAGE_KEY = "tempo_orders_v1";
-const CHANNEL = "tempo_orders_v1";
+const STORAGE_KEY = "tempo_orders_v2";
+const CHANNEL = "tempo_orders_v2";
 
 type Listener = (orders: Order[]) => void;
 type Event =
@@ -29,7 +29,8 @@ class OrderStore {
     if (this.initialized || typeof window === "undefined") return;
     this.initialized = true;
     this.load();
-    this.seedIfEmpty();
+    // 旧バージョン(v1)の残骸を掃除
+    try { localStorage.removeItem("tempo_orders_v1"); } catch { /* */ }
     try {
       this.channel = new BroadcastChannel(CHANNEL);
       this.channel.onmessage = (e) => {
@@ -79,35 +80,6 @@ class OrderStore {
     this.eventListeners.forEach(l => l(ev));
     try { this.channel?.postMessage(ev); } catch { /* */ }
   }
-  private seedIfEmpty() {
-    if (this.orders.length > 0) return;
-    // 起動時のデモ用に1〜2件
-    const now = new Date();
-    const t1 = new Date(now.getTime() - 1000 * 60 * 4).toISOString();
-    const t2 = new Date(now.getTime() - 1000 * 60 * 10).toISOString();
-    this.orders = [
-      {
-        id: `seed-${Date.now()}-1`,
-        createdAt: t1, updatedAt: t1,
-        seat: { tableType: "A", tableNo: "A-2", seatNo: 3 },
-        kind: "drink",
-        status: "new",
-        items: [{ productId: "d3", name: "アイスコーヒー", category: "regular", qty: 1, options: { ice: "氷あり", straw: "ストローあり" } }],
-        customer: { lineUserId: "U_demo_001", displayName: "田中 太郎" },
-      },
-      {
-        id: `seed-${Date.now()}-2`,
-        createdAt: t2, updatedAt: t2,
-        seat: { tableType: "baccarat", tableNo: "BAC-1", seatNo: 5 },
-        kind: "call",
-        status: "new",
-        call: { type: "chip" },
-        customer: { lineUserId: "U_demo_002", displayName: "鈴木 花子" },
-      },
-    ];
-    this.persist();
-  }
-
   getAll(): Order[] {
     return this.orders.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }

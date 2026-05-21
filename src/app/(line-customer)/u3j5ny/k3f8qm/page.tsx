@@ -24,13 +24,10 @@ const KIND_LABEL: Record<TableKind, string> = {
 
 // 時間帯ごとの混雑ヒント(0=空き、1=普通、2=混雑)
 const CONGESTION: Record<string, 0 | 1 | 2> = {
-  "18:00": 0, "19:00": 1, "20:00": 2, "21:00": 2, "22:00": 1, "23:00": 0,
+  "18:00": 0, "19:00": 0, "20:00": 0, "21:00": 0, "22:00": 0, "23:00": 0,
 };
 
-const MY_RESERVATIONS: ExistingReservation[] = [
-  { id: "r1", date: "2026-04-25", time: "20:00", party: 2, kind: "tournament", status: "confirmed" },
-  { id: "r2", date: "2026-05-02", time: "22:00", party: 1, kind: "any", status: "pending" },
-];
+const MY_RESERVATIONS: ExistingReservation[] = [];
 
 export default function MemberReservationPage() {
   const [date, setDate] = useState("");

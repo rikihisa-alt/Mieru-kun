@@ -20,14 +20,7 @@ interface EventItem {
 const CATEGORY_LABEL = { tournament: "トナメ", party: "パーティ", campaign: "キャンペーン" } as const;
 const CATEGORY_CHIP = { tournament: "chip-accent", party: "chip-vip", campaign: "chip-warning" } as const;
 
-const EVENTS: EventItem[] = [
-  { id: "e1", title: "春のVIPナイト", category: "party", date: "2026-04-25", time: "20:00-02:00", capacity: 30, reserved: 18, fee: 3000, note: "ウェルカムドリンク付き", myReserved: true },
-  { id: "e2", title: "ウィークエンドトーナメント", category: "tournament", date: "2026-04-27", time: "19:00-23:00", capacity: 40, reserved: 25, fee: 5000, myReserved: false },
-  { id: "e3", title: "新作カクテル試飲会", category: "campaign", date: "2026-05-02", time: "22:00-23:00", capacity: 10, reserved: 3, myReserved: false },
-  { id: "e4", title: "GWビッグトーナメント", category: "tournament", date: "2026-05-05", time: "18:00-24:00", capacity: 60, reserved: 42, fee: 10000, note: "優勝賞金あり", myReserved: false },
-  { id: "e5", title: "女子会ナイト", category: "party", date: "2026-05-10", time: "20:00-01:00", capacity: 20, reserved: 8, fee: 2500, myReserved: false },
-  { id: "e6", title: "マルチケ2倍キャンペーン", category: "campaign", date: "2026-05-15", time: "18:00-06:00", capacity: 999, reserved: 0, note: "全来店対象", myReserved: false },
-];
+const EVENTS: EventItem[] = [];
 
 function dateLabel(iso: string): string {
   const d = new Date(iso);

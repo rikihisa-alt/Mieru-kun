@@ -15,11 +15,7 @@ interface EventItem {
   isPublic: boolean;
 }
 
-const INIT: EventItem[] = [
-  { id: "ev1", title: "春のVIPナイト", description: "VIP会員限定のスペシャルナイト", startsAt: "2026-04-25T20:00", endsAt: "2026-04-26T02:00", capacity: 30, reservedCount: 18, deadline: "2026-04-24T18:00", isPublic: true },
-  { id: "ev2", title: "ホールデム・ウィークエンドトーナメント", description: "エントリー3,000円・プライズ合計50,000円", startsAt: "2026-04-27T19:00", endsAt: "2026-04-27T23:00", capacity: 40, reservedCount: 25, deadline: "2026-04-27T18:00", isPublic: true },
-  { id: "ev3", title: "新作カクテル試飲会", description: "限定10名・要予約", startsAt: "2026-05-02T22:00", endsAt: "2026-05-02T23:00", capacity: 10, reservedCount: 3, deadline: "2026-05-01T20:00", isPublic: false },
-];
+const INIT: EventItem[] = [];
 
 const EMPTY: Omit<EventItem, "id" | "reservedCount"> = {
   title: "", description: "", startsAt: "", endsAt: "", capacity: 20, deadline: "", isPublic: true,

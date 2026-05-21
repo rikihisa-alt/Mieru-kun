@@ -23,28 +23,9 @@ interface Visit {
   items: CartItem[]; total: number; status: "active" | "settled"; outstanding?: number;
 }
 
-const PRODUCTS: { name: string; price: number; category: OrderCategory }[] = [
-  { name: "エントランス", price: 1000, category: "entrance" },
-  { name: "トナメ参加費", price: 3000, category: "tournament_fee" },
-  { name: "ビール", price: 600, category: "drink" },
-  { name: "ハイボール", price: 500, category: "drink" },
-  { name: "ソフトドリンク", price: 300, category: "drink" },
-  { name: "ウイスキー", price: 800, category: "drink" },
-  { name: "カクテル", price: 700, category: "drink" },
-  { name: "ポテトフライ", price: 400, category: "food" },
-  { name: "枝豆", price: 300, category: "food" },
-  { name: "ピザ", price: 800, category: "food" },
-  { name: "チップ 1000枚", price: 1000, category: "tip_purchase" },
-  { name: "チップ 5000枚", price: 5000, category: "tip_purchase" },
-  { name: "会員割引", price: -500, category: "discount" },
-];
+const PRODUCTS: { name: string; price: number; category: OrderCategory }[] = [];
 
-const INIT: Visit[] = [
-  { id: "v1", customer: "田中 太郎", customerNickname: "タロウ", rank: "gold", table: "T1", items: [{ name: "ビール", price: 600, qty: 2, category: "drink" }, { name: "枝豆", price: 300, qty: 1, category: "food" }], total: 1500, status: "active" },
-  { id: "v2", customer: "鈴木 花子", customerNickname: "ハナ", rank: "vip", table: "T1", items: [{ name: "ウイスキー", price: 800, qty: 1, category: "drink" }], total: 800, status: "active" },
-  { id: "v3", customer: "佐藤 健一", customerNickname: "ケン", rank: "silver", table: "T3", items: [], total: 0, status: "active" },
-  { id: "v4", customer: "高橋 美咲", customerNickname: "ミィ", rank: "regular", table: "T3", items: [{ name: "ソフトドリンク", price: 300, qty: 1, category: "drink" }], total: 300, status: "settled" },
-];
+const INIT: Visit[] = [];
 
 export default function OrdersPage() {
   const [visits, setVisits] = useState<Visit[]>(INIT);

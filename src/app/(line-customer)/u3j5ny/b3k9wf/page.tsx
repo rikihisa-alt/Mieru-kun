@@ -12,16 +12,15 @@ export default function MemberBalancePage() {
       <div className="grid grid-cols-2 gap-2">
         <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-3">
           <div className="text-[10px] text-text-tertiary flex items-center gap-1"><Coins className="w-3 h-3" />リング</div>
-          <div className="text-[18px] font-bold" style={{ color: "#3a8f7c" }}>5,000<span className="text-[11px] font-normal text-text-tertiary ml-0.5">枚</span></div>
+          <div className="text-[18px] font-bold" style={{ color: "#3a8f7c" }}>0<span className="text-[11px] font-normal text-text-tertiary ml-0.5">枚</span></div>
         </div>
         <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-3">
           <div className="text-[10px] text-text-tertiary flex items-center gap-1"><Coins className="w-3 h-3" />サイド</div>
-          <div className="text-[18px] font-bold" style={{ color: "#d97706" }}>1,800<span className="text-[11px] font-normal text-text-tertiary ml-0.5">枚</span></div>
+          <div className="text-[18px] font-bold" style={{ color: "#d97706" }}>0<span className="text-[11px] font-normal text-text-tertiary ml-0.5">枚</span></div>
         </div>
         <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-3 col-span-2">
           <div className="text-[10px] text-text-tertiary flex items-center gap-1"><Sparkles className="w-3 h-3" />マルチケ</div>
-          <div className="text-[22px] font-bold" style={{ color: "#7c3aed" }}>12<span className="text-[12px] font-normal text-text-tertiary ml-1">枚</span></div>
-          <div className="text-[10px] text-text-tertiary mt-1">うち5枚は2026-06-30まで有効</div>
+          <div className="text-[22px] font-bold" style={{ color: "#7c3aed" }}>0<span className="text-[12px] font-normal text-text-tertiary ml-1">枚</span></div>
         </div>
       </div>
 

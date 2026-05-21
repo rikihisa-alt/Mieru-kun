@@ -18,10 +18,7 @@ interface MemberSnapshot {
   phone?: string;
 }
 
-const DEMO_MEMBERS: Record<string, MemberSnapshot> = {
-  "a8f3d9c2": { id: "a8f3d9c2", memberNo: "0001", nickname: "タロウ", realName: "田中 太郎", rank: "gold", todayCheckedIn: true, ringBalance: 5000, sideBalance: 1800, multikeBalance: 12, lastVisit: "2026-04-17", phone: "090-1234-5678" },
-  "b4c9d2f1": { id: "b4c9d2f1", memberNo: "0002", nickname: "ハナ", realName: "鈴木 花子", rank: "vip", todayCheckedIn: false, ringBalance: 12000, sideBalance: 4500, multikeBalance: 38, lastVisit: "2026-04-19", caution: "誕生日月（4月）: ケア厚めに" },
-};
+const DEMO_MEMBERS: Record<string, MemberSnapshot> = {};
 
 const RANK_TEXT: Record<string, string> = {
   vip: "text-[#7c3aed]",

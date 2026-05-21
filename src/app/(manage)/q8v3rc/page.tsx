@@ -13,14 +13,7 @@ interface AuditLog {
   ip: string;
 }
 
-const INIT: AuditLog[] = [
-  { id: "a1", createdAt: "2026-04-20 21:32:14", actor: "山田（店長）", action: "customer.edit", targetTable: "customers", targetId: "a8f3d9c2", ip: "210.1.2.3" },
-  { id: "a2", createdAt: "2026-04-20 21:28:02", actor: "山田（店長）", action: "tip.manual_adjust", targetTable: "tip_transactions", targetId: "b4c9d2f1", ip: "210.1.2.3" },
-  { id: "a3", createdAt: "2026-04-20 20:15:44", actor: "鈴木（スタッフ）", action: "customer.view", targetTable: "customers", targetId: "c2e5a9f3", ip: "192.168.0.5" },
-  { id: "a4", createdAt: "2026-04-20 19:40:11", actor: "オーナー", action: "point_rule.update", targetTable: "point_rules", targetId: "r2", ip: "203.0.113.8" },
-  { id: "a5", createdAt: "2026-04-20 18:55:38", actor: "オーナー", action: "customer.export", targetTable: "customers", targetId: "-", ip: "203.0.113.8" },
-  { id: "a6", createdAt: "2026-04-19 23:12:09", actor: "オーナー", action: "customer.delete", targetTable: "customers", targetId: "z99-deleted", ip: "203.0.113.8" },
-];
+const INIT: AuditLog[] = [];
 
 const ACTION_META: Record<string, { icon: React.ReactNode; color: string; label: string }> = {
   "customer.view":          { icon: <Eye className="w-3 h-3" />,      color: "#5a6977", label: "閲覧" },

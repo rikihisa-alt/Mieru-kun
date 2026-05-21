@@ -81,16 +81,7 @@ interface CustomerData {
   name: string; nickname: string; phone: string; email: string; rank: Rank; notes: string;
   totalVisits: number; totalSpent: number; chipBalance: number; pointBalance: number;
 }
-const CUSTOMER_DATA: Record<string, CustomerData> = {
-  "a8f3d9c2": { name: "田中 太郎", nickname: "タロウ", phone: "090-1234-5678", email: "tanaka@example.com", rank: "gold", notes: "常連客。ウイスキーがお好み。誕生日: 3/15", totalVisits: 25, totalSpent: 150000, chipBalance: 5000, pointBalance: 1200 },
-  "b4c9d2f1": { name: "鈴木 花子", nickname: "ハナ", phone: "090-2345-6789", email: "suzuki@example.com", rank: "vip", notes: "VIP常連。カクテル好き。", totalVisits: 50, totalSpent: 350000, chipBalance: 12000, pointBalance: 3500 },
-  "c2e5a9f3": { name: "佐藤 健一", nickname: "ケン", phone: "090-3456-7890", email: "sato@example.com", rank: "silver", notes: "", totalVisits: 10, totalSpent: 45000, chipBalance: 2000, pointBalance: 400 },
-  "d1b7f4c8": { name: "高橋 美咲", nickname: "ミィ", phone: "", email: "", rank: "regular", notes: "", totalVisits: 3, totalSpent: 12000, chipBalance: 500, pointBalance: 100 },
-  "e9a3b2d5": { name: "伊藤 大輔", nickname: "ダイ", phone: "090-4567-8901", email: "", rank: "regular", notes: "", totalVisits: 1, totalSpent: 3000, chipBalance: 0, pointBalance: 50 },
-  "f8d2e4a7": { name: "渡辺 優子", nickname: "ユウ", phone: "090-5678-9012", email: "watanabe@example.com", rank: "gold", notes: "", totalVisits: 30, totalSpent: 200000, chipBalance: 8000, pointBalance: 2000 },
-  "7c3f9a2d": { name: "山本 翔太", nickname: "ショウ", phone: "", email: "", rank: "silver", notes: "", totalVisits: 8, totalSpent: 32000, chipBalance: 1500, pointBalance: 300 },
-  "8b5d4e7f": { name: "中村 あゆみ", nickname: "アユ", phone: "090-6789-0123", email: "", rank: "regular", notes: "", totalVisits: 2, totalSpent: 8000, chipBalance: 200, pointBalance: 80 },
-};
+const CUSTOMER_DATA: Record<string, CustomerData> = {};
 
 const DEFAULT_CUSTOMER: CustomerData = { name: "顧客", nickname: "", phone: "", email: "", rank: "regular", notes: "", totalVisits: 0, totalSpent: 0, chipBalance: 0, pointBalance: 0 };
 
@@ -133,29 +124,17 @@ export default function CustomerDetailPage() {
   const [pointBalance] = useState(initial.pointBalance);
 
   // Visit history
-  const [visitHistory] = useState<VisitEntry[]>([
-    { id: "vh1", date: "2026-04-11 20:30", table: "VIP-1", amount: 32000, stayMinutes: 180, status: "settled" },
-    { id: "vh2", date: "2026-04-09 19:00", table: "A-2", amount: 15000, stayMinutes: 120, status: "settled" },
-    { id: "vh3", date: "2026-04-05 21:15", table: "VIP-2", amount: 48000, stayMinutes: 240, status: "settled" },
-    { id: "vh4", date: "2026-04-01 18:45", table: "B-1", amount: 22000, stayMinutes: 150, status: "settled" },
-    { id: "vh5", date: "2026-03-28 20:00", table: "VIP-1", amount: 38000, stayMinutes: 210, status: "settled" },
-  ]);
+  const [visitHistory] = useState<VisitEntry[]>([]);
 
   // Prize
-  const [prizes, setPrizes] = useState<PrizeEntry[]>([
-    { id: "pr1", date: "2026-04-10", name: "特製ウイスキー" },
-    { id: "pr2", date: "2026-03-25", name: "VIPルーム利用券" },
-    { id: "pr3", date: "2026-03-10", name: "フードセット無料券" },
-  ]);
+  const [prizes, setPrizes] = useState<PrizeEntry[]>([]);
   const [showPrizeForm, setShowPrizeForm] = useState(false);
   const [selectedPrize, setSelectedPrize] = useState(PRIZE_OPTIONS[0]);
 
   // Unpaid
   const [hasUnpaid, setHasUnpaid] = useState(false);
   const [unpaidAmount, setUnpaidAmount] = useState("");
-  const [unpaidHistory] = useState<UnpaidEntry[]>([
-    { id: "up1", date: "2026-03-15", amount: 5000, note: "精算忘れ - 翌日回収済" },
-  ]);
+  const [unpaidHistory] = useState<UnpaidEntry[]>([]);
 
   function handleSave() {
     setSaveMsg(true);
@@ -178,19 +157,10 @@ export default function CustomerDetailPage() {
   const [sideBalance, setSideBalance] = useState(initialSideBal);
   const [ringFrozen, setRingFrozen] = useState(false);
   const [sideFrozen, setSideFrozen] = useState(false);
-  const [ringEntries, setRingEntries] = useState<TipEntry[]>([
-    { id: "r1", date: "2026-04-17", delta: 2000, reason: "来店ボーナス", reasonCode: "visit_bonus", balanceAfter: initialRingBal, performedBy: "山田" },
-    { id: "r2", date: "2026-04-15", delta: -1500, reason: "リング利用", reasonCode: "ring_play", balanceAfter: initialRingBal - 2000, performedBy: "鈴木" },
-  ]);
-  const [sideEntries, setSideEntries] = useState<TipEntry[]>([
-    { id: "s1", date: "2026-04-14", delta: 1000, reason: "サイド購入", reasonCode: "purchase", balanceAfter: initialSideBal, performedBy: "山田" },
-  ]);
-  const [multikeBalance, setMultikeBalance] = useState(12);
-  const [multikeEntries, setMultikeEntries] = useState<MultikeEntry[]>([
-    { id: "m1", date: "2026-04-10", delta: 5, reason: "キャンペーン配布: 春の感謝祭", reasonCode: "campaign_grant", balanceAfter: 12, expiresAt: "2026-06-30" },
-    { id: "m2", date: "2026-04-05", delta: 3, reason: "手動付与", reasonCode: "grant", balanceAfter: 7, expiresAt: "2026-05-30" },
-    { id: "m3", date: "2026-04-01", delta: -2, reason: "消化", reasonCode: "use", balanceAfter: 4 },
-  ]);
+  const [ringEntries, setRingEntries] = useState<TipEntry[]>([]);
+  const [sideEntries, setSideEntries] = useState<TipEntry[]>([]);
+  const [multikeBalance, setMultikeBalance] = useState(0);
+  const [multikeEntries, setMultikeEntries] = useState<MultikeEntry[]>([]);
 
   function addRingEntry(delta: number, reason: string, reasonCode: string) {
     const newBal = ringBalance + delta;

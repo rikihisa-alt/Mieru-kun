@@ -19,22 +19,9 @@ interface ShiftBar {
   breaks: BreakSpan[];
 }
 
-// ===== 定数 =====
-const STAFF_LIST = [
-  { id: "s1", name: "山田 太郎", role: "ディーラー" },
-  { id: "s2", name: "鈴木 一郎", role: "ディーラー" },
-  { id: "s3", name: "佐藤 花", role: "フロア" },
-  { id: "s4", name: "高橋 健", role: "ディーラー" },
-  { id: "s5", name: "伊藤 美咲", role: "フロア" },
-];
-
-const ATTENDANCE: StaffRecord[] = [
-  { id: "s1", name: "山田 太郎", role: "ディーラー", clockIn: "18:00", clockOut: null, breakMin: 0, workMin: null, status: "working", needsApproval: false },
-  { id: "s2", name: "鈴木 一郎", role: "ディーラー", clockIn: "18:00", clockOut: null, breakMin: 30, workMin: null, status: "on_break", needsApproval: false },
-  { id: "s3", name: "佐藤 花", role: "フロア", clockIn: "17:30", clockOut: "23:30", breakMin: 60, workMin: 300, status: "finished", needsApproval: false },
-  { id: "s4", name: "高橋 健", role: "ディーラー", clockIn: "18:15", clockOut: "23:00", breakMin: 30, workMin: 255, status: "finished", needsApproval: true },
-  { id: "s5", name: "伊藤 美咲", role: "フロア", clockIn: null, clockOut: null, breakMin: 0, workMin: null, status: "off", needsApproval: false },
-];
+// ===== 定数(出荷状態: 空) =====
+const STAFF_LIST: { id: string; name: string; role: string }[] = [];
+const ATTENDANCE: StaffRecord[] = [];
 
 // タイムライン: 14:00-26:00 → 48 quarters
 const TL_START_H = 14;
@@ -57,20 +44,8 @@ function dateLabelShort(s: string): string {
   return `${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]})`;
 }
 
-// 初期シフト
-function makeInitShifts(): ShiftBar[] {
-  const bars: ShiftBar[] = [];
-  const today = dateStr(0);
-  bars.push({ staffId: "s1", date: today, startQ: 16, endQ: 40, breaks: [{ startQ: 28, endQ: 32 }] }); // 休憩21:00-22:00
-  bars.push({ staffId: "s2", date: today, startQ: 16, endQ: 40, breaks: [] });
-  bars.push({ staffId: "s3", date: today, startQ: 12, endQ: 36, breaks: [{ startQ: 22, endQ: 24 }] }); // 休憩19:30-20:00
-  bars.push({ staffId: "s4", date: today, startQ: 17, endQ: 40, breaks: [] });
-  const tmrw = dateStr(1);
-  bars.push({ staffId: "s1", date: tmrw, startQ: 16, endQ: 40, breaks: [{ startQ: 28, endQ: 32 }] });
-  bars.push({ staffId: "s3", date: tmrw, startQ: 12, endQ: 36, breaks: [] });
-  bars.push({ staffId: "s5", date: tmrw, startQ: 12, endQ: 36, breaks: [{ startQ: 20, endQ: 24 }] });
-  return bars;
-}
+// 初期シフト(出荷状態: 空)
+function makeInitShifts(): ShiftBar[] { return []; }
 
 export default function AttendancePage() {
   const [staff, setStaff] = useState(ATTENDANCE);

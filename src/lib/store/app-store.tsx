@@ -32,60 +32,12 @@ export interface VisitOrder {
   items: OrderItem[]; total: number; status: "active" | "settled";
 }
 
-// ===== 初期データ（卓管理の4卓と整合） =====
-
-// 卓: テーブル1(トナメ9席), テーブル2(トナメ9席), テーブル3(リング10席), テーブル4(サイド6席)
-const INIT_TABLES: TableInfo[] = [
-  { name: "テーブル1", occupied: 3, max: 9, type: "トナメ" },
-  { name: "テーブル2", occupied: 1, max: 9, type: "トナメ" },
-  { name: "テーブル3", occupied: 2, max: 10, type: "リング" },
-  { name: "テーブル4", occupied: 0, max: 6, type: "サイド" },
-];
-
-// 来店中の顧客（卓管理のプレイヤーと一致） name=ニックネーム、realName=本名
-const INIT_VISITORS: Visitor[] = [
-  { id: "v1", name: "タロウ", realName: "田中 太郎", rank: "gold", status: "active", table: "テーブル1", amount: 1500, time: "18:30" },
-  { id: "v2", name: "ハナ", realName: "鈴木 花子", rank: "vip", status: "active", table: "テーブル1", amount: 800, time: "19:15" },
-  { id: "v3", name: "ケン", realName: "佐藤 健一", rank: "silver", status: "active", table: "テーブル1", amount: 0, time: "20:00" },
-  { id: "v4", name: "ミィ", realName: "高橋 美咲", rank: "regular", status: "active", table: "テーブル3", amount: 300, time: "20:10" },
-  { id: "v5", name: "ダイ", realName: "伊藤 大輔", rank: "regular", status: "active", table: "テーブル3", amount: 0, time: "20:20" },
-  { id: "v6", name: "アユ", realName: "中村 あゆみ", rank: "regular", status: "active", table: "テーブル2", amount: 0, time: "20:30" },
-  { id: "v7", name: "ユウ", realName: "渡辺 優子", rank: "gold", status: "unassigned", table: "", amount: 0, time: "20:45" },
-  { id: "v8", name: "ショウ", realName: "山本 翔太", rank: "silver", status: "unassigned", table: "", amount: 0, time: "21:00" },
-];
-
-// スタッフ
-const INIT_STAFF: StaffMember[] = [
-  { id: "s1", name: "山田 太郎", role: "ディーラー", status: "working", clockIn: "18:00" },
-  { id: "s2", name: "鈴木 一郎", role: "ディーラー", status: "working", clockIn: "18:00" },
-  { id: "s3", name: "佐藤 花", role: "フロア", status: "finished", clockIn: "17:30" },
-  { id: "s4", name: "高橋 健", role: "ディーラー", status: "working", clockIn: "18:15" },
-  { id: "s5", name: "伊藤 美咲", role: "フロア", status: "off", clockIn: null },
-];
-
-// タイムライン（顧客はnickname、スタッフはそのまま本名）
-const INIT_TIMELINE: TimelineEvent[] = [
-  { id: "tl1", time: "21:00", type: "入店", name: "ショウ", realName: "山本 翔太", rank: "silver" },
-  { id: "tl2", time: "20:45", type: "入店", name: "ユウ", realName: "渡辺 優子", rank: "gold" },
-  { id: "tl3", time: "20:30", type: "入店", name: "アユ", realName: "中村 あゆみ", rank: "regular" },
-  { id: "tl4", time: "20:20", type: "入店", name: "ダイ", realName: "伊藤 大輔", rank: "regular" },
-  { id: "tl5", time: "20:10", type: "入店", name: "ミィ", realName: "高橋 美咲", rank: "regular" },
-  { id: "tl6", time: "20:00", type: "イベント", name: "VIPナイト", detail: "開始" },
-  { id: "tl7", time: "20:00", type: "入店", name: "ケン", realName: "佐藤 健一", rank: "silver" },
-  { id: "tl8", time: "19:15", type: "注文", name: "ハナ", realName: "鈴木 花子", detail: "ウイスキー ×1", amount: 800, rank: "vip" },
-  { id: "tl9", time: "19:15", type: "入店", name: "ハナ", realName: "鈴木 花子", rank: "vip" },
-  { id: "tl10", time: "18:30", type: "注文", name: "タロウ", realName: "田中 太郎", detail: "ビール ×2, 枝豆 ×1", amount: 1500, rank: "gold" },
-  { id: "tl11", time: "18:30", type: "入店", name: "タロウ", realName: "田中 太郎", rank: "gold" },
-  { id: "tl12", time: "18:15", type: "出勤", name: "高橋 健", detail: "ディーラー" },
-  { id: "tl13", time: "18:00", type: "出勤", name: "山田 太郎", detail: "ディーラー" },
-  { id: "tl14", time: "18:00", type: "出勤", name: "鈴木 一郎", detail: "ディーラー" },
-  { id: "tl15", time: "17:30", type: "出勤", name: "佐藤 花", detail: "フロア" },
-];
-
-const INIT_EVENTS: EventItem[] = [
-  { id: "e1", title: "VIPナイト", time: "20:00-24:00", status: "進行中", participants: 8 },
-  { id: "e2", title: "新作カクテル試飲会", time: "22:00-23:00", status: "準備中", participants: 0 },
-];
+// ===== 初期データ(出荷状態のため空) =====
+const INIT_TABLES: TableInfo[] = [];
+const INIT_VISITORS: Visitor[] = [];
+const INIT_STAFF: StaffMember[] = [];
+const INIT_TIMELINE: TimelineEvent[] = [];
+const INIT_EVENTS: EventItem[] = [];
 
 // ===== KPI =====
 export interface KPIs {
@@ -138,8 +90,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     activeTables,
     totalTables: tables.length,
     onDuty,
-    sales: totalSpent > 0 ? totalSpent : 2600,
-    avgSpend: activeVisitors.length > 0 ? Math.round((totalSpent > 0 ? totalSpent : 2600) / activeVisitors.length) : 0,
+    sales: totalSpent,
+    avgSpend: activeVisitors.length > 0 ? Math.round(totalSpent / activeVisitors.length) : 0,
     orders: orderEvents.length,
     targetSales: 250000,
   };
