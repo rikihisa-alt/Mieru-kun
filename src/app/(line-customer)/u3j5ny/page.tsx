@@ -2,8 +2,7 @@ import Link from "next/link";
 import { Coins, Trophy, History, ChevronRight, Activity, Calendar, CalendarPlus, Sparkles, Bell } from "lucide-react";
 
 export default function MyPage() {
-  // LIFFセッションから取得想定。出荷状態では未登録扱い。
-  const c = { name: "—", nickname: "", rank: "—", chips: 0, points: 0, visits: 0 };
+  const c = { name: "田中 太郎", nickname: "タロウ", rank: "ゴールド", chips: 5000, points: 1200, visits: 25 };
   const displayName = c.nickname || c.name;
 
   return (

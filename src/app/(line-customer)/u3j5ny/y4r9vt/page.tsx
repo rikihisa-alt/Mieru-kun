@@ -4,7 +4,7 @@ import { Activity, Users, Armchair, Flame } from "lucide-react";
 import Link from "next/link";
 
 export default function MemberLiveStatusPage() {
-  const score = 0;
+  const score = 62;
   const level = score >= 80 ? { label: "非常に混雑", color: "#c0392b" } : score >= 55 ? { label: "混雑", color: "#c87b1a" } : { label: "通常", color: "#3a8f7c" };
 
   return (
@@ -24,10 +24,10 @@ export default function MemberLiveStatusPage() {
 
       <div className="grid grid-cols-2 gap-2">
         {[
-          { icon: <Users className="w-4 h-4" />, label: "来店", value: "—" },
-          { icon: <Armchair className="w-4 h-4" />, label: "空席", value: "—" },
-          { icon: <Activity className="w-4 h-4" />, label: "リング", value: "—" },
-          { icon: <Flame className="w-4 h-4" />, label: "トナメ", value: "—" },
+          { icon: <Users className="w-4 h-4" />, label: "来店", value: "18名" },
+          { icon: <Armchair className="w-4 h-4" />, label: "空席", value: "12席" },
+          { icon: <Activity className="w-4 h-4" />, label: "リング", value: "2卓稼働" },
+          { icon: <Flame className="w-4 h-4" />, label: "トナメ", value: "進行中" },
         ].map((m) => (
           <div key={m.label} className="bg-bg-white border border-border rounded-[var(--radius)] p-3 flex items-center gap-2">
             <div className="w-8 h-8 rounded-[6px] bg-bg flex items-center justify-center text-text-secondary">{m.icon}</div>

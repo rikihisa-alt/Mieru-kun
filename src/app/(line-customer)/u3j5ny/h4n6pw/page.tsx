@@ -2,8 +2,14 @@ import Link from "next/link";
 import { ArrowLeft, Coins } from "lucide-react";
 
 export default function ChipsPage() {
-  const balance = 0;
-  const chips: { id: string; date: string; change: number; reason: string; balance: number }[] = [];
+  const balance = 5000;
+  const chips = [
+    { id: "1", date: "04/10", change: +500, reason: "ゲーム獲得", balance: 5000 },
+    { id: "2", date: "04/05", change: -200, reason: "ゲーム使用", balance: 4500 },
+    { id: "3", date: "04/05", change: +1000, reason: "購入", balance: 4700 },
+    { id: "4", date: "03/28", change: +2000, reason: "購入", balance: 3700 },
+    { id: "5", date: "03/20", change: -500, reason: "ゲーム使用", balance: 1700 },
+  ];
 
   return (
     <div className="space-y-4">

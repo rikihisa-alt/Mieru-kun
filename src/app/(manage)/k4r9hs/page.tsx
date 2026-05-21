@@ -47,9 +47,52 @@ const PURCHASE_CATS: FlowCategory[] = ["purchase_cash", "purchase_multike", "pur
 const ALL_CATS: FlowCategory[] = [...PURCHASE_CATS, ...GAME_CATS];
 
 // ===== デモデータ (180日分) =====
-// 出荷状態: フローデータは空
-const ALL_FLOWS: FlowEntry[] = [];
-const TODAY = new Date();
+function generateDemoFlows(): FlowEntry[] {
+  const flows: FlowEntry[] = [];
+  const today = new Date("2026-04-23");
+  let id = 1;
+  const customers = ["タロウ", "ハナ", "ユウ", "ケン", "ミィ", "ショウ", "ダイ", "アユ"];
+  const ringTables = ["A-1", "A-2", "A-3", "B-1", "B-2", "VIP-1", "VIP-2"];
+  for (let dayOffset = 179; dayOffset >= 0; dayOffset--) {
+    const d = new Date(today); d.setDate(d.getDate() - dayOffset);
+    const dateStr = d.toISOString().split("T")[0];
+    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+    const baseCount = isWeekend ? 30 : 18;
+    for (let i = 0; i < baseCount; i++) {
+      const r = Math.random();
+      let cat: FlowCategory;
+      if (r < 0.20) cat = "purchase_cash";
+      else if (r < 0.26) cat = "purchase_multike";
+      else if (r < 0.32) cat = "purchase_point";
+      else if (r < 0.38) cat = "prize";
+      else if (r < 0.50) cat = "tournament";
+      else if (r < 0.62) cat = "bj";
+      else if (r < 0.78) cat = "baccarat";
+      else cat = "ring";
+      const isGame = GAME_CATS.includes(cat);
+      const customer = customers[Math.floor(Math.random() * customers.length)];
+      if (isGame) {
+        const wager = [500, 1000, 2000, 3000, 5000][Math.floor(Math.random() * 5)];
+        flows.push({ id: `f${id++}`, date: dateStr, category: cat, direction: "in", amount: wager, customer, table: cat === "ring" ? ringTables[Math.floor(Math.random() * 7)] : undefined });
+        const winRate = cat === "tournament" ? 0.3 : 0.48;
+        if (Math.random() < winRate) {
+          const payout = Math.round(wager * (cat === "tournament" ? 3 : 1.9));
+          flows.push({ id: `f${id++}`, date: dateStr, category: cat, direction: "out", amount: payout, customer, table: cat === "ring" ? ringTables[Math.floor(Math.random() * 7)] : undefined });
+        }
+      } else {
+        let amt = 1000;
+        if (cat === "purchase_cash") amt = [1000, 3000, 5000, 10000, 20000][Math.floor(Math.random() * 5)];
+        else if (cat === "purchase_multike") amt = [500, 1000, 2000][Math.floor(Math.random() * 3)];
+        else if (cat === "purchase_point") amt = [300, 500, 1000][Math.floor(Math.random() * 3)];
+        else if (cat === "prize") amt = [500, 1000, 2000][Math.floor(Math.random() * 3)];
+        flows.push({ id: `f${id++}`, date: dateStr, category: cat, direction: "out", amount: amt, customer });
+      }
+    }
+  }
+  return flows;
+}
+const ALL_FLOWS = generateDemoFlows();
+const TODAY = new Date("2026-04-23");
 
 // ===== バケット =====
 type ViewMode = "day" | "week" | "month" | "calendar";

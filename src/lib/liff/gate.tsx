@@ -30,9 +30,15 @@ function isDemoMode(): boolean {
   return !process.env.NEXT_PUBLIC_LIFF_ID;
 }
 
-// LIFF未接続時のフォールバック(出荷状態のため匿名ゲスト)
+// デモ用ユーザー(LIFF未接続時)
+const DEMO_USERS: LiffSession[] = [
+  { userId: "U_demo_001", displayName: "田中 太郎" },
+  { userId: "U_demo_002", displayName: "鈴木 花子" },
+  { userId: "U_demo_003", displayName: "佐藤 健一" },
+];
+
 function pickDemoUser(): LiffSession {
-  return { userId: `guest_${Date.now()}`, displayName: "ゲスト" };
+  return DEMO_USERS[Math.floor(Math.random() * DEMO_USERS.length)];
 }
 
 /**

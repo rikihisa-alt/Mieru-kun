@@ -3,8 +3,19 @@
 import { useState } from "react";
 import { Download, TrendingUp, DoorOpen, AlertTriangle } from "lucide-react";
 
-const DAILY_DEMO: { date: string; total: number; cash: number; card: number; qr: number; tip: number; entrance: number; entranceUnpaid: number; orders: number }[] = [];
-const STAFF_DEMO: { name: string; role: string; handled: number; sales: number }[] = [];
+const DAILY_DEMO = [
+  { date: "2026-04-20", total: 148000, cash: 76000, card: 52000, qr: 12000, tip: 8000, entrance: 36000, entranceUnpaid: 0, orders: 42 },
+  { date: "2026-04-19", total: 196000, cash: 92000, card: 78000, qr: 18000, tip: 8000, entrance: 42000, entranceUnpaid: 1500, orders: 55 },
+  { date: "2026-04-18", total: 172000, cash: 88000, card: 64000, qr: 15000, tip: 5000, entrance: 39000, entranceUnpaid: 0, orders: 48 },
+  { date: "2026-04-17", total: 134000, cash: 72000, card: 48000, qr: 10000, tip: 4000, entrance: 33000, entranceUnpaid: 0, orders: 38 },
+  { date: "2026-04-16", total: 118000, cash: 65000, card: 42000, qr: 8000, tip: 3000, entrance: 27000, entranceUnpaid: 3000, orders: 32 },
+];
+
+const STAFF_DEMO = [
+  { name: "山田 太郎", role: "店長", handled: 145, sales: 420000 },
+  { name: "鈴木 一郎", role: "ディーラー", handled: 98, sales: 280000 },
+  { name: "佐藤 花", role: "フロア", handled: 76, sales: 190000 },
+];
 
 export default function ReportPage() {
   const [tab, setTab] = useState<"daily" | "method" | "staff" | "entrance">("daily");

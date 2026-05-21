@@ -11,7 +11,16 @@ interface Customer {
   id: string; nickname: string; name: string; rank: Rank;
 }
 
-const CUSTOMERS: Customer[] = [];
+const CUSTOMERS: Customer[] = [
+  { id: "a8f3d9c2", nickname: "タロウ", name: "田中 太郎", rank: "gold" },
+  { id: "b4c9d2f1", nickname: "ハナ", name: "鈴木 花子", rank: "vip" },
+  { id: "c2e5a9f3", nickname: "ケン", name: "佐藤 健一", rank: "silver" },
+  { id: "d1b7f4c8", nickname: "ミィ", name: "高橋 美咲", rank: "regular" },
+  { id: "e9a3b2d5", nickname: "ダイ", name: "伊藤 大輔", rank: "regular" },
+  { id: "f8d2e4a7", nickname: "ユウ", name: "渡辺 優子", rank: "gold" },
+  { id: "7c3f9a2d", nickname: "ショウ", name: "山本 翔太", rank: "silver" },
+  { id: "8b5d4e7f", nickname: "アユ", name: "中村 あゆみ", rank: "regular" },
+];
 
 const TARGET_LABEL: Record<Target, string> = {
   selected: "個別に選択",
@@ -20,7 +29,7 @@ const TARGET_LABEL: Record<Target, string> = {
   active_30d: "直近30日来店",
 };
 const TARGET_COUNT: Record<Target, number> = {
-  selected: 0, all: 0, vip_gold: 0, active_30d: 0,
+  selected: 0, all: 182, vip_gold: 24, active_30d: 76,
 };
 const RANK_TEXT: Record<Rank, string> = {
   regular: "text-text-tertiary",

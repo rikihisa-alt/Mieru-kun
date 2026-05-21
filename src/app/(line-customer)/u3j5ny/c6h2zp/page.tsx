@@ -30,8 +30,52 @@ interface Row {
 }
 
 const DATA: Record<Metric, Row[]> = {
-  total: [], visits: [], points: [], ring_net: [],
-  tournaments: [], multike: [], sns: [],
+  total: [
+    { rank: 1, nickname: "ハナ", value: 8420, delta: 0 },
+    { rank: 2, nickname: "タロウ", value: 6830, delta: +1 },
+    { rank: 3, nickname: "ユウ", value: 5120, delta: -1 },
+    { rank: 4, nickname: "ケン", value: 3600, delta: +2 },
+    { rank: 5, nickname: "あなた", value: 2880, self: true, delta: +1 },
+    { rank: 6, nickname: "ショウ", value: 2200, delta: -2 },
+    { rank: 7, nickname: "ダイ", value: 1450, delta: 0 },
+  ],
+  visits: [
+    { rank: 1, nickname: "ハナ", value: 28 },
+    { rank: 2, nickname: "タロウ", value: 22 },
+    { rank: 3, nickname: "ユウ", value: 19 },
+    { rank: 4, nickname: "あなた", value: 15, self: true },
+    { rank: 5, nickname: "ケン", value: 12 },
+  ],
+  points: [
+    { rank: 1, nickname: "ハナ", value: 3800 },
+    { rank: 2, nickname: "タロウ", value: 2900 },
+    { rank: 3, nickname: "ユウ", value: 2500 },
+    { rank: 4, nickname: "ショウ", value: 1800 },
+    { rank: 5, nickname: "あなた", value: 1420, self: true },
+  ],
+  ring_net: [
+    { rank: 1, nickname: "ハナ", value: 18000 },
+    { rank: 2, nickname: "タロウ", value: 12000 },
+    { rank: 3, nickname: "ユウ", value: 8500 },
+    { rank: 4, nickname: "あなた", value: 3200, self: true },
+  ],
+  tournaments: [
+    { rank: 1, nickname: "タロウ", value: 15 },
+    { rank: 2, nickname: "ケン", value: 12 },
+    { rank: 3, nickname: "あなた", value: 8, self: true },
+    { rank: 4, nickname: "ハナ", value: 8 },
+  ],
+  multike: [
+    { rank: 1, nickname: "ハナ", value: 42 },
+    { rank: 2, nickname: "ユウ", value: 38 },
+    { rank: 3, nickname: "あなた", value: 21, self: true },
+    { rank: 4, nickname: "タロウ", value: 18 },
+  ],
+  sns: [
+    { rank: 1, nickname: "ハナ", value: 24 },
+    { rank: 2, nickname: "あなた", value: 12, self: true },
+    { rank: 3, nickname: "ユウ", value: 12 },
+  ],
 };
 
 export default function MemberRankingPage() {

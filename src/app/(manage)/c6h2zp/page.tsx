@@ -35,7 +35,22 @@ interface Player {
 }
 
 // デモデータ: 1人ごとに全メトリクスの値を保持
-const PLAYERS: Player[] = [];
+const PLAYERS: Player[] = [
+  { id: "p1", nickname: "ハナ", realName: "鈴木 花子", publicLevel: "nickname_only",
+    values: { visits: 28, points: 3800, ring_net: 18000, tournaments: 8, multike: 42, sns: 24 } },
+  { id: "p2", nickname: "タロウ", realName: "田中 太郎", publicLevel: "public",
+    values: { visits: 22, points: 2900, ring_net: 12000, tournaments: 15, multike: 18, sns: 6 } },
+  { id: "p3", nickname: "ユウ", realName: "渡辺 優子", publicLevel: "nickname_only",
+    values: { visits: 19, points: 2500, ring_net: 8500, tournaments: 6, multike: 38, sns: 12 } },
+  { id: "p4", nickname: "ケン", realName: "佐藤 健一", publicLevel: "nickname_only",
+    values: { visits: 12, points: 1400, ring_net: 3200, tournaments: 12, multike: 9, sns: 3 } },
+  { id: "p5", nickname: "ショウ", realName: "山本 翔太", publicLevel: "private",
+    values: { visits: 10, points: 1200, ring_net: 1500, tournaments: 4, multike: 6, sns: 0 } },
+  { id: "p6", nickname: "ダイ", realName: "伊藤 大輔", publicLevel: "nickname_only",
+    values: { visits: 7, points: 800, ring_net: 900, tournaments: 3, multike: 4, sns: 1 } },
+  { id: "p7", nickname: "アユ", realName: "中村 あゆみ", publicLevel: "public",
+    values: { visits: 5, points: 500, ring_net: 200, tournaments: 2, multike: 2, sns: 8 } },
+];
 
 // 総合スコアの既定係数
 const DEFAULT_WEIGHTS: Record<Metric, number> = {

@@ -15,7 +15,14 @@ interface Rule {
   description?: string;
 }
 
-const INIT: Rule[] = [];
+const INIT: Rule[] = [
+  { id: "r1", name: "通常来店", points: 10, conditionText: "来店時", isActive: true, priority: 100, description: "毎回の来店で付与" },
+  { id: "r2", name: "平日来店ボーナス", points: 5, conditionText: "来店 AND 平日", isActive: true, priority: 90, description: "月〜金の来店に追加" },
+  { id: "r3", name: "初回紹介ボーナス", points: 100, conditionText: "紹介先が初来店", isActive: true, priority: 80, description: "紹介された会員の初来店時、紹介者に付与" },
+  { id: "r4", name: "月間10回来店達成", points: 50, conditionText: "月間来店回数 >= 10", isActive: true, priority: 70, description: "その月の10回目来店時" },
+  { id: "r5", name: "イベント参加", points: 30, conditionText: "event.status = attended", isActive: true, priority: 60, description: "イベント参加時" },
+  { id: "r6", name: "春季限定キャンペーン", points: 20, conditionText: "来店 AND 期間内", isActive: false, priority: 50, startsAt: "2026-03-01", endsAt: "2026-05-31", description: "春キャンペーン期間のみ" },
+];
 
 type Draft = Omit<Rule, "id">;
 const EMPTY: Draft = { name: "", points: 10, conditionText: "来店時", isActive: true, priority: 100, description: "" };

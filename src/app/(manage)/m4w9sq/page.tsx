@@ -48,7 +48,16 @@ const RANK_SHORT: Record<Rank, string> = {
   vip: "VIP",
 };
 
-const PRESET_CUSTOMERS: { name: string; nickname: string; rank: Rank }[] = [];
+const PRESET_CUSTOMERS = [
+  { name: "田中 太郎", nickname: "タロウ", rank: "gold" as Rank },
+  { name: "佐藤 花子", nickname: "ハナコ", rank: "vip" as Rank },
+  { name: "鈴木 一郎", nickname: "イチ", rank: "regular" as Rank },
+  { name: "高橋 美咲", nickname: "ミィ", rank: "silver" as Rank },
+  { name: "渡辺 健太", nickname: "ケンタ", rank: "regular" as Rank },
+  { name: "伊藤 誠", nickname: "マコト", rank: "gold" as Rank },
+  { name: "山本 さくら", nickname: "サクラ", rank: "vip" as Rank },
+  { name: "中村 大輔", nickname: "ダイ", rank: "silver" as Rank },
+];
 
 function now() {
   return new Date().toISOString();
@@ -74,7 +83,16 @@ function entranceFeeByRank(rank: Rank): number {
   return 1500;
 }
 
-const INITIAL_VISITORS: Visitor[] = [];
+const INITIAL_VISITORS: Visitor[] = [
+  { id: "v1", name: "田中 太郎", nickname: "タロウ", rank: "gold", checkInAt: new Date(Date.now() - 90 * 60000).toISOString(), table: "VIP-1", amount: 45000, status: "active", entranceFee: 1000, entrancePaid: true },
+  { id: "v2", name: "佐藤 花子", nickname: "ハナコ", rank: "vip", checkInAt: new Date(Date.now() - 120 * 60000).toISOString(), table: "VIP-2", amount: 82000, status: "active", entranceFee: 0, entrancePaid: true },
+  { id: "v3", name: "鈴木 一郎", nickname: "イチ", rank: "regular", checkInAt: new Date(Date.now() - 45 * 60000).toISOString(), table: "A-3", amount: 12000, status: "active", entranceFee: 1500, entrancePaid: true },
+  { id: "v4", name: "高橋 美咲", nickname: "ミィ", rank: "silver", checkInAt: new Date(Date.now() - 30 * 60000).toISOString(), table: "B-1", amount: 8500, status: "active", entranceFee: 1000, entrancePaid: false },
+  { id: "v5", name: "渡辺 健太", nickname: "ケンタ", rank: "regular", checkInAt: new Date(Date.now() - 60 * 60000).toISOString(), table: null, amount: 0, status: "unpaid", entranceFee: 1500, entrancePaid: false },
+  { id: "v6", name: "伊藤 誠", nickname: "マコト", rank: "gold", checkInAt: new Date(Date.now() - 15 * 60000).toISOString(), table: null, amount: 0, status: "active", entranceFee: 1000, entrancePaid: true },
+  { id: "v7", name: "山本 さくら", nickname: "サクラ", rank: "vip", checkInAt: new Date(Date.now() - 10 * 60000).toISOString(), table: null, amount: 0, status: "active", entranceFee: 0, entrancePaid: true },
+  { id: "v8", name: "中村 大輔", nickname: "ダイ", rank: "silver", checkInAt: new Date(Date.now() - 5 * 60000).toISOString(), table: null, amount: 0, status: "active", entranceFee: 1000, entrancePaid: false },
+];
 
 export default function FloorPage() {
   const appStore = useAppStore();
@@ -84,7 +102,14 @@ export default function FloorPage() {
   const [newName, setNewName] = useState("");
   const [newRank, setNewRank] = useState<Rank>("regular");
   const [showCheckinModal, setShowCheckinModal] = useState(false);
-  const [recentEntries, setRecentEntries] = useState<{ name: string; time: string }[]>([]);
+  const [recentEntries, setRecentEntries] = useState<{ name: string; time: string }[]>(() => {
+    const now = Date.now();
+    return [
+      { name: "ダイ", time: formatTimeOnly(new Date(now - 5 * 60000).toISOString()) },
+      { name: "サクラ", time: formatTimeOnly(new Date(now - 10 * 60000).toISOString()) },
+      { name: "マコト", time: formatTimeOnly(new Date(now - 15 * 60000).toISOString()) },
+    ];
+  });
 
   const activeCount = visitors.filter((v) => v.status === "active" || v.status === "assigned").length;
   const unassignedCount = visitors.filter((v) => v.table === null && v.status !== "unpaid").length;

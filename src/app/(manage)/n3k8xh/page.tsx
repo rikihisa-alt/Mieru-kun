@@ -24,7 +24,31 @@ const TYPE_META: Record<EventType, { icon: React.ReactNode; color: string; bg: s
 };
 
 // デモデータ (顧客はnickname=表示名、realName=本名を両方保持)
-const ALL_HISTORY: HistoryEntry[] = [];
+const ALL_HISTORY: HistoryEntry[] = [
+  { id: "h1", date: "2026/04/14", time: "21:30", type: "入店", name: "タロウ", realName: "田中 太郎", rank: "gold" },
+  { id: "h2", date: "2026/04/14", time: "21:20", type: "注文", name: "ハナ", realName: "鈴木 花子", detail: "ウイスキー ×1", amount: 800, rank: "vip" },
+  { id: "h3", date: "2026/04/14", time: "21:15", type: "入店", name: "ハナコ", realName: "佐藤 花子", rank: "vip" },
+  { id: "h4", date: "2026/04/14", time: "21:00", type: "出勤", name: "山田 太郎", detail: "ディーラー" },
+  { id: "h5", date: "2026/04/14", time: "20:50", type: "チップ", name: "タロウ", realName: "田中 太郎", detail: "+1,000枚", amount: 1000, rank: "gold" },
+  { id: "h6", date: "2026/04/14", time: "20:45", type: "入店", name: "イチ", realName: "鈴木 一郎", rank: "regular" },
+  { id: "h7", date: "2026/04/14", time: "20:40", type: "注文", name: "タロウ", realName: "田中 太郎", detail: "ビール ×2, 枝豆 ×1", amount: 1500, rank: "gold" },
+  { id: "h8", date: "2026/04/14", time: "20:30", type: "精算", name: "ミィ", realName: "高橋 美咲", detail: "現金", amount: 3200, rank: "silver" },
+  { id: "h9", date: "2026/04/14", time: "20:30", type: "退店", name: "ミィ", realName: "高橋 美咲", rank: "silver" },
+  { id: "h10", date: "2026/04/14", time: "20:15", type: "退勤", name: "伊藤 美咲", detail: "フロア" },
+  { id: "h11", date: "2026/04/14", time: "20:10", type: "入店", name: "ケンタ", realName: "渡辺 健太", rank: "regular" },
+  { id: "h12", date: "2026/04/14", time: "20:00", type: "イベント", name: "VIPナイト", detail: "開始" },
+  { id: "h13", date: "2026/04/14", time: "19:30", type: "注文", name: "ミィ", realName: "高橋 美咲", detail: "カクテル ×1, ピザ ×1", amount: 1500, rank: "silver" },
+  { id: "h14", date: "2026/04/14", time: "18:30", type: "入店", name: "ミィ", realName: "高橋 美咲", rank: "silver" },
+  { id: "h15", date: "2026/04/14", time: "18:00", type: "出勤", name: "鈴木 一郎", detail: "ディーラー" },
+  { id: "h16", date: "2026/04/14", time: "18:00", type: "出勤", name: "佐藤 花", detail: "フロア" },
+  { id: "h17", date: "2026/04/14", time: "17:30", type: "出勤", name: "高橋 健", detail: "ディーラー" },
+  { id: "h18", date: "2026/04/13", time: "23:50", type: "精算", name: "ユウ", realName: "渡辺 優子", detail: "カード", amount: 12000, rank: "gold" },
+  { id: "h19", date: "2026/04/13", time: "23:45", type: "退店", name: "ユウ", realName: "渡辺 優子", rank: "gold" },
+  { id: "h20", date: "2026/04/13", time: "22:00", type: "イベント", name: "ポーカー大会", detail: "終了" },
+  { id: "h21", date: "2026/04/14", time: "22:30", type: "プライズ", name: "タロウ", realName: "田中 太郎", detail: "特製ウイスキー 引換", amount: 5000, rank: "gold" },
+  { id: "h22", date: "2026/04/14", time: "19:45", type: "プライズ", name: "ハナ", realName: "鈴木 花子", detail: "VIPルーム利用券", amount: 10000, rank: "vip" },
+  { id: "h23", date: "2026/04/13", time: "21:10", type: "プライズ", name: "ユウ", realName: "渡辺 優子", detail: "ノベルティTシャツ", amount: 2000, rank: "gold" },
+];
 
 const TABS: { key: string; label: string; types: EventType[] }[] = [
   { key: "all", label: "すべて", types: [] },

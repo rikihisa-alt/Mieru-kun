@@ -3,7 +3,13 @@
 import { useState, useMemo } from "react";
 import { Calendar, Check, X, Plus } from "lucide-react";
 
-const CUSTOMER_SUGGESTIONS: { nickname: string; realName: string }[] = [];
+const CUSTOMER_SUGGESTIONS = [
+  { nickname: "タロウ", realName: "田中 太郎" },
+  { nickname: "ハナ", realName: "鈴木 花子" },
+  { nickname: "ケン", realName: "佐藤 健一" },
+  { nickname: "ユウ", realName: "渡辺 優子" },
+  { nickname: "ショウ", realName: "山本 翔太" },
+];
 
 type ResvStatus = "pending" | "confirmed" | "canceled" | "no_show" | "arrived";
 
@@ -19,7 +25,13 @@ interface Reservation {
   source: "member_line" | "staff_manual" | "phone";
 }
 
-const INIT: Reservation[] = [];
+const INIT: Reservation[] = [
+  { id: "rv1", customerName: "田中 太郎", nickname: "タロウ", date: "2026-04-21", slot: "19:00-22:00", partySize: 2, status: "confirmed", source: "member_line" },
+  { id: "rv2", customerName: "鈴木 花子", nickname: "ハナ", date: "2026-04-21", slot: "20:00-24:00", partySize: 1, status: "pending", source: "member_line", note: "誕生日イベント参加" },
+  { id: "rv3", customerName: "渡辺 優子", nickname: "ユウ", date: "2026-04-21", slot: "21:00-24:00", partySize: 3, status: "confirmed", source: "staff_manual" },
+  { id: "rv4", customerName: "中村 あゆみ", nickname: "アユ", date: "2026-04-22", slot: "18:00-21:00", partySize: 2, status: "pending", source: "phone" },
+  { id: "rv5", customerName: "山本 翔太", nickname: "ショウ", date: "2026-04-23", slot: "19:00-23:00", partySize: 4, status: "confirmed", source: "member_line", note: "トナメ参加" },
+];
 
 const STATUS_CHIP: Record<ResvStatus, { label: string; chip: string }> = {
   pending:   { label: "未確定",  chip: "chip-warning" },
