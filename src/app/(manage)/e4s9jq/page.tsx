@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { MessageCircle, Trophy, Coins, Star, Plus, X, Check, DoorOpen } from "lucide-react";
+import { usePersistedState } from "@/lib/persist/store";
 
 interface RankDef { id: string; name: string; label: string; minVisits: number; color: string; }
 interface ChipSetting { unit: string; symbol: string; label: string; prices: { amount: number; price: number }[]; }
@@ -11,42 +12,42 @@ interface EntrancePlan { id: string; label: string; price: number; note?: string
 
 export default function SettingsPage() {
   const [saved, setSaved] = useState("");
-  const [closedDays, setClosedDays] = useState<string[]>(["月"]);
+  const [closedDays, setClosedDays] = usePersistedState<string[]>("settings_closed_days_v1", ["月"]);
 
   // ランク設定
-  const [ranks, setRanks] = useState<RankDef[]>([
+  const [ranks, setRanks] = usePersistedState<RankDef[]>("settings_ranks_v1", [
     { id: "r1", name: "regular", label: "レギュラー", minVisits: 0, color: "#9aa0a6" },
     { id: "r2", name: "silver", label: "シルバー", minVisits: 5, color: "#6b7280" },
     { id: "r3", name: "gold", label: "ゴールド", minVisits: 15, color: "#d97706" },
     { id: "r4", name: "vip", label: "VIP", minVisits: 30, color: "#7c3aed" },
   ]);
-  const [rankLabel, setRankLabel] = useState("ランク");
+  const [rankLabel, setRankLabel] = usePersistedState<string>("settings_rank_label_v1", "ランク");
   const [newRankName, setNewRankName] = useState("");
 
   // チップ設定
-  const [chipSetting, setChipSetting] = useState<ChipSetting>({
+  const [chipSetting, setChipSetting] = usePersistedState<ChipSetting>("settings_chip_v1", {
     unit: "枚", symbol: "🎰", label: "チップ",
     prices: [{ amount: 1000, price: 1000 }, { amount: 5000, price: 5000 }, { amount: 10000, price: 10000 }],
   });
 
   // ポイント設定
-  const [pointUnit, setPointUnit] = useState("pt");
-  const [pointLabel, setPointLabel] = useState("ポイント");
-  const [pointRules, setPointRules] = useState<PointRule[]>([
+  const [pointUnit, setPointUnit] = usePersistedState<string>("settings_point_unit_v1", "pt");
+  const [pointLabel, setPointLabel] = usePersistedState<string>("settings_point_label_v1", "ポイント");
+  const [pointRules, setPointRules] = usePersistedState<PointRule[]>("settings_point_rules_v1", [
     { id: "pr1", trigger: "来店", amount: 100 },
     { id: "pr2", trigger: "¥10,000利用", amount: 500 },
     { id: "pr3", trigger: "イベント参加", amount: 200 },
   ]);
 
   // エントランス料設定
-  const [entranceEnabled, setEntranceEnabled] = useState(true);
-  const [entranceRequired, setEntranceRequired] = useState(true);
-  const [entrancePlans, setEntrancePlans] = useState<EntrancePlan[]>([
+  const [entranceEnabled, setEntranceEnabled] = usePersistedState<boolean>("settings_entrance_enabled_v1", true);
+  const [entranceRequired, setEntranceRequired] = usePersistedState<boolean>("settings_entrance_required_v1", true);
+  const [entrancePlans, setEntrancePlans] = usePersistedState<EntrancePlan[]>("settings_entrance_plans_v1", [
     { id: "ep1", label: "通常", price: 1500, note: "すべての来店客" },
     { id: "ep2", label: "会員(SILVER以上)", price: 1000 },
     { id: "ep3", label: "VIP", price: 0, note: "無料" },
   ]);
-  const [entranceSettlementMode, setEntranceSettlementMode] = useState<"prepay" | "on_settlement">("prepay");
+  const [entranceSettlementMode, setEntranceSettlementMode] = usePersistedState<"prepay" | "on_settlement">("settings_entrance_mode_v1", "prepay");
   function addEntrancePlan() {
     setEntrancePlans(prev => [...prev, { id: `ep${Date.now()}`, label: "", price: 0 }]);
   }

@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { CreditCard, Plus, Minus, X, ChevronDown } from "lucide-react";
+import { usePersisted } from "@/lib/persist/store";
+import { productStore } from "@/lib/store/domain-stores";
 
 export type OrderCategory = "entrance" | "drink" | "food" | "tournament_fee" | "tip_purchase" | "tip_use" | "discount" | "adjustment" | "other";
 
@@ -23,21 +25,7 @@ interface Visit {
   items: CartItem[]; total: number; status: "active" | "settled"; outstanding?: number;
 }
 
-const PRODUCTS: { name: string; price: number; category: OrderCategory }[] = [
-  { name: "エントランス", price: 1000, category: "entrance" },
-  { name: "トナメ参加費", price: 3000, category: "tournament_fee" },
-  { name: "ビール", price: 600, category: "drink" },
-  { name: "ハイボール", price: 500, category: "drink" },
-  { name: "ソフトドリンク", price: 300, category: "drink" },
-  { name: "ウイスキー", price: 800, category: "drink" },
-  { name: "カクテル", price: 700, category: "drink" },
-  { name: "ポテトフライ", price: 400, category: "food" },
-  { name: "枝豆", price: 300, category: "food" },
-  { name: "ピザ", price: 800, category: "food" },
-  { name: "チップ 1000枚", price: 1000, category: "tip_purchase" },
-  { name: "チップ 5000枚", price: 5000, category: "tip_purchase" },
-  { name: "会員割引", price: -500, category: "discount" },
-];
+// 商品マスタは永続ストアから取得
 
 const INIT: Visit[] = [
   { id: "v1", customer: "田中 太郎", customerNickname: "タロウ", rank: "gold", table: "T1", items: [{ name: "ビール", price: 600, qty: 2, category: "drink" }, { name: "枝豆", price: 300, qty: 1, category: "food" }], total: 1500, status: "active" },
@@ -47,6 +35,11 @@ const INIT: Visit[] = [
 ];
 
 export default function OrdersPage() {
+  const [productList] = usePersisted(productStore);
+  const PRODUCTS = useMemo(
+    () => productList.filter(p => p.active).map(p => ({ name: p.name, price: p.price, category: p.category as OrderCategory })),
+    [productList],
+  );
   const [visits, setVisits] = useState<Visit[]>(INIT);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);

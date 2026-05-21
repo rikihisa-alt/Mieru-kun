@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Plus, Pencil, X, Search } from "lucide-react";
+import { usePersisted } from "@/lib/persist/store";
+import { staffStore } from "@/lib/store/domain-stores";
+import { staffFullName, type StaffFull } from "@/lib/staff-data";
 
 type StaffStatus = "active" | "leave" | "retired";
 
@@ -23,17 +26,19 @@ function normalizeJa(s: string): string {
     .replace(/[\u30a1-\u30f6]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
 }
 
-const INIT: Staff[] = [
-  { id: "s1", name: "山田 太郎", role: "ディーラー", hourlyWage: 1500, phone: "090-1111-2222", status: "active", joinDate: "2024/04" },
-  { id: "s2", name: "鈴木 一郎", role: "ディーラー", hourlyWage: 1500, phone: "090-2222-3333", status: "active", joinDate: "2024/06" },
-  { id: "s3", name: "佐藤 花", role: "フロア", hourlyWage: 1200, phone: "090-3333-4444", status: "active", joinDate: "2025/01" },
-  { id: "s4", name: "高橋 健", role: "ディーラー", hourlyWage: 1500, phone: "090-4444-5555", status: "active", joinDate: "2024/09" },
-  { id: "s5", name: "伊藤 美咲", role: "フロア", hourlyWage: 1200, phone: "090-5555-6666", status: "leave", joinDate: "2025/03" },
-  { id: "s6", name: "中村 翔", role: "マネージャー", hourlyWage: 2000, phone: "090-6666-7777", status: "retired", joinDate: "2023/08" },
-];
-
 export default function StaffPage() {
-  const [staffList, setStaffList] = useState<Staff[]>(INIT);
+  const [staffFullList, setStaffFullList] = usePersisted(staffStore);
+  // 一覧表示用に簡易型へ変換
+  const staffList: Staff[] = useMemo(() => staffFullList.map(s => ({
+    id: s.id,
+    name: staffFullName(s),
+    role: s.role,
+    hourlyWage: s.hourlyWage || (s.salaryType === "monthly" ? Math.round(s.baseSalary / 160) : 0),
+    phone: s.phone,
+    status: s.status,
+    joinDate: s.joinDate.replace(/-/g, "/").slice(0, 7),
+  })), [staffFullList]);
+
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", role: "ディーラー", hourlyWage: 1200, phone: "" });
   const [search, setSearch] = useState("");
@@ -54,12 +59,23 @@ export default function StaffPage() {
 
   function saveEdit() {
     if (!editId) return;
-    setStaffList(prev => prev.map(s => s.id === editId ? { ...s, ...form } : s));
+    setStaffFullList((prev: StaffFull[]) => prev.map(s => {
+      if (s.id !== editId) return s;
+      const [lastName, ...rest] = form.name.split(" ");
+      return {
+        ...s,
+        lastName: lastName ?? s.lastName,
+        firstName: rest.join(" ") || s.firstName,
+        role: form.role,
+        hourlyWage: form.hourlyWage,
+        phone: form.phone,
+      };
+    }));
     setEditId(null);
   }
 
   function setStatus(id: string, status: StaffStatus) {
-    setStaffList(prev => prev.map(s => s.id === id ? { ...s, status } : s));
+    setStaffFullList((prev: StaffFull[]) => prev.map(s => s.id === id ? { ...s, status } : s));
   }
 
   return (

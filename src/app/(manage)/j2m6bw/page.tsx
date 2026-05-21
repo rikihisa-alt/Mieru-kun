@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Upload, Eye, EyeOff, Trash2, Image as ImageIcon, Pencil, X } from "lucide-react";
+import { usePersistedState } from "@/lib/persist/store";
 
 interface Pop {
   id: string;
@@ -25,7 +26,7 @@ const EVENT_OPTIONS = [
 ];
 
 export default function PopManagePage() {
-  const [pops, setPops] = useState<Pop[]>(INIT);
+  const [pops, setPops] = usePersistedState<Pop[]>("page_pops_v1", INIT);
   const [editing, setEditing] = useState<Pop | null>(null);
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState<{ title: string; imageUrl: string; linkedEvent: string }>({ title: "", imageUrl: "", linkedEvent: "なし" });

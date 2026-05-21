@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Calendar, Users, Pencil, Trash2, Eye, EyeOff, X } from "lucide-react";
+import { usePersistedState } from "@/lib/persist/store";
 
 interface EventItem {
   id: string;
@@ -26,7 +27,7 @@ const EMPTY: Omit<EventItem, "id" | "reservedCount"> = {
 };
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<EventItem[]>(INIT);
+  const [events, setEvents] = usePersistedState<EventItem[]>("page_events_v1", INIT);
   const [editing, setEditing] = useState<EventItem | null>(null);
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState<typeof EMPTY>(EMPTY);

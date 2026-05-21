@@ -8,9 +8,11 @@ import {
   Shield, Users, Award, FileText, Pencil, Calendar,
 } from "lucide-react";
 import {
-  findStaff, staffFullName, staffFullNameKana,
+  staffFullName, staffFullNameKana,
   EMPLOYMENT_TYPE_LABEL, GENDER_LABEL, STATUS_LABEL, STATUS_CHIP,
 } from "@/lib/staff-data";
+import { usePersisted } from "@/lib/persist/store";
+import { staffStore } from "@/lib/store/domain-stores";
 
 const TABS = ["基本情報", "雇用", "給与", "社会保険・税", "緊急連絡先", "資格・備考"] as const;
 type Tab = (typeof TABS)[number];
@@ -27,7 +29,8 @@ function ageFromBirth(iso: string): number {
 export default function StaffDetailPage() {
   const params = useParams();
   const id = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : "";
-  const staff = findStaff(id);
+  const [allStaff] = usePersisted(staffStore);
+  const staff = allStaff.find(s => s.id === id);
   const [activeTab, setActiveTab] = useState<Tab>("基本情報");
 
   if (!staff) {

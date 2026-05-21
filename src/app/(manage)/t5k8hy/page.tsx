@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Sparkles, Calendar, X } from "lucide-react";
+import { usePersistedState } from "@/lib/persist/store";
 
 interface Rule {
   id: string;
@@ -28,7 +29,7 @@ type Draft = Omit<Rule, "id">;
 const EMPTY: Draft = { name: "", points: 10, conditionText: "来店時", isActive: true, priority: 100, description: "" };
 
 export default function PointRulesPage() {
-  const [rules, setRules] = useState<Rule[]>(INIT);
+  const [rules, setRules] = usePersistedState<Rule[]>("page_point_rules_v1", INIT);
   const [editing, setEditing] = useState<Rule | null>(null);
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState<Draft>(EMPTY);

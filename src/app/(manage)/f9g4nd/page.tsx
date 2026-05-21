@@ -2,34 +2,22 @@
 
 import { useState, useMemo } from "react";
 import { Sparkles, Users, Calendar, Send, Search, Check, X, User } from "lucide-react";
+import { usePersisted } from "@/lib/persist/store";
+import { customerStore, type CustomerRank } from "@/lib/store/domain-stores";
 
 type Target = "selected" | "all" | "vip_gold" | "active_30d";
 
-type Rank = "regular" | "silver" | "gold" | "vip";
+type Rank = CustomerRank;
 
 interface Customer {
   id: string; nickname: string; name: string; rank: Rank;
 }
-
-const CUSTOMERS: Customer[] = [
-  { id: "a8f3d9c2", nickname: "タロウ", name: "田中 太郎", rank: "gold" },
-  { id: "b4c9d2f1", nickname: "ハナ", name: "鈴木 花子", rank: "vip" },
-  { id: "c2e5a9f3", nickname: "ケン", name: "佐藤 健一", rank: "silver" },
-  { id: "d1b7f4c8", nickname: "ミィ", name: "高橋 美咲", rank: "regular" },
-  { id: "e9a3b2d5", nickname: "ダイ", name: "伊藤 大輔", rank: "regular" },
-  { id: "f8d2e4a7", nickname: "ユウ", name: "渡辺 優子", rank: "gold" },
-  { id: "7c3f9a2d", nickname: "ショウ", name: "山本 翔太", rank: "silver" },
-  { id: "8b5d4e7f", nickname: "アユ", name: "中村 あゆみ", rank: "regular" },
-];
 
 const TARGET_LABEL: Record<Target, string> = {
   selected: "個別に選択",
   all: "全会員",
   vip_gold: "VIP / GOLDのみ",
   active_30d: "直近30日来店",
-};
-const TARGET_COUNT: Record<Target, number> = {
-  selected: 0, all: 182, vip_gold: 24, active_30d: 76,
 };
 const RANK_TEXT: Record<Rank, string> = {
   regular: "text-text-tertiary",
@@ -47,6 +35,18 @@ function normalizeJa(s: string): string {
 }
 
 export default function MultikeGrantPage() {
+  const [allCustomers] = usePersisted(customerStore);
+  const CUSTOMERS: Customer[] = useMemo(
+    () => allCustomers.map(c => ({ id: c.id, nickname: c.nickname, name: c.name, rank: c.rank })),
+    [allCustomers],
+  );
+  const TARGET_COUNT: Record<Target, number> = {
+    selected: 0,
+    all: allCustomers.length,
+    vip_gold: allCustomers.filter(c => c.rank === "vip" || c.rank === "gold").length,
+    active_30d: allCustomers.filter(c => (c.lastVisit ?? "") >= "2026/04").length,
+  };
+
   const [target, setTarget] = useState<Target>("selected"); // 個別をデフォルト
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
@@ -61,7 +61,7 @@ export default function MultikeGrantPage() {
     return CUSTOMERS.filter(c =>
       normalizeJa(c.nickname).includes(q) || normalizeJa(c.name).includes(q)
     );
-  }, [search]);
+  }, [search, CUSTOMERS]);
 
   const recipientsCount = target === "selected" ? selectedIds.size : TARGET_COUNT[target];
   const totalDistribute = recipientsCount * amount;

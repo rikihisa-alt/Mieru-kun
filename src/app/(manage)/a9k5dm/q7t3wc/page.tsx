@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { customerStore, type CustomerRecord, type CustomerRank } from "@/lib/store/domain-stores";
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -40,6 +41,29 @@ export default function NewCustomerPage() {
     if (!name.trim()) { setError("本名は必須です"); return; }
     setLoading(true); setError("");
 
+    // ローカルストアに登録(同時に Supabase server action があれば呼ぶ)
+    const newCustomer: CustomerRecord = {
+      id: Math.random().toString(36).slice(2, 10),
+      name: name.trim(),
+      nickname: nickname.trim(),
+      rank: rank as CustomerRank,
+      phone: phone.trim(),
+      email: email.trim() || undefined,
+      dateOfBirth: dateOfBirth || undefined,
+      lineId: lineId.trim() || undefined,
+      referrerName: referrerName.trim() || undefined,
+      notes: notes.trim() || undefined,
+      cautionText: cautionText.trim() || undefined,
+      isBlacklisted, isHidden,
+      snsX: snsX.trim() || undefined,
+      snsIg: snsIg.trim() || undefined,
+      snsTikTok: snsTikTok.trim() || undefined,
+      totalVisits: 0, totalSpent: 0, chipBalance: 0, pointBalance: 0,
+      prizeCount: 0,
+      createdAt: new Date().toISOString(),
+    };
+    customerStore.set(prev => [newCustomer, ...prev]);
+
     try {
       const { createCustomerAction } = await import("@/lib/actions/customer-actions");
       const fd = new FormData();
@@ -56,10 +80,9 @@ export default function NewCustomerPage() {
       fd.set("is_blacklisted", String(isBlacklisted));
       fd.set("is_hidden", String(isHidden));
       fd.set("sns_links", JSON.stringify({ x: snsX, instagram: snsIg, tiktok: snsTikTok }));
-      const result = await createCustomerAction(fd);
-      if (result.error) { setError(result.error); setLoading(false); return; }
+      await createCustomerAction(fd);
     } catch {
-      // デモモード: 成功扱い
+      // Supabase未接続でもローカルストアに反映済み
     }
     setDone(true);
     setLoading(false);

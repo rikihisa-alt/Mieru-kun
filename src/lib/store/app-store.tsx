@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useCallback, type ReactNode } from "react";
+import { usePersistedState } from "@/lib/persist/store";
 
 // ===== 型 =====
 export type Rank = "regular" | "silver" | "gold" | "vip";
@@ -113,11 +114,11 @@ interface AppStore {
 const AppStoreContext = createContext<AppStore | null>(null);
 
 export function AppStoreProvider({ children }: { children: ReactNode }) {
-  const [visitors, setVisitors] = useState<Visitor[]>(INIT_VISITORS);
-  const [staffMembers, setStaffMembers] = useState<StaffMember[]>(INIT_STAFF);
-  const [timeline, setTimeline] = useState<TimelineEvent[]>(INIT_TIMELINE);
-  const [events] = useState<EventItem[]>(INIT_EVENTS);
-  const [tables, setTables] = useState<TableInfo[]>(INIT_TABLES);
+  const [visitors, setVisitors] = usePersistedState<Visitor[]>("app_visitors_v1", INIT_VISITORS);
+  const [staffMembers, setStaffMembers] = usePersistedState<StaffMember[]>("app_staff_v1", INIT_STAFF);
+  const [timeline, setTimeline] = usePersistedState<TimelineEvent[]>("app_timeline_v1", INIT_TIMELINE);
+  const [events] = usePersistedState<EventItem[]>("app_events_v1", INIT_EVENTS);
+  const [tables, setTables] = usePersistedState<TableInfo[]>("app_tables_v1", INIT_TABLES);
 
   const updateTables = useCallback((newTables: TableInfo[]) => {
     setTables(newTables);

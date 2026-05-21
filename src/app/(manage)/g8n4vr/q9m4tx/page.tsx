@@ -11,7 +11,9 @@ import {
   EMPLOYMENT_TYPE_LABEL, GENDER_LABEL, ROLES, DEPARTMENTS,
   type EmploymentType, type Gender, type SalaryType,
   type Insurance, type EmergencyContact, type License,
+  type StaffFull,
 } from "@/lib/staff-data";
+import { staffStore } from "@/lib/store/domain-stores";
 
 const TABS = ["基本情報", "雇用", "給与", "社会保険・税", "緊急連絡先", "資格・備考"] as const;
 type Tab = (typeof TABS)[number];
@@ -105,6 +107,37 @@ export default function NewStaffPage() {
     // バリデーション(必須項目)
     if (!lastName || !firstName) { setActiveTab("基本情報"); return; }
     if (!joinDate) { setActiveTab("雇用"); return; }
+
+    const id = `s${Date.now()}`;
+    const newStaff: StaffFull = {
+      id,
+      employeeNo: employeeNo || `EMP-${String(Date.now()).slice(-4)}`,
+      lastName, firstName, lastNameKana, firstNameKana,
+      gender, dateOfBirth,
+      postalCode, address, phone, email,
+      joinDate, employmentType, department, role, workplace,
+      trialEndDate: trialEndDate || undefined,
+      status: "active",
+      salaryType,
+      baseSalary: salaryType === "monthly" ? baseSalary : 0,
+      hourlyWage: salaryType === "hourly" ? hourlyWage : 0,
+      commuteAllowance, otherAllowance,
+      paymentMethod,
+      bank: paymentMethod === "transfer" && bankName ? {
+        bankName, branchName, accountType, accountNumber, accountHolder,
+      } : undefined,
+      myNumber, dependents, spouseDependent, insurance, residentTax,
+      emergencyContacts: emergencyContacts.filter(c => c.name.trim()),
+      residence: isForeign ? {
+        required: true, nationality, status: residenceStatus,
+        expiresAt: residenceExpiresAt || undefined,
+        cardNumber: residenceCardNumber || undefined,
+      } : undefined,
+      licenses: licenses.filter(l => l.name.trim()),
+      notes,
+    };
+    staffStore.set(prev => [newStaff, ...prev]);
+
     setDone(true);
     setTimeout(() => router.push("/g8n4vr"), 1800);
   }

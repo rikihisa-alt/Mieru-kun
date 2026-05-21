@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Calendar, Check, X, Plus } from "lucide-react";
+import { usePersistedState } from "@/lib/persist/store";
 
 const CUSTOMER_SUGGESTIONS = [
   { nickname: "タロウ", realName: "田中 太郎" },
@@ -48,7 +49,7 @@ const SOURCE_LABEL: Record<Reservation["source"], string> = {
 };
 
 export default function ReservationPage() {
-  const [reservations, setReservations] = useState<Reservation[]>(INIT);
+  const [reservations, setReservations] = usePersistedState<Reservation[]>("page_reservations_v1", INIT);
   const [selectedDate, setSelectedDate] = useState("2026-04-21");
   const [showForm, setShowForm] = useState(false);
   const [draft, setDraft] = useState({ customerName: "", nickname: "", date: "2026-04-21", slot: "19:00-22:00", partySize: 1, note: "" });

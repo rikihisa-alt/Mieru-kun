@@ -5,25 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search, Plus, Gift } from "lucide-react";
 import { CustomerActionMenu } from "@/components/shared/customer-action-menu";
+import { usePersisted } from "@/lib/persist/store";
+import { customerStore, type CustomerRecord, type CustomerRank } from "@/lib/store/domain-stores";
 
-type Rank = "regular" | "silver" | "gold" | "vip";
-
-interface Customer {
-  id: string; name: string; nickname: string; rank: Rank; phone: string;
-  totalVisits: number; totalSpent: number; chipBalance: number; pointBalance: number; lastVisit: string;
-  prizeCount: number; lastPrize?: string;
-}
-
-const DEMO: Customer[] = [
-  { id: "a8f3d9c2", name: "田中 太郎", nickname: "タロウ", rank: "gold", phone: "090-1234-5678", totalVisits: 25, totalSpent: 150000, chipBalance: 5000, pointBalance: 1200, lastVisit: "2026/04/10", prizeCount: 3, lastPrize: "2026/04/14" },
-  { id: "b4c9d2f1", name: "鈴木 花子", nickname: "ハナ", rank: "vip", phone: "090-2345-6789", totalVisits: 50, totalSpent: 350000, chipBalance: 12000, pointBalance: 3500, lastVisit: "2026/04/12", prizeCount: 6, lastPrize: "2026/04/14" },
-  { id: "c2e5a9f3", name: "佐藤 健一", nickname: "ケン", rank: "silver", phone: "090-3456-7890", totalVisits: 10, totalSpent: 45000, chipBalance: 2000, pointBalance: 400, lastVisit: "2026/04/08", prizeCount: 1, lastPrize: "2026/03/02" },
-  { id: "d1b7f4c8", name: "高橋 美咲", nickname: "ミィ", rank: "regular", phone: "", totalVisits: 3, totalSpent: 12000, chipBalance: 500, pointBalance: 100, lastVisit: "2026/04/05", prizeCount: 0 },
-  { id: "e9a3b2d5", name: "伊藤 大輔", nickname: "ダイ", rank: "regular", phone: "090-4567-8901", totalVisits: 1, totalSpent: 3000, chipBalance: 0, pointBalance: 50, lastVisit: "2026/04/01", prizeCount: 0 },
-  { id: "f8d2e4a7", name: "渡辺 優子", nickname: "ユウ", rank: "gold", phone: "090-5678-9012", totalVisits: 30, totalSpent: 200000, chipBalance: 8000, pointBalance: 2000, lastVisit: "2026/04/11", prizeCount: 4, lastPrize: "2026/04/13" },
-  { id: "7c3f9a2d", name: "山本 翔太", nickname: "ショウ", rank: "silver", phone: "", totalVisits: 8, totalSpent: 32000, chipBalance: 1500, pointBalance: 300, lastVisit: "2026/03/28", prizeCount: 1, lastPrize: "2026/02/20" },
-  { id: "8b5d4e7f", name: "中村 あゆみ", nickname: "アユ", rank: "regular", phone: "090-6789-0123", totalVisits: 2, totalSpent: 8000, chipBalance: 200, pointBalance: 80, lastVisit: "2026/03/20", prizeCount: 0 },
-];
+type Rank = CustomerRank;
+type Customer = CustomerRecord;
 
 const RANK_TEXT: Record<Rank, string> = {
   regular: "text-text-tertiary",
@@ -41,17 +27,18 @@ function normalizeJa(s: string): string {
 }
 
 export default function CustomersPage() {
+  const [customers] = usePersisted(customerStore);
   const [search, setSearch] = useState("");
   const [menu, setMenu] = useState<{ customer: Customer; x: number; y: number } | null>(null);
 
   const q = normalizeJa(search.trim());
   const filtered = q
-    ? DEMO.filter(c =>
+    ? customers.filter(c =>
         normalizeJa(c.name).includes(q) ||
         normalizeJa(c.nickname).includes(q) ||
         c.phone.includes(search)
       )
-    : DEMO;
+    : customers;
 
   function openMenu(c: Customer, e: React.MouseEvent) {
     e.stopPropagation();
@@ -65,9 +52,9 @@ export default function CustomersPage() {
       <section>
         <div className="flex items-end justify-between gap-6 flex-wrap">
           <div className="flex items-end gap-8 flex-wrap">
-            <KpiItem label="登録顧客" value={DEMO.length} unit="名" />
-            <KpiItem label="VIP/GOLD" value={DEMO.filter(c => c.rank === "vip" || c.rank === "gold").length} unit="名" />
-            <KpiItem label="今月来店" value={DEMO.filter(c => c.lastVisit >= "2026/04").length} unit="名" />
+            <KpiItem label="登録顧客" value={customers.length} unit="名" />
+            <KpiItem label="VIP/GOLD" value={customers.filter(c => c.rank === "vip" || c.rank === "gold").length} unit="名" />
+            <KpiItem label="今月来店" value={customers.filter(c => (c.lastVisit ?? "") >= "2026/04").length} unit="名" />
           </div>
           <Link href="/a9k5dm/q7t3wc" className="btn btn-primary">
             <Plus className="w-3.5 h-3.5" />顧客登録
@@ -134,7 +121,7 @@ export default function CustomersPage() {
                     <span className="text-text-tertiary">—</span>
                   )}
                 </td>
-                <td className="text-text-secondary">{c.lastVisit}</td>
+                <td className="text-text-secondary">{c.lastVisit ?? "—"}</td>
               </tr>
             ))}
           </tbody>
