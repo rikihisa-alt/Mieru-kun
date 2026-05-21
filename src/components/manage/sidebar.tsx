@@ -25,7 +25,9 @@ import {
   BarChart3,
   Coins,
   Bell,
+  X,
 } from "lucide-react";
+import { useSidebar } from "./sidebar-context";
 
 const NAV = [
   { section: "運営", items: [
@@ -62,66 +64,91 @@ const NAV = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { open, setOpen } = useSidebar();
 
   return (
-    <aside
-      className="w-64 border-r border-border-light flex flex-col h-full"
-      style={{
-        background: "rgba(255,255,255,0.6)",
-        backdropFilter: "blur(16px) saturate(140%)",
-        WebkitBackdropFilter: "blur(16px) saturate(140%)",
-      }}
-    >
-      <div className="h-14 flex items-center px-3 border-b border-border-light">
-        <Link href="/h7p2kx" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
-          <Image src="/logo-icon.png" alt="みえるくん" width={44} height={44} className="shrink-0" />
-          <span className="text-[13px] font-bold text-text-primary tracking-tight whitespace-nowrap">てんぽみえるくん</span>
-        </Link>
-      </div>
+    <>
+      {/* モバイル時のバックドロップ */}
+      <button
+        aria-hidden={!open}
+        onClick={() => setOpen(false)}
+        className={`md:hidden fixed inset-0 z-30 bg-text-primary/30 backdrop-blur-[2px] transition-opacity ${
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      />
+      <aside
+        className={`flex flex-col h-full border-r border-border-light z-40
+          fixed md:static top-0 left-0
+          w-[260px] md:w-56 lg:w-64
+          transition-transform duration-200 ease-out md:transition-none
+          ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        `}
+        style={{
+          background: "rgba(255,255,255,0.86)",
+          backdropFilter: "blur(16px) saturate(140%)",
+          WebkitBackdropFilter: "blur(16px) saturate(140%)",
+          paddingTop: "env(safe-area-inset-top, 0)",
+          paddingBottom: "env(safe-area-inset-bottom, 0)",
+        }}
+      >
+        <div className="h-14 flex items-center justify-between px-3 border-b border-border-light">
+          <Link href="/h7p2kx" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
+            <Image src="/logo-icon.png" alt="みえるくん" width={40} height={40} className="shrink-0" />
+            <span className="text-[13px] font-bold text-text-primary tracking-tight whitespace-nowrap">てんぽみえるくん</span>
+          </Link>
+          <button
+            onClick={() => setOpen(false)}
+            className="md:hidden p-2 hover:bg-bg-hover rounded-[6px] -mr-1"
+            aria-label="メニューを閉じる"
+          >
+            <X className="w-4 h-4 text-text-secondary" />
+          </button>
+        </div>
 
-      <nav className="flex-1 py-3 overflow-y-auto scrollbar-subtle">
-        {NAV.map((section, si) => (
-          <div key={section.section} className={si > 0 ? "mt-5" : ""}>
-            <div className="px-5 pb-2">
-              <span className="t-micro">
-                {section.section}
-              </span>
+        <nav className="flex-1 py-3 overflow-y-auto scrollbar-subtle">
+          {NAV.map((section, si) => (
+            <div key={section.section} className={si > 0 ? "mt-5" : ""}>
+              <div className="px-5 pb-2">
+                <span className="t-micro">
+                  {section.section}
+                </span>
+              </div>
+              {section.items.map((item) => {
+                const active = item.href === "/a9k5dm/q7t3wc"
+                  ? pathname === "/a9k5dm/q7t3wc"
+                  : item.href === "/a9k5dm"
+                    ? pathname === "/a9k5dm" || (pathname.startsWith("/a9k5dm/") && pathname !== "/a9k5dm/q7t3wc")
+                    : pathname === item.href || pathname.startsWith(item.href + "/");
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`group flex items-center gap-2.5 mx-2 px-3 py-2.5 md:py-2 rounded-[var(--radius)] text-[14px] font-medium transition-colors ${
+                      active
+                        ? ""
+                        : "text-text-secondary hover:bg-white/60 hover:text-text-primary"
+                    }`}
+                    style={
+                      active
+                        ? { background: "var(--primary-soft-bg)", color: "var(--primary-text)", border: "1px solid rgba(32,156,110,0.18)" }
+                        : undefined
+                    }
+                  >
+                    <Icon className="w-[16px] h-[16px] shrink-0" strokeWidth={active ? 2.4 : 1.8} />
+                    <span className="truncate">{item.label}</span>
+                  </Link>
+                );
+              })}
             </div>
-            {section.items.map((item) => {
-              const active = item.href === "/a9k5dm/q7t3wc"
-                ? pathname === "/a9k5dm/q7t3wc"
-                : item.href === "/a9k5dm"
-                  ? pathname === "/a9k5dm" || (pathname.startsWith("/a9k5dm/") && pathname !== "/a9k5dm/q7t3wc")
-                  : pathname === item.href || pathname.startsWith(item.href + "/");
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`group flex items-center gap-2.5 mx-2 px-3 py-2 rounded-[var(--radius)] text-[14px] font-medium transition-colors ${
-                    active
-                      ? ""
-                      : "text-text-secondary hover:bg-white/60 hover:text-text-primary"
-                  }`}
-                  style={
-                    active
-                      ? { background: "var(--primary-soft-bg)", color: "var(--primary-text)", border: "1px solid rgba(32,156,110,0.18)" }
-                      : undefined
-                  }
-                >
-                  <Icon className="w-[16px] h-[16px] shrink-0" strokeWidth={active ? 2.4 : 1.8} />
-                  <span className="truncate">{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        ))}
-      </nav>
+          ))}
+        </nav>
 
-      <div className="px-4 py-3 border-t border-border-light flex items-center gap-2">
-        <Image src="/logo-icon.png" alt="みえるくん" width={18} height={18} className="opacity-40" />
-        <div className="t-caption">Come On Casino</div>
-      </div>
-    </aside>
+        <div className="px-4 py-3 border-t border-border-light flex items-center gap-2">
+          <Image src="/logo-icon.png" alt="みえるくん" width={18} height={18} className="opacity-40" />
+          <div className="t-caption">Come On Casino</div>
+        </div>
+      </aside>
+    </>
   );
 }

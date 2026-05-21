@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useSidebar } from "./sidebar-context";
 
 const PAGE_TITLES: Record<string, string> = {
   "/h7p2kx": "ダッシュボード",
@@ -35,6 +36,7 @@ const PAGE_TITLES: Record<string, string> = {
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const { toggle } = useSidebar();
 
   const title = Object.entries(PAGE_TITLES).find(
     ([path]) => pathname === path || pathname.startsWith(path + "/")
@@ -48,16 +50,26 @@ export function Header() {
 
   return (
     <header
-      className="h-14 flex items-center justify-between px-6 border-b border-border-light"
+      className="h-14 flex items-center justify-between px-3 md:px-6 border-b border-border-light gap-2"
       style={{
         background: "rgba(255,255,255,0.72)",
         backdropFilter: "blur(14px) saturate(140%)",
         WebkitBackdropFilter: "blur(14px) saturate(140%)",
+        paddingTop: "env(safe-area-inset-top, 0)",
       }}
     >
-      <h1 className="t-title" style={{ fontSize: 17 }}>{title}</h1>
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 pr-3 border-r border-border-light">
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          onClick={toggle}
+          className="md:hidden p-2 -ml-1 hover:bg-bg-hover rounded-[6px] active:bg-bg-hover/80"
+          aria-label="メニューを開く"
+        >
+          <Menu className="w-5 h-5 text-text-secondary" />
+        </button>
+        <h1 className="t-title truncate" style={{ fontSize: 17 }}>{title}</h1>
+      </div>
+      <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+        <div className="hidden sm:flex items-center gap-2 pr-3 border-r border-border-light">
           <Image src="/logo-icon.png" alt="みえるくん" width={20} height={20} className="opacity-50" />
           <span className="t-caption">
             {new Date().toLocaleDateString("ja-JP", { month: "long", day: "numeric", weekday: "short" })}
@@ -69,7 +81,7 @@ export function Header() {
           title="ログアウト"
         >
           <LogOut className="w-3.5 h-3.5" />
-          <span>ログアウト</span>
+          <span className="hidden sm:inline">ログアウト</span>
         </button>
       </div>
     </header>

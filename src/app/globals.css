@@ -507,6 +507,33 @@ th { font-weight: 600; text-align: left; }
   -webkit-backdrop-filter: blur(4px);
 }
 
+/* ===== Responsive: mobile / tablet ===== */
+@media (max-width: 1023px) {
+  .data-table thead th { padding: 8px 10px; font-size: 11px; }
+  .data-table tbody td { padding: 10px; font-size: 13px; }
+}
+@media (max-width: 767px) {
+  /* テーブルは横スクロール可能に */
+  .glass-panel { padding: 14px; }
+  .data-table thead th { padding: 8px 8px; font-size: 10px; letter-spacing: 0.04em; }
+  .data-table tbody td { padding: 10px 8px; font-size: 12.5px; }
+  .page-stack { gap: 18px; }
+  /* タップ領域の最低高 */
+  button, [role="button"], .btn, a.btn { min-height: 36px; }
+  /* iOSのフォーカス時ズーム抑止 */
+  input, select, textarea { font-size: 16px; }
+  /* モーダルは画面いっぱい */
+  .modal-overlay { padding: 8px; }
+  .modal-card-sm, .modal-card-md, .modal-card-lg { max-width: 100%; }
+}
+
+/* タブで包まれていない大きなテーブルはコンテナで横スクロール可能に */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ===== Modal ===== */
 .modal-overlay {
   position: fixed;
