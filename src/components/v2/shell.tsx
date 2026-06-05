@@ -7,42 +7,42 @@ import {
   Menu, LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
   Users, UserCog, Clock, TrendingUp, Package, Lock, BarChart3, Coins, History,
   Trophy, Gift, CalendarDays, Image as ImageIcon, Settings, Sparkles,
-  ChevronDown, HelpCircle,
+  ChevronDown, ChevronRight, HelpCircle, LayoutGrid, CheckSquare,
 } from "lucide-react";
 
-interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; }
+interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; hasMenu?: boolean; }
 interface NavSection { section: string; items: NavItem[]; }
 
 const NAV: NavSection[] = [
   { section: "運営", items: [
     { href: "/v2", label: "ダッシュボード", icon: LayoutDashboard },
     { href: "/v2/checkin", label: "入店", icon: LogIn },
-    { href: "/v2/tables", label: "卓", icon: Grid3X3 },
-    { href: "/v2/orders", label: "注文・精算", icon: ShoppingBag },
+    { href: "/v2/tables", label: "卓", icon: Grid3X3, hasMenu: true },
+    { href: "/v2/orders", label: "注文・精算", icon: ShoppingBag, hasMenu: true },
     { href: "/v2/live", label: "ライブ注文", icon: Bell },
-    { href: "/v2/reservations", label: "予約", icon: CalendarCheck },
+    { href: "/v2/reservations", label: "予約", icon: CalendarCheck, hasMenu: true },
   ]},
   { section: "管理", items: [
-    { href: "/v2/customers", label: "顧客", icon: Users },
-    { href: "/v2/staff", label: "従業員", icon: UserCog },
-    { href: "/v2/attendance", label: "勤怠", icon: Clock },
-    { href: "/v2/sales", label: "売上", icon: TrendingUp },
-    { href: "/v2/inventory", label: "在庫", icon: Package },
+    { href: "/v2/customers", label: "顧客", icon: Users, hasMenu: true },
+    { href: "/v2/staff", label: "従業員", icon: UserCog, hasMenu: true },
+    { href: "/v2/attendance", label: "勤怠", icon: Clock, hasMenu: true },
+    { href: "/v2/sales", label: "売上", icon: TrendingUp, hasMenu: true },
+    { href: "/v2/inventory", label: "在庫", icon: Package, hasMenu: true },
     { href: "/v2/closing", label: "締め", icon: Lock },
-    { href: "/v2/reports", label: "集計", icon: BarChart3 },
+    { href: "/v2/reports", label: "集計", icon: BarChart3, hasMenu: true },
     { href: "/v2/chip-flow", label: "チップフロー", icon: Coins },
     { href: "/v2/history", label: "履歴", icon: History },
   ]},
   { section: "施策", items: [
     { href: "/v2/ranking", label: "ランキング", icon: Trophy },
     { href: "/v2/multike", label: "マルチケ配布", icon: Gift },
-    { href: "/v2/events", label: "イベント", icon: CalendarDays },
-    { href: "/v2/pop", label: "POP", icon: ImageIcon },
+    { href: "/v2/events", label: "イベント", icon: CalendarDays, hasMenu: true },
+    { href: "/v2/pop", label: "POP", icon: ImageIcon, hasMenu: true },
   ]},
   { section: "設定", items: [
-    { href: "/v2/products", label: "商品マスタ", icon: Package },
-    { href: "/v2/point-rules", label: "ポイントルール", icon: Sparkles },
-    { href: "/v2/settings", label: "店舗設定", icon: Settings },
+    { href: "/v2/products", label: "商品マスタ", icon: Package, hasMenu: true },
+    { href: "/v2/point-rules", label: "ポイントルール", icon: Sparkles, hasMenu: true },
+    { href: "/v2/settings", label: "店舗設定", icon: Settings, hasMenu: true },
   ]},
 ];
 
@@ -56,9 +56,28 @@ export function V2Shell({ children }: { children: ReactNode }) {
   return (
     <div className="v2 v2-shell">
       <aside className={`v2-sidebar ${expanded ? "is-expanded" : ""}`}>
-        <Link href="/v2" className="v2-brand" aria-label="ダッシュボードへ">
-          <span className="v2-brand-mark">店</span>
-        </Link>
+        {/* ===== トップ: ブランド + ハンバーガー ===== */}
+        <div className="v2-sidebar-top">
+          <Link href="/v2" className="v2-sidebar-top__brand" aria-label="ダッシュボードへ">
+            <span className="v2-brand-mark">店</span>
+            <span className="v2-sidebar-top__title">みえるくん</span>
+          </Link>
+          <button
+            onClick={() => setExpanded(v => !v)}
+            className="v2-sidebar-toggle"
+            aria-label={expanded ? "メニューを閉じる" : "メニューを開く"}
+            title="メニュー"
+          >
+            <Menu size={16} />
+          </button>
+        </div>
+
+        {/* ===== アプリスイッチャー(プレースホルダ) ===== */}
+        <button className="v2-sidebar-apps" aria-label="アプリ一覧" title="アプリ一覧">
+          <LayoutGrid size={16} />
+        </button>
+
+        {/* ===== ナビ本体 ===== */}
         <nav className="v2-nav-wrap">
           {NAV.map((section) => (
             <div key={section.section}>
@@ -68,8 +87,11 @@ export function V2Shell({ children }: { children: ReactNode }) {
                 const Icon = item.icon;
                 return (
                   <Link key={item.href} href={item.href} className={`v2-nav-item ${active ? "is-active" : ""}`}>
-                    <span className="v2-nav-item__icon"><Icon size={17} /></span>
+                    <span className="v2-nav-item__icon"><Icon size={18} strokeWidth={1.8} /></span>
                     <span className="v2-nav-item__label">{item.label}</span>
+                    {item.hasMenu && (
+                      <span className="v2-nav-item__chevron"><ChevronRight size={14} /></span>
+                    )}
                     <span className="v2-nav-item__tip">{item.label}</span>
                   </Link>
                 );
@@ -77,22 +99,23 @@ export function V2Shell({ children }: { children: ReactNode }) {
             </div>
           ))}
         </nav>
+
+        {/* ===== 底部固定: タスク / 未対応 ===== */}
+        <div className="v2-sidebar-bottom">
+          <Link href="/v2/live" className={`v2-nav-item ${pathname.startsWith("/v2/live") ? "is-active" : ""}`}>
+            <span className="v2-nav-item__icon"><CheckSquare size={18} strokeWidth={1.8} /></span>
+            <span className="v2-nav-item__label">タスク</span>
+            <span className="v2-nav-item__chevron"><ChevronRight size={14} /></span>
+            <span className="v2-nav-item__tip">タスク</span>
+          </Link>
+        </div>
       </aside>
 
       <div className="v2-main">
         <div className="v2-topbar">
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            className="v2-icon-btn"
-            aria-label={expanded ? "メニューを閉じる" : "メニューを開く"}
-            title="メニュー"
-          >
-            <Menu size={18} />
-          </button>
-          <Link href="/v2" className="v2-brand-mark" style={{ width: 28, height: 28, fontSize: 12, marginLeft: 4 }} aria-label="ホーム">
-            店
-          </Link>
-
+          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--v2-text-sub)" }}>
+            {new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" })}
+          </span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
             <button className="v2-icon-btn" aria-label="通知" title="通知">
               <Bell size={17} />
