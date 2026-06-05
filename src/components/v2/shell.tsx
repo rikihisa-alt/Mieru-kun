@@ -4,9 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, type ReactNode } from "react";
 import {
-  Menu, X, LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
+  Menu, LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
   Users, UserCog, Clock, TrendingUp, Package, Lock, BarChart3, Coins, History,
-  Trophy, Gift, CalendarDays, Image as ImageIcon, Settings, Sparkles, ChevronDown,
+  Trophy, Gift, CalendarDays, Image as ImageIcon, Settings, Sparkles,
+  ChevronDown, HelpCircle,
 } from "lucide-react";
 
 interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; }
@@ -47,18 +48,18 @@ const NAV: NavSection[] = [
 
 export function V2Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  // 画面遷移したら自動で折りたたむ
+  useEffect(() => { setExpanded(false); }, [pathname]);
 
   return (
     <div className="v2 v2-shell">
-      <aside className={`v2-sidebar ${open ? "v2-sidebar--open" : ""}`}>
-        <div className="v2-brand">
+      <aside className={`v2-sidebar ${expanded ? "is-expanded" : ""}`}>
+        <Link href="/v2" className="v2-brand" aria-label="ダッシュボードへ">
           <span className="v2-brand-mark">店</span>
-          <span>てんぽみえるくん</span>
-        </div>
-        <nav style={{ flex: 1, paddingBottom: 16 }}>
+        </Link>
+        <nav className="v2-nav-wrap">
           {NAV.map((section) => (
             <div key={section.section}>
               <div className="v2-nav-section">{section.section}</div>
@@ -67,34 +68,50 @@ export function V2Shell({ children }: { children: ReactNode }) {
                 const Icon = item.icon;
                 return (
                   <Link key={item.href} href={item.href} className={`v2-nav-item ${active ? "is-active" : ""}`}>
-                    <span className="v2-nav-item__icon"><Icon size={16} /></span>
-                    <span>{item.label}</span>
+                    <span className="v2-nav-item__icon"><Icon size={17} /></span>
+                    <span className="v2-nav-item__label">{item.label}</span>
+                    <span className="v2-nav-item__tip">{item.label}</span>
                   </Link>
                 );
               })}
             </div>
           ))}
         </nav>
-        <div style={{ padding: "12px 18px", borderTop: "1px solid rgba(255,255,255,0.4)", fontSize: 11, color: "var(--v2-text-mute)" }}>
-          Come On Casino
-        </div>
       </aside>
 
       <div className="v2-main">
         <div className="v2-topbar">
-          <button onClick={() => setOpen((v) => !v)} className="v2-btn-ghost" aria-label="menu" style={{ height: 32, width: 32, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-            {open ? <X size={16} /> : <Menu size={16} />}
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="v2-icon-btn"
+            aria-label={expanded ? "メニューを閉じる" : "メニューを開く"}
+            title="メニュー"
+          >
+            <Menu size={18} />
           </button>
-          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--v2-text-sub)" }}>
-            {new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" })}
-          </span>
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-            <span className="v2-chip v2-chip-success">スタンダードプラン</span>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 6, background: "var(--v2-bg-hover)", fontSize: 12, color: "var(--v2-text-sub)" }}>
-              <span style={{ width: 22, height: 22, borderRadius: 11, background: "var(--v2-accent-soft)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "var(--v2-accent-text)", fontSize: 11, fontWeight: 600 }}>C</span>
-              <span>店舗管理</span>
+          <Link href="/v2" className="v2-brand-mark" style={{ width: 28, height: 28, fontSize: 12, marginLeft: 4 }} aria-label="ホーム">
+            店
+          </Link>
+
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
+            <button className="v2-icon-btn" aria-label="通知" title="通知">
+              <Bell size={17} />
+              <span className="v2-icon-btn__dot" />
+            </button>
+
+            <button className="v2-store-pill" title="店舗を切替">
+              <span className="v2-store-pill__mark">C</span>
+              <span>Come On Casino</span>
               <ChevronDown size={12} style={{ color: "var(--v2-text-mute)" }} />
-            </div>
+            </button>
+
+            <button className="v2-icon-btn" aria-label="アカウント" title="アカウント" style={{ width: "auto", padding: "0 4px" }}>
+              <span className="v2-avatar">力</span>
+            </button>
+
+            <button className="v2-icon-btn" aria-label="FAQ・ヘルプ" title="FAQ">
+              <HelpCircle size={17} />
+            </button>
           </div>
         </div>
         <main className="v2-body">{children}</main>
