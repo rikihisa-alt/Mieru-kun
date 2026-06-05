@@ -43,6 +43,10 @@ export interface ProductRecord {
   price: number;
   category: ProductCategory;
   active: boolean;
+  // 在庫管理用 (在庫追跡しない商品=null/undefined)
+  stock?: number | null;
+  minStock?: number | null;   // この値以下でアラート
+  cost?: number;              // 原価
   createdAt: string;
 }
 

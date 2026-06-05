@@ -6,7 +6,8 @@ import { usePersisted } from "@/lib/persist/store";
 import { staffStore } from "@/lib/store/domain-stores";
 import { staffFullName, STATUS_LABEL } from "@/lib/staff-data";
 import { PageHeader, Btn, Kpis, Kpi, VStack, Chip, Empty } from "@/components/v2/ui";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, FileDown } from "lucide-react";
+import { printDoc, tableHtml } from "@/lib/v2/pdf";
 
 export default function StaffPage() {
   const [staff] = usePersisted(staffStore);
@@ -21,7 +22,18 @@ export default function StaffPage() {
       <PageHeader
         title="従業員"
         sub={`${staff.length}名`}
-        action={<Btn variant="primary"><Link href="/v2/staff/new"><Plus size={14} /> 登録</Link></Btn>}
+        action={
+          <>
+            <Btn onClick={() => {
+              const body = tableHtml(
+                ["社員番号", "名前", "役職", "部署", "入社", "状態"],
+                rows.map(s => [s.employeeNo, staffFullName(s), s.role, s.department, s.joinDate, STATUS_LABEL[s.status]]),
+              );
+              printDoc({ title: "従業員リスト", body, storeName: "てんぽみえるくん" });
+            }}><FileDown size={14}/> PDF</Btn>
+            <Btn variant="primary"><Link href="/v2/staff/new"><Plus size={14} /> 登録</Link></Btn>
+          </>
+        }
       />
 
       <Kpis>

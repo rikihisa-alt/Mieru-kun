@@ -4,6 +4,8 @@ import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { staffStore } from "@/lib/store/domain-stores";
 import { staffFullName } from "@/lib/staff-data";
 import { PageHeader, Btn, Panel, VStack, Chip, Empty, Kpis, Kpi } from "@/components/v2/ui";
+import { FileDown } from "lucide-react";
+import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
 
 interface AttendanceRecord {
   staffId: string;
@@ -40,7 +42,24 @@ export default function AttendancePage() {
 
   return (
     <VStack gap={16}>
-      <PageHeader title="勤怠" sub={t} />
+      <PageHeader title="勤怠" sub={t} action={
+        <Btn onClick={() => {
+          const body = kpisHtml([
+            { label: "対象日", value: t },
+            { label: "勤務中", value: `${working}名` },
+            { label: "退勤済", value: `${finished}名` },
+            { label: "未出勤", value: `${active.length - working - finished}名` },
+          ]) + tableHtml(
+            ["名前", "役職", "出勤", "退勤", "状態"],
+            active.map(s => {
+              const r = recordFor(s.id);
+              const status = !r?.clockIn ? "未出勤" : !r.clockOut ? "勤務中" : "退勤済";
+              return [staffFullName(s), s.role, r?.clockIn ?? "—", r?.clockOut ?? "—", status];
+            }),
+          );
+          printDoc({ title: "勤怠タイムカード", subtitle: t, body, storeName: "てんぽみえるくん" });
+        }}><FileDown size={14}/> PDF</Btn>
+      } />
       <Kpis>
         <Kpi label="在籍" value={active.length} />
         <Kpi label="勤務中" value={working} />

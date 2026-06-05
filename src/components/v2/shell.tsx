@@ -18,6 +18,8 @@ const NAV: { section: string; items: { href: string; label: string }[] }[] = [
     { href: "/v2/customers", label: "顧客" },
     { href: "/v2/staff", label: "従業員" },
     { href: "/v2/attendance", label: "勤怠" },
+    { href: "/v2/sales", label: "売上" },
+    { href: "/v2/inventory", label: "在庫" },
     { href: "/v2/closing", label: "締め" },
     { href: "/v2/reports", label: "集計" },
     { href: "/v2/chip-flow", label: "チップフロー" },

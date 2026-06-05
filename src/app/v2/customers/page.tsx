@@ -5,7 +5,8 @@ import { useState } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { customerStore, type CustomerRank } from "@/lib/store/domain-stores";
 import { PageHeader, Btn, Kpis, Kpi, VStack, Empty } from "@/components/v2/ui";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, FileDown } from "lucide-react";
+import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
 
 const RANK_LABEL: Record<CustomerRank, string> = { regular: "Regular", silver: "Silver", gold: "Gold", vip: "VIP" };
 
@@ -28,7 +29,22 @@ export default function CustomersPage() {
         title="顧客"
         sub={`${customers.length}名`}
         action={
-          <Btn variant="primary"><Link href="/v2/customers/new"><Plus size={14} /> 登録</Link></Btn>
+          <>
+            <Btn onClick={() => {
+              const body = kpisHtml([
+                { label: "登録顧客", value: `${customers.length}名` },
+                { label: "VIP", value: `${customers.filter(c => c.rank === "vip").length}名` },
+                { label: "GOLD", value: `${customers.filter(c => c.rank === "gold").length}名` },
+                { label: "出力日", value: new Date().toLocaleDateString("ja-JP") },
+              ]) + tableHtml(
+                ["ニックネーム", "本名", "ランク", "電話", "来店", "累計利用", "最終来店"],
+                rows.map(c => [c.nickname || "—", c.name, RANK_LABEL[c.rank], c.phone || "—", String(c.totalVisits), `¥${c.totalSpent.toLocaleString()}`, c.lastVisit ?? "—"]),
+                { numCols: [4, 5] },
+              );
+              printDoc({ title: "顧客リスト", body, storeName: "てんぽみえるくん", landscape: true });
+            }}><FileDown size={14}/> PDF</Btn>
+            <Btn variant="primary"><Link href="/v2/customers/new"><Plus size={14} /> 登録</Link></Btn>
+          </>
         }
       />
 
