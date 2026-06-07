@@ -57,22 +57,14 @@ export function V2Shell({ children }: { children: ReactNode }) {
   return (
     <div className="v2 v2-shell">
       <aside className={`v2-sidebar ${expanded ? "is-expanded" : ""}`}>
-        {/* ===== トップ: ブランド + ハンバーガー ===== */}
+        {/* ===== トップ: ロゴ (展開時はシステム名も) ===== */}
         <div className="v2-sidebar-top">
           <Link href="/v2" className="v2-sidebar-top__brand" aria-label="ダッシュボードへ">
             <span className="v2-brand-mark">
-              <Image src="/logo-icon.png" alt="みえるくん" width={32} height={32} priority />
+              <Image src="/logo-icon.png" alt="みえるくん" width={36} height={36} priority />
             </span>
             <span className="v2-sidebar-top__title">みえるくん</span>
           </Link>
-          <button
-            onClick={() => setExpanded(v => !v)}
-            className="v2-sidebar-toggle"
-            aria-label={expanded ? "メニューを閉じる" : "メニューを開く"}
-            title="メニュー"
-          >
-            <Menu size={16} />
-          </button>
         </div>
 
         {/* ===== ナビ本体 ===== */}
@@ -102,6 +94,14 @@ export function V2Shell({ children }: { children: ReactNode }) {
 
       <div className="v2-main">
         <div className="v2-topbar">
+          <button
+            onClick={() => setExpanded(v => !v)}
+            className="v2-icon-btn"
+            aria-label={expanded ? "メニューを閉じる" : "メニューを開く"}
+            title="メニュー"
+          >
+            <Menu size={18} />
+          </button>
           <span style={{ fontSize: 13, fontWeight: 500, color: "var(--v2-text-sub)" }}>
             {new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" })}
           </span>

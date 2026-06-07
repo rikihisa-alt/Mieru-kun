@@ -137,8 +137,8 @@
 
 /* ===== sidebar ===== */
 .v2-sidebar-top {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 12px 6px;
+  display: flex; align-items: center;
+  padding: 12px 10px 8px;
   flex-shrink: 0;
 }
 .v2-sidebar-top__brand {
@@ -147,21 +147,26 @@
   overflow: hidden;
 }
 .v2-sidebar-top__title {
-  font-size: 14px; font-weight: 700; color: var(--v2-accent-text);
+  font-size: 15px; font-weight: 700; color: var(--v2-accent-text);
   white-space: nowrap; overflow: hidden;
   opacity: 0;
   transition: opacity 0.15s;
+  letter-spacing: 0.01em;
 }
 .v2-sidebar.is-expanded .v2-sidebar-top__title { opacity: 1; }
 
+/* 折りたたみ時はロゴだけ中央 */
+.v2-sidebar:not(.is-expanded) .v2-sidebar-top {
+  justify-content: center;
+  padding: 12px 0 8px;
+  flex-direction: column;
+}
+
 .v2-brand-mark {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px;
+  width: 36px; height: 36px;
   flex-shrink: 0;
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(28, 46, 36, 0.12);
-  overflow: hidden;
+  background: transparent;
 }
 .v2-brand-mark img { width: 100%; height: 100%; object-fit: contain; }
 
@@ -183,9 +188,6 @@
 }
 .v2-sidebar.is-expanded .v2-sidebar-apps { margin: 2px 14px 10px; }
 .v2-sidebar-apps:hover { background: rgba(255,255,255,0.6); }
-
-/* sidebar 中央配置: 折りたたみ時はブランドのみ中央 */
-.v2-sidebar:not(.is-expanded) .v2-sidebar-top { flex-direction: column; gap: 4px; padding-top: 10px; }
 
 .v2-nav-wrap { flex: 1; overflow-y: auto; overflow-x: visible; padding-bottom: 8px; }
 .v2-nav-section {
