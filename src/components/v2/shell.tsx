@@ -61,9 +61,9 @@ export function V2Shell({ children }: { children: ReactNode }) {
         <div className="v2-sidebar-top">
           <Link href="/v2" className="v2-sidebar-top__brand" aria-label="ダッシュボードへ">
             <span className="v2-brand-mark">
-              <Image src="/logo-icon.png" alt="みえるくん" width={44} height={44} priority />
+              <Image src="/logo-icon.png" alt="てんぽみえるくん" width={36} height={36} priority />
             </span>
-            {expanded && <span className="v2-sidebar-top__title">みえるくん</span>}
+            {expanded && <span className="v2-sidebar-top__title">てんぽみえるくん</span>}
           </Link>
         </div>
 

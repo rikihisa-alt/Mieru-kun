@@ -149,13 +149,13 @@
   display: flex; align-items: center; gap: 10px;
 }
 .v2-sidebar-top__title {
-  font-size: 15px; font-weight: 700; color: var(--v2-accent-text);
+  font-size: 14px; font-weight: 700; color: var(--v2-accent-text);
   white-space: nowrap;
   letter-spacing: 0.01em;
 }
 .v2-brand-mark {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 44px; height: 44px;
+  width: 36px; height: 36px;
   flex-shrink: 0;
   background: transparent;
   overflow: hidden;
@@ -164,7 +164,7 @@
   width: 100%; height: 100%;
   object-fit: contain;
   display: block;
-  transform: scale(1.6);   /* ロゴの周囲の透過余白を補正して大きく見せる */
+  transform: scale(1.5);   /* ロゴの周囲の透過余白を補正 */
   transform-origin: center center;
 }
 
@@ -289,28 +289,24 @@
 }
 .v2-icon-btn:hover { background: var(--v2-bg-hover); color: var(--v2-text); }
 
-/* freee風: サイドバー境界に浮き出るハンバーガー */
+/* サイドバーから生えてるハンバーガー */
 .v2-hamburger-fab {
   position: relative;
   display: inline-flex; align-items: center; justify-content: center;
-  width: 48px; height: 36px;
-  margin-left: -16px;        /* サイドバーに少し重ねる */
-  border-radius: var(--v2-radius-lg);
-  background: #ffffff;
-  border: 1px solid var(--v2-border);
+  width: 44px; height: 34px;
+  margin-left: -20px;                   /* サイドバーに食い込んで「生えてる」感 */
+  border-radius: 0 var(--v2-radius-lg) var(--v2-radius-lg) 0;  /* 右側だけ丸める */
+  background: var(--v2-sidebar-bg);     /* サイドバーと同色 */
+  border: 0;
   color: var(--v2-text-sub);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(28, 46, 36, 0.10), 0 1px 2px rgba(28, 46, 36, 0.05);
-  transition: box-shadow 0.15s, background 0.1s, color 0.1s;
+  box-shadow: 2px 1px 4px rgba(28, 46, 36, 0.05);  /* 右下に薄い影で立体感 */
+  transition: background 0.12s, color 0.1s;
   z-index: 15;
 }
 .v2-hamburger-fab:hover {
-  background: var(--v2-bg-hover);
+  background: var(--v2-sidebar-active);
   color: var(--v2-accent-text);
-  box-shadow: 0 4px 12px rgba(28, 46, 36, 0.14), 0 2px 4px rgba(28, 46, 36, 0.06);
-}
-.v2-hamburger-fab:active {
-  box-shadow: 0 1px 2px rgba(28, 46, 36, 0.06);
 }
 .v2-icon-btn__dot {
   position: absolute; top: 8px; right: 8px;
