@@ -57,6 +57,16 @@ export function V2Shell({ children }: { children: ReactNode }) {
   return (
     <div className="v2 v2-shell">
       <aside className={`v2-sidebar ${expanded ? "is-expanded" : ""}`}>
+        {/* ===== サイドバー右端から生えるハンバーガー ===== */}
+        <button
+          onClick={() => setExpanded(v => !v)}
+          className="v2-hamburger-fab"
+          aria-label={expanded ? "メニューを閉じる" : "メニューを開く"}
+          title={expanded ? "メニューを閉じる" : "メニューを開く"}
+        >
+          {expanded ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
+        </button>
+
         {/* ===== トップ: ロゴ (展開時はシステム名も) ===== */}
         <div className="v2-sidebar-top">
           <Link href="/v2" className="v2-sidebar-top__brand" aria-label="ダッシュボードへ">
@@ -94,15 +104,7 @@ export function V2Shell({ children }: { children: ReactNode }) {
 
       <div className="v2-main">
         <div className="v2-topbar">
-          <button
-            onClick={() => setExpanded(v => !v)}
-            className="v2-hamburger-fab"
-            aria-label={expanded ? "メニューを閉じる" : "メニューを開く"}
-            title={expanded ? "メニューを閉じる" : "メニューを開く"}
-          >
-            {expanded ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
-          </button>
-          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--v2-text-sub)" }}>
+          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--v2-text-sub)", marginLeft: 24 }}>
             {new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" })}
           </span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>

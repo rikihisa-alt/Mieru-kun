@@ -113,7 +113,7 @@
   background: var(--v2-sidebar-bg);
   position: sticky; top: 0; height: 100vh; overflow: visible;
   display: flex; flex-direction: column;
-  transition: width 0.18s ease;
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 20;
 }
 .v2-sidebar.is-expanded { width: var(--v2-sidebar-open); }
@@ -139,7 +139,7 @@
 .v2-sidebar-top {
   display: flex; align-items: center;
   justify-content: center;
-  padding: 14px 12px 10px;
+  padding: 9px 12px 7px;
   flex-shrink: 0;
 }
 .v2-sidebar.is-expanded .v2-sidebar-top {
@@ -200,12 +200,14 @@
 .v2-nav-item {
   position: relative;
   display: flex; align-items: center; gap: 10px;
-  height: 38px; padding: 0 12px;
+  height: 38px; padding: 0 10px;
   margin: 1px 8px; border-radius: var(--v2-radius);
   font-size: var(--v2-fs-md); color: var(--v2-text-sub);
-  cursor: pointer; transition: background 0.1s, color 0.1s;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s, padding 0.2s ease;
   white-space: nowrap; overflow: hidden;
 }
+.v2-sidebar.is-expanded .v2-nav-item { padding: 0 12px; }
 .v2-nav-item:hover { background: rgba(255,255,255,0.65); color: var(--v2-text); }
 .v2-nav-item.is-active {
   background: var(--v2-sidebar-active);
@@ -221,21 +223,16 @@
 .v2-nav-item__label {
   flex: 1; min-width: 0;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity 0.2s ease;
 }
 .v2-sidebar.is-expanded .v2-nav-item__label { opacity: 1; }
 .v2-nav-item__chevron {
   color: var(--v2-text-mute);
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity 0.2s ease;
   flex-shrink: 0;
 }
 .v2-sidebar.is-expanded .v2-nav-item__chevron { opacity: 1; }
-
-/* 折りたたみ時のラベルは非表示にしてアイコンを中央寄せ */
-.v2-sidebar:not(.is-expanded) .v2-nav-item { justify-content: center; padding: 0; margin: 1px 8px; }
-.v2-sidebar:not(.is-expanded) .v2-nav-item__label,
-.v2-sidebar:not(.is-expanded) .v2-nav-item__chevron { display: none; }
 
 /* サブメニュー風ポップ (折りたたみ時のホバー) */
 .v2-nav-item__tip {
@@ -289,25 +286,28 @@
 }
 .v2-icon-btn:hover { background: var(--v2-bg-hover); color: var(--v2-text); }
 
-/* サイドバーから生えてるハンバーガー */
+/* サイドバー右端から生えてるハンバーガー (サイドバーの子, absolute配置) */
 .v2-hamburger-fab {
-  position: relative;
+  position: absolute;
+  top: 12px;
+  right: -22px;                          /* サイドバー右端から飛び出る */
   display: inline-flex; align-items: center; justify-content: center;
   width: 44px; height: 34px;
-  margin-left: -20px;                   /* サイドバーに食い込んで「生えてる」感 */
-  border-radius: 0 var(--v2-radius-lg) var(--v2-radius-lg) 0;  /* 右側だけ丸める */
-  background: var(--v2-sidebar-bg);     /* サイドバーと同色 */
+  border-radius: 0 var(--v2-radius-lg) var(--v2-radius-lg) 0;
+  background: var(--v2-sidebar-bg);      /* サイドバーと同色 (連続性) */
   border: 0;
   color: var(--v2-text-sub);
   cursor: pointer;
-  box-shadow: 2px 1px 4px rgba(28, 46, 36, 0.05);  /* 右下に薄い影で立体感 */
-  transition: background 0.12s, color 0.1s;
-  z-index: 15;
+  box-shadow: 2px 2px 5px rgba(28, 46, 36, 0.08);
+  transition: background 0.12s, color 0.1s, box-shadow 0.12s;
+  z-index: 25;
 }
 .v2-hamburger-fab:hover {
   background: var(--v2-sidebar-active);
   color: var(--v2-accent-text);
+  box-shadow: 2px 3px 7px rgba(28, 46, 36, 0.12);
 }
+.v2-hamburger-fab:active { box-shadow: 1px 1px 2px rgba(28, 46, 36, 0.06); }
 .v2-icon-btn__dot {
   position: absolute; top: 8px; right: 8px;
   width: 7px; height: 7px; border-radius: 999px;
