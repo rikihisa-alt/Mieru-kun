@@ -5,10 +5,10 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, type ReactNode } from "react";
 import {
-  Menu, LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
+  LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
   Users, UserCog, Clock, TrendingUp, Package, Lock, BarChart3, Coins, History,
   Trophy, Gift, CalendarDays, Image as ImageIcon, Settings, Sparkles,
-  ChevronDown, ChevronRight, HelpCircle,
+  ChevronDown, ChevronRight, HelpCircle, PanelLeftOpen, PanelLeftClose,
 } from "lucide-react";
 
 interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; hasMenu?: boolean; }
@@ -96,11 +96,11 @@ export function V2Shell({ children }: { children: ReactNode }) {
         <div className="v2-topbar">
           <button
             onClick={() => setExpanded(v => !v)}
-            className="v2-icon-btn"
+            className="v2-hamburger-fab"
             aria-label={expanded ? "メニューを閉じる" : "メニューを開く"}
-            title="メニュー"
+            title={expanded ? "メニューを閉じる" : "メニューを開く"}
           >
-            <Menu size={18} />
+            {expanded ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
           </button>
           <span style={{ fontSize: 13, fontWeight: 500, color: "var(--v2-text-sub)" }}>
             {new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" })}
