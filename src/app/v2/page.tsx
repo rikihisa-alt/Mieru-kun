@@ -6,7 +6,7 @@ import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { customerStore, staffStore, reservationStore, productStore } from "@/lib/store/domain-stores";
 import { salesOrderStore } from "@/lib/v2/stores";
 import { PageHeader, Kpis, Kpi, Panel, VStack, HStack, Btn, Chip } from "@/components/v2/ui";
-import { AlertTriangle, DoorOpen, ShoppingBag, Grid3X3, CreditCard, UserPlus, Plus } from "lucide-react";
+import { AlertTriangle, DoorOpen, ShoppingBag, Grid3X3, CreditCard, UserPlus, Plus, Clock } from "lucide-react";
 
 interface CheckinVisit {
   id: string; customerId: string | null; name: string; rank: string; checkedInAt: string; table?: string;
@@ -34,8 +34,12 @@ export default function DashboardPage() {
     <VStack gap={20}>
       <PageHeader
         title="ダッシュボード"
-        sub={new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" })}
-        action={<Btn variant="primary"><Link href="/v2/checkin"><DoorOpen size={14}/> 入店登録</Link></Btn>}
+        action={
+          <>
+            <Btn variant="primary"><Link href="/v2/checkin" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><DoorOpen size={14}/> 入店登録</Link></Btn>
+            <Btn variant="primary"><Link href="/v2/attendance" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Clock size={14}/> 出勤登録</Link></Btn>
+          </>
+        }
       />
 
       {/* 主要KPI */}

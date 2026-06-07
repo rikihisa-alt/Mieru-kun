@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, type ReactNode } from "react";
 import {
   Menu, LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
   Users, UserCog, Clock, TrendingUp, Package, Lock, BarChart3, Coins, History,
   Trophy, Gift, CalendarDays, Image as ImageIcon, Settings, Sparkles,
-  ChevronDown, ChevronRight, HelpCircle, LayoutGrid, CheckSquare,
+  ChevronDown, ChevronRight, HelpCircle,
 } from "lucide-react";
 
 interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; hasMenu?: boolean; }
@@ -59,7 +60,9 @@ export function V2Shell({ children }: { children: ReactNode }) {
         {/* ===== トップ: ブランド + ハンバーガー ===== */}
         <div className="v2-sidebar-top">
           <Link href="/v2" className="v2-sidebar-top__brand" aria-label="ダッシュボードへ">
-            <span className="v2-brand-mark">店</span>
+            <span className="v2-brand-mark">
+              <Image src="/logo-icon.png" alt="みえるくん" width={32} height={32} priority />
+            </span>
             <span className="v2-sidebar-top__title">みえるくん</span>
           </Link>
           <button
@@ -71,11 +74,6 @@ export function V2Shell({ children }: { children: ReactNode }) {
             <Menu size={16} />
           </button>
         </div>
-
-        {/* ===== アプリスイッチャー(プレースホルダ) ===== */}
-        <button className="v2-sidebar-apps" aria-label="アプリ一覧" title="アプリ一覧">
-          <LayoutGrid size={16} />
-        </button>
 
         {/* ===== ナビ本体 ===== */}
         <nav className="v2-nav-wrap">
@@ -100,15 +98,6 @@ export function V2Shell({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        {/* ===== 底部固定: タスク / 未対応 ===== */}
-        <div className="v2-sidebar-bottom">
-          <Link href="/v2/live" className={`v2-nav-item ${pathname.startsWith("/v2/live") ? "is-active" : ""}`}>
-            <span className="v2-nav-item__icon"><CheckSquare size={18} strokeWidth={1.8} /></span>
-            <span className="v2-nav-item__label">タスク</span>
-            <span className="v2-nav-item__chevron"><ChevronRight size={14} /></span>
-            <span className="v2-nav-item__tip">タスク</span>
-          </Link>
-        </div>
       </aside>
 
       <div className="v2-main">
