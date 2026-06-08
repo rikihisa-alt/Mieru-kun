@@ -304,16 +304,22 @@
   border: 0;
   color: var(--v2-text-sub);
   cursor: pointer;
-  box-shadow: 2px 2px 5px rgba(28, 46, 36, 0.08);
-  transition: background 0.12s, color 0.1s, box-shadow 0.12s;
+  /* drop-shadow を使ってL字形状(連続部+突起)に沿って影を落とす ─ ボックス全体の影ではない */
+  filter: drop-shadow(2px 2px 3px rgba(28, 46, 36, 0.10));
+  transition: background 0.12s, color 0.1s, filter 0.12s;
   z-index: 25;
 }
 .v2-hamburger-fab:hover {
   background: var(--v2-sidebar-active);
   color: var(--v2-accent-text);
-  box-shadow: 2px 3px 7px rgba(28, 46, 36, 0.12);
+  filter: drop-shadow(2px 3px 5px rgba(28, 46, 36, 0.14));
 }
-.v2-hamburger-fab:active { box-shadow: 1px 1px 2px rgba(28, 46, 36, 0.06); }
+.v2-hamburger-fab:active { filter: drop-shadow(1px 1px 2px rgba(28, 46, 36, 0.08)); }
+.v2-hamburger-fab__icon {
+  display: inline-flex;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.v2-sidebar.is-expanded .v2-hamburger-fab__icon { transform: rotate(180deg); }
 .v2-icon-btn__dot {
   position: absolute; top: 8px; right: 8px;
   width: 7px; height: 7px; border-radius: 999px;

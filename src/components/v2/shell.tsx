@@ -8,7 +8,7 @@ import {
   LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
   Users, UserCog, Clock, TrendingUp, Package, Lock, BarChart3, Coins, History,
   Trophy, Gift, CalendarDays, Image as ImageIcon, Settings, Sparkles,
-  ChevronDown, ChevronRight, HelpCircle, PanelLeftOpen, PanelLeftClose,
+  ChevronDown, ChevronRight, HelpCircle, ChevronsRight,
 } from "lucide-react";
 
 interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; hasMenu?: boolean; }
@@ -64,7 +64,9 @@ export function V2Shell({ children }: { children: ReactNode }) {
           aria-label={expanded ? "メニューを閉じる" : "メニューを開く"}
           title={expanded ? "メニューを閉じる" : "メニューを開く"}
         >
-          {expanded ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
+          <span className="v2-hamburger-fab__icon">
+            <ChevronsRight size={18} />
+          </span>
         </button>
 
         {/* ===== トップ: ロゴ (展開時はシステム名も) ===== */}
