@@ -5,11 +5,10 @@
 
 .v2 {
   /* ===== color ===== */
-  /* 全体背景もサイドバーと同色に統一 (シームレスな一体感) */
-  --v2-bg-body:        #e7f3eb;
+  --v2-bg-body:        #f6faf7;
   --v2-bg:             #ffffff;
   --v2-bg-alt:         #f3f8f4;
-  --v2-bg-hover:       #ddead9;
+  --v2-bg-hover:       #eef5f0;
 
   --v2-text:           #1f2d27;
   --v2-text-sub:       #4a5961;
