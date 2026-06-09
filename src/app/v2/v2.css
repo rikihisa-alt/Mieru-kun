@@ -145,7 +145,8 @@
 .v2-sidebar-top {
   display: flex; align-items: center;
   justify-content: center;
-  padding: 9px 12px 7px;
+  height: 56px;        /* 固定高: 展開↔折りたたみで縦位置がブレない */
+  padding: 0 10px;
   flex-shrink: 0;
 }
 .v2-sidebar.is-expanded .v2-sidebar-top {
@@ -195,13 +196,17 @@
 
 .v2-nav-wrap { flex: 1; overflow-y: auto; overflow-x: visible; padding-bottom: 8px; }
 .v2-nav-section {
-  padding: 12px 18px 4px;
+  padding: 14px 18px 4px;
   font-size: 10px; color: var(--v2-text-mute);
   letter-spacing: 0.06em; text-transform: uppercase;
   font-weight: 600;
+  line-height: 1;
   white-space: nowrap; overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.22s ease;
 }
-.v2-sidebar:not(.is-expanded) .v2-nav-section { display: none; }
+/* 折りたたみ時もセクション見出しの高さは維持してアイコン位置を固定 */
+.v2-sidebar:not(.is-expanded) .v2-nav-section { opacity: 0; }
 
 .v2-nav-item {
   position: relative;
