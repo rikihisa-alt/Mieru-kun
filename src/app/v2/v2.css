@@ -152,17 +152,26 @@
 .v2-sidebar-top__brand {
   display: flex; align-items: center; gap: 10px;
   height: 36px;
-  /* タイトルが折りたたみ時はみ出していてもアイコン位置に影響しないように */
+  text-decoration: none;
+  /* 折りたたみ時はロゴだけ、展開時はロゴ+タイトルが同居して中央揃え */
 }
 .v2-sidebar-top__title {
   font-size: 14px; font-weight: 700; color: var(--v2-accent-text);
   white-space: nowrap;
   letter-spacing: 0.01em;
   line-height: 1;
+  /* 折りたたみ時はレイアウトから除外し、ロゴが画面外に押し出されないようにする */
+  max-width: 0;
   opacity: 0;
-  transition: opacity 0.22s ease;
+  overflow: hidden;
+  transition: max-width 0.22s ease, opacity 0.22s ease;
 }
-.v2-sidebar.is-expanded .v2-sidebar-top__title { opacity: 1; }
+.v2-sidebar.is-expanded .v2-sidebar-top__title {
+  max-width: 180px;
+  opacity: 1;
+}
+/* 折りたたみ時は gap も消してロゴが正確に中央へ */
+.v2-sidebar:not(.is-expanded) .v2-sidebar-top__brand { gap: 0; }
 .v2-brand-mark {
   display: inline-flex; align-items: center; justify-content: center;
   width: 36px; height: 36px;
