@@ -9,7 +9,7 @@ import { PageHeader, Kpis, Kpi, Panel, VStack, HStack, Btn, Chip } from "@/compo
 import { AlertTriangle, DoorOpen, ShoppingBag, Grid3X3, CreditCard, UserPlus, Plus, Clock } from "lucide-react";
 
 interface CheckinVisit {
-  id: string; customerId: string | null; name: string; rank: string; checkedInAt: string; table?: string;
+  id: string; customerId: string | null; name: string; rank: string; checkedInAt: string; tableId?: string; seatIndex?: number;
 }
 
 export default function DashboardPage() {
@@ -98,9 +98,9 @@ export default function DashboardPage() {
                   </span>
                   <div className="v2-grow">
                     <div>{v.name}</div>
-                    <div className="v2-mute" style={{ fontSize: 11 }}>{v.rank}{v.table && ` · ${v.table}`}</div>
+                    <div className="v2-mute" style={{ fontSize: 11 }}>{v.rank}{v.tableId && ` · 着席`}</div>
                   </div>
-                  {v.table && <Chip>{v.table}</Chip>}
+                  {v.tableId && <Chip>{v.seatIndex != null ? `席${v.seatIndex + 1}` : "着席"}</Chip>}
                 </HStack>
               ))}
             </VStack>

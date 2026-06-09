@@ -12,14 +12,18 @@ interface Visit {
   name: string;
   rank: CustomerRank;
   checkedInAt: string;
-  table?: string;
+  tableId?: string;
+  seatIndex?: number;
 }
+interface TableMeta { id: string; name: string }
 
 const RANK_LABEL: Record<CustomerRank, string> = { regular: "Regular", silver: "Silver", gold: "Gold", vip: "VIP" };
 
 export default function CheckinPage() {
   const [customers] = usePersisted(customerStore);
   const [visits, setVisits] = usePersistedState<Visit[]>("v2_visits_v1", []);
+  const [tables] = usePersistedState<TableMeta[]>("v2_tables_v2", []);
+  const tableNameOf = (id?: string) => id ? (tables.find(t => t.id === id)?.name ?? id) : undefined;
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
   const [guestName, setGuestName] = useState("");
@@ -57,7 +61,7 @@ export default function CheckinPage() {
       <Kpis>
         <Kpi label="来店中" value={visits.length} />
         <Kpi label="VIP/GOLD" value={visits.filter(v => v.rank === "vip" || v.rank === "gold").length} />
-        <Kpi label="未配置" value={visits.filter(v => !v.table).length} />
+        <Kpi label="未配置" value={visits.filter(v => !v.tableId).length} />
         <Kpi label="本日来店" value={visits.length} />
       </Kpis>
 
@@ -74,7 +78,7 @@ export default function CheckinPage() {
                   <td className="v2-mute">{RANK_LABEL[v.rank]}</td>
                   <td className="v2-num">{new Date(v.checkedInAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
                   <td className="v2-num v2-sub">{elapsed(v.checkedInAt)}</td>
-                  <td>{v.table ? <Chip>{v.table}</Chip> : <span className="v2-mute">—</span>}</td>
+                  <td>{tableNameOf(v.tableId) ? <Chip>{tableNameOf(v.tableId)}{v.seatIndex != null && ` #${v.seatIndex + 1}`}</Chip> : <span className="v2-mute">—</span>}</td>
                   <td><Btn size="xs" onClick={() => checkout(v.id)}><LogOut size={11} /> 退店</Btn></td>
                 </tr>
               ))}
