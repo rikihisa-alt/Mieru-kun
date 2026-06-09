@@ -144,22 +144,25 @@
 /* ===== sidebar ===== */
 .v2-sidebar-top {
   display: flex; align-items: center;
-  justify-content: center;
-  height: 56px;        /* 固定高: 展開↔折りたたみで縦位置がブレない */
+  height: 56px;
   padding: 0 10px;
   flex-shrink: 0;
-}
-.v2-sidebar.is-expanded .v2-sidebar-top {
-  justify-content: flex-start;
+  overflow: hidden;
 }
 .v2-sidebar-top__brand {
   display: flex; align-items: center; gap: 10px;
+  height: 36px;
+  /* タイトルが折りたたみ時はみ出していてもアイコン位置に影響しないように */
 }
 .v2-sidebar-top__title {
   font-size: 14px; font-weight: 700; color: var(--v2-accent-text);
   white-space: nowrap;
   letter-spacing: 0.01em;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.22s ease;
 }
+.v2-sidebar.is-expanded .v2-sidebar-top__title { opacity: 1; }
 .v2-brand-mark {
   display: inline-flex; align-items: center; justify-content: center;
   width: 36px; height: 36px;
@@ -196,6 +199,9 @@
 
 .v2-nav-wrap { flex: 1; overflow-y: auto; overflow-x: visible; padding-bottom: 8px; }
 .v2-nav-section {
+  /* 厳密に固定高さ — 折りたたみ時も同じ高さでアイコンが上下しない */
+  box-sizing: border-box;
+  height: 28px;
   padding: 14px 18px 4px;
   font-size: 10px; color: var(--v2-text-mute);
   letter-spacing: 0.06em; text-transform: uppercase;
@@ -205,7 +211,6 @@
   opacity: 1;
   transition: opacity 0.22s ease;
 }
-/* 折りたたみ時もセクション見出しの高さは維持してアイコン位置を固定 */
 .v2-sidebar:not(.is-expanded) .v2-nav-section { opacity: 0; }
 
 .v2-nav-item {
