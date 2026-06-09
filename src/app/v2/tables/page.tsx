@@ -133,12 +133,14 @@ export default function TablesPage() {
   // ===== 卓CRUD =====
   function addTable() {
     if (!draft.name.trim()) return;
+    if (draft.maxSeats < 1) { alert("席数は1以上で入力してください"); return; }
     setTables(prev => [...prev, { id: `t${Date.now()}`, ...draft }]);
     setOpenAdd(false);
     setDraft({ name: "", type: "トナメ", maxSeats: 6, dealer: "" });
   }
   function saveEdit() {
     if (!editTable) return;
+    if (editTable.maxSeats < 1) { alert("席数は1以上で入力してください"); return; }
     setTables(prev => prev.map(t => t.id === editTable.id ? editTable : t));
     setEditTable(null);
   }
@@ -208,7 +210,17 @@ export default function TablesPage() {
               </select>
             </Field>
             <Field label="席数">
-              <input type="number" min={2} max={12} value={draft.maxSeats} onChange={(e) => setDraft({ ...draft, maxSeats: parseInt(e.target.value) || 6 })} />
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                value={draft.maxSeats}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setDraft({ ...draft, maxSeats: v === "" ? 0 : Math.max(1, parseInt(v) || 0) });
+                }}
+                placeholder="例: 9"
+              />
             </Field>
             <Field label="ディーラー">
               <input value={draft.dealer ?? ""} onChange={(e) => setDraft({ ...draft, dealer: e.target.value })} placeholder="ディーラー名(任意)" />
@@ -234,8 +246,17 @@ export default function TablesPage() {
                 </select>
               </Field>
               <Field label="席数">
-                <input type="number" min={2} max={12} value={editTable.maxSeats}
-                  onChange={(e) => setEditTable({ ...editTable, maxSeats: parseInt(e.target.value) || 6 })} />
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  value={editTable.maxSeats}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setEditTable({ ...editTable, maxSeats: v === "" ? 0 : Math.max(1, parseInt(v) || 0) });
+                  }}
+                  placeholder="例: 9"
+                />
               </Field>
               <Field label="ディーラー">
                 <input value={editTable.dealer ?? ""} onChange={(e) => setEditTable({ ...editTable, dealer: e.target.value })} />
