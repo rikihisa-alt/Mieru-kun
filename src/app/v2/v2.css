@@ -5,23 +5,23 @@
 
 .v2 {
   /* ===== color ===== */
-  --v2-bg-body:        #f6faf7;
+  --v2-bg-body:        #ffffff;    /* メイン背景: 白 */
   --v2-bg:             #ffffff;
-  --v2-bg-alt:         #f3f8f4;
+  --v2-bg-alt:         #f5faf6;
   --v2-bg-hover:       #eef5f0;
 
   --v2-text:           #1f2d27;
   --v2-text-sub:       #4a5961;
   --v2-text-mute:      #8e9ba3;
 
-  --v2-border:         #dbe6df;
-  --v2-border-strong:  #c5d2cb;
+  --v2-border:         #e3ebe6;
+  --v2-border-strong:  #cad5cf;
 
   /* pastel green theme */
   --v2-sidebar-bg:     #e7f3eb;
   --v2-sidebar-active: #c9e7d3;
-  --v2-topbar-bg:      #ffffff;
-  --v2-topbar-border:  #dbe6df;
+  --v2-topbar-bg:      #d4e8dc;   /* サイドバーより少し濃い */
+  --v2-topbar-border:  #c3dccc;
 
   /* accent (button / focus) */
   --v2-accent:         #2c9b6a;   /* freeeの青の代わりにグリーン */
@@ -39,10 +39,10 @@
   --v2-info:           #3a7fb8;
   --v2-info-bg:        #e7f0f8;
 
-  /* shadow (パステル背景に対し白パネルを少しだけ浮かす) */
-  --v2-shadow-sm:  0 1px 2px rgba(28, 46, 36, 0.04);
-  --v2-shadow-md:  0 2px 4px rgba(28, 46, 36, 0.05), 0 1px 2px rgba(28, 46, 36, 0.04);
-  --v2-shadow-lg:  0 8px 24px rgba(28, 46, 36, 0.08), 0 2px 6px rgba(28, 46, 36, 0.05);
+  /* shadow (パネルの立体感を強化) */
+  --v2-shadow-sm:  0 1px 3px rgba(28, 46, 36, 0.06);
+  --v2-shadow-md:  0 4px 10px rgba(28, 46, 36, 0.08), 0 2px 4px rgba(28, 46, 36, 0.05);
+  --v2-shadow-lg:  0 12px 28px rgba(28, 46, 36, 0.12), 0 4px 8px rgba(28, 46, 36, 0.06);
 
   /* size */
   --v2-radius-sm:  4px;
@@ -402,7 +402,7 @@
   background: var(--v2-bg);
   border-radius: var(--v2-radius-lg);
   box-shadow: var(--v2-shadow-md);
-  border: 0;
+  border: 1px solid rgba(28, 46, 36, 0.05);
 }
 .v2-panel-head {
   padding: 16px 20px;
@@ -467,7 +467,7 @@
   background: var(--v2-bg);
   border-radius: var(--v2-radius-lg);
   box-shadow: var(--v2-shadow-md);
-  border: 0;
+  border: 1px solid rgba(28, 46, 36, 0.05);
   transition: box-shadow 0.18s ease, transform 0.18s ease;
 }
 .v2-kpi:hover { box-shadow: var(--v2-shadow-lg); transform: translateY(-1px); }

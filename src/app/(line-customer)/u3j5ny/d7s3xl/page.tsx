@@ -18,7 +18,6 @@ interface EventItem {
 }
 
 const CATEGORY_LABEL = { tournament: "トナメ", party: "パーティ", campaign: "キャンペーン" } as const;
-const CATEGORY_CHIP = { tournament: "chip-accent", party: "chip-vip", campaign: "chip-warning" } as const;
 
 const EVENTS: EventItem[] = [
   { id: "e1", title: "春のVIPナイト", category: "party", date: "2026-04-25", time: "20:00-02:00", capacity: 30, reserved: 18, fee: 3000, note: "ウェルカムドリンク付き", myReserved: true },
@@ -28,6 +27,18 @@ const EVENTS: EventItem[] = [
   { id: "e5", title: "女子会ナイト", category: "party", date: "2026-05-10", time: "20:00-01:00", capacity: 20, reserved: 8, fee: 2500, myReserved: false },
   { id: "e6", title: "マルチケ2倍キャンペーン", category: "campaign", date: "2026-05-15", time: "18:00-06:00", capacity: 999, reserved: 0, note: "全来店対象", myReserved: false },
 ];
+
+function categoryChipClass(c: EventItem["category"]): string {
+  if (c === "tournament") return "ln-chip ln-chip--success";
+  if (c === "party") return "ln-chip ln-chip--vip";
+  return "ln-chip ln-chip--warn";
+}
+
+function categoryDotColor(c: EventItem["category"]): string {
+  if (c === "tournament") return "var(--ln-accent)";
+  if (c === "party") return "#7c3aed";
+  return "var(--ln-warn)";
+}
 
 function dateLabel(iso: string): string {
   const d = new Date(iso);
@@ -85,168 +96,229 @@ export default function MemberSchedulePage() {
     });
   }
 
+  const filterTabs = [
+    { key: "all" as const, label: "すべて" },
+    { key: "mine" as const, label: "予約中" },
+    { key: "tournament" as const, label: "トナメ" },
+    { key: "party" as const, label: "パーティ" },
+    { key: "campaign" as const, label: "キャンペーン" },
+  ];
+
   return (
-    <div className="space-y-4">
-      <Link href="/u3j5ny" className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-secondary">
-        <ArrowLeft className="w-3.5 h-3.5" />マイページへ
-      </Link>
+    <div className="ln-page">
+      <div className="ln-stack">
+        <Link href="/u3j5ny" className="ln-back">
+          <ArrowLeft size={14} />マイページへ
+        </Link>
 
-      <h2 className="text-[16px] font-bold flex items-center gap-1.5">
-        <CalendarIcon className="w-4 h-4" />スケジュール
-      </h2>
+        <h2 className="ln-h1" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <CalendarIcon size={18} />スケジュール
+        </h2>
 
-      {/* 予約中のイベント */}
-      {myUpcoming.length > 0 && (
-        <section>
-          <p className="text-[11px] text-text-tertiary mb-1.5">予約中のイベント</p>
-          <div className="space-y-1.5">
-            {myUpcoming.map(e => (
-              <div key={e.id} className="bg-accent-light border border-accent/30 rounded-[var(--radius)] px-3 py-2.5">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <CheckCircle className="w-3.5 h-3.5 text-accent flex-shrink-0" />
-                  <span className="text-[13px] font-semibold truncate">{e.title}</span>
+        {/* 予約中のイベント */}
+        {myUpcoming.length > 0 && (
+          <section>
+            <p className="ln-eyebrow" style={{ marginBottom: 6 }}>予約中のイベント</p>
+            <div className="ln-stack-sm">
+              {myUpcoming.map(e => (
+                <div
+                  key={e.id}
+                  className="ln-card ln-card-compact"
+                  style={{ background: "var(--ln-accent-soft)", borderColor: "transparent" }}
+                >
+                  <div className="ln-row" style={{ marginBottom: 2 }}>
+                    <CheckCircle size={14} style={{ color: "var(--ln-accent-text)", flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.title}</span>
+                  </div>
+                  <p className="ln-sub" style={{ fontSize: 11, margin: 0 }}>{dateLabel(e.date)} {e.time}</p>
                 </div>
-                <p className="text-[11px] text-text-secondary">{dateLabel(e.date)} {e.time}</p>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* カレンダー */}
+        <section className="ln-card">
+          <div className="ln-spread" style={{ marginBottom: 8 }}>
+            <button
+              onClick={() => changeMonth(-1)}
+              className="ln-btn ln-btn--ghost ln-btn--sm"
+              style={{ padding: 4, height: 28, width: 28 }}
+              aria-label="前の月"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span style={{ fontSize: 13, fontWeight: 700 }}>{viewMonth.y}年{viewMonth.m + 1}月</span>
+            <button
+              onClick={() => changeMonth(1)}
+              className="ln-btn ln-btn--ghost ln-btn--sm"
+              style={{ padding: 4, height: 28, width: 28 }}
+              aria-label="次の月"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2, textAlign: "center" }}>
+            {["日","月","火","水","木","金","土"].map((d, i) => (
+              <div
+                key={d}
+                style={{
+                  fontSize: 10,
+                  padding: "4px 0",
+                  color: i === 0 ? "var(--ln-danger)" : i === 6 ? "var(--ln-accent-text)" : "var(--ln-text-mute)",
+                  fontWeight: 600,
+                }}
+              >
+                {d}
               </div>
             ))}
+            {cells.map((cell, i) => {
+              if (!cell) return <div key={i} />;
+              const dayEvents = eventsByDate[cell.iso] || [];
+              const hasMine = dayEvents.some(e => e.myReserved);
+              return (
+                <div
+                  key={i}
+                  style={{
+                    position: "relative",
+                    aspectRatio: "1 / 1",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    padding: "4px 0",
+                    fontSize: 11,
+                    borderRadius: 4,
+                    background: dayEvents.length > 0 ? "var(--ln-bg-alt)" : "transparent",
+                  }}
+                >
+                  <span style={{ fontWeight: hasMine ? 700 : 500, color: hasMine ? "var(--ln-accent-text)" : undefined }}>
+                    {cell.day}
+                  </span>
+                  {dayEvents.length > 0 && (
+                    <div style={{ display: "flex", gap: 2, marginTop: 2 }}>
+                      {dayEvents.slice(0, 3).map(e => (
+                        <span
+                          key={e.id}
+                          style={{
+                            width: 4,
+                            height: 4,
+                            borderRadius: "50%",
+                            background: e.myReserved ? "var(--ln-accent)" : categoryDotColor(e.category),
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
-      )}
 
-      {/* カレンダー */}
-      <section className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-3">
-        <div className="flex items-center justify-between mb-2">
-          <button onClick={() => changeMonth(-1)} className="p-1 hover:bg-bg-hover rounded"><ChevronLeft className="w-4 h-4" /></button>
-          <span className="text-[13px] font-semibold">{viewMonth.y}年{viewMonth.m + 1}月</span>
-          <button onClick={() => changeMonth(1)} className="p-1 hover:bg-bg-hover rounded"><ChevronRight className="w-4 h-4" /></button>
-        </div>
-        <div className="grid grid-cols-7 gap-0.5 text-center">
-          {["日","月","火","水","木","金","土"].map((d, i) => (
-            <div key={d} className={`text-[10px] py-1 ${i === 0 ? "text-status-danger" : i === 6 ? "text-accent" : "text-text-tertiary"}`}>
-              {d}
-            </div>
-          ))}
-          {cells.map((cell, i) => {
-            if (!cell) return <div key={i} />;
-            const dayEvents = eventsByDate[cell.iso] || [];
-            const hasMine = dayEvents.some(e => e.myReserved);
+        {/* フィルタ */}
+        <div style={{ display: "flex", gap: 6, overflowX: "auto", margin: "0 -4px", padding: "0 4px" }}>
+          {filterTabs.map(f => {
+            const active = filter === f.key;
             return (
-              <div
-                key={i}
-                className={`relative aspect-square flex flex-col items-center justify-start py-1 text-[11px] rounded-[4px] ${
-                  dayEvents.length > 0 ? "bg-bg-hover" : ""
-                }`}
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={active ? "ln-btn ln-btn--primary ln-btn--sm" : "ln-btn ln-btn--sm"}
+                style={{ borderRadius: 999, whiteSpace: "nowrap" }}
               >
-                <span className={`font-medium ${hasMine ? "text-accent font-bold" : ""}`}>{cell.day}</span>
-                {dayEvents.length > 0 && (
-                  <div className="flex gap-0.5 mt-0.5">
-                    {dayEvents.slice(0, 3).map(e => (
-                      <span
-                        key={e.id}
-                        className={`w-1 h-1 rounded-full ${
-                          e.myReserved ? "bg-accent"
-                          : e.category === "tournament" ? "bg-[#3a8f7c]"
-                          : e.category === "party" ? "bg-[#7c3aed]"
-                          : "bg-[#d97706]"
-                        }`}
-                      />
-                    ))}
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* イベント一覧 */}
+        <div className="ln-stack-sm" style={{ gap: 10 }}>
+          {filtered.length === 0 ? (
+            <p className="ln-empty">該当するイベントはありません</p>
+          ) : filtered.map(e => {
+            const pct = Math.min(100, Math.round((e.reserved / e.capacity) * 100));
+            const full = e.reserved >= e.capacity;
+            return (
+              <div key={e.id} className="ln-card" style={{ padding: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                  <div className="ln-grow">
+                    <div className="ln-row" style={{ marginBottom: 4, flexWrap: "wrap" }}>
+                      <span className={categoryChipClass(e.category)}>{CATEGORY_LABEL[e.category]}</span>
+                      {e.myReserved && <span className="ln-chip ln-chip--success">予約済</span>}
+                    </div>
+                    <h3 className="ln-h2">{e.title}</h3>
+                  </div>
+                  {e.fee != null && (
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <p className="ln-num" style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>¥{e.fee.toLocaleString()}</p>
+                      <p className="ln-mute" style={{ fontSize: 9, margin: 0 }}>参加費</p>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", flexWrap: "wrap", columnGap: 12, rowGap: 4, fontSize: 11, color: "var(--ln-text-sub)" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <CalendarIcon size={12} />{dateLabel(e.date)}
+                  </span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <Clock size={12} />{e.time}
+                  </span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <Users size={12} />{e.reserved}/{e.capacity === 999 ? "制限なし" : e.capacity}
+                  </span>
+                </div>
+
+                {e.note && (
+                  <p style={{ fontSize: 11, color: "var(--ln-text-sub)", background: "var(--ln-bg-alt)", borderRadius: 4, padding: "4px 8px", margin: 0 }}>
+                    {e.note}
+                  </p>
+                )}
+
+                {e.capacity !== 999 && (
+                  <div style={{ height: 4, background: "var(--ln-bg-alt)", borderRadius: 999, overflow: "hidden" }}>
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${pct}%`,
+                        background: full ? "var(--ln-danger)" : "var(--ln-accent)",
+                      }}
+                    />
                   </div>
                 )}
+
+                <button
+                  onClick={() => toggleReserve(e.id)}
+                  disabled={!e.myReserved && full}
+                  className={
+                    e.myReserved
+                      ? "ln-btn ln-btn--full"
+                      : full
+                        ? "ln-btn ln-btn--full"
+                        : "ln-btn ln-btn--primary ln-btn--full"
+                  }
+                  style={{
+                    height: 38,
+                    fontSize: 12,
+                    ...(e.myReserved
+                      ? { color: "var(--ln-danger)", borderColor: "var(--ln-danger-soft)", background: "var(--ln-danger-soft)" }
+                      : full
+                        ? { opacity: 0.6 }
+                        : {}),
+                  }}
+                >
+                  {e.myReserved ? "予約をキャンセル" : full ? "満席" : "予約する"}
+                </button>
               </div>
             );
           })}
         </div>
-      </section>
 
-      {/* フィルタ */}
-      <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1">
-        {[
-          { key: "all" as const, label: "すべて" },
-          { key: "mine" as const, label: "予約中" },
-          { key: "tournament" as const, label: "トナメ" },
-          { key: "party" as const, label: "パーティ" },
-          { key: "campaign" as const, label: "キャンペーン" },
-        ].map(f => {
-          const active = filter === f.key;
-          return (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={`px-3 py-1 text-[11px] font-medium rounded-full whitespace-nowrap border transition-colors ${
-                active ? "bg-text-primary text-white border-text-primary" : "bg-bg-white text-text-secondary border-border"
-              }`}
-            >
-              {f.label}
-            </button>
-          );
-        })}
+        <p className="ln-mute" style={{ fontSize: 10, margin: 0, display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <MapPin size={12} />Come On Casino 開催
+        </p>
       </div>
-
-      {/* イベント一覧 */}
-      <div className="space-y-2.5">
-        {filtered.length === 0 ? (
-          <p className="text-center text-[12px] text-text-tertiary py-6">該当するイベントはありません</p>
-        ) : filtered.map(e => {
-          const pct = Math.min(100, Math.round((e.reserved / e.capacity) * 100));
-          const full = e.reserved >= e.capacity;
-          return (
-            <div key={e.id} className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-3 space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span className={`chip chip-sm ${CATEGORY_CHIP[e.category]}`}>{CATEGORY_LABEL[e.category]}</span>
-                    {e.myReserved && <span className="chip chip-sm chip-success">予約済</span>}
-                  </div>
-                  <h3 className="text-[14px] font-bold">{e.title}</h3>
-                </div>
-                {e.fee != null && (
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-[13px] font-bold">¥{e.fee.toLocaleString()}</p>
-                    <p className="text-[9px] text-text-tertiary">参加費</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-text-secondary">
-                <span className="flex items-center gap-1"><CalendarIcon className="w-3 h-3" />{dateLabel(e.date)}</span>
-                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{e.time}</span>
-                <span className="flex items-center gap-1"><Users className="w-3 h-3" />{e.reserved}/{e.capacity === 999 ? "制限なし" : e.capacity}</span>
-              </div>
-
-              {e.note && (
-                <p className="text-[11px] text-text-tertiary bg-bg-hover rounded-[4px] px-2 py-1">
-                  {e.note}
-                </p>
-              )}
-
-              {e.capacity !== 999 && (
-                <div className="h-1 bg-bg rounded-full overflow-hidden">
-                  <div className={`h-full ${full ? "bg-status-danger" : "bg-accent"}`} style={{ width: `${pct}%` }} />
-                </div>
-              )}
-
-              <button
-                onClick={() => toggleReserve(e.id)}
-                disabled={!e.myReserved && full}
-                className={`w-full py-2 text-[12px] font-medium rounded-[var(--radius)] transition-colors ${
-                  e.myReserved
-                    ? "bg-bg-hover text-status-danger border border-status-danger/30 hover:bg-status-danger-bg"
-                    : full
-                    ? "bg-bg-hover text-text-tertiary border border-border"
-                    : "bg-accent text-white hover:bg-accent-hover"
-                }`}
-              >
-                {e.myReserved ? "予約をキャンセル" : full ? "満席" : "予約する"}
-              </button>
-            </div>
-          );
-        })}
-      </div>
-
-      <p className="text-[10px] text-text-tertiary flex items-center gap-1">
-        <MapPin className="w-3 h-3" />Come On Casino 開催
-      </p>
     </div>
   );
 }

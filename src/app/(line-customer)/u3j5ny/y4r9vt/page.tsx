@@ -2,44 +2,51 @@
 
 import { Activity, Users, Armchair, Flame } from "lucide-react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function MemberLiveStatusPage() {
   const score = 62;
-  const level = score >= 80 ? { label: "非常に混雑", color: "#c0392b" } : score >= 55 ? { label: "混雑", color: "#c87b1a" } : { label: "通常", color: "#3a8f7c" };
+  const level = score >= 80 ? { label: "非常に混雑", color: "var(--ln-danger)" } : score >= 55 ? { label: "混雑", color: "var(--ln-warn)" } : { label: "通常", color: "var(--ln-accent)" };
 
   return (
-    <div className="space-y-4">
-      <Link href="/u3j5ny" className="text-[12px] text-text-tertiary">← マイページ</Link>
-      <h2 className="text-[16px] font-bold">店内状況</h2>
+    <div className="ln-page">
+      <div className="ln-stack">
+        <Link href="/u3j5ny" className="ln-back">
+          <ArrowLeft size={14} />マイページへ
+        </Link>
+        <h2 className="ln-h1">店内状況</h2>
 
-      <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4">
-        <div className="flex items-baseline justify-between mb-3">
-          <span className="text-[13px] text-text-secondary">現在の混雑度</span>
-          <span className="text-[14px] font-bold" style={{ color: level.color }}>{level.label}</span>
-        </div>
-        <div className="h-2 bg-bg rounded-full overflow-hidden">
-          <div className="h-full rounded-full" style={{ width: `${score}%`, backgroundColor: level.color }} />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        {[
-          { icon: <Users className="w-4 h-4" />, label: "来店", value: "18名" },
-          { icon: <Armchair className="w-4 h-4" />, label: "空席", value: "12席" },
-          { icon: <Activity className="w-4 h-4" />, label: "リング", value: "2卓稼働" },
-          { icon: <Flame className="w-4 h-4" />, label: "トナメ", value: "進行中" },
-        ].map((m) => (
-          <div key={m.label} className="bg-bg-white border border-border rounded-[var(--radius)] p-3 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[6px] bg-bg flex items-center justify-center text-text-secondary">{m.icon}</div>
-            <div>
-              <div className="text-[10px] text-text-tertiary">{m.label}</div>
-              <div className="text-[13px] font-bold">{m.value}</div>
-            </div>
+        <div className="ln-card">
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 10 }}>
+            <span className="ln-sub" style={{ fontSize: 13 }}>現在の混雑度</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: level.color }}>{level.label}</span>
           </div>
-        ))}
-      </div>
+          <div style={{ height: 8, background: "var(--ln-bg-alt)", borderRadius: 999, overflow: "hidden" }}>
+            <div style={{ height: "100%", borderRadius: 999, width: `${score}%`, backgroundColor: level.color }} />
+          </div>
+        </div>
 
-      <p className="text-[11px] text-text-tertiary">データは数分おきに更新されます</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {[
+            { icon: <Users size={16} />, label: "来店", value: "18名" },
+            { icon: <Armchair size={16} />, label: "空席", value: "12席" },
+            { icon: <Activity size={16} />, label: "リング", value: "2卓稼働" },
+            { icon: <Flame size={16} />, label: "トナメ", value: "進行中" },
+          ].map((m) => (
+            <div key={m.label} className="ln-card ln-card-compact" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 6, background: "var(--ln-bg-alt)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ln-text-sub)" }}>
+                {m.icon}
+              </div>
+              <div>
+                <div className="ln-mute" style={{ fontSize: 10 }}>{m.label}</div>
+                <div style={{ fontSize: 13, fontWeight: 700 }}>{m.value}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="ln-mute" style={{ fontSize: 11, margin: 0 }}>データは数分おきに更新されます</p>
+      </div>
     </div>
   );
 }

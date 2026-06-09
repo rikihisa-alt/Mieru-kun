@@ -6,49 +6,55 @@ export default function MyPage() {
   const displayName = c.nickname || c.name;
 
   return (
-    <div className="space-y-3">
-      {/* プロフィール */}
-      <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4 text-center">
-        <div className="w-12 h-12 rounded-full bg-accent-light flex items-center justify-center mx-auto mb-2">
-          <span className="text-[18px] font-bold text-accent">{displayName.charAt(0)}</span>
-        </div>
-        <p className="text-[15px] font-bold">{displayName}</p>
-        {c.nickname && <p className="text-[11px] text-text-tertiary">{c.name}</p>}
-        <span className="mt-1 chip chip-warning">
-          {c.rank}
-        </span>
-        <p className="text-[11px] text-text-tertiary mt-1">来店 {c.visits}回</p>
-      </div>
-
-      {/* 残高 */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="bg-bg-white border border-border rounded-[var(--radius)] px-3 py-2.5">
-          <div className="flex items-center gap-1 mb-0.5">
-            <Coins className="w-3 h-3 text-text-tertiary" />
-            <span className="text-[10px] text-text-tertiary">チップ</span>
+    <div className="ln-page">
+      <div className="ln-stack">
+        {/* プロフィール */}
+        <div className="ln-card" style={{ textAlign: "center" }}>
+          <div className="ln-avatar" style={{ marginBottom: 8 }}>{displayName.charAt(0)}</div>
+          <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{displayName}</p>
+          {c.nickname && <p className="ln-mute" style={{ fontSize: 11, margin: "2px 0 0" }}>{c.name}</p>}
+          <div style={{ marginTop: 6 }}>
+            <span className="ln-chip ln-chip--gold">{c.rank}</span>
           </div>
-          <p className="text-[18px] font-bold">{c.chips.toLocaleString()}<span className="text-[11px] font-normal text-text-tertiary ml-0.5">枚</span></p>
+          <p className="ln-mute" style={{ fontSize: 11, marginTop: 6, marginBottom: 0 }}>来店 {c.visits}回</p>
         </div>
-        <div className="bg-bg-white border border-border rounded-[var(--radius)] px-3 py-2.5">
-          <div className="flex items-center gap-1 mb-0.5">
-            <Trophy className="w-3 h-3 text-text-tertiary" />
-            <span className="text-[10px] text-text-tertiary">ポイント</span>
-          </div>
-          <p className="text-[18px] font-bold">{c.points.toLocaleString()}<span className="text-[11px] font-normal text-text-tertiary ml-0.5">pt</span></p>
-        </div>
-      </div>
 
-      {/* メニュー */}
-      <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] divide-y divide-border-light">
-        <MenuLink href="/u3j5ny/p2x7nq" icon={<Bell />} label="注文・店員呼び出し" />
-        <MenuLink href="/u3j5ny/y4r9vt" icon={<Activity />} label="店内状況" />
-        <MenuLink href="/u3j5ny/k3f8qm" icon={<CalendarPlus />} label="来店予約" />
-        <MenuLink href="/u3j5ny/d7s3xl" icon={<Calendar />} label="スケジュール" />
-        <MenuLink href="/u3j5ny/c6h2zp" icon={<Trophy />} label="ランキング" />
-        <MenuLink href="/u3j5ny/h4n6pw" icon={<Coins />} label="チップ残高" />
-        <MenuLink href="/u3j5ny/q2s9xf" icon={<Trophy />} label="ポイント" />
-        <MenuLink href="/u3j5ny/m7k3rb" icon={<Sparkles />} label="マルチケ" />
-        <MenuLink href="/u3j5ny/v5f8wz" icon={<History />} label="来店履歴" />
+        {/* 残高 */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div className="ln-card ln-card-compact">
+            <div className="ln-row" style={{ marginBottom: 2 }}>
+              <Coins size={12} className="ln-mute" />
+              <span className="ln-mute" style={{ fontSize: 10 }}>チップ</span>
+            </div>
+            <p className="ln-num" style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
+              {c.chips.toLocaleString()}
+              <span className="ln-mute" style={{ fontSize: 11, fontWeight: 400, marginLeft: 3 }}>枚</span>
+            </p>
+          </div>
+          <div className="ln-card ln-card-compact">
+            <div className="ln-row" style={{ marginBottom: 2 }}>
+              <Trophy size={12} className="ln-mute" />
+              <span className="ln-mute" style={{ fontSize: 10 }}>ポイント</span>
+            </div>
+            <p className="ln-num" style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
+              {c.points.toLocaleString()}
+              <span className="ln-mute" style={{ fontSize: 11, fontWeight: 400, marginLeft: 3 }}>pt</span>
+            </p>
+          </div>
+        </div>
+
+        {/* メニュー */}
+        <div className="ln-menu">
+          <MenuLink href="/u3j5ny/p2x7nq" icon={<Bell size={16} />} label="注文・店員呼び出し" />
+          <MenuLink href="/u3j5ny/y4r9vt" icon={<Activity size={16} />} label="店内状況" />
+          <MenuLink href="/u3j5ny/k3f8qm" icon={<CalendarPlus size={16} />} label="来店予約" />
+          <MenuLink href="/u3j5ny/d7s3xl" icon={<Calendar size={16} />} label="スケジュール" />
+          <MenuLink href="/u3j5ny/c6h2zp" icon={<Trophy size={16} />} label="ランキング" />
+          <MenuLink href="/u3j5ny/h4n6pw" icon={<Coins size={16} />} label="チップ残高" />
+          <MenuLink href="/u3j5ny/q2s9xf" icon={<Trophy size={16} />} label="ポイント" />
+          <MenuLink href="/u3j5ny/m7k3rb" icon={<Sparkles size={16} />} label="マルチケ" />
+          <MenuLink href="/u3j5ny/v5f8wz" icon={<History size={16} />} label="来店履歴" />
+        </div>
       </div>
     </div>
   );
@@ -56,12 +62,10 @@ export default function MyPage() {
 
 function MenuLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
   return (
-    <Link href={href} className="flex items-center justify-between px-4 py-3 hover:bg-bg-hover transition-colors">
-      <div className="flex items-center gap-2.5">
-        <span className="text-text-tertiary [&>svg]:w-4 [&>svg]:h-4">{icon}</span>
-        <span className="text-[13px] font-medium">{label}</span>
-      </div>
-      <ChevronRight className="w-4 h-4 text-text-tertiary" />
+    <Link href={href} className="ln-menu__item">
+      <span className="ln-menu__icon">{icon}</span>
+      <span className="ln-menu__label">{label}</span>
+      <ChevronRight size={16} className="ln-menu__chevron" />
     </Link>
   );
 }

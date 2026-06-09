@@ -9,18 +9,22 @@ export default function VisitHistoryPage() {
   ];
 
   return (
-    <div className="space-y-3">
-      <Link href="/u3j5ny" className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-secondary">
-        <ArrowLeft className="w-3.5 h-3.5" />戻る
-      </Link>
-      <h2 className="text-[15px] font-bold">来店履歴</h2>
-      <div className="space-y-2">
-        {history.map(h => (
-          <div key={h.id} className="bg-bg-white border border-border rounded-[var(--radius)] px-4 py-3">
-            <div className="flex justify-between text-[12px] text-text-tertiary mb-1">{h.date}<span>{h.stay}</span></div>
-            <p className="text-[15px] font-bold">¥{h.amount.toLocaleString()}</p>
-          </div>
-        ))}
+    <div className="ln-page">
+      <div className="ln-stack">
+        <Link href="/u3j5ny" className="ln-back">
+          <ArrowLeft size={14} />戻る
+        </Link>
+        <h2 className="ln-h1">来店履歴</h2>
+        <div className="ln-stack-sm">
+          {history.map(h => (
+            <div key={h.id} className="ln-card ln-card-compact">
+              <div className="ln-mute" style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                <span>{h.date}</span><span>{h.stay}</span>
+              </div>
+              <p className="ln-num" style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>¥{h.amount.toLocaleString()}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

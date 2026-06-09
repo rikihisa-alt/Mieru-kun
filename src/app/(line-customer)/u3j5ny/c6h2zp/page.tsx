@@ -26,7 +26,7 @@ interface Row {
   nickname: string;
   value: number;
   self?: boolean;
-  delta?: number; // 前回からの順位変動
+  delta?: number;
 }
 
 const DATA: Record<Metric, Row[]> = {
@@ -88,121 +88,136 @@ export default function MemberRankingPage() {
   const rest = rows.slice(3);
 
   return (
-    <div className="space-y-4">
-      <Link href="/u3j5ny" className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-secondary">
-        <ArrowLeft className="w-3.5 h-3.5" />マイページへ
-      </Link>
+    <div className="ln-page">
+      <div className="ln-stack">
+        <Link href="/u3j5ny" className="ln-back">
+          <ArrowLeft size={14} />マイページへ
+        </Link>
 
-      <h2 className="text-[16px] font-bold flex items-center gap-2">
-        <Trophy className="w-5 h-5 text-status-warning" />
-        ランキング
-      </h2>
+        <h2 className="ln-h1" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Trophy size={18} style={{ color: "var(--ln-warn)" }} />ランキング
+        </h2>
 
-      {/* 期間切替 */}
-      <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1">
-        {(Object.keys(PERIOD_LABEL) as Period[]).map(p => {
-          const active = period === p;
-          return (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`px-3 py-1 text-[11px] font-medium rounded-full whitespace-nowrap border transition-colors ${
-                active ? "bg-accent text-white border-accent" : "bg-bg-white text-text-secondary border-border"
-              }`}
-            >
-              {PERIOD_LABEL[p]}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* メトリクス切替 */}
-      <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 pb-1">
-        {(Object.keys(METRIC_LABEL) as Metric[]).map(m => {
-          const active = metric === m;
-          return (
-            <button
-              key={m}
-              onClick={() => setMetric(m)}
-              className={`px-3 py-1.5 text-[12px] font-medium rounded-[6px] whitespace-nowrap border transition-colors ${
-                active ? "bg-text-primary text-white border-text-primary" : "bg-bg-white text-text-secondary border-border"
-              }`}
-            >
-              {METRIC_LABEL[m]}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* 自分の順位ハイライト */}
-      {me && (
-        <div className="bg-accent-light border border-accent/30 rounded-[var(--radius-lg)] p-3 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center font-bold text-[16px] flex-shrink-0">
-            {me.rank}
-          </div>
-          <div className="flex-1">
-            <p className="text-[10px] text-text-tertiary">あなたの順位</p>
-            <p className="text-[16px] font-bold">
-              {me.value.toLocaleString()}
-              <span className="text-[11px] font-normal text-text-tertiary ml-1">{METRIC_UNIT[metric]}</span>
-            </p>
-          </div>
-          {me.delta != null && me.delta !== 0 && (
-            <div className="text-right">
-              <TrendingUp className={`w-3.5 h-3.5 ml-auto ${me.delta > 0 ? "text-status-success" : "text-status-danger rotate-180"}`} />
-              <span className={`text-[11px] font-bold ${me.delta > 0 ? "text-status-success" : "text-status-danger"}`}>
-                {me.delta > 0 ? "+" : ""}{me.delta}
-              </span>
-            </div>
-          )}
+        {/* 期間切替 */}
+        <div style={{ display: "flex", gap: 6, overflowX: "auto", margin: "0 -4px", padding: "0 4px" }}>
+          {(Object.keys(PERIOD_LABEL) as Period[]).map(p => {
+            const active = period === p;
+            return (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={active ? "ln-btn ln-btn--primary ln-btn--sm" : "ln-btn ln-btn--sm"}
+                style={{ borderRadius: 999, whiteSpace: "nowrap" }}
+              >
+                {PERIOD_LABEL[p]}
+              </button>
+            );
+          })}
         </div>
-      )}
 
-      {/* Top3 表彰台 */}
-      <div className="grid grid-cols-3 gap-1.5">
-        {top3.map(r => {
-          const color = r.rank === 1 ? "#d97706" : r.rank === 2 ? "#6b7280" : "#a16207";
-          return (
-            <div
-              key={r.rank}
-              className={`bg-bg-white border rounded-[var(--radius-lg)] p-2.5 text-center ${r.self ? "border-accent/40 bg-accent-light" : "border-border"}`}
-            >
-              <Medal className="w-5 h-5 mx-auto" style={{ color }} />
-              <p className="text-[11px] font-medium mt-1 truncate">{r.nickname}{r.self && <span className="text-[9px] text-accent ml-0.5">YOU</span>}</p>
-              <p className="text-[14px] font-bold tabular-nums">{r.value.toLocaleString()}</p>
-              <p className="text-[9px] text-text-tertiary">{METRIC_UNIT[metric]}</p>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* 4位以降 */}
-      {rest.length > 0 && (
-        <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] divide-y divide-border-light">
-          {rest.map(r => (
-            <div
-              key={r.rank}
-              className={`flex items-center gap-3 px-3 py-2.5 ${r.self ? "bg-accent-light" : ""}`}
-            >
-              <span className="w-6 text-center text-[12px] text-text-tertiary font-mono">{r.rank}</span>
-              <span className="flex-1 text-[13px] font-medium truncate">
-                {r.nickname}
-                {r.self && <span className="text-[10px] text-accent ml-1">YOU</span>}
-              </span>
-              <span className="text-[13px] font-bold tabular-nums">
-                {r.value.toLocaleString()}
-                <span className="text-[10px] font-normal text-text-tertiary ml-0.5">{METRIC_UNIT[metric]}</span>
-              </span>
-            </div>
-          ))}
+        {/* メトリクス切替 */}
+        <div style={{ display: "flex", gap: 6, overflowX: "auto", margin: "0 -4px", padding: "0 4px 4px" }}>
+          {(Object.keys(METRIC_LABEL) as Metric[]).map(m => {
+            const active = metric === m;
+            return (
+              <button
+                key={m}
+                onClick={() => setMetric(m)}
+                className={active ? "ln-btn ln-btn--primary ln-btn--sm" : "ln-btn ln-btn--sm"}
+                style={{ whiteSpace: "nowrap" }}
+              >
+                {METRIC_LABEL[m]}
+              </button>
+            );
+          })}
         </div>
-      )}
 
-      <p className="text-[10px] text-text-tertiary">
-        {metric === "total"
-          ? "※ 総合スコアは項目ごとの係数(来店/ポイント/リング純増/トナメ/マルチケ/SNS)から店舗が算出しています"
-          : `※ ${PERIOD_LABEL[period]}の${METRIC_LABEL[metric]}集計`}
-      </p>
+        {/* 自分の順位ハイライト */}
+        {me && (
+          <div className="ln-card" style={{ background: "var(--ln-accent-soft)", borderColor: "transparent", display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--ln-accent)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 16, flexShrink: 0 }}>
+              {me.rank}
+            </div>
+            <div className="ln-grow">
+              <p className="ln-mute" style={{ fontSize: 10, margin: 0 }}>あなたの順位</p>
+              <p className="ln-num" style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>
+                {me.value.toLocaleString()}
+                <span className="ln-mute" style={{ fontSize: 11, fontWeight: 400, marginLeft: 4 }}>{METRIC_UNIT[metric]}</span>
+              </p>
+            </div>
+            {me.delta != null && me.delta !== 0 && (
+              <div style={{ textAlign: "right" }}>
+                <TrendingUp
+                  size={14}
+                  style={{
+                    color: me.delta > 0 ? "var(--ln-accent-text)" : "var(--ln-danger)",
+                    transform: me.delta > 0 ? "none" : "rotate(180deg)",
+                    marginLeft: "auto",
+                  }}
+                />
+                <span style={{ fontSize: 11, fontWeight: 700, color: me.delta > 0 ? "var(--ln-accent-text)" : "var(--ln-danger)" }}>
+                  {me.delta > 0 ? "+" : ""}{me.delta}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Top3 表彰台 */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+          {top3.map(r => {
+            const color = r.rank === 1 ? "#d97706" : r.rank === 2 ? "#6b7280" : "#a16207";
+            return (
+              <div
+                key={r.rank}
+                className="ln-card ln-card-compact"
+                style={{
+                  textAlign: "center",
+                  background: r.self ? "var(--ln-accent-soft)" : undefined,
+                  borderColor: r.self ? "transparent" : undefined,
+                  padding: "10px",
+                }}
+              >
+                <Medal size={20} style={{ color, margin: "0 auto" }} />
+                <p style={{ fontSize: 11, fontWeight: 500, margin: "4px 0 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {r.nickname}{r.self && <span style={{ fontSize: 9, color: "var(--ln-accent-text)", marginLeft: 2 }}>YOU</span>}
+                </p>
+                <p className="ln-num" style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>{r.value.toLocaleString()}</p>
+                <p className="ln-mute" style={{ fontSize: 9, margin: 0 }}>{METRIC_UNIT[metric]}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 4位以降 */}
+        {rest.length > 0 && (
+          <div className="ln-list">
+            {rest.map(r => (
+              <div
+                key={r.rank}
+                className="ln-list__item"
+                style={{ background: r.self ? "var(--ln-accent-soft)" : undefined }}
+              >
+                <span className="ln-num ln-mute" style={{ width: 24, textAlign: "center", fontSize: 12 }}>{r.rank}</span>
+                <span className="ln-grow" style={{ fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {r.nickname}
+                  {r.self && <span style={{ fontSize: 10, color: "var(--ln-accent-text)", marginLeft: 4 }}>YOU</span>}
+                </span>
+                <span className="ln-num" style={{ fontSize: 13, fontWeight: 700 }}>
+                  {r.value.toLocaleString()}
+                  <span className="ln-mute" style={{ fontSize: 10, fontWeight: 400, marginLeft: 2 }}>{METRIC_UNIT[metric]}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <p className="ln-mute" style={{ fontSize: 10, margin: 0 }}>
+          {metric === "total"
+            ? "※ 総合スコアは項目ごとの係数(来店/ポイント/リング純増/トナメ/マルチケ/SNS)から店舗が算出しています"
+            : `※ ${PERIOD_LABEL[period]}の${METRIC_LABEL[metric]}集計`}
+        </p>
+      </div>
     </div>
   );
 }

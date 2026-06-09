@@ -12,43 +12,44 @@ export default function ChipsPage() {
   ];
 
   return (
-    <div className="space-y-4">
-      <Link href="/u3j5ny" className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-secondary">
-        <ArrowLeft className="w-3.5 h-3.5" />マイページへ
-      </Link>
+    <div className="ln-page">
+      <div className="ln-stack">
+        <Link href="/u3j5ny" className="ln-back">
+          <ArrowLeft size={14} />マイページへ
+        </Link>
 
-      {/* 残高ヘッダー */}
-      <section className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-5 text-center">
-        <div className="flex items-center justify-center gap-1 mb-1">
-          <Coins className="w-4 h-4 text-text-tertiary" />
-          <span className="text-[11px] text-text-tertiary">現在のチップ残高</span>
-        </div>
-        <p className="text-[32px] font-bold text-text-primary">
-          {balance.toLocaleString()}
-          <span className="text-[14px] font-normal text-text-tertiary ml-1">枚</span>
-        </p>
-      </section>
+        {/* 残高ヘッダー */}
+        <section className="ln-card ln-card-lg ln-balance">
+          <span className="ln-balance__label">
+            <Coins size={14} />現在のチップ残高
+          </span>
+          <p className="ln-balance__value">
+            {balance.toLocaleString()}
+            <span className="ln-balance__value-unit">枚</span>
+          </p>
+        </section>
 
-      {/* 履歴 */}
-      <section>
-        <h2 className="text-[14px] font-bold mb-2">チップ履歴</h2>
-        <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] divide-y divide-border-light">
-          {chips.map(c => (
-            <div key={c.id} className="flex items-center justify-between px-4 py-2.5 text-[12px]">
-              <div>
-                <span className="text-text-tertiary mr-2">{c.date}</span>
-                <span>{c.reason}</span>
+        {/* 履歴 */}
+        <section>
+          <h2 className="ln-h2" style={{ marginBottom: 8 }}>チップ履歴</h2>
+          <div className="ln-list">
+            {chips.map(c => (
+              <div key={c.id} className="ln-list__item" style={{ justifyContent: "space-between" }}>
+                <div>
+                  <span className="ln-mute" style={{ marginRight: 8 }}>{c.date}</span>
+                  <span>{c.reason}</span>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <span className="ln-num" style={{ fontWeight: 700, color: c.change > 0 ? "var(--ln-accent-text)" : "var(--ln-danger)" }}>
+                    {c.change > 0 ? "+" : ""}{c.change.toLocaleString()}
+                  </span>
+                  <span className="ln-mute ln-num" style={{ marginLeft: 8 }}>→{c.balance.toLocaleString()}</span>
+                </div>
               </div>
-              <div className="text-right">
-                <span className={`font-bold ${c.change > 0 ? "text-status-success" : "text-status-danger"}`}>
-                  {c.change > 0 ? "+" : ""}{c.change.toLocaleString()}
-                </span>
-                <span className="text-text-tertiary ml-2">→{c.balance.toLocaleString()}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

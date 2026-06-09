@@ -23,11 +23,11 @@ const DEMO_MEMBERS: Record<string, MemberSnapshot> = {
   "b4c9d2f1": { id: "b4c9d2f1", memberNo: "0002", nickname: "ハナ", realName: "鈴木 花子", rank: "vip", todayCheckedIn: false, ringBalance: 12000, sideBalance: 4500, multikeBalance: 38, lastVisit: "2026-04-19", caution: "誕生日月（4月）: ケア厚めに" },
 };
 
-const RANK_TEXT: Record<string, string> = {
-  vip: "text-[#7c3aed]",
-  gold: "text-status-warning",
-  silver: "text-[#475569]",
-  regular: "text-text-tertiary",
+const RANK_COLOR: Record<string, string> = {
+  vip: "#7c3aed",
+  gold: "var(--ln-warn)",
+  silver: "#475569",
+  regular: "var(--ln-text-mute)",
 };
 const RANK_LABEL: Record<string, string> = { vip: "VIP", gold: "GOLD", silver: "SILVER", regular: "Regular" };
 
@@ -53,95 +53,103 @@ export default function QRScanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg px-4 py-6 max-w-md mx-auto">
-      <h1 className="text-[18px] font-bold text-text-primary mb-4 flex items-center gap-2">
-        <QrCode className="w-5 h-5 text-accent" />QRスキャン
-      </h1>
+    <div className="ln-page">
+      <div className="ln-stack">
+        <h1 className="ln-h1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <QrCode size={20} style={{ color: "var(--ln-accent)" }} />QRスキャン
+        </h1>
 
-      {/* 読取シミュレーション */}
-      <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4 mb-4">
-        <label className="block text-[12px] text-text-secondary mb-2">会員番号 or 会員ID を入力 (QR代用)</label>
-        <div className="flex gap-2">
-          <input type="text" value={scanInput} onChange={(e) => setScanInput(e.target.value)} placeholder="0001 / a8f3d9c2" />
-          <button onClick={scan} className="px-4 py-2 bg-accent text-white text-[13px] font-medium rounded-[var(--radius)]">
-            <Search className="w-4 h-4" />
-          </button>
-        </div>
-        <p className="mt-2 text-[11px] text-text-tertiary">
-          ※ 本番ではカメラQR読取 (zxing) を起動
-        </p>
-      </div>
-
-      {/* 会員カード */}
-      {member && (
-        <div className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4 space-y-3">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-[16px] font-bold">{member.nickname}</span>
-                <span className="text-[11px] text-text-tertiary">{member.realName}</span>
-              </div>
-              <div className="text-[11px] text-text-tertiary">会員番号 {member.memberNo}</div>
-            </div>
-            <div className="flex flex-col items-end gap-1">
-              <span className={`text-[11px] font-semibold tracking-wider ${RANK_TEXT[member.rank]}`}>{RANK_LABEL[member.rank]}</span>
-              <span className={`${member.todayCheckedIn ? "chip chip-success" : "bg-bg text-text-tertiary border border-border"}`}>
-                {member.todayCheckedIn ? "本日来店済" : "未チェックイン"}
-              </span>
-            </div>
-            <button onClick={() => setMember(null)} className="text-text-tertiary p-1 hover:bg-bg-hover rounded">
-              <X className="w-3.5 h-3.5" />
+        {/* 読取シミュレーション */}
+        <div className="ln-card">
+          <label className="ln-sub" style={{ display: "block", fontSize: 12, marginBottom: 8 }}>会員番号 or 会員ID を入力 (QR代用)</label>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input type="text" value={scanInput} onChange={(e) => setScanInput(e.target.value)} placeholder="0001 / a8f3d9c2" />
+            <button onClick={scan} className="ln-btn ln-btn--primary" style={{ flexShrink: 0, padding: "0 14px" }}>
+              <Search size={16} />
             </button>
           </div>
+          <p className="ln-mute" style={{ marginTop: 8, fontSize: 11 }}>
+            ※ 本番ではカメラQR読取 (zxing) を起動
+          </p>
+        </div>
 
-          {member.caution && (
-            <div className="px-3 py-2 bg-status-warning-bg border border-[#c87b1a]/30 rounded-[6px] flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-status-warning shrink-0 mt-0.5" />
-              <span className="text-[11px] text-[#8a5a10]">{member.caution}</span>
+        {/* 会員カード */}
+        {member && (
+          <div className="ln-card ln-stack-sm">
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                  <span style={{ fontSize: 16, fontWeight: 700 }}>{member.nickname}</span>
+                  <span className="ln-mute" style={{ fontSize: 11 }}>{member.realName}</span>
+                </div>
+                <div className="ln-mute" style={{ fontSize: 11 }}>会員番号 {member.memberNo}</div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: RANK_COLOR[member.rank] }}>{RANK_LABEL[member.rank]}</span>
+                <span className={member.todayCheckedIn ? "ln-chip ln-chip--success" : "ln-chip"}>
+                  {member.todayCheckedIn ? "本日来店済" : "未チェックイン"}
+                </span>
+              </div>
+              <button onClick={() => setMember(null)} className="ln-btn ln-btn--ghost ln-btn--sm" style={{ padding: 4, height: 24 }}>
+                <X size={14} />
+              </button>
             </div>
-          )}
 
-          <div className="grid grid-cols-3 gap-2">
-            <MiniStat label="リング" value={member.ringBalance.toLocaleString()} color="#3a8f7c" />
-            <MiniStat label="サイド" value={member.sideBalance.toLocaleString()} color="#d97706" />
-            <MiniStat label="マルチケ" value={member.multikeBalance.toLocaleString()} color="#7c3aed" />
+            {member.caution && (
+              <div className="ln-row" style={{ padding: "8px 12px", background: "var(--ln-warn-soft)", borderRadius: "var(--ln-radius-sm)", alignItems: "flex-start" }}>
+                <AlertTriangle size={16} style={{ color: "var(--ln-warn)", flexShrink: 0, marginTop: 2 }} />
+                <span style={{ fontSize: 11, color: "#8a5a10" }}>{member.caution}</span>
+              </div>
+            )}
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+              <MiniStat label="リング" value={member.ringBalance.toLocaleString()} color="var(--ln-accent-text)" />
+              <MiniStat label="サイド" value={member.sideBalance.toLocaleString()} color="#d97706" />
+              <MiniStat label="マルチケ" value={member.multikeBalance.toLocaleString()} color="#7c3aed" />
+            </div>
+
+            <div className="ln-row ln-mute" style={{ fontSize: 11 }}>
+              最終来店: {member.lastVisit}
+              {member.phone && (<><span style={{ margin: "0 4px" }}>·</span><Phone size={12} />{member.phone}</>)}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, paddingTop: 8, borderTop: "1px solid var(--ln-border-soft)" }}>
+              <ActionButton icon={<DoorOpen size={16} />} label="来店処理" color="var(--ln-accent-text)" onClick={() => action("来店処理")} />
+              <ActionButton icon={<Coins size={16} />} label="チップ引出" color="#d97706" onClick={() => action("チップ引出")} />
+              <ActionButton icon={<Sparkles size={16} />} label="マルチケ消化" color="#7c3aed" onClick={() => action("マルチケ消化")} />
+              <ActionButton icon={<CreditCard size={16} />} label="会計登録" color="#2c3e50" onClick={() => action("会計登録")} />
+            </div>
           </div>
+        )}
 
-          <div className="flex items-center gap-1 text-[11px] text-text-tertiary">
-            最終来店: {member.lastVisit}
-            {member.phone && (<><span className="mx-1">·</span><Phone className="w-3 h-3" />{member.phone}</>)}
+        {toast && (
+          <div
+            style={{
+              position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)",
+              padding: "8px 16px", background: "var(--ln-text)", color: "#fff",
+              fontSize: 12, borderRadius: 6, boxShadow: "var(--ln-shadow-lg)", zIndex: 50,
+            }}
+          >
+            {toast}
           </div>
-
-          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border-light">
-            <ActionButton icon={<DoorOpen className="w-4 h-4" />} label="来店処理" color="#3a8f7c" onClick={() => action("来店処理")} />
-            <ActionButton icon={<Coins className="w-4 h-4" />} label="チップ引出" color="#d97706" onClick={() => action("チップ引出")} />
-            <ActionButton icon={<Sparkles className="w-4 h-4" />} label="マルチケ消化" color="#7c3aed" onClick={() => action("マルチケ消化")} />
-            <ActionButton icon={<CreditCard className="w-4 h-4" />} label="会計登録" color="#2c3e50" onClick={() => action("会計登録")} />
-          </div>
-        </div>
-      )}
-
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-text-primary text-white text-[12px] rounded-[6px] shadow-lg">
-          {toast}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
 function MiniStat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="bg-bg rounded-[6px] p-2 text-center">
-      <div className="text-[10px] text-text-tertiary">{label}</div>
-      <div className="text-[14px] font-bold" style={{ color }}>{value}</div>
+    <div style={{ background: "var(--ln-bg-alt)", borderRadius: 6, padding: 8, textAlign: "center" }}>
+      <div className="ln-mute" style={{ fontSize: 10 }}>{label}</div>
+      <div className="ln-num" style={{ fontSize: 14, fontWeight: 700, color }}>{value}</div>
     </div>
   );
 }
 
 function ActionButton({ icon, label, color, onClick }: { icon: React.ReactNode; label: string; color: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex items-center gap-2 px-3 py-2.5 border border-border rounded-[var(--radius)] text-[12px] font-medium text-text-primary hover:bg-bg-hover transition-colors">
+    <button onClick={onClick} className="ln-btn" style={{ justifyContent: "flex-start", gap: 8, fontSize: 12 }}>
       <span style={{ color }}>{icon}</span>
       {label}
     </button>

@@ -126,26 +126,46 @@ function OrderShell({ session }: { session: LiffSession }) {
   }
 
   return (
-    <div className="min-h-screen">
+    <div style={{ minHeight: "100vh" }}>
       {/* ヘッダー: 席情報 */}
       {seat && (
-        <div className="sticky top-0 z-10 bg-bg-white border-b border-border-light px-4 py-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <Link href="/u3j5ny" className="text-text-tertiary"><ArrowLeft className="w-4 h-4" /></Link>
-            <div className="min-w-0">
-              <p className="text-[10px] text-text-tertiary leading-none">{session.displayName}</p>
-              <p className="text-[13px] font-semibold text-text-primary leading-tight truncate">
-                {seat.tableNo} <span className="text-text-tertiary text-[11px] ml-1">{seat.seatNo}番席</span>
+        <div
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
+            background: "var(--ln-card)",
+            borderBottom: "1px solid var(--ln-border-soft)",
+            boxShadow: "var(--ln-shadow-sm)",
+            padding: "10px 16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div className="ln-row" style={{ minWidth: 0 }}>
+            <Link href="/u3j5ny" className="ln-back" style={{ padding: 0 }} aria-label="戻る">
+              <ArrowLeft size={16} />
+            </Link>
+            <div style={{ minWidth: 0 }}>
+              <p className="ln-mute" style={{ fontSize: 10, margin: 0, lineHeight: 1 }}>{session.displayName}</p>
+              <p style={{ fontSize: 13, fontWeight: 600, margin: 0, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {seat.tableNo}
+                <span className="ln-mute" style={{ fontSize: 11, marginLeft: 4 }}>{seat.seatNo}番席</span>
               </p>
             </div>
           </div>
-          <button onClick={changeSeat} className="flex items-center gap-1 text-[11px] text-text-secondary hover:text-text-primary px-2 py-1 rounded">
-            <Edit2 className="w-3 h-3" />席変更
+          <button
+            onClick={changeSeat}
+            className="ln-btn ln-btn--ghost ln-btn--sm"
+            style={{ fontSize: 11, padding: "0 8px", height: 28 }}
+          >
+            <Edit2 size={12} />席変更
           </button>
         </div>
       )}
 
-      <div className="p-4 pb-24">
+      <div className="ln-page" style={{ paddingBottom: 96 }}>
         {step.kind === "seat" && (
           <SeatPicker
             initial={seat}
@@ -193,10 +213,29 @@ function OrderShell({ session }: { session: LiffSession }) {
       {cart.length > 0 && step.kind !== "cart" && step.kind !== "done" && step.kind !== "seat" && (
         <button
           onClick={() => setStep({ kind: "cart" })}
-          className="fixed bottom-0 left-0 right-0 bg-accent text-white py-3.5 px-4 flex items-center justify-between shadow-lg max-w-[480px] mx-auto"
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            maxWidth: 480,
+            margin: "0 auto",
+            background: "var(--ln-accent)",
+            color: "#fff",
+            border: "none",
+            padding: "14px 16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            boxShadow: "var(--ln-shadow-lg)",
+            cursor: "pointer",
+            fontFamily: "inherit",
+          }}
         >
-          <span className="text-[14px] font-semibold">カート {cart.reduce((s, l) => s + l.qty, 0)}点</span>
-          <span className="text-[12px] flex items-center gap-1">確認・送信 <ChevronRight className="w-3.5 h-3.5" /></span>
+          <span style={{ fontSize: 14, fontWeight: 600 }}>カート {cart.reduce((s, l) => s + l.qty, 0)}点</span>
+          <span style={{ fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
+            確認・送信 <ChevronRight size={14} />
+          </span>
         </button>
       )}
     </div>
@@ -214,61 +253,64 @@ function SeatPicker({ initial, onDone }: { initial: Seat | null; onDone: (s: Sea
   const tables = TABLES_BY_TYPE[tableType];
 
   return (
-    <div className="space-y-5">
+    <div className="ln-stack">
       <div>
-        <h1 className="text-[18px] font-bold text-text-primary mb-1">席を選択してください</h1>
-        <p className="text-[12px] text-text-tertiary">注文・呼び出しの前に必ず席を選択してください</p>
+        <h1 className="ln-h1" style={{ marginBottom: 4 }}>席を選択してください</h1>
+        <p className="ln-mute" style={{ fontSize: 12, margin: 0 }}>注文・呼び出しの前に必ず席を選択してください</p>
       </div>
 
       <div>
-        <label className="block text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">卓種別</label>
-        <div className="grid grid-cols-2 gap-1.5">
+        <p className="ln-eyebrow" style={{ marginBottom: 6 }}>卓種別</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
           {(Object.keys(TABLE_TYPE_LABEL) as TableType[]).map(t => {
             const active = tableType === t;
             return (
               <button
                 key={t}
                 onClick={() => { setTableType(t); setTableNo(TABLES_BY_TYPE[t][0]); }}
-                className={`py-3 text-[13px] font-medium rounded-[6px] border transition-colors ${
-                  active ? "bg-text-primary text-white border-text-primary" : "bg-bg-white text-text-primary border-border"
-                }`}
-              >{TABLE_TYPE_LABEL[t]}</button>
+                className={active ? "ln-btn ln-btn--primary" : "ln-btn"}
+                style={{ height: 44 }}
+              >
+                {TABLE_TYPE_LABEL[t]}
+              </button>
             );
           })}
         </div>
       </div>
 
       <div>
-        <label className="block text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">卓番号</label>
-        <div className="grid grid-cols-3 gap-1.5">
+        <p className="ln-eyebrow" style={{ marginBottom: 6 }}>卓番号</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
           {tables.map(no => {
             const active = tableNo === no;
             return (
               <button
                 key={no}
                 onClick={() => setTableNo(no)}
-                className={`py-2.5 text-[13px] font-mono font-semibold rounded-[6px] border transition-colors ${
-                  active ? "bg-text-primary text-white border-text-primary" : "bg-bg-white text-text-primary border-border"
-                }`}
-              >{no}</button>
+                className={active ? "ln-btn ln-btn--primary ln-num" : "ln-btn ln-num"}
+                style={{ height: 40, fontSize: 13 }}
+              >
+                {no}
+              </button>
             );
           })}
         </div>
       </div>
 
       <div>
-        <label className="block text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">席番号</label>
-        <div className="grid grid-cols-5 gap-1.5">
+        <p className="ln-eyebrow" style={{ marginBottom: 6 }}>席番号</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
           {Array.from({ length: 10 }, (_, i) => i + 1).map(n => {
             const active = seatNo === n;
             return (
               <button
                 key={n}
                 onClick={() => setSeatNo(n)}
-                className={`aspect-square text-[14px] font-bold rounded-full border transition-colors ${
-                  active ? "bg-accent text-white border-accent" : "bg-bg-white text-text-primary border-border"
-                }`}
-              >{n}</button>
+                className={active ? "ln-btn ln-btn--primary" : "ln-btn"}
+                style={{ aspectRatio: "1 / 1", height: "auto", borderRadius: "50%", padding: 0, fontSize: 14, fontWeight: 700 }}
+              >
+                {n}
+              </button>
             );
           })}
         </div>
@@ -276,7 +318,7 @@ function SeatPicker({ initial, onDone }: { initial: Seat | null; onDone: (s: Sea
 
       <button
         onClick={() => onDone({ tableType, tableNo, seatNo })}
-        className="w-full py-3 bg-accent text-white text-[14px] font-semibold rounded-[6px]"
+        className="ln-btn ln-btn--primary ln-btn--full ln-btn--lg"
       >
         {tableNo} / {seatNo}番席 で確定
       </button>
@@ -289,42 +331,95 @@ function SeatPicker({ initial, onDone }: { initial: Seat | null; onDone: (s: Sea
 // ========================================
 function MainMenu({ onPick, cartCount, onCart }: { onPick: (k: "drink" | "food" | "call") => void; cartCount: number; onCart: () => void }) {
   return (
-    <div className="space-y-2.5">
-      <button onClick={() => onPick("drink")} className="w-full bg-bg-white border border-border rounded-[10px] p-5 flex items-center justify-between hover:bg-bg-hover transition-colors text-left">
-        <div className="flex items-center gap-3">
-          <Coffee className="w-7 h-7 text-accent" strokeWidth={1.6} />
+    <div className="ln-stack-sm" style={{ gap: 10 }}>
+      <button
+        onClick={() => onPick("drink")}
+        className="ln-card"
+        style={{
+          width: "100%",
+          padding: 20,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          textAlign: "left",
+          cursor: "pointer",
+          fontFamily: "inherit",
+          color: "inherit",
+        }}
+      >
+        <div className="ln-row" style={{ gap: 12 }}>
+          <Coffee size={28} style={{ color: "var(--ln-accent)" }} strokeWidth={1.6} />
           <div>
-            <p className="text-[16px] font-bold">ドリンク注文</p>
-            <p className="text-[11px] text-text-tertiary mt-0.5">通常・飲み放題・プレミアム</p>
+            <p style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>ドリンク注文</p>
+            <p className="ln-mute" style={{ fontSize: 11, margin: "2px 0 0" }}>通常・飲み放題・プレミアム</p>
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-text-tertiary" />
+        <ChevronRight size={20} style={{ color: "var(--ln-text-mute)" }} />
       </button>
 
-      <button onClick={() => onPick("food")} className="w-full bg-bg-white border border-border rounded-[10px] p-5 flex items-center justify-between hover:bg-bg-hover transition-colors text-left">
-        <div className="flex items-center gap-3">
-          <Utensils className="w-7 h-7 text-[#d97706]" strokeWidth={1.6} />
+      <button
+        onClick={() => onPick("food")}
+        className="ln-card"
+        style={{
+          width: "100%",
+          padding: 20,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          textAlign: "left",
+          cursor: "pointer",
+          fontFamily: "inherit",
+          color: "inherit",
+        }}
+      >
+        <div className="ln-row" style={{ gap: 12 }}>
+          <Utensils size={28} style={{ color: "var(--ln-warn)" }} strokeWidth={1.6} />
           <div>
-            <p className="text-[16px] font-bold">フード注文</p>
-            <p className="text-[11px] text-text-tertiary mt-0.5">軽食・おつまみ</p>
+            <p style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>フード注文</p>
+            <p className="ln-mute" style={{ fontSize: 11, margin: "2px 0 0" }}>軽食・おつまみ</p>
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-text-tertiary" />
+        <ChevronRight size={20} style={{ color: "var(--ln-text-mute)" }} />
       </button>
 
-      <button onClick={() => onPick("call")} className="w-full bg-[#fef7e0] border border-[#c87b1a]/30 rounded-[10px] p-5 flex items-center justify-between hover:bg-[#fcecc4] transition-colors text-left">
-        <div className="flex items-center gap-3">
-          <Bell className="w-7 h-7 text-[#c87b1a]" strokeWidth={1.6} />
+      <button
+        onClick={() => onPick("call")}
+        className="ln-card"
+        style={{
+          width: "100%",
+          padding: 20,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          textAlign: "left",
+          cursor: "pointer",
+          fontFamily: "inherit",
+          color: "inherit",
+          background: "var(--ln-warn-soft)",
+          borderColor: "transparent",
+        }}
+      >
+        <div className="ln-row" style={{ gap: 12 }}>
+          <Bell size={28} style={{ color: "var(--ln-warn)" }} strokeWidth={1.6} />
           <div>
-            <p className="text-[16px] font-bold">店員呼び出し</p>
-            <p className="text-[11px] text-text-tertiary mt-0.5">注文以外のご用件</p>
+            <p style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>店員呼び出し</p>
+            <p className="ln-mute" style={{ fontSize: 11, margin: "2px 0 0" }}>注文以外のご用件</p>
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-text-tertiary" />
+        <ChevronRight size={20} style={{ color: "var(--ln-text-mute)" }} />
       </button>
 
       {cartCount > 0 && (
-        <button onClick={onCart} className="w-full mt-4 py-3 border border-accent text-accent text-[13px] font-medium rounded-[6px]">
+        <button
+          onClick={onCart}
+          className="ln-btn ln-btn--full"
+          style={{
+            marginTop: 8,
+            borderColor: "var(--ln-accent)",
+            color: "var(--ln-accent-text)",
+            fontSize: 13,
+          }}
+        >
           カートを確認 ({cartCount}点)
         </button>
       )}
@@ -339,31 +434,52 @@ function DrinkList({ onPick, onBack }: { onPick: (m: MenuItem) => void; onBack: 
   const [tab, setTab] = useState<"regular" | "tabehoudai" | "premium">("regular");
   const items = MENU.filter(m => m.kind === "drink" && m.category === tab);
   return (
-    <div className="space-y-3">
-      <button onClick={onBack} className="flex items-center gap-1 text-[12px] text-text-tertiary"><ArrowLeft className="w-3.5 h-3.5" />戻る</button>
-      <h2 className="text-[16px] font-bold">ドリンクを選択</h2>
-      <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1">
+    <div className="ln-stack">
+      <button onClick={onBack} className="ln-back" style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+        <ArrowLeft size={14} />戻る
+      </button>
+      <h2 className="ln-h1">ドリンクを選択</h2>
+      <div style={{ display: "flex", gap: 6, overflowX: "auto", margin: "0 -4px", padding: "0 4px" }}>
         {(Object.keys(DRINK_CATEGORY_LABEL) as Array<keyof typeof DRINK_CATEGORY_LABEL>).map(c => {
           const active = tab === c;
           return (
             <button
               key={c}
               onClick={() => setTab(c)}
-              className={`px-4 py-1.5 text-[12px] font-medium rounded-full whitespace-nowrap border ${
-                active ? "bg-text-primary text-white border-text-primary" : "bg-bg-white text-text-secondary border-border"
-              }`}
-            >{DRINK_CATEGORY_LABEL[c]}{c === "premium" && " ★"}</button>
+              className={active ? "ln-btn ln-btn--primary ln-btn--sm" : "ln-btn ln-btn--sm"}
+              style={{ borderRadius: 999, whiteSpace: "nowrap" }}
+            >
+              {DRINK_CATEGORY_LABEL[c]}{c === "premium" && " ★"}
+            </button>
           );
         })}
       </div>
-      <div className="space-y-1.5">
+      <div className="ln-list">
         {items.map(m => (
-          <button key={m.id} onClick={() => onPick(m)} className="w-full bg-bg-white border border-border rounded-[8px] px-4 py-3 flex items-center justify-between hover:bg-bg-hover transition-colors text-left">
-            <span className="text-[14px] font-medium">
-              {m.category === "premium" && <span className="text-[10px] text-[#c87b1a] mr-1.5">【プレミアム】</span>}
+          <button
+            key={m.id}
+            onClick={() => onPick(m)}
+            className="ln-list__item"
+            style={{
+              width: "100%",
+              background: "none",
+              border: "none",
+              borderBottom: "1px solid var(--ln-border-soft)",
+              textAlign: "left",
+              cursor: "pointer",
+              fontFamily: "inherit",
+              color: "inherit",
+            }}
+          >
+            <span className="ln-grow" style={{ fontSize: 14, fontWeight: 500 }}>
+              {m.category === "premium" && (
+                <span className="ln-chip ln-chip--gold" style={{ marginRight: 6, height: 18, fontSize: 10, padding: "0 6px" }}>
+                  プレミアム
+                </span>
+              )}
               {m.name}
             </span>
-            <ChevronRight className="w-4 h-4 text-text-tertiary" />
+            <ChevronRight size={16} style={{ color: "var(--ln-text-mute)" }} />
           </button>
         ))}
       </div>
@@ -377,14 +493,30 @@ function DrinkList({ onPick, onBack }: { onPick: (m: MenuItem) => void; onBack: 
 function FoodList({ onPick, onBack }: { onPick: (m: MenuItem) => void; onBack: () => void }) {
   const items = MENU.filter(m => m.kind === "food");
   return (
-    <div className="space-y-3">
-      <button onClick={onBack} className="flex items-center gap-1 text-[12px] text-text-tertiary"><ArrowLeft className="w-3.5 h-3.5" />戻る</button>
-      <h2 className="text-[16px] font-bold">フードを選択</h2>
-      <div className="space-y-1.5">
+    <div className="ln-stack">
+      <button onClick={onBack} className="ln-back" style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+        <ArrowLeft size={14} />戻る
+      </button>
+      <h2 className="ln-h1">フードを選択</h2>
+      <div className="ln-list">
         {items.map(m => (
-          <button key={m.id} onClick={() => onPick(m)} className="w-full bg-bg-white border border-border rounded-[8px] px-4 py-3 flex items-center justify-between hover:bg-bg-hover transition-colors text-left">
-            <span className="text-[14px] font-medium">{m.name}</span>
-            <ChevronRight className="w-4 h-4 text-text-tertiary" />
+          <button
+            key={m.id}
+            onClick={() => onPick(m)}
+            className="ln-list__item"
+            style={{
+              width: "100%",
+              background: "none",
+              border: "none",
+              borderBottom: "1px solid var(--ln-border-soft)",
+              textAlign: "left",
+              cursor: "pointer",
+              fontFamily: "inherit",
+              color: "inherit",
+            }}
+          >
+            <span className="ln-grow" style={{ fontSize: 14, fontWeight: 500 }}>{m.name}</span>
+            <ChevronRight size={16} style={{ color: "var(--ln-text-mute)" }} />
           </button>
         ))}
       </div>
@@ -418,52 +550,83 @@ function ItemConfig({ menu, onAdd, onBack }: { menu: MenuItem; onAdd: (line: Car
   }
 
   return (
-    <div className="space-y-4">
-      <button onClick={onBack} className="flex items-center gap-1 text-[12px] text-text-tertiary"><ArrowLeft className="w-3.5 h-3.5" />戻る</button>
+    <div className="ln-stack">
+      <button onClick={onBack} className="ln-back" style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+        <ArrowLeft size={14} />戻る
+      </button>
       <div>
-        {menu.category === "premium" && <p className="text-[10px] text-[#c87b1a] font-semibold mb-1">【プレミアム】</p>}
-        <h2 className="text-[18px] font-bold">{menu.name}</h2>
+        {menu.category === "premium" && (
+          <span className="ln-chip ln-chip--gold" style={{ marginBottom: 6 }}>プレミアム</span>
+        )}
+        <h2 className="ln-h1" style={{ marginTop: menu.category === "premium" ? 6 : 0 }}>{menu.name}</h2>
       </div>
 
-      <div className="space-y-3 bg-bg-white border border-border rounded-[8px] p-4">
-        {menu.hotIce && (
-          <PickToggle label="HOT/ICE" value={options.hotIce as string} options={["HOT", "ICE"]} onChange={v => setOptions(p => ({ ...p, hotIce: v }))} />
-        )}
-        {menu.ice && (
-          <PickToggle label="氷" value={options.ice as string} options={["氷あり", "氷なし"]} onChange={v => setOptions(p => ({ ...p, ice: v }))} />
-        )}
-        {menu.straw && (
-          <PickToggle label="ストロー" value={options.straw as string} options={["ストローあり", "ストローなし"]} onChange={v => setOptions(p => ({ ...p, straw: v }))} />
-        )}
-        {menu.chopsticks && (
-          <PickToggle label="箸" value={options.chopsticks as string} options={["箸あり", "箸なし"]} onChange={v => setOptions(p => ({ ...p, chopsticks: v }))} />
-        )}
-        {menu.plate && (
-          <PickToggle label="取り皿" value={options.plate as string} options={["取り皿あり", "取り皿なし"]} onChange={v => setOptions(p => ({ ...p, plate: v }))} />
-        )}
-        {menu.sauceSeparate && (
-          <label className="flex items-center justify-between">
-            <span className="text-[12px] font-medium">ソース別添え</span>
-            <input type="checkbox" checked={!!options.sauceSeparate} onChange={e => setOptions(p => ({ ...p, sauceSeparate: e.target.checked }))} />
-          </label>
-        )}
-      </div>
+      {(menu.hotIce || menu.ice || menu.straw || menu.chopsticks || menu.plate || menu.sauceSeparate) && (
+        <div className="ln-card" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {menu.hotIce && (
+            <PickToggle label="HOT/ICE" value={options.hotIce as string} options={["HOT", "ICE"]} onChange={v => setOptions(p => ({ ...p, hotIce: v }))} />
+          )}
+          {menu.ice && (
+            <PickToggle label="氷" value={options.ice as string} options={["氷あり", "氷なし"]} onChange={v => setOptions(p => ({ ...p, ice: v }))} />
+          )}
+          {menu.straw && (
+            <PickToggle label="ストロー" value={options.straw as string} options={["ストローあり", "ストローなし"]} onChange={v => setOptions(p => ({ ...p, straw: v }))} />
+          )}
+          {menu.chopsticks && (
+            <PickToggle label="箸" value={options.chopsticks as string} options={["箸あり", "箸なし"]} onChange={v => setOptions(p => ({ ...p, chopsticks: v }))} />
+          )}
+          {menu.plate && (
+            <PickToggle label="取り皿" value={options.plate as string} options={["取り皿あり", "取り皿なし"]} onChange={v => setOptions(p => ({ ...p, plate: v }))} />
+          )}
+          {menu.sauceSeparate && (
+            <label className="ln-spread">
+              <span style={{ fontSize: 13, fontWeight: 500 }}>ソース別添え</span>
+              <input
+                type="checkbox"
+                checked={!!options.sauceSeparate}
+                onChange={e => setOptions(p => ({ ...p, sauceSeparate: e.target.checked }))}
+                style={{ width: "auto", padding: 0 }}
+              />
+            </label>
+          )}
+        </div>
+      )}
 
       <div>
-        <label className="block text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">数量</label>
-        <div className="flex items-center justify-center gap-4 py-3 bg-bg-white border border-border rounded-[8px]">
-          <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-10 border border-border rounded-full flex items-center justify-center"><Minus className="w-4 h-4" /></button>
-          <span className="text-[24px] font-bold tabular-nums w-12 text-center">{qty}</span>
-          <button onClick={() => setQty(qty + 1)} className="w-10 h-10 border border-border rounded-full flex items-center justify-center"><Plus className="w-4 h-4" /></button>
+        <p className="ln-eyebrow" style={{ marginBottom: 6 }}>数量</p>
+        <div className="ln-card ln-card-compact" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, padding: "12px 14px" }}>
+          <button
+            onClick={() => setQty(Math.max(1, qty - 1))}
+            className="ln-btn"
+            style={{ width: 40, height: 40, padding: 0, borderRadius: "50%" }}
+            aria-label="減らす"
+          >
+            <Minus size={16} />
+          </button>
+          <span className="ln-num" style={{ fontSize: 24, fontWeight: 700, width: 48, textAlign: "center" }}>{qty}</span>
+          <button
+            onClick={() => setQty(qty + 1)}
+            className="ln-btn"
+            style={{ width: 40, height: 40, padding: 0, borderRadius: "50%" }}
+            aria-label="増やす"
+          >
+            <Plus size={16} />
+          </button>
         </div>
       </div>
 
       <div>
-        <label className="block text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">備考 (任意)</label>
-        <textarea value={note} onChange={e => setNote(e.target.value)} rows={2} className="resize-none text-[13px]" placeholder="アレルギー対応など" />
+        <p className="ln-eyebrow" style={{ marginBottom: 6 }}>備考 (任意)</p>
+        <textarea
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          rows={2}
+          style={{ resize: "none", fontSize: 13 }}
+          placeholder="アレルギー対応など"
+        />
       </div>
 
-      <button onClick={add} className="w-full py-3 bg-accent text-white text-[14px] font-semibold rounded-[6px]">
+      <button onClick={add} className="ln-btn ln-btn--primary ln-btn--full ln-btn--lg">
         カートに追加
       </button>
     </div>
@@ -473,18 +636,19 @@ function ItemConfig({ menu, onAdd, onBack }: { menu: MenuItem; onAdd: (line: Car
 function PickToggle({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (v: string) => void }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">{label}</p>
-      <div className="grid grid-cols-2 gap-1.5">
+      <p className="ln-eyebrow" style={{ marginBottom: 6 }}>{label}</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
         {options.map(o => {
           const active = value === o;
           return (
             <button
               key={o}
               onClick={() => onChange(o)}
-              className={`py-2 text-[13px] font-medium rounded-[6px] border ${
-                active ? "bg-text-primary text-white border-text-primary" : "bg-bg-white text-text-primary border-border"
-              }`}
-            >{o}</button>
+              className={active ? "ln-btn ln-btn--primary" : "ln-btn"}
+              style={{ height: 38, fontSize: 13 }}
+            >
+              {o}
+            </button>
           );
         })}
       </div>
@@ -503,33 +667,79 @@ function CartView({ cart, onUpdateQty, onRemove, onSubmit, onBack }: {
   onBack: () => void;
 }) {
   return (
-    <div className="space-y-4">
-      <button onClick={onBack} className="flex items-center gap-1 text-[12px] text-text-tertiary"><ArrowLeft className="w-3.5 h-3.5" />戻る</button>
-      <h2 className="text-[18px] font-bold">注文内容の確認</h2>
+    <div className="ln-stack">
+      <button onClick={onBack} className="ln-back" style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+        <ArrowLeft size={14} />戻る
+      </button>
+      <h2 className="ln-h1">注文内容の確認</h2>
       {cart.length === 0 ? (
-        <p className="text-center text-[12px] text-text-tertiary py-8">カートは空です</p>
+        <p className="ln-empty">カートは空です</p>
       ) : (
-        <div className="space-y-2">
+        <div className="ln-stack-sm">
           {cart.map(l => (
-            <div key={l.id} className="bg-bg-white border border-border rounded-[8px] p-3 relative">
-              <button onClick={() => onRemove(l.id)} className="absolute top-2 right-2 text-text-tertiary"><X className="w-3.5 h-3.5" /></button>
-              <p className="text-[14px] font-semibold">{l.menu.name}</p>
-              <div className="flex flex-wrap gap-1 mt-1 text-[10px]">
+            <div key={l.id} className="ln-card ln-card-compact" style={{ position: "relative" }}>
+              <button
+                onClick={() => onRemove(l.id)}
+                aria-label="削除"
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  background: "none",
+                  border: "none",
+                  color: "var(--ln-text-mute)",
+                  cursor: "pointer",
+                  padding: 4,
+                }}
+              >
+                <X size={14} />
+              </button>
+              <p style={{ fontSize: 14, fontWeight: 600, margin: 0, paddingRight: 24 }}>{l.menu.name}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
                 {Object.entries(l.options).filter(([, v]) => v !== false && v !== "").map(([k, v]) => (
-                  <span key={k} className="px-1.5 py-0.5 bg-bg-hover rounded text-text-secondary">{typeof v === "boolean" ? optionLabel(k) : String(v)}</span>
+                  <span
+                    key={k}
+                    className="ln-chip"
+                    style={{ fontSize: 10, height: 18, padding: "0 6px" }}
+                  >
+                    {typeof v === "boolean" ? optionLabel(k) : String(v)}
+                  </span>
                 ))}
               </div>
-              {l.note && <p className="text-[11px] text-text-tertiary mt-1">📝 {l.note}</p>}
-              <div className="flex items-center gap-2 mt-2">
-                <button onClick={() => onUpdateQty(l.id, l.qty - 1)} className="w-7 h-7 border border-border rounded-full flex items-center justify-center"><Minus className="w-3 h-3" /></button>
-                <span className="text-[14px] font-bold tabular-nums w-8 text-center">{l.qty}</span>
-                <button onClick={() => onUpdateQty(l.id, l.qty + 1)} className="w-7 h-7 border border-border rounded-full flex items-center justify-center"><Plus className="w-3 h-3" /></button>
+              {l.note && (
+                <p className="ln-mute" style={{ fontSize: 11, margin: "4px 0 0" }}>
+                  📝 {l.note}
+                </p>
+              )}
+              <div className="ln-row" style={{ marginTop: 8 }}>
+                <button
+                  onClick={() => onUpdateQty(l.id, l.qty - 1)}
+                  className="ln-btn"
+                  style={{ width: 28, height: 28, padding: 0, borderRadius: "50%" }}
+                  aria-label="減らす"
+                >
+                  <Minus size={12} />
+                </button>
+                <span className="ln-num" style={{ fontSize: 14, fontWeight: 700, width: 32, textAlign: "center" }}>{l.qty}</span>
+                <button
+                  onClick={() => onUpdateQty(l.id, l.qty + 1)}
+                  className="ln-btn"
+                  style={{ width: 28, height: 28, padding: 0, borderRadius: "50%" }}
+                  aria-label="増やす"
+                >
+                  <Plus size={12} />
+                </button>
               </div>
             </div>
           ))}
         </div>
       )}
-      <button onClick={onSubmit} disabled={cart.length === 0} className="w-full py-3 bg-accent text-white text-[14px] font-semibold rounded-[6px] disabled:opacity-50">
+      <button
+        onClick={onSubmit}
+        disabled={cart.length === 0}
+        className="ln-btn ln-btn--primary ln-btn--full ln-btn--lg"
+        style={{ opacity: cart.length === 0 ? 0.5 : 1 }}
+      >
         注文を送信 ({cart.reduce((s, l) => s + l.qty, 0)}点)
       </button>
     </div>
@@ -548,36 +758,45 @@ function CallForm({ onSubmit, onBack }: { onSubmit: (r: { type: CallReasonType; 
   const [text, setText] = useState("");
 
   return (
-    <div className="space-y-4">
-      <button onClick={onBack} className="flex items-center gap-1 text-[12px] text-text-tertiary"><ArrowLeft className="w-3.5 h-3.5" />戻る</button>
-      <h2 className="text-[18px] font-bold flex items-center gap-2">
-        <Bell className="w-5 h-5 text-[#c87b1a]" />店員呼び出し
+    <div className="ln-stack">
+      <button onClick={onBack} className="ln-back" style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+        <ArrowLeft size={14} />戻る
+      </button>
+      <h2 className="ln-h1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Bell size={20} style={{ color: "var(--ln-warn)" }} />店員呼び出し
       </h2>
-      <p className="text-[12px] text-text-tertiary">店員がお伺いします</p>
-      <div className="space-y-1.5">
+      <p className="ln-mute" style={{ fontSize: 12, margin: 0 }}>店員がお伺いします</p>
+      <div className="ln-stack-sm">
         {(Object.keys(CALL_REASON_LABEL) as CallReasonType[]).map(r => {
           const active = type === r;
           return (
             <button
               key={r}
               onClick={() => setType(r)}
-              className={`w-full py-3 text-[14px] font-medium rounded-[8px] border transition-colors ${
-                active ? "bg-text-primary text-white border-text-primary" : "bg-bg-white text-text-primary border-border"
-              }`}
-            >{CALL_REASON_LABEL[r]}</button>
+              className={active ? "ln-btn ln-btn--primary ln-btn--full" : "ln-btn ln-btn--full"}
+              style={{ height: 44, fontSize: 14 }}
+            >
+              {CALL_REASON_LABEL[r]}
+            </button>
           );
         })}
       </div>
       {type === "other" && (
         <div>
-          <label className="block text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">ご用件</label>
-          <textarea value={text} onChange={e => setText(e.target.value)} rows={2} className="resize-none text-[13px]" />
+          <p className="ln-eyebrow" style={{ marginBottom: 6 }}>ご用件</p>
+          <textarea
+            value={text}
+            onChange={e => setText(e.target.value)}
+            rows={2}
+            style={{ resize: "none", fontSize: 13 }}
+          />
         </div>
       )}
       <button
         onClick={() => onSubmit({ type, text: type === "other" ? text.trim() || undefined : undefined })}
         disabled={type === "other" && !text.trim()}
-        className="w-full py-3 bg-[#c87b1a] text-white text-[14px] font-semibold rounded-[6px] disabled:opacity-50"
+        className="ln-btn ln-btn--warn ln-btn--full ln-btn--lg"
+        style={{ opacity: type === "other" && !text.trim() ? 0.5 : 1 }}
       >
         店員を呼ぶ
       </button>
@@ -590,11 +809,19 @@ function CallForm({ onSubmit, onBack }: { onSubmit: (r: { type: CallReasonType; 
 // ========================================
 function DoneScreen({ onBack }: { onBack: () => void }) {
   return (
-    <div className="flex flex-col items-center text-center py-10 space-y-4">
-      <CheckCircle className="w-16 h-16 text-accent" strokeWidth={1.5} />
-      <p className="text-[16px] font-bold">送信しました</p>
-      <p className="text-[12px] text-text-tertiary leading-[1.7]">店員が確認しています。<br />しばらくお待ちください。</p>
-      <button onClick={onBack} className="mt-4 px-5 py-2 border border-border text-[13px] rounded-[6px]">メニューに戻る</button>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: "40px 0", gap: 14 }}>
+      <CheckCircle size={64} style={{ color: "var(--ln-accent)" }} strokeWidth={1.5} />
+      <p style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>送信しました</p>
+      <p className="ln-mute" style={{ fontSize: 12, margin: 0, lineHeight: 1.7 }}>
+        店員が確認しています。<br />しばらくお待ちください。
+      </p>
+      <button
+        onClick={onBack}
+        className="ln-btn"
+        style={{ marginTop: 8, fontSize: 13 }}
+      >
+        メニューに戻る
+      </button>
     </div>
   );
 }

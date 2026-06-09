@@ -55,178 +55,182 @@ export default function MemberReservationPage() {
 
   if (done) {
     return (
-      <div className="space-y-4">
-        <div className="text-center py-10">
-          <CheckCircle className="w-14 h-14 text-accent mx-auto mb-3" />
-          <p className="text-[15px] font-semibold">予約リクエストを送信しました</p>
-          <p className="text-[12px] text-text-tertiary mt-1.5">確定次第 LINE で通知します</p>
-          <div className="mt-4 inline-block bg-bg-white border border-border rounded-[var(--radius)] px-4 py-3 text-left">
-            <p className="text-[11px] text-text-tertiary">予約内容</p>
-            <p className="text-[13px] font-medium mt-1">{date} {slot}〜</p>
-            <p className="text-[12px] text-text-secondary">{party}名・{KIND_LABEL[kind]}</p>
+      <div className="ln-page">
+        <div className="ln-stack">
+          <div style={{ textAlign: "center", padding: "32px 0 16px" }}>
+            <CheckCircle size={56} style={{ color: "var(--ln-accent)", margin: "0 auto 10px" }} />
+            <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>予約リクエストを送信しました</p>
+            <p className="ln-mute" style={{ fontSize: 12, marginTop: 4 }}>確定次第 LINE で通知します</p>
+            <div className="ln-card ln-card-compact" style={{ marginTop: 16, display: "inline-block", textAlign: "left" }}>
+              <p className="ln-mute" style={{ fontSize: 11, margin: 0 }}>予約内容</p>
+              <p style={{ fontSize: 13, fontWeight: 500, margin: "4px 0 0" }}>{date} {slot}〜</p>
+              <p className="ln-sub" style={{ fontSize: 12, margin: 0 }}>{party}名・{KIND_LABEL[kind]}</p>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => { setDone(false); setDate(""); setNote(""); setParty(1); setKind("any"); }}
-            className="flex-1 py-2.5 border border-border text-[13px] rounded-[var(--radius)]"
-          >
-            続けて予約
-          </button>
-          <Link href="/u3j5ny" className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] text-center">
-            マイページへ
-          </Link>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => { setDone(false); setDate(""); setNote(""); setParty(1); setKind("any"); }}
+              className="ln-btn ln-btn--full"
+            >
+              続けて予約
+            </button>
+            <Link href="/u3j5ny" className="ln-btn ln-btn--primary ln-btn--full">
+              マイページへ
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <Link href="/u3j5ny" className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-secondary">
-        <ArrowLeft className="w-3.5 h-3.5" />マイページへ
-      </Link>
+    <div className="ln-page">
+      <div className="ln-stack">
+        <Link href="/u3j5ny" className="ln-back">
+          <ArrowLeft size={14} />マイページへ
+        </Link>
 
-      <h2 className="text-[16px] font-bold flex items-center gap-1.5">
-        <Calendar className="w-4 h-4" />来店予約
-      </h2>
+        <h2 className="ln-h1" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Calendar size={18} />来店予約
+        </h2>
 
-      {/* 予約中の一覧 */}
-      {myReservations.length > 0 && (
-        <section>
-          <p className="text-[11px] text-text-tertiary mb-1.5">予約中</p>
-          <div className="space-y-1.5">
-            {myReservations.map(r => (
-              <div key={r.id} className="bg-bg-white border border-border rounded-[var(--radius)] px-3 py-2.5 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-medium">{r.date.slice(5)} {r.time}</span>
-                    {r.status === "pending" && (
-                      <span className="chip chip-warning" style={{ fontSize: 10 }}>確定待ち</span>
-                    )}
-                    {r.status === "confirmed" && (
-                      <span className="chip chip-success" style={{ fontSize: 10 }}>確定</span>
-                    )}
+        {/* 予約中の一覧 */}
+        {myReservations.length > 0 && (
+          <section>
+            <p className="ln-eyebrow" style={{ marginBottom: 6 }}>予約中</p>
+            <div className="ln-stack-sm">
+              {myReservations.map(r => (
+                <div key={r.id} className="ln-card ln-card-compact" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div>
+                    <div className="ln-row">
+                      <span style={{ fontSize: 13, fontWeight: 500 }}>{r.date.slice(5)} {r.time}</span>
+                      {r.status === "pending" && <span className="ln-chip ln-chip--warn">確定待ち</span>}
+                      {r.status === "confirmed" && <span className="ln-chip ln-chip--success">確定</span>}
+                    </div>
+                    <p className="ln-mute" style={{ fontSize: 11, margin: "2px 0 0" }}>{r.party}名・{KIND_LABEL[r.kind]}</p>
                   </div>
-                  <p className="text-[11px] text-text-tertiary mt-0.5">{r.party}名・{KIND_LABEL[r.kind]}</p>
+                  <button
+                    onClick={() => cancelReservation(r.id)}
+                    className="ln-btn ln-btn--ghost ln-btn--sm"
+                    aria-label="キャンセル"
+                    style={{ padding: 6, height: 28 }}
+                  >
+                    <X size={14} />
+                  </button>
                 </div>
-                <button
-                  onClick={() => cancelReservation(r.id)}
-                  className="p-1.5 text-text-tertiary hover:text-status-danger"
-                  aria-label="キャンセル"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 予約フォーム */}
+        <section className="ln-card">
+          <p className="ln-eyebrow" style={{ marginBottom: 10 }}>新規予約</p>
+
+          <div className="ln-stack-sm" style={{ gap: 14 }}>
+            <div>
+              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "var(--ln-text-sub)", marginBottom: 4 }}>
+                <Calendar size={12} />来店日
+              </label>
+              <input type="date" value={date} min={todayISO} onChange={(e) => setDate(e.target.value)} />
+            </div>
+
+            <div>
+              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "var(--ln-text-sub)", marginBottom: 4 }}>
+                <Clock size={12} />来店時間
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+                {Object.keys(CONGESTION).map(t => {
+                  const c = CONGESTION[t];
+                  const active = slot === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setSlot(t)}
+                      className={active ? "ln-btn ln-btn--primary" : "ln-btn"}
+                      style={{ height: "auto", padding: "8px 4px", flexDirection: "column", gap: 2 }}
+                    >
+                      <div style={{ fontSize: 12, fontWeight: 600 }}>{t}</div>
+                      <div style={{ fontSize: 9, opacity: 0.85 }}>
+                        {c === 0 ? "◎空き" : c === 1 ? "◯普通" : "△混雑"}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-            ))}
+            </div>
+
+            <div>
+              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "var(--ln-text-sub)", marginBottom: 4 }}>
+                <Users size={12} />人数
+              </label>
+              <div className="ln-row">
+                <button
+                  type="button"
+                  onClick={() => setParty(Math.max(1, party - 1))}
+                  className="ln-btn"
+                  style={{ width: 38, height: 38, padding: 0, fontSize: 16, fontWeight: 700 }}
+                >−</button>
+                <span className="ln-grow ln-num" style={{ textAlign: "center", fontSize: 15, fontWeight: 700 }}>{party}名</span>
+                <button
+                  type="button"
+                  onClick={() => setParty(Math.min(10, party + 1))}
+                  className="ln-btn"
+                  style={{ width: 38, height: 38, padding: 0, fontSize: 16, fontWeight: 700 }}
+                >+</button>
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: 11, color: "var(--ln-text-sub)", display: "block", marginBottom: 4 }}>卓種別</label>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
+                {(Object.keys(KIND_LABEL) as TableKind[]).map(k => {
+                  const active = kind === k;
+                  return (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => setKind(k)}
+                      className={active ? "ln-btn ln-btn--primary" : "ln-btn"}
+                      style={{ height: 36, padding: "0 6px", fontSize: 11 }}
+                    >
+                      {KIND_LABEL[k]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: 11, color: "var(--ln-text-sub)", display: "block", marginBottom: 4 }}>備考(任意)</label>
+              <textarea
+                rows={2}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="トナメ参加希望 / 誕生日利用 など"
+                style={{ resize: "none" }}
+              />
+            </div>
+
+            <button
+              onClick={submit}
+              disabled={!date}
+              className="ln-btn ln-btn--primary ln-btn--full ln-btn--lg"
+              style={{ opacity: !date ? 0.5 : 1 }}
+            >
+              予約を送信
+            </button>
           </div>
         </section>
-      )}
 
-      {/* 予約フォーム */}
-      <section className="bg-bg-white border border-border rounded-[var(--radius-lg)] p-4 space-y-3">
-        <p className="text-[12px] font-semibold text-text-primary">新規予約</p>
-
-        <div>
-          <label className="block text-[11px] text-text-secondary mb-1 flex items-center gap-1">
-            <Calendar className="w-3 h-3" />来店日
-          </label>
-          <input type="date" value={date} min={todayISO} onChange={(e) => setDate(e.target.value)} />
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 6, padding: "0 4px" }}>
+          <AlertTriangle size={12} className="ln-mute" style={{ flexShrink: 0, marginTop: 2 }} />
+          <p className="ln-mute" style={{ fontSize: 10, lineHeight: 1.6, margin: 0 }}>
+            ご予約はリクエスト送信後、店舗スタッフが確認して確定します。
+            確定 or キャンセル依頼はLINEで通知されます。
+          </p>
         </div>
-
-        <div>
-          <label className="block text-[11px] text-text-secondary mb-1 flex items-center gap-1">
-            <Clock className="w-3 h-3" />来店時間
-          </label>
-          <div className="grid grid-cols-3 gap-1.5">
-            {Object.keys(CONGESTION).map(t => {
-              const c = CONGESTION[t];
-              const active = slot === t;
-              return (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setSlot(t)}
-                  className={`py-2 text-[12px] font-medium rounded-[6px] border transition-colors ${
-                    active ? "bg-accent text-white border-accent" : "bg-bg-white text-text-primary border-border hover:bg-bg-hover"
-                  }`}
-                >
-                  <div>{t}</div>
-                  <div className="text-[9px] mt-0.5 opacity-80">
-                    {c === 0 ? "◎空き" : c === 1 ? "◯普通" : "△混雑"}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-[11px] text-text-secondary mb-1 flex items-center gap-1">
-            <Users className="w-3 h-3" />人数
-          </label>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setParty(Math.max(1, party - 1))}
-              className="w-9 h-9 border border-border rounded-[6px] text-[16px] font-bold"
-            >−</button>
-            <span className="flex-1 text-center text-[15px] font-bold tabular-nums">{party}名</span>
-            <button
-              type="button"
-              onClick={() => setParty(Math.min(10, party + 1))}
-              className="w-9 h-9 border border-border rounded-[6px] text-[16px] font-bold"
-            >+</button>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-[11px] text-text-secondary mb-1">卓種別</label>
-          <div className="grid grid-cols-4 gap-1.5">
-            {(Object.keys(KIND_LABEL) as TableKind[]).map(k => {
-              const active = kind === k;
-              return (
-                <button
-                  key={k}
-                  type="button"
-                  onClick={() => setKind(k)}
-                  className={`py-2 text-[11px] font-medium rounded-[6px] border transition-colors ${
-                    active ? "bg-accent text-white border-accent" : "bg-bg-white text-text-primary border-border hover:bg-bg-hover"
-                  }`}
-                >
-                  {KIND_LABEL[k]}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-[11px] text-text-secondary mb-1">備考(任意)</label>
-          <textarea
-            rows={2}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="トナメ参加希望 / 誕生日利用 など"
-            className="resize-none"
-          />
-        </div>
-
-        <button
-          onClick={submit}
-          disabled={!date}
-          className="w-full py-2.5 bg-accent text-white text-[14px] font-medium rounded-[var(--radius)] disabled:opacity-50"
-        >
-          予約を送信
-        </button>
-      </section>
-
-      <div className="flex items-start gap-1.5 px-1">
-        <AlertTriangle className="w-3 h-3 text-text-tertiary flex-shrink-0 mt-0.5" />
-        <p className="text-[10px] text-text-tertiary leading-[1.6]">
-          ご予約はリクエスト送信後、店舗スタッフが確認して確定します。
-          確定 or キャンセル依頼はLINEで通知されます。
-        </p>
       </div>
     </div>
   );

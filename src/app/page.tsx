@@ -21,7 +21,7 @@ export default function Home() {
 
   function handleDemo() {
     document.cookie = "demo_mode=true; path=/; max-age=86400; SameSite=Lax";
-    window.location.href = "/h7p2kx";
+    window.location.href = "/v2";
   }
 
   return (
@@ -29,7 +29,7 @@ export default function Home() {
       {/* ===== Header ===== */}
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-border-light">
         <div className="w-full px-8 h-14 flex items-center justify-between">
-          <Link href="/h7p2kx" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Link href="/v2" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Image src="/logo-icon.png" alt="みえるくん" width={36} height={36} />
             <span className="text-[15px] font-bold text-text-primary tracking-tight">てんぽみえるくん</span>
           </Link>
@@ -96,7 +96,7 @@ export default function Home() {
                 <div className="relative aspect-[16/10] overflow-hidden bg-bg-hover">
                   {previewReady ? (
                     <iframe
-                      src="/h7p2kx"
+                      src="/v2"
                       className="absolute top-0 left-0 border-0 pointer-events-none"
                       style={{ width: "200%", height: "200%", transform: "scale(0.5)", transformOrigin: "top left" }}
                       tabIndex={-1}
