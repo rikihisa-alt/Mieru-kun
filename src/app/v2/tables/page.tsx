@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { usePersistedState } from "@/lib/persist/store";
 import { PageHeader, Btn, Panel, Field, Modal, VStack, Empty } from "@/components/v2/ui";
-import { Plus, Trash2, Pencil, GripVertical, X, Move, Clock } from "lucide-react";
+import { Plus, Trash2, Pencil, GripVertical, X, Move, Clock, RefreshCw, Users, ArrowDown } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
@@ -60,6 +60,8 @@ function toHalfWidthDigits(input: string): string {
 export default function TablesPage() {
   const [tables, setTables] = usePersistedState<TableDef[]>("v2_tables_v2", []);
   const [visits, setVisits] = usePersistedState<Visit[]>("v2_visits_v1", []);
+  // ディーラーラン: 待機ディーラーの順番待ち列(先頭が次に入る人)
+  const [dealerRun, setDealerRun] = usePersistedState<string[]>("v2_dealer_run_v1", []);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [openAdd, setOpenAdd] = useState(false);
   const [editTable, setEditTable] = useState<TableDef | null>(null);
@@ -72,6 +74,8 @@ export default function TablesPage() {
 
   // 顧客の席移動メニュー
   const [moveTarget, setMoveTarget] = useState<Visit | null>(null);
+  // ディーラー交代モーダル対象
+  const [dealerChangeTarget, setDealerChangeTarget] = useState<TableDef | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -209,6 +213,67 @@ export default function TablesPage() {
     setTables(prev => prev.filter(t => t.id !== id));
   }
 
+  // ===== ディーラー交代 =====
+  /**
+   * 卓のディーラーを交代する。
+   * - newName が "" のときは「ディーラーなし」状態に
+   * - 旧ディーラー名は (空でなければ) run の末尾に追加 (重複排除)
+   * - newName が run にあれば取り除く
+   * - タイマーをリセット (now)
+   */
+  function changeDealer(tableId: string, newName: string) {
+    const trimmed = newName.trim();
+    const tbl = tables.find(t => t.id === tableId);
+    if (!tbl) return;
+    const oldName = (tbl.dealer ?? "").trim();
+    setTables(prev => prev.map(t => t.id === tableId ? {
+      ...t,
+      dealer: trimmed || undefined,
+      dealerStartedAt: trimmed ? new Date().toISOString() : undefined,
+    } : t));
+    setDealerRun(prev => {
+      let next = prev.filter(n => n !== trimmed); // 新ディーラーは run から除外
+      if (oldName && oldName !== trimmed) {
+        // 旧ディーラーを末尾へ (重複防止)
+        next = next.filter(n => n !== oldName);
+        next.push(oldName);
+      }
+      return next;
+    });
+    setDealerChangeTarget(null);
+  }
+
+  /** run の先頭(次のディーラー)で即交代 */
+  function rotateDealer(tableId: string) {
+    const next = dealerRun[0];
+    if (!next) {
+      alert("ディーラーランに次のディーラーがいません。\n下部の「ディーラーラン」から追加してください。");
+      return;
+    }
+    changeDealer(tableId, next);
+  }
+
+  // ===== ディーラーラン管理 =====
+  function addToRun(name: string) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setDealerRun(prev => prev.includes(trimmed) ? prev : [...prev, trimmed]);
+  }
+  function removeFromRun(name: string) {
+    setDealerRun(prev => prev.filter(n => n !== name));
+  }
+  function moveInRun(name: string, dir: -1 | 1) {
+    setDealerRun(prev => {
+      const i = prev.indexOf(name);
+      if (i < 0) return prev;
+      const j = i + dir;
+      if (j < 0 || j >= prev.length) return prev;
+      const next = [...prev];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  }
+
   // ===== 顧客の席移動 (メニュー経由) =====
   function moveVisitTo(visitId: string, tableId: string | null, seatIndex?: number) {
     setVisits(prev => prev.map(v => {
@@ -231,6 +296,14 @@ export default function TablesPage() {
         {/* ===== 待機エリア (一番上, 未着席のお客様) ===== */}
         <WaitingArea visits={waiting} onClickVisit={(v) => setMoveTarget(v)} />
 
+        {/* ===== ディーラーラン (待機列) ===== */}
+        <DealerRunPanel
+          run={dealerRun}
+          onAdd={addToRun}
+          onRemove={removeFromRun}
+          onMove={moveInRun}
+        />
+
         {/* ===== 卓一覧 ===== */}
         {tables.length === 0 ? (
           <Panel><Empty>卓が登録されていません。「卓を追加」から登録してください。</Empty></Panel>
@@ -245,6 +318,9 @@ export default function TablesPage() {
                   onEdit={() => openEdit(t)}
                   onDelete={() => removeTable(t.id)}
                   onClickVisit={(v) => setMoveTarget(v)}
+                  onClickDealer={() => setDealerChangeTarget(t)}
+                  onRotateDealer={() => rotateDealer(t.id)}
+                  nextDealer={dealerRun[0]}
                 />
               </TableSlot>
             ))}
@@ -256,7 +332,15 @@ export default function TablesPage() {
           {activeVisit && <VisitChip visit={activeVisit} dragging />}
           {activeTable && (
             <div style={{ opacity: 0.7, transform: "scale(0.98)", pointerEvents: "none" }}>
-              <PokerTable table={activeTable} seated={visits.filter(v => v.tableId === activeTable.id)} onEdit={() => {}} onDelete={() => {}} onClickVisit={() => {}} />
+              <PokerTable
+                table={activeTable}
+                seated={visits.filter(v => v.tableId === activeTable.id)}
+                onEdit={() => {}}
+                onDelete={() => {}}
+                onClickVisit={() => {}}
+                onClickDealer={() => {}}
+                onRotateDealer={() => {}}
+              />
             </div>
           )}
         </DragOverlay>
@@ -355,6 +439,16 @@ export default function TablesPage() {
             visits={visits}
             onClose={() => setMoveTarget(null)}
             onMove={moveVisitTo}
+          />
+        )}
+
+        {/* ===== モーダル: ディーラー交代 ===== */}
+        {dealerChangeTarget && (
+          <DealerChangeModal
+            table={dealerChangeTarget}
+            run={dealerRun}
+            onClose={() => setDealerChangeTarget(null)}
+            onChange={(name) => changeDealer(dealerChangeTarget.id, name)}
           />
         )}
       </VStack>
@@ -465,13 +559,16 @@ function TableSlot({ id, children }: { id: string; children: React.ReactNode }) 
 }
 
 // ===================== 卓: 横長楕円 =====================
-function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, isDragging }: {
+function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickDealer, onRotateDealer, nextDealer, isDragging }: {
   table: TableDef;
   seated: Visit[];
   isDragging?: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onClickVisit: (v: Visit) => void;
+  onClickDealer: () => void;
+  onRotateDealer: () => void;
+  nextDealer?: string;
 }) {
   const { setNodeRef: setDropRef, isOver: isOverTable } = useDroppable({ id: `table-drop:${table.id}` });
   const dragHandle = useDraggable({ id: `table:${table.id}` });
@@ -513,13 +610,41 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, isDragging 
           }}>
             {seated.length}/{table.maxSeats}席
           </span>
-          {table.dealer && (
-            <span style={{ fontSize: 12, color: "var(--v2-text-sub)" }}>D: {table.dealer}</span>
-          )}
+          <button
+            onClick={onClickDealer}
+            title="クリックでディーラー交代"
+            style={{
+              fontSize: 12, color: "var(--v2-text-sub)",
+              background: "transparent", border: "1px dashed var(--v2-border)",
+              padding: "2px 8px", borderRadius: 6, cursor: "pointer",
+              display: "inline-flex", alignItems: "center", gap: 4,
+            }}
+          >
+            <span style={{ fontSize: 10, color: "var(--v2-text-mute)" }}>D:</span>
+            <span style={{ fontWeight: 600 }}>{table.dealer ?? "未設定"}</span>
+          </button>
           {table.dealer && table.dealerStartedAt && table.dealerDurationMin && (
             <DealerTimer startedAt={table.dealerStartedAt} durationMin={table.dealerDurationMin} />
           )}
           <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
+            <button
+              onClick={onRotateDealer}
+              className="v2-btn-ghost"
+              title={nextDealer ? `次の「${nextDealer}」に交代` : "ディーラーランに次の人がいません"}
+              disabled={!nextDealer}
+              style={{
+                padding: "4px 8px", borderRadius: 4,
+                display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12,
+                color: nextDealer ? "var(--v2-accent-text)" : "var(--v2-text-mute)",
+                opacity: nextDealer ? 1 : 0.5,
+                cursor: nextDealer ? "pointer" : "not-allowed",
+              }}
+            >
+              <RefreshCw size={12} />次へ{nextDealer ? `(${nextDealer})` : ""}
+            </button>
+            <button onClick={onClickDealer} className="v2-btn-ghost" style={{ padding: "4px 8px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12 }}>
+              <Users size={12} />交代
+            </button>
             <button onClick={onEdit} className="v2-btn-ghost" style={{ padding: "4px 8px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12 }}>
               <Pencil size={12} />編集
             </button>
@@ -545,14 +670,24 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, isDragging 
             display: "flex", alignItems: "center", justifyContent: "center",
             boxShadow: "inset 0 4px 12px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.1)",
           }}>
-            <div style={{ textAlign: "center" }}>
+            <button
+              onClick={onClickDealer}
+              title="クリックでディーラー交代"
+              style={{
+                textAlign: "center", background: "transparent", border: 0, cursor: "pointer",
+                padding: "8px 14px", borderRadius: 8,
+                transition: "background 0.12s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            >
               <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.95)" }}>
                 {table.dealer || "ディーラー未設定"}
               </div>
               <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.16em", marginTop: 2 }}>
-                DEALER
+                DEALER · 交代
               </div>
-            </div>
+            </button>
           </div>
 
           {/* 席を楕円の周囲に配置 */}
@@ -792,6 +927,256 @@ function MoveModal({ visit, tables, visits, onClose, onMove }: {
               </div>
             );
           })
+        )}
+      </VStack>
+    </Modal>
+  );
+}
+
+// ===================== ディーラーランパネル =====================
+function DealerRunPanel({ run, onAdd, onRemove, onMove }: {
+  run: string[];
+  onAdd: (name: string) => void;
+  onRemove: (name: string) => void;
+  onMove: (name: string, dir: -1 | 1) => void;
+}) {
+  const [input, setInput] = useState("");
+  const [open, setOpen] = useState(true);
+
+  function submit() {
+    const v = input.trim();
+    if (!v) return;
+    onAdd(v);
+    setInput("");
+  }
+
+  return (
+    <div
+      style={{
+        background: "var(--v2-card)",
+        borderRadius: "var(--v2-radius-lg)",
+        boxShadow: "var(--v2-shadow-md)",
+        border: "1px solid rgba(28, 46, 36, 0.05)",
+        overflow: "hidden",
+      }}
+    >
+      <button
+        onClick={() => setOpen(v => !v)}
+        style={{
+          width: "100%", padding: "10px 14px",
+          display: "flex", alignItems: "center", gap: 10,
+          background: "transparent", border: 0, cursor: "pointer",
+          textAlign: "left",
+        }}
+      >
+        <Users size={14} style={{ color: "var(--v2-accent-text)" }} />
+        <span style={{ fontSize: 13, fontWeight: 700 }}>ディーラーラン</span>
+        <span style={{
+          fontSize: 11, fontWeight: 600, color: "var(--v2-accent-text)",
+          background: "var(--v2-accent-soft)", padding: "1px 8px", borderRadius: 999,
+        }}>{run.length}名 待機</span>
+        {run[0] && (
+          <span style={{ fontSize: 11, color: "var(--v2-text-mute)" }}>
+            次: <strong style={{ color: "var(--v2-text)", fontWeight: 700 }}>{run[0]}</strong>
+          </span>
+        )}
+        <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--v2-text-mute)" }}>{open ? "閉じる" : "開く"}</span>
+      </button>
+
+      {open && (
+        <div style={{ padding: "0 14px 14px", borderTop: "1px solid var(--v2-border)" }}>
+          {/* 追加フォーム */}
+          <div style={{ display: "flex", gap: 6, padding: "10px 0" }}>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(); } }}
+              placeholder="ディーラー名を追加 (Enter)"
+              style={{ flex: 1 }}
+            />
+            <Btn variant="primary" onClick={submit}><Plus size={12}/> 追加</Btn>
+          </div>
+
+          {/* 待機列 */}
+          {run.length === 0 ? (
+            <div style={{ fontSize: 12, color: "var(--v2-text-mute)", padding: "4px 0 2px" }}>
+              待機ディーラーはいません。名前を追加すると、各卓の「次へ」ボタンで順番に交代できます。
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {run.map((name, i) => (
+                <div
+                  key={name}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 4,
+                    padding: "4px 4px 4px 10px",
+                    background: i === 0 ? "var(--v2-accent-soft)" : "#fff",
+                    border: i === 0 ? "1px solid var(--v2-accent)" : "1px solid var(--v2-border)",
+                    borderRadius: 999,
+                    fontSize: 12,
+                  }}
+                >
+                  <span style={{
+                    fontSize: 10, fontWeight: 700,
+                    color: i === 0 ? "var(--v2-accent-text)" : "var(--v2-text-mute)",
+                  }}>
+                    {i + 1}
+                  </span>
+                  <span style={{ fontWeight: 600 }}>{name}</span>
+                  <button
+                    onClick={() => onMove(name, -1)}
+                    disabled={i === 0}
+                    title="上へ"
+                    style={{
+                      width: 20, height: 20, border: 0, background: "transparent",
+                      cursor: i === 0 ? "not-allowed" : "pointer",
+                      opacity: i === 0 ? 0.3 : 0.7,
+                      color: "var(--v2-text-sub)",
+                      display: "inline-flex", alignItems: "center", justifyContent: "center",
+                      transform: "rotate(180deg)",
+                    }}
+                  >
+                    <ArrowDown size={12} />
+                  </button>
+                  <button
+                    onClick={() => onMove(name, 1)}
+                    disabled={i === run.length - 1}
+                    title="下へ"
+                    style={{
+                      width: 20, height: 20, border: 0, background: "transparent",
+                      cursor: i === run.length - 1 ? "not-allowed" : "pointer",
+                      opacity: i === run.length - 1 ? 0.3 : 0.7,
+                      color: "var(--v2-text-sub)",
+                      display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    }}
+                  >
+                    <ArrowDown size={12} />
+                  </button>
+                  <button
+                    onClick={() => onRemove(name)}
+                    title="ランから外す"
+                    style={{
+                      width: 20, height: 20, border: 0, background: "transparent",
+                      cursor: "pointer", color: "var(--v2-danger)",
+                      display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    }}
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===================== ディーラー交代モーダル =====================
+function DealerChangeModal({ table, run, onClose, onChange }: {
+  table: TableDef;
+  run: string[];
+  onClose: () => void;
+  onChange: (name: string) => void;
+}) {
+  const [manual, setManual] = useState("");
+  const next = run[0];
+
+  return (
+    <Modal
+      open={true}
+      onClose={onClose}
+      title={`${table.name} のディーラー交代`}
+      footer={<Btn onClick={onClose}>閉じる</Btn>}
+    >
+      <VStack gap={14}>
+        <div style={{ fontSize: 12, color: "var(--v2-text-sub)" }}>
+          現在: <strong style={{ color: "var(--v2-text)" }}>{table.dealer ?? "未設定"}</strong>
+          {table.dealer && (
+            <span style={{ marginLeft: 8, fontSize: 11, color: "var(--v2-text-mute)" }}>
+              ※ 交代後、現ディーラーはディーラーランの末尾へ移動します
+            </span>
+          )}
+        </div>
+
+        {/* 次のディーラー(ワンタップ) */}
+        {next && (
+          <button
+            onClick={() => onChange(next)}
+            style={{
+              width: "100%", textAlign: "left",
+              padding: "12px 14px", borderRadius: 10,
+              border: "1px solid var(--v2-accent)",
+              background: "var(--v2-accent-soft)",
+              display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
+            }}
+          >
+            <RefreshCw size={16} style={{ color: "var(--v2-accent-text)" }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: "var(--v2-accent-text)", letterSpacing: "0.04em" }}>次のディーラー</div>
+              <div style={{ fontSize: 15, fontWeight: 700, marginTop: 2 }}>{next}</div>
+            </div>
+            <span style={{ fontSize: 11, color: "var(--v2-accent-text)", fontWeight: 600 }}>これに交代</span>
+          </button>
+        )}
+
+        {/* run の他のメンバーから直接選ぶ */}
+        {run.length > 1 && (
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--v2-text-mute)", marginBottom: 6, letterSpacing: "0.04em" }}>
+              待機列から指名
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {run.slice(1).map((name) => (
+                <button
+                  key={name}
+                  onClick={() => onChange(name)}
+                  style={{
+                    padding: "6px 12px", borderRadius: 999,
+                    border: "1px solid var(--v2-border)",
+                    background: "#fff", cursor: "pointer",
+                    fontSize: 12, fontWeight: 600,
+                  }}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 手入力 */}
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--v2-text-mute)", marginBottom: 6, letterSpacing: "0.04em" }}>
+            手入力で交代
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <input
+              value={manual}
+              onChange={(e) => setManual(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && manual.trim()) { e.preventDefault(); onChange(manual.trim()); } }}
+              placeholder="ディーラー名を入力"
+              style={{ flex: 1 }}
+            />
+            <Btn variant="primary" onClick={() => manual.trim() && onChange(manual.trim())}>交代</Btn>
+          </div>
+        </div>
+
+        {/* 解除 */}
+        {table.dealer && (
+          <button
+            onClick={() => onChange("")}
+            style={{
+              padding: "8px 12px", borderRadius: 8,
+              border: "1px solid var(--v2-border)",
+              background: "transparent", cursor: "pointer",
+              fontSize: 12, color: "var(--v2-danger)",
+              display: "inline-flex", alignItems: "center", gap: 6, justifyContent: "center",
+            }}
+          >
+            <X size={12} />ディーラーを解除(無人にする)
+          </button>
         )}
       </VStack>
     </Modal>
