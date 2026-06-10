@@ -143,7 +143,8 @@
 
 /* ===== sidebar ===== */
 .v2-sidebar-top {
-  display: flex; align-items: center; justify-content: center;  /* 折りたたみ/展開どちらも中央寄せ */
+  /* ロゴは collapsed 時の中央位置(左から10px)に固定。展開してもロゴは動かず、タイトルが右側に展開される */
+  display: flex; align-items: center; justify-content: flex-start;
   height: 56px;
   padding: 0 10px;
   flex-shrink: 0;
@@ -153,14 +154,13 @@
   display: flex; align-items: center; gap: 10px;
   height: 36px;
   text-decoration: none;
-  /* 折りたたみ時はロゴだけ、展開時はロゴ+タイトルが同居して中央揃え */
 }
 .v2-sidebar-top__title {
   font-size: 14px; font-weight: 700; color: var(--v2-accent-text);
   white-space: nowrap;
   letter-spacing: 0.01em;
   line-height: 1;
-  /* 折りたたみ時はレイアウトから除外し、ロゴが画面外に押し出されないようにする */
+  /* 折りたたみ時はレイアウトから除外し、ロゴ位置に影響させない */
   max-width: 0;
   opacity: 0;
   overflow: hidden;
@@ -170,7 +170,7 @@
   max-width: 180px;
   opacity: 1;
 }
-/* 折りたたみ時は gap も消してロゴが正確に中央へ */
+/* 折りたたみ時は gap も消してロゴ位置がブレないように */
 .v2-sidebar:not(.is-expanded) .v2-sidebar-top__brand { gap: 0; }
 .v2-brand-mark {
   display: inline-flex; align-items: center; justify-content: center;
