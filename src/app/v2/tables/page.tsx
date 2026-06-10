@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { usePersistedState } from "@/lib/persist/store";
 import { PageHeader, Btn, Panel, Field, Modal, VStack, Empty } from "@/components/v2/ui";
-import { Plus, Trash2, Pencil, GripVertical, X } from "lucide-react";
+import { Plus, Trash2, Pencil, GripVertical, X, Move, Clock } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
@@ -33,6 +33,10 @@ interface TableDef {
   type: "トナメ" | "リング" | "サイド" | "BJ" | "バカラ";
   maxSeats: number;
   dealer?: string;
+  /** ディーラー持ち時間(分) */
+  dealerDurationMin?: number;
+  /** ディーラーが設置されたISO時刻 (タイマー基準) */
+  dealerStartedAt?: string;
 }
 
 const RANK_COLOR: Record<CustomerRank, string> = {
@@ -45,6 +49,13 @@ const TYPE_COLOR: Record<TableDef["type"], string> = {
   "トナメ": "#2c9b6a", "リング": "#0e7a55", "サイド": "#6b7280", "BJ": "#1e293b", "バカラ": "#8b5cf6",
 };
 
+// ===== 全角→半角数字変換 + 数字以外を除去 =====
+function toHalfWidthDigits(input: string): string {
+  return input
+    .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+    .replace(/[^\d]/g, "");
+}
+
 // ===================== ページ =====================
 export default function TablesPage() {
   const [tables, setTables] = usePersistedState<TableDef[]>("v2_tables_v2", []);
@@ -52,9 +63,17 @@ export default function TablesPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [openAdd, setOpenAdd] = useState(false);
   const [editTable, setEditTable] = useState<TableDef | null>(null);
-  const [draft, setDraft] = useState<Omit<TableDef, "id">>({ name: "", type: "トナメ", maxSeats: 6, dealer: "" });
+  const [draft, setDraft] = useState<Omit<TableDef, "id">>({ name: "", type: "トナメ", maxSeats: 6, dealer: "", dealerDurationMin: 60 });
+  // 席数入力用の文字列バッファ (全角入力や 0 始まりを許容)
+  const [draftSeatsStr, setDraftSeatsStr] = useState("6");
+  const [editSeatsStr, setEditSeatsStr] = useState("");
+  const [editDurationStr, setEditDurationStr] = useState("");
+  const [draftDurationStr, setDraftDurationStr] = useState("60");
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  // 顧客の席移動メニュー
+  const [moveTarget, setMoveTarget] = useState<Visit | null>(null);
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   const waiting = useMemo(() => visits.filter(v => !v.tableId), [visits]);
   const seated = useMemo(() => visits.filter(v => v.tableId), [visits]);
@@ -131,25 +150,73 @@ export default function TablesPage() {
   }
 
   // ===== 卓CRUD =====
+  function openAddModal() {
+    setDraft({ name: "", type: "トナメ", maxSeats: 6, dealer: "", dealerDurationMin: 60 });
+    setDraftSeatsStr("6");
+    setDraftDurationStr("60");
+    setOpenAdd(true);
+  }
   function addTable() {
-    if (!draft.name.trim()) return;
-    if (draft.maxSeats < 1) { alert("席数は1以上で入力してください"); return; }
-    setTables(prev => [...prev, { id: `t${Date.now()}`, ...draft }]);
+    const seats = parseInt(draftSeatsStr, 10);
+    const duration = parseInt(draftDurationStr, 10);
+    if (!draft.name.trim()) { alert("卓名を入力してください"); return; }
+    if (!seats || seats < 1) { alert("席数は1以上で入力してください"); return; }
+    const dealerName = (draft.dealer ?? "").trim();
+    setTables(prev => [...prev, {
+      id: `t${Date.now()}`,
+      ...draft,
+      maxSeats: seats,
+      dealerDurationMin: duration > 0 ? duration : undefined,
+      dealer: dealerName || undefined,
+      dealerStartedAt: dealerName ? new Date().toISOString() : undefined,
+    }]);
     setOpenAdd(false);
-    setDraft({ name: "", type: "トナメ", maxSeats: 6, dealer: "" });
+  }
+  function openEdit(t: TableDef) {
+    setEditTable(t);
+    setEditSeatsStr(String(t.maxSeats));
+    setEditDurationStr(t.dealerDurationMin != null ? String(t.dealerDurationMin) : "60");
   }
   function saveEdit() {
     if (!editTable) return;
-    if (editTable.maxSeats < 1) { alert("席数は1以上で入力してください"); return; }
-    setTables(prev => prev.map(t => t.id === editTable.id ? editTable : t));
+    const seats = parseInt(editSeatsStr, 10);
+    const duration = parseInt(editDurationStr, 10);
+    if (!editTable.name.trim()) { alert("卓名を入力してください"); return; }
+    if (!seats || seats < 1) { alert("席数は1以上で入力してください"); return; }
+    const newDealer = (editTable.dealer ?? "").trim();
+    setTables(prev => prev.map(t => {
+      if (t.id !== editTable.id) return t;
+      // ディーラーが新規 or 変更されたらタイマーリセット
+      const dealerChanged = (t.dealer ?? "") !== newDealer;
+      return {
+        ...editTable,
+        maxSeats: seats,
+        dealer: newDealer || undefined,
+        dealerDurationMin: duration > 0 ? duration : undefined,
+        dealerStartedAt: newDealer ? (dealerChanged ? new Date().toISOString() : t.dealerStartedAt) : undefined,
+      };
+    }));
     setEditTable(null);
   }
   function removeTable(id: string) {
     const seatedCount = visits.filter(v => v.tableId === id).length;
-    if (seatedCount > 0 && !confirm(`この卓に ${seatedCount}名 配置されています。本当に削除しますか？`)) return;
-    if (seatedCount === 0 && !confirm("削除しますか？")) return;
+    const message = seatedCount > 0
+      ? `この卓を削除します。\n配置中の${seatedCount}名は「未着席」エリアに戻ります。\n\n続行しますか？`
+      : "この卓を削除しますか？";
+    if (!confirm(message)) return;
+    // 着席中の顧客を未着席へ戻す
     setVisits(prev => prev.map(v => v.tableId === id ? { ...v, tableId: undefined, seatIndex: undefined } : v));
     setTables(prev => prev.filter(t => t.id !== id));
+  }
+
+  // ===== 顧客の席移動 (メニュー経由) =====
+  function moveVisitTo(visitId: string, tableId: string | null, seatIndex?: number) {
+    setVisits(prev => prev.map(v => {
+      if (v.id !== visitId) return v;
+      if (tableId == null) return { ...v, tableId: undefined, seatIndex: undefined };
+      return { ...v, tableId, seatIndex };
+    }));
+    setMoveTarget(null);
   }
 
   return (
@@ -158,11 +225,11 @@ export default function TablesPage() {
         <PageHeader
           title="卓管理"
           sub={`${tables.length}卓 · 待機 ${waiting.length}名 · 着席 ${seated.length}名`}
-          action={<Btn variant="primary" onClick={() => setOpenAdd(true)}><Plus size={14}/> 卓を追加</Btn>}
+          action={<Btn variant="primary" onClick={openAddModal}><Plus size={14}/> 卓を追加</Btn>}
         />
 
         {/* ===== 待機エリア (一番上, 未着席のお客様) ===== */}
-        <WaitingArea visits={waiting} />
+        <WaitingArea visits={waiting} onClickVisit={(v) => setMoveTarget(v)} />
 
         {/* ===== 卓一覧 ===== */}
         {tables.length === 0 ? (
@@ -175,8 +242,9 @@ export default function TablesPage() {
                   table={t}
                   seated={visits.filter(v => v.tableId === t.id)}
                   isDragging={activeTableId === t.id}
-                  onEdit={() => setEditTable(t)}
+                  onEdit={() => openEdit(t)}
                   onDelete={() => removeTable(t.id)}
+                  onClickVisit={(v) => setMoveTarget(v)}
                 />
               </TableSlot>
             ))}
@@ -188,7 +256,7 @@ export default function TablesPage() {
           {activeVisit && <VisitChip visit={activeVisit} dragging />}
           {activeTable && (
             <div style={{ opacity: 0.7, transform: "scale(0.98)", pointerEvents: "none" }}>
-              <PokerTable table={activeTable} seated={visits.filter(v => v.tableId === activeTable.id)} onEdit={() => {}} onDelete={() => {}} />
+              <PokerTable table={activeTable} seated={visits.filter(v => v.tableId === activeTable.id)} onEdit={() => {}} onDelete={() => {}} onClickVisit={() => {}} />
             </div>
           )}
         </DragOverlay>
@@ -211,19 +279,26 @@ export default function TablesPage() {
             </Field>
             <Field label="席数">
               <input
-                type="number"
+                type="text"
                 inputMode="numeric"
-                min={1}
-                value={draft.maxSeats}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setDraft({ ...draft, maxSeats: v === "" ? 0 : Math.max(1, parseInt(v) || 0) });
-                }}
+                value={draftSeatsStr}
+                onChange={(e) => setDraftSeatsStr(toHalfWidthDigits(e.target.value))}
+                onFocus={(e) => e.target.select()}
                 placeholder="例: 9"
               />
             </Field>
             <Field label="ディーラー">
               <input value={draft.dealer ?? ""} onChange={(e) => setDraft({ ...draft, dealer: e.target.value })} placeholder="ディーラー名(任意)" />
+            </Field>
+            <Field label="ディーラー持ち時間(分)">
+              <input
+                type="text"
+                inputMode="numeric"
+                value={draftDurationStr}
+                onChange={(e) => setDraftDurationStr(toHalfWidthDigits(e.target.value))}
+                onFocus={(e) => e.target.select()}
+                placeholder="例: 60"
+              />
             </Field>
           </VStack>
         </Modal>
@@ -247,22 +322,40 @@ export default function TablesPage() {
               </Field>
               <Field label="席数">
                 <input
-                  type="number"
+                  type="text"
                   inputMode="numeric"
-                  min={1}
-                  value={editTable.maxSeats}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setEditTable({ ...editTable, maxSeats: v === "" ? 0 : Math.max(1, parseInt(v) || 0) });
-                  }}
+                  value={editSeatsStr}
+                  onChange={(e) => setEditSeatsStr(toHalfWidthDigits(e.target.value))}
+                  onFocus={(e) => e.target.select()}
                   placeholder="例: 9"
                 />
               </Field>
               <Field label="ディーラー">
-                <input value={editTable.dealer ?? ""} onChange={(e) => setEditTable({ ...editTable, dealer: e.target.value })} />
+                <input value={editTable.dealer ?? ""} onChange={(e) => setEditTable({ ...editTable, dealer: e.target.value })} placeholder="名前を変更するとタイマーがリセットされます" />
+              </Field>
+              <Field label="ディーラー持ち時間(分)">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={editDurationStr}
+                  onChange={(e) => setEditDurationStr(toHalfWidthDigits(e.target.value))}
+                  onFocus={(e) => e.target.select()}
+                  placeholder="例: 60"
+                />
               </Field>
             </VStack>
           </Modal>
+        )}
+
+        {/* ===== モーダル: 顧客の席移動 ===== */}
+        {moveTarget && (
+          <MoveModal
+            visit={moveTarget}
+            tables={tables}
+            visits={visits}
+            onClose={() => setMoveTarget(null)}
+            onMove={moveVisitTo}
+          />
         )}
       </VStack>
     </DndContext>
@@ -270,7 +363,7 @@ export default function TablesPage() {
 }
 
 // ===================== 待機エリア =====================
-function WaitingArea({ visits }: { visits: Visit[] }) {
+function WaitingArea({ visits, onClickVisit }: { visits: Visit[]; onClickVisit: (v: Visit) => void }) {
   const { setNodeRef, isOver } = useDroppable({ id: "waiting" });
   return (
     <div
@@ -290,7 +383,7 @@ function WaitingArea({ visits }: { visits: Visit[] }) {
         </span>
         <span style={{ fontSize: 12, fontWeight: 700, color: "var(--v2-accent-text)" }}>{visits.length}名</span>
         <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--v2-text-mute)" }}>
-          ここから卓へドラッグして配置
+          クリックで移動 / ドラッグで配置
         </span>
       </div>
       {visits.length === 0 ? (
@@ -299,7 +392,7 @@ function WaitingArea({ visits }: { visits: Visit[] }) {
         </div>
       ) : (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {visits.map(v => <DraggableVisit key={v.id} visit={v} />)}
+          {visits.map(v => <DraggableVisit key={v.id} visit={v} onClick={() => onClickVisit(v)} />)}
         </div>
       )}
     </div>
@@ -307,14 +400,21 @@ function WaitingArea({ visits }: { visits: Visit[] }) {
 }
 
 // ===================== ドラッグ可能な顧客チップ =====================
-function DraggableVisit({ visit }: { visit: Visit }) {
+function DraggableVisit({ visit, onClick }: { visit: Visit; onClick?: () => void }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: visit.id });
   return (
     <div
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      style={{ opacity: isDragging ? 0.3 : 1, touchAction: "none" }}
+      onClick={(e) => {
+        // ドラッグでないクリックのみメニューを開く
+        if (!isDragging && onClick) {
+          e.stopPropagation();
+          onClick();
+        }
+      }}
+      style={{ opacity: isDragging ? 0.3 : 1, touchAction: "none", cursor: onClick ? "pointer" : "grab" }}
     >
       <VisitChip visit={visit} />
     </div>
@@ -332,7 +432,6 @@ function VisitChip({ visit, dragging }: { visit: Visit; dragging?: boolean }) {
         border: dragging ? `1px solid var(--v2-accent)` : "1px solid var(--v2-border)",
         borderRadius: 999,
         fontSize: 12, fontWeight: 500,
-        cursor: "grab",
         boxShadow: dragging ? "var(--v2-shadow-lg)" : "var(--v2-shadow-sm)",
         userSelect: "none",
       }}
@@ -366,12 +465,13 @@ function TableSlot({ id, children }: { id: string; children: React.ReactNode }) 
 }
 
 // ===================== 卓: 横長楕円 =====================
-function PokerTable({ table, seated, onEdit, onDelete, isDragging }: {
+function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, isDragging }: {
   table: TableDef;
   seated: Visit[];
   isDragging?: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onClickVisit: (v: Visit) => void;
 }) {
   const { setNodeRef: setDropRef, isOver: isOverTable } = useDroppable({ id: `table-drop:${table.id}` });
   const dragHandle = useDraggable({ id: `table:${table.id}` });
@@ -387,6 +487,7 @@ function PokerTable({ table, seated, onEdit, onDelete, isDragging }: {
           display: "flex", alignItems: "center", gap: 12,
           padding: "12px 16px",
           borderBottom: "1px solid var(--v2-border)",
+          flexWrap: "wrap",
         }}>
           {/* ドラッグハンドル (卓を並び替える) */}
           <button
@@ -414,6 +515,9 @@ function PokerTable({ table, seated, onEdit, onDelete, isDragging }: {
           </span>
           {table.dealer && (
             <span style={{ fontSize: 12, color: "var(--v2-text-sub)" }}>D: {table.dealer}</span>
+          )}
+          {table.dealer && table.dealerStartedAt && table.dealerDurationMin && (
+            <DealerTimer startedAt={table.dealerStartedAt} durationMin={table.dealerDurationMin} />
           )}
           <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
             <button onClick={onEdit} className="v2-btn-ghost" style={{ padding: "4px 8px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12 }}>
@@ -461,7 +565,15 @@ function PokerTable({ table, seated, onEdit, onDelete, isDragging }: {
             const cy = 50 + ry * Math.sin(rad);
             const occupant = seated.find(v => v.seatIndex === i);
             return (
-              <Seat key={i} tableId={table.id} seatIndex={i} cx={cx} cy={cy} occupant={occupant} />
+              <Seat
+                key={i}
+                tableId={table.id}
+                seatIndex={i}
+                cx={cx}
+                cy={cy}
+                occupant={occupant}
+                onClickOccupant={onClickVisit}
+              />
             );
           })}
         </div>
@@ -470,9 +582,58 @@ function PokerTable({ table, seated, onEdit, onDelete, isDragging }: {
   );
 }
 
+// ===================== ディーラータイマー =====================
+function DealerTimer({ startedAt, durationMin }: { startedAt: string; durationMin: number }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const startMs = new Date(startedAt).getTime();
+  const elapsedSec = Math.max(0, Math.floor((now - startMs) / 1000));
+  const totalSec = durationMin * 60;
+  const remainSec = totalSec - elapsedSec;
+  const over = remainSec < 0;
+  const overSec = -remainSec;
+
+  const display = over
+    ? `+${formatMmSs(overSec)}`
+    : formatMmSs(remainSec);
+  const inTable = formatMmSs(elapsedSec);
+
+  return (
+    <span
+      title={`持ち時間 ${durationMin}分 / 着席 ${inTable}`}
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 4,
+        fontSize: 12, fontWeight: 700,
+        padding: "2px 8px",
+        borderRadius: 999,
+        background: over ? "var(--v2-danger-soft)" : "var(--v2-bg-alt)",
+        color: over ? "var(--v2-danger)" : "var(--v2-text)",
+        fontVariantNumeric: "tabular-nums",
+        fontFamily: "var(--v2-num)",
+      }}
+    >
+      <Clock size={11} />
+      {display}
+      <span style={{ fontSize: 10, fontWeight: 500, color: over ? "var(--v2-danger)" : "var(--v2-text-mute)", marginLeft: 2 }}>
+        (在卓 {inTable})
+      </span>
+    </span>
+  );
+}
+
+function formatMmSs(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
 // ===================== 席 =====================
-function Seat({ tableId, seatIndex, cx, cy, occupant }: {
+function Seat({ tableId, seatIndex, cx, cy, occupant, onClickOccupant }: {
   tableId: string; seatIndex: number; cx: number; cy: number; occupant?: Visit;
+  onClickOccupant: (v: Visit) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `seat:${tableId}:${seatIndex}` });
   return (
@@ -486,7 +647,7 @@ function Seat({ tableId, seatIndex, cx, cy, occupant }: {
       }}
     >
       {occupant ? (
-        <DraggableVisit visit={occupant} />
+        <DraggableVisit visit={occupant} onClick={() => onClickOccupant(occupant)} />
       ) : (
         <div style={{
           width: 36, height: 36, borderRadius: "50%",
@@ -505,5 +666,125 @@ function Seat({ tableId, seatIndex, cx, cy, occupant }: {
   );
 }
 
-// 未使用警告抑制
-void X;
+// ===================== 移動メニューモーダル =====================
+function MoveModal({ visit, tables, visits, onClose, onMove }: {
+  visit: Visit;
+  tables: TableDef[];
+  visits: Visit[];
+  onClose: () => void;
+  onMove: (visitId: string, tableId: string | null, seatIndex?: number) => void;
+}) {
+  const currentTable = tables.find(t => t.id === visit.tableId);
+  return (
+    <Modal
+      open={true}
+      onClose={onClose}
+      title={`${visit.name} の移動先`}
+      footer={<Btn onClick={onClose}>閉じる</Btn>}
+    >
+      <VStack gap={12}>
+        <div style={{ fontSize: 12, color: "var(--v2-text-sub)" }}>
+          現在:{" "}
+          {currentTable
+            ? `${currentTable.name} / 席${(visit.seatIndex ?? 0) + 1}`
+            : "未着席"}
+        </div>
+
+        {/* 未着席に戻す */}
+        {visit.tableId && (
+          <button
+            onClick={() => onMove(visit.id, null)}
+            className="v2-btn-ghost"
+            style={{
+              width: "100%", textAlign: "left",
+              padding: "10px 12px", borderRadius: 8,
+              border: "1px solid var(--v2-border)", background: "#fff",
+              display: "flex", alignItems: "center", gap: 8, cursor: "pointer",
+            }}
+          >
+            <X size={14} style={{ color: "var(--v2-text-mute)" }} />
+            <span style={{ fontWeight: 600 }}>未着席エリアへ戻す</span>
+          </button>
+        )}
+
+        {tables.length === 0 ? (
+          <Empty>移動先の卓がありません</Empty>
+        ) : (
+          tables.map(t => {
+            const tableVisits = visits.filter(v => v.tableId === t.id);
+            return (
+              <div
+                key={t.id}
+                style={{
+                  border: "1px solid var(--v2-border)",
+                  borderRadius: 8,
+                  background: "#fff",
+                }}
+              >
+                <div style={{
+                  padding: "8px 12px",
+                  borderBottom: "1px solid var(--v2-border)",
+                  display: "flex", alignItems: "center", gap: 8,
+                  fontSize: 13, fontWeight: 700,
+                }}>
+                  <Move size={12} style={{ color: TYPE_COLOR[t.type] }} />
+                  {t.name}
+                  <span style={{
+                    fontSize: 10, padding: "1px 6px", borderRadius: 999,
+                    background: `${TYPE_COLOR[t.type]}1a`, color: TYPE_COLOR[t.type],
+                  }}>{t.type}</span>
+                  <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--v2-text-mute)", fontWeight: 500 }}>
+                    {tableVisits.length}/{t.maxSeats}席
+                  </span>
+                </div>
+                <div style={{
+                  padding: 8,
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(56px, 1fr))",
+                  gap: 6,
+                }}>
+                  {Array.from({ length: t.maxSeats }).map((_, i) => {
+                    const occupant = tableVisits.find(v => v.seatIndex === i && v.id !== visit.id);
+                    const isCurrent = visit.tableId === t.id && visit.seatIndex === i;
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => onMove(visit.id, t.id, i)}
+                        disabled={isCurrent}
+                        title={occupant ? `${occupant.name} と入れ替え` : `席${i + 1}へ移動`}
+                        style={{
+                          padding: "6px 4px",
+                          borderRadius: 6,
+                          border: isCurrent
+                            ? "1px solid var(--v2-accent)"
+                            : occupant
+                            ? "1px solid var(--v2-warn)"
+                            : "1px dashed var(--v2-border-strong)",
+                          background: isCurrent
+                            ? "var(--v2-accent-soft)"
+                            : occupant
+                            ? "var(--v2-warn-soft)"
+                            : "var(--v2-bg-alt)",
+                          color: isCurrent ? "var(--v2-accent-text)" : "var(--v2-text)",
+                          cursor: isCurrent ? "default" : "pointer",
+                          fontSize: 11, fontWeight: 600,
+                          display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+                          opacity: isCurrent ? 0.6 : 1,
+                        }}
+                      >
+                        <span style={{ fontSize: 10, color: "var(--v2-text-mute)" }}>席{i + 1}</span>
+                        <span style={{ fontSize: 11 }}>
+                          {isCurrent ? "現在" : occupant ? `${occupant.name.slice(0, 4)}と交替` : "空"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </VStack>
+    </Modal>
+  );
+}
