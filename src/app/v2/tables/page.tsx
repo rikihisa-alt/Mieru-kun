@@ -60,7 +60,7 @@ function toHalfWidthDigits(input: string): string {
 export default function TablesPage() {
   const [tables, setTables] = usePersistedState<TableDef[]>("v2_tables_v2", []);
   const [visits, setVisits] = usePersistedState<Visit[]>("v2_visits_v1", []);
-  // ディーラーラン: 待機ディーラーの順番待ち列(先頭が次に入る人)
+  // ディーラー欄: 待機ディーラーの順番待ち列(先頭が次に入る人)
   const [dealerRun, setDealerRun] = usePersistedState<string[]>("v2_dealer_run_v1", []);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [openAdd, setOpenAdd] = useState(false);
@@ -247,13 +247,13 @@ export default function TablesPage() {
   function rotateDealer(tableId: string) {
     const next = dealerRun[0];
     if (!next) {
-      alert("ディーラーランに次のディーラーがいません。\n下部の「ディーラーラン」から追加してください。");
+      alert("ディーラー欄に次のディーラーがいません。\n下部の「ディーラー欄」から追加してください。");
       return;
     }
     changeDealer(tableId, next);
   }
 
-  // ===== ディーラーラン管理 =====
+  // ===== ディーラー欄管理 =====
   function addToRun(name: string) {
     const trimmed = name.trim();
     if (!trimmed) return;
@@ -296,7 +296,7 @@ export default function TablesPage() {
         {/* ===== 待機エリア (一番上, 未着席のお客様) ===== */}
         <WaitingArea visits={waiting} onClickVisit={(v) => setMoveTarget(v)} />
 
-        {/* ===== ディーラーラン (待機列) ===== */}
+        {/* ===== ディーラー欄 (待機列) ===== */}
         <DealerRunPanel
           run={dealerRun}
           onAdd={addToRun}
@@ -630,7 +630,7 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickDeal
             <button
               onClick={onRotateDealer}
               className="v2-btn-ghost"
-              title={nextDealer ? `次の「${nextDealer}」に交代` : "ディーラーランに次の人がいません"}
+              title={nextDealer ? `次の「${nextDealer}」に交代` : "ディーラー欄に次の人がいません"}
               disabled={!nextDealer}
               style={{
                 padding: "4px 8px", borderRadius: 4,
@@ -933,7 +933,7 @@ function MoveModal({ visit, tables, visits, onClose, onMove }: {
   );
 }
 
-// ===================== ディーラーランパネル =====================
+// ===================== ディーラー欄パネル =====================
 function DealerRunPanel({ run, onAdd, onRemove, onMove }: {
   run: string[];
   onAdd: (name: string) => void;
@@ -970,7 +970,7 @@ function DealerRunPanel({ run, onAdd, onRemove, onMove }: {
         }}
       >
         <Users size={14} style={{ color: "var(--v2-accent-text)" }} />
-        <span style={{ fontSize: 13, fontWeight: 700 }}>ディーラーラン</span>
+        <span style={{ fontSize: 13, fontWeight: 700 }}>ディーラー欄</span>
         <span style={{
           fontSize: 11, fontWeight: 600, color: "var(--v2-accent-text)",
           background: "var(--v2-accent-soft)", padding: "1px 8px", borderRadius: 999,
@@ -1054,7 +1054,7 @@ function DealerRunPanel({ run, onAdd, onRemove, onMove }: {
                   </button>
                   <button
                     onClick={() => onRemove(name)}
-                    title="ランから外す"
+                    title="欄から外す"
                     style={{
                       width: 20, height: 20, border: 0, background: "transparent",
                       cursor: "pointer", color: "var(--v2-danger)",
@@ -1095,7 +1095,7 @@ function DealerChangeModal({ table, run, onClose, onChange }: {
           現在: <strong style={{ color: "var(--v2-text)" }}>{table.dealer ?? "未設定"}</strong>
           {table.dealer && (
             <span style={{ marginLeft: 8, fontSize: 11, color: "var(--v2-text-mute)" }}>
-              ※ 交代後、現ディーラーはディーラーランの末尾へ移動します
+              ※ 交代後、現ディーラーはディーラー欄の末尾へ移動します
             </span>
           )}
         </div>
