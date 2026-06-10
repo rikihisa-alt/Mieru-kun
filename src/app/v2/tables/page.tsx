@@ -596,18 +596,13 @@ function DealerTimer({ startedAt, durationMin }: { startedAt: string; durationMi
   const over = remainSec < 0;
   const overSec = -remainSec;
 
-  const display = over
-    ? `+${formatMmSs(overSec)}`
-    : formatMmSs(remainSec);
-  const inTable = formatMmSs(elapsedSec);
-
   return (
     <span
-      title={`持ち時間 ${durationMin}分 / 着席 ${inTable}`}
+      title={`持ち時間 ${durationMin}分`}
       style={{
-        display: "inline-flex", alignItems: "center", gap: 4,
+        display: "inline-flex", alignItems: "center", gap: 6,
         fontSize: 12, fontWeight: 700,
-        padding: "2px 8px",
+        padding: "3px 10px",
         borderRadius: 999,
         background: over ? "var(--v2-danger-soft)" : "var(--v2-bg-alt)",
         color: over ? "var(--v2-danger)" : "var(--v2-text)",
@@ -616,18 +611,32 @@ function DealerTimer({ startedAt, durationMin }: { startedAt: string; durationMi
       }}
     >
       <Clock size={11} />
-      {display}
-      <span style={{ fontSize: 10, fontWeight: 500, color: over ? "var(--v2-danger)" : "var(--v2-text-mute)", marginLeft: 2 }}>
-        (在卓 {inTable})
+      <span style={{ fontSize: 10, fontWeight: 600, opacity: 0.75 }}>
+        {over ? "超過" : "残り"}
       </span>
+      <span>{formatDuration(over ? overSec : remainSec, over)}</span>
+      <span style={{ width: 1, height: 10, background: "currentColor", opacity: 0.2 }} />
+      <span style={{ fontSize: 10, fontWeight: 500, opacity: 0.65 }}>在卓</span>
+      <span style={{ fontSize: 11, fontWeight: 600 }}>{formatDuration(elapsedSec)}</span>
     </span>
   );
 }
 
-function formatMmSs(sec: number): string {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+/**
+ * 経過秒数を読みやすい時間表記に。
+ * 1時間未満: "23分45秒"
+ * 1時間以上: "1時間23分45秒"
+ * over=true で先頭に "+" を付与
+ */
+function formatDuration(sec: number, over = false): string {
+  const safe = Math.max(0, sec);
+  const h = Math.floor(safe / 3600);
+  const m = Math.floor((safe % 3600) / 60);
+  const s = safe % 60;
+  const prefix = over ? "+" : "";
+  if (h > 0) return `${prefix}${h}時間${String(m).padStart(2, "0")}分${String(s).padStart(2, "0")}秒`;
+  if (m > 0) return `${prefix}${m}分${String(s).padStart(2, "0")}秒`;
+  return `${prefix}${s}秒`;
 }
 
 // ===================== 席 =====================
