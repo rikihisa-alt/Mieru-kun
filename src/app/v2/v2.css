@@ -143,35 +143,43 @@
 
 /* ===== sidebar ===== */
 .v2-sidebar-top {
-  /* ロゴは collapsed 時の中央位置(左から10px)に固定。展開してもロゴは動かず、タイトルが右側に展開される */
-  display: flex; align-items: center; justify-content: flex-start;
+  /* 親は relative。子のロゴを absolute で左から10pxの位置に完全固定し、サイドバーの幅変化に一切影響されない */
+  position: relative;
   height: 56px;
-  padding: 0 10px;
   flex-shrink: 0;
   overflow: hidden;
 }
 .v2-sidebar-top__brand {
-  display: flex; align-items: center; gap: 10px;
-  height: 36px;
+  display: block;
   text-decoration: none;
+  /* ブランドリンク自体は領域だけ確保。中身は absolute で配置 */
+  position: absolute; inset: 0;
+}
+.v2-brand-mark {
+  /* ロゴは collapsed 時の中央 (left:10px = 56px sidebar の中央(28) - logo半径(18)) に完全固定 */
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 .v2-sidebar-top__title {
+  /* タイトルはロゴの右側に絶対配置。展開時のみ表示 */
+  position: absolute;
+  left: 56px;     /* ロゴ(10+36) + 余白(10) */
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 14px; font-weight: 700; color: var(--v2-accent-text);
   white-space: nowrap;
   letter-spacing: 0.01em;
   line-height: 1;
-  /* 折りたたみ時はレイアウトから除外し、ロゴ位置に影響させない */
-  max-width: 0;
   opacity: 0;
-  overflow: hidden;
-  transition: max-width 0.22s ease, opacity 0.22s ease;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
 }
 .v2-sidebar.is-expanded .v2-sidebar-top__title {
-  max-width: 180px;
   opacity: 1;
+  pointer-events: auto;
 }
-/* 折りたたみ時は gap も消してロゴ位置がブレないように */
-.v2-sidebar:not(.is-expanded) .v2-sidebar-top__brand { gap: 0; }
 .v2-brand-mark {
   display: inline-flex; align-items: center; justify-content: center;
   width: 36px; height: 36px;
