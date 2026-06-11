@@ -161,6 +161,18 @@
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  background: transparent;
+  overflow: hidden;
+}
+.v2-brand-mark img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: block;
+  transform: scale(1.5);   /* ロゴの周囲の透過余白を補正 */
+  transform-origin: center center;
 }
 .v2-sidebar-top__title {
   /* タイトルはロゴの右側に絶対配置。展開時のみ表示 */
@@ -180,19 +192,11 @@
   opacity: 1;
   pointer-events: auto;
 }
-.v2-brand-mark {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 36px; height: 36px;
-  flex-shrink: 0;
-  background: transparent;
-  overflow: hidden;
-}
-.v2-brand-mark img {
-  width: 100%; height: 100%;
-  object-fit: contain;
-  display: block;
-  transform: scale(1.5);   /* ロゴの周囲の透過余白を補正 */
-  transform-origin: center center;
+
+/* タイマー超過などの注意喚起用の点滅 */
+@keyframes v2-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
 
 .v2-sidebar-toggle {
