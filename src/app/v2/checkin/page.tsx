@@ -98,7 +98,7 @@ export default function CheckinPage() {
             <select value={selectedId} onChange={(e) => { setSelectedId(e.target.value); setGuestName(""); }}>
               <option value="">— 新規ゲストとして登録 —</option>
               {customers.map(c => (
-                <option key={c.id} value={c.id}>{c.nickname || c.name} ({RANK_LABEL[c.rank]})</option>
+                <option key={c.id} value={c.id}>{c.nickname || c.name}{c.nickname && ` / ${c.name}`} ({RANK_LABEL[c.rank]})</option>
               ))}
             </select>
           </Field>

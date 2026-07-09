@@ -11,6 +11,7 @@ export interface CustomerRecord {
   nickname: string;
   rank: CustomerRank;
   phone: string;
+  pledgeNo?: string;
   email?: string;
   dateOfBirth?: string;
   lineId?: string;

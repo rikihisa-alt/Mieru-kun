@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { customerStore, type CustomerRank } from "@/lib/store/domain-stores";
-import { PageHeader, Btn, Kpis, Kpi, VStack, Empty } from "@/components/v2/ui";
+import { PageHeader, Btn, Kpis, Kpi, VStack, Empty, Chip } from "@/components/v2/ui";
 import { Search, Plus, FileDown } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
 
@@ -20,7 +20,7 @@ export default function CustomersPage() {
 
   const norm = normalize(q.trim());
   const rows = norm
-    ? customers.filter(c => normalize(c.name).includes(norm) || normalize(c.nickname).includes(norm) || c.phone.includes(q))
+    ? customers.filter(c => normalize(c.name).includes(norm) || normalize(c.nickname).includes(norm) || c.phone.includes(q) || (c.pledgeNo ?? "").includes(q))
     : customers;
 
   return (
@@ -37,9 +37,9 @@ export default function CustomersPage() {
                 { label: "GOLD", value: `${customers.filter(c => c.rank === "gold").length}名` },
                 { label: "出力日", value: new Date().toLocaleDateString("ja-JP") },
               ]) + tableHtml(
-                ["ニックネーム", "本名", "ランク", "電話", "来店", "累計利用", "最終来店"],
-                rows.map(c => [c.nickname || "—", c.name, RANK_LABEL[c.rank], c.phone || "—", String(c.totalVisits), `¥${c.totalSpent.toLocaleString()}`, c.lastVisit ?? "—"]),
-                { numCols: [4, 5] },
+                ["ポーカーネーム", "本名", "ランク", "電話", "誓約書番号", "来店", "累計利用", "最終来店"],
+                rows.map(c => [c.nickname || "—", c.name, RANK_LABEL[c.rank], c.phone || "—", c.pledgeNo || "未記載", String(c.totalVisits), `¥${c.totalSpent.toLocaleString()}`, c.lastVisit ?? "—"]),
+                { numCols: [5, 6] },
               );
               printDoc({ title: "顧客リスト", body, storeName: "てんぽみえるくん", landscape: true });
             }}><FileDown size={14}/> PDF</Btn>
@@ -58,7 +58,7 @@ export default function CustomersPage() {
       <div className="v2-row" style={{ gap: 12 }}>
         <div style={{ position: "relative", flex: 1, maxWidth: 360 }}>
           <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="名前・ニックネーム・電話" style={{ paddingLeft: 30 }} />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="名前・ポーカーネーム・電話・誓約書番号" style={{ paddingLeft: 30 }} />
         </div>
         <span className="v2-mute" style={{ fontSize: 12, marginLeft: "auto" }}>{rows.length}件</span>
       </div>
@@ -83,7 +83,10 @@ export default function CustomersPage() {
             ) : rows.map(c => (
               <tr key={c.id} onClick={() => location.assign(`/v2/customers/${c.id}`)}>
                 <td>
-                  <div>{c.nickname || c.name}</div>
+                  <div className="v2-row" style={{ gap: 6, alignItems: "center" }}>
+                    <span style={{ fontWeight: 600 }}>{c.nickname || c.name}</span>
+                    {!c.pledgeNo && <Chip variant="warn">誓約書未</Chip>}
+                  </div>
                   {c.nickname && <div className="v2-mute" style={{ fontSize: 11 }}>{c.name}</div>}
                 </td>
                 <td><span className="v2-mute" style={{ fontSize: 11, letterSpacing: "0.04em", textTransform: "uppercase" }}>{RANK_LABEL[c.rank]}</span></td>

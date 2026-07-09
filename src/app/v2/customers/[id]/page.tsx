@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { customerStore, type CustomerRecord, type CustomerRank } from "@/lib/store/domain-stores";
-import { PageHeader, Btn, Panel, Field, Kpis, Kpi, VStack, HStack, Tabs } from "@/components/v2/ui";
+import { PageHeader, Btn, Panel, Field, Kpis, Kpi, VStack, HStack, Tabs, Chip } from "@/components/v2/ui";
 import { ArrowLeft } from "lucide-react";
 
 const RANK_LABEL: Record<CustomerRank, string> = { regular: "Regular", silver: "Silver", gold: "Gold", vip: "VIP" };
@@ -54,9 +54,10 @@ export default function CustomerDetail() {
       </Link>
       <PageHeader
         title={initial.nickname || initial.name}
-        sub={initial.nickname ? initial.name : `${RANK_LABEL[initial.rank]} · ${initial.phone || "—"}`}
+        sub={initial.nickname ? `本名: ${initial.name}` : `${RANK_LABEL[initial.rank]} · ${initial.phone || "—"}`}
         action={
           <>
+            {!initial.pledgeNo && <Chip variant="warn">誓約書未</Chip>}
             <Btn variant="danger" onClick={remove}>削除</Btn>
             <Btn variant="primary" onClick={save}>保存</Btn>
           </>
@@ -81,7 +82,7 @@ export default function CustomerDetail() {
         <Panel>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <Field label="本名"><input value={draft.name} onChange={(e) => update("name", e.target.value)} /></Field>
-            <Field label="ニックネーム"><input value={draft.nickname} onChange={(e) => update("nickname", e.target.value)} /></Field>
+            <Field label="ポーカーネーム" hint="客同士に見える呼び名(本名は店側のみ)"><input value={draft.nickname} onChange={(e) => update("nickname", e.target.value)} /></Field>
             <Field label="ランク">
               <select value={draft.rank} onChange={(e) => update("rank", e.target.value as CustomerRank)}>
                 <option value="regular">Regular</option>
@@ -92,6 +93,9 @@ export default function CustomerDetail() {
             </Field>
             <Field label="生年月日"><input type="date" value={draft.dateOfBirth ?? ""} onChange={(e) => update("dateOfBirth", e.target.value || undefined)} /></Field>
             <Field label="電話番号"><input value={draft.phone} onChange={(e) => update("phone", e.target.value)} /></Field>
+            <Field label="誓約書管理番号" hint="紙の誓約書に振った管理番号を記載">
+              <input value={draft.pledgeNo ?? ""} onChange={(e) => update("pledgeNo", e.target.value || undefined)} placeholder="例: P-0001" />
+            </Field>
             <Field label="メール"><input value={draft.email ?? ""} onChange={(e) => update("email", e.target.value || undefined)} /></Field>
           </div>
         </Panel>

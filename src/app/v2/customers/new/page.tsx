@@ -12,6 +12,7 @@ export default function NewCustomerPage() {
   const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
   const [phone, setPhone] = useState("");
+  const [pledgeNo, setPledgeNo] = useState("");
   const [email, setEmail] = useState("");
   const [rank, setRank] = useState<CustomerRank>("regular");
   const [dateOfBirth, setDateOfBirth] = useState("");
@@ -23,7 +24,8 @@ export default function NewCustomerPage() {
     const c: CustomerRecord = {
       id: Math.random().toString(36).slice(2, 10),
       name: name.trim(), nickname: nickname.trim(),
-      rank, phone: phone.trim(), email: email.trim() || undefined,
+      rank, phone: phone.trim(), pledgeNo: pledgeNo.trim() || undefined,
+      email: email.trim() || undefined,
       dateOfBirth: dateOfBirth || undefined,
       notes: notes.trim() || undefined,
       totalVisits: 0, totalSpent: 0, chipBalance: 0, pointBalance: 0,
@@ -49,7 +51,7 @@ export default function NewCustomerPage() {
             <Field label="本名" required>
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder="田中 太郎" />
             </Field>
-            <Field label="ニックネーム" hint="店内・他客に見える呼び名">
+            <Field label="ポーカーネーム" hint="客同士に見える呼び名(本名は店側のみ)">
               <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="タロウ" />
             </Field>
             <Field label="ランク">
@@ -65,6 +67,9 @@ export default function NewCustomerPage() {
             </Field>
             <Field label="電話番号">
               <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="090-0000-0000" />
+            </Field>
+            <Field label="誓約書管理番号" hint="紙の誓約書に振った管理番号を記載">
+              <input value={pledgeNo} onChange={(e) => setPledgeNo(e.target.value)} placeholder="例: P-0001" />
             </Field>
             <Field label="メール">
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@example.com" />
