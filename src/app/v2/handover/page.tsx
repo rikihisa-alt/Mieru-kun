@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { staffStore } from "@/lib/store/domain-stores";
 import { staffFullName } from "@/lib/staff-data";
-import { PageHeader, Btn, Panel, Field, VStack, HStack, Chip, Empty } from "@/components/v2/ui";
-import { Pin, Pencil, Trash2, Check, Search } from "lucide-react";
+import { PageHeader, Btn, Panel, Field, VStack, HStack, Chip, Empty, FilterChips, SectionLabel } from "@/components/v2/ui";
+import { Pin, Pencil, Trash2, Check, Search, X } from "lucide-react";
 
 // ===== 型定義 =====
 type HandoverCategory = "業務連絡" | "顧客対応" | "設備" | "その他";
@@ -177,7 +177,7 @@ export default function HandoverPage() {
     <VStack gap={16}>
       <PageHeader title="業務引き継ぎ" sub="スタッフ間の申し送り事項を共有・確認します" />
 
-      <Panel className={unconfirmedCount > 0 ? "" : undefined}>
+      <Panel>
         <HStack gap={10}>
           {unconfirmedCount > 0 ? (
             <Chip variant="warn">未確認の申し送り {unconfirmedCount}件</Chip>
@@ -259,28 +259,18 @@ export default function HandoverPage() {
         </VStack>
       </Panel>
 
-      <Panel>
-        <VStack gap={10}>
-          <HStack gap={8} style={{ flexWrap: "wrap" }}>
-            <Btn size="sm" variant={categoryFilter === "all" ? "primary" : "default"} onClick={() => setCategoryFilter("all")}>全て</Btn>
-            {CATEGORIES.map((c) => (
-              <Btn key={c} size="sm" variant={categoryFilter === c ? "primary" : "default"} onClick={() => setCategoryFilter(c)}>
-                {c}
-              </Btn>
-            ))}
-          </HStack>
-          <HStack gap={6}>
-            <Search size={14} className="v2-mute" />
-            <input
-              type="text"
-              placeholder="本文・記入者で検索"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              style={{ maxWidth: 360 }}
-            />
-          </HStack>
-        </VStack>
-      </Panel>
+      <div className="v2-toolbar">
+        <div className="v2-toolbar__search">
+          <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="本文・記入者で検索" style={{ paddingLeft: 30 }} />
+        </div>
+        <FilterChips
+          value={categoryFilter}
+          onChange={(v) => setCategoryFilter(v as HandoverCategory | "all")}
+          items={[{ value: "all", label: "全て" }, ...CATEGORIES.map((c) => ({ value: c, label: c }))]}
+        />
+        <span className="v2-mute" style={{ fontSize: 12, marginLeft: "auto" }}>{filtered.length}件</span>
+      </div>
 
       {groups.length === 0 ? (
         <Panel><Empty>該当する申し送りはありません</Empty></Panel>
@@ -288,7 +278,7 @@ export default function HandoverPage() {
         <VStack gap={20}>
           {groups.map((g) => (
             <div key={g.key}>
-              <div className="v2-label" style={{ marginBottom: 8 }}>{g.label}</div>
+              <SectionLabel>{g.label}</SectionLabel>
               <VStack gap={10}>
                 {g.items.map((entry) => {
                   const allAcked = activeStaff.length > 0 && activeStaff.every((s) => entry.acks.some((a) => a.staffId === s.id));
@@ -297,7 +287,6 @@ export default function HandoverPage() {
                   return (
                     <Panel
                       key={entry.id}
-                      className={entry.important ? "" : undefined}
                       title={
                         <HStack gap={8}>
                           {entry.important && <Pin size={14} style={{ color: "var(--v2-warn)" }} />}
@@ -350,10 +339,10 @@ export default function HandoverPage() {
                                   <button
                                     onClick={() => unack(entry.id, a.staffId)}
                                     aria-label="確認を取り消す"
-                                    style={{ border: 0, background: "transparent", cursor: "pointer", padding: 0, marginLeft: 2, lineHeight: 0, color: "inherit" }}
+                                    style={{ border: 0, background: "transparent", cursor: "pointer", padding: 0, marginLeft: 2, lineHeight: 0, color: "inherit", display: "inline-flex" }}
                                     title="確認を取り消す"
                                   >
-                                    ×
+                                    <X size={11} />
                                   </button>
                                 </span>
                               </Chip>

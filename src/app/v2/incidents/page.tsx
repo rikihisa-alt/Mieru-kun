@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { customerStore, staffStore } from "@/lib/store/domain-stores";
 import { staffFullName } from "@/lib/staff-data";
-import { PageHeader, Btn, Panel, Field, Modal, VStack, HStack, Chip, Empty } from "@/components/v2/ui";
+import { PageHeader, Btn, Panel, Field, Modal, VStack, Chip, Empty } from "@/components/v2/ui";
 import { Plus, Pencil, Search, Ban, Eye, EyeOff } from "lucide-react";
 
 // ===== 卓データ (v2_tables_v2 は tables ページが管理する生ストア。ここでは id/name のみ参照) =====
@@ -213,73 +213,76 @@ export default function IncidentsPage() {
         action={<Btn variant="primary" onClick={openCreate}><Plus size={14} /> 記録を追加</Btn>}
       />
 
-      <Panel>
-        <HStack gap={12} style={{ marginBottom: 12, flexWrap: "wrap" }}>
-          <div className="v2-row" style={{ position: "relative", maxWidth: 280 }}>
-            <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="内容・顧客名で検索"
-              style={{ paddingLeft: 30, width: "100%" }}
-            />
-          </div>
-          <select value={kindFilter} onChange={(e) => setKindFilter(e.target.value as IncidentKind | "all")} style={{ height: 32 }}>
-            <option value="all">種別: すべて</option>
-            {KIND_OPTIONS.map((k) => <option key={k} value={k}>{k}</option>)}
-          </select>
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as IncidentStatus | "all")} style={{ height: 32 }}>
-            <option value="all">状態: すべて</option>
-            <option value="対応中">対応中</option>
-            <option value="解決済み">解決済み</option>
-          </select>
-          <button className="v2-btn v2-btn-ghost" onClick={() => setShowVoided((v) => !v)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            {showVoided ? <Eye size={13} /> : <EyeOff size={13} />} 取消済みを{showVoided ? "隠す" : "表示"}
-          </button>
-        </HStack>
+      <div className="v2-toolbar">
+        <div className="v2-toolbar__search">
+          <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="内容・顧客名で検索"
+            style={{ paddingLeft: 30 }}
+          />
+        </div>
+        <select value={kindFilter} onChange={(e) => setKindFilter(e.target.value as IncidentKind | "all")}>
+          <option value="all">種別: すべて</option>
+          {KIND_OPTIONS.map((k) => <option key={k} value={k}>{k}</option>)}
+        </select>
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as IncidentStatus | "all")}>
+          <option value="all">状態: すべて</option>
+          <option value="対応中">対応中</option>
+          <option value="解決済み">解決済み</option>
+        </select>
+        <Btn variant="ghost" size="sm" onClick={() => setShowVoided((v) => !v)}>
+          {showVoided ? <Eye size={13} /> : <EyeOff size={13} />} 取消済みを{showVoided ? "隠す" : "表示"}
+        </Btn>
+        <span className="v2-mute" style={{ fontSize: 12, marginLeft: "auto" }}>{filtered.length}件</span>
+      </div>
 
+      <Panel>
         {filtered.length === 0 ? <Empty>該当する記録がありません</Empty> : (
-          <table className="v2-table">
-            <thead>
-              <tr>
-                <th>発生日時</th><th>種別</th><th>深刻度</th><th>顧客</th><th>卓</th><th>対応者</th><th>内容</th><th>状態</th><th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((i) => (
-                <tr key={i.id} style={i.voided ? { opacity: 0.5 } : undefined}>
-                  <td className="v2-num v2-sub" style={{ whiteSpace: "nowrap" }}>{displayDateTime(i.occurredAt)}</td>
-                  <td><Chip>{i.kind}</Chip></td>
-                  <td><Chip variant={SEVERITY_VARIANT[i.severity]}>{i.severity}</Chip></td>
-                  <td>{i.customerName ?? <span className="v2-mute">-</span>}</td>
-                  <td>{i.tableName ?? <span className="v2-mute">-</span>}</td>
-                  <td className="v2-sub">{i.staffName}</td>
-                  <td style={{ maxWidth: 280 }}>
-                    <div style={i.voided ? { textDecoration: "line-through" } : undefined}>{i.body}</div>
-                    {i.resultText && <div className="v2-mute" style={{ fontSize: 11, marginTop: 2 }}>対応: {i.resultText}</div>}
-                    {i.voided && <div style={{ fontSize: 11, color: "var(--v2-danger, #dc2626)", marginTop: 2 }}>取消済み</div>}
-                  </td>
-                  <td>
-                    {i.voided ? (
-                      <span className="v2-mute" style={{ fontSize: 12 }}>-</span>
-                    ) : (
-                      <button onClick={() => toggleStatus(i.id)} className="v2-btn-ghost" style={{ padding: 0 }}>
-                        <Chip variant={i.status === "対応中" ? "warn" : "success"}>{i.status}</Chip>
-                      </button>
-                    )}
-                  </td>
-                  <td style={{ whiteSpace: "nowrap" }}>
-                    <Btn size="xs" onClick={() => openEdit(i)}><Pencil size={11} /></Btn>{" "}
-                    {i.voided ? (
-                      <Btn size="xs" onClick={() => unvoidRecord(i.id)}>取消解除</Btn>
-                    ) : (
-                      <Btn size="xs" variant="danger" onClick={() => voidRecord(i.id)}><Ban size={11} /> 取消</Btn>
-                    )}
-                  </td>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead>
+                <tr>
+                  <th>発生日時</th><th>種別</th><th>深刻度</th><th>顧客</th><th>卓</th><th>対応者</th><th>内容</th><th>状態</th><th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((i) => (
+                  <tr key={i.id} style={i.voided ? { opacity: 0.5 } : undefined}>
+                    <td className="v2-sub" style={{ whiteSpace: "nowrap" }}>{displayDateTime(i.occurredAt)}</td>
+                    <td><Chip>{i.kind}</Chip></td>
+                    <td><Chip variant={SEVERITY_VARIANT[i.severity]}>{i.severity}</Chip></td>
+                    <td>{i.customerName ?? <span className="v2-mute">-</span>}</td>
+                    <td>{i.tableName ?? <span className="v2-mute">-</span>}</td>
+                    <td className="v2-sub">{i.staffName}</td>
+                    <td style={{ maxWidth: 280 }}>
+                      <div style={i.voided ? { textDecoration: "line-through" } : undefined}>{i.body}</div>
+                      {i.resultText && <div className="v2-mute" style={{ fontSize: 11, marginTop: 2 }}>対応: {i.resultText}</div>}
+                      {i.voided && <div style={{ fontSize: 11, color: "var(--v2-danger)", marginTop: 2 }}>取消済み</div>}
+                    </td>
+                    <td>
+                      {i.voided ? (
+                        <span className="v2-mute" style={{ fontSize: 12 }}>-</span>
+                      ) : (
+                        <Btn variant="ghost" size="xs" onClick={() => toggleStatus(i.id)} style={{ padding: 0 }}>
+                          <Chip variant={i.status === "対応中" ? "warn" : "success"}>{i.status}</Chip>
+                        </Btn>
+                      )}
+                    </td>
+                    <td style={{ whiteSpace: "nowrap" }}>
+                      <Btn size="xs" onClick={() => openEdit(i)}><Pencil size={11} /></Btn>{" "}
+                      {i.voided ? (
+                        <Btn size="xs" onClick={() => unvoidRecord(i.id)}>取消解除</Btn>
+                      ) : (
+                        <Btn size="xs" variant="danger" onClick={() => voidRecord(i.id)}><Ban size={11} /> 取消</Btn>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
 
@@ -290,7 +293,7 @@ export default function IncidentsPage() {
         footer={<><Btn onClick={() => { setOpen(false); setEditing(null); }}>キャンセル</Btn><Btn variant="primary" onClick={save}>{editing ? "保存" : "登録"}</Btn></>}
       >
         <VStack gap={16}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div className="v2-form-grid">
             <Field label="発生日時" required>
               <input type="datetime-local" value={d.occurredAt} onChange={(e) => setD({ ...d, occurredAt: e.target.value })} />
             </Field>
