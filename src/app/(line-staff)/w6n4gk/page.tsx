@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { QrCode, Search, DoorOpen, Coins, Sparkles, CreditCard, X, AlertTriangle, Phone } from "lucide-react";
+import { QrCode, Search, DoorOpen, Coins, Sparkles, CreditCard, X, AlertTriangle, Phone, Construction } from "lucide-react";
 
 interface MemberSnapshot {
   id: string;
@@ -48,8 +48,8 @@ export default function QRScanPage() {
   }
 
   function action(label: string) {
-    setToast(`${label}: 実行しました (デモ)`);
-    setTimeout(() => setToast(""), 2000);
+    setToast(`${label}は準備中です。管理画面(iPad/PC)から操作してください`);
+    setTimeout(() => setToast(""), 2500);
   }
 
   return (
@@ -75,9 +75,10 @@ export default function QRScanPage() {
           <div className="ln-card ln-stack-sm">
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
               <div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
                   <span style={{ fontSize: 16, fontWeight: 700 }}>{member.nickname}</span>
                   <span className="ln-mute" style={{ fontSize: 11 }}>{member.realName}</span>
+                  <span style={{ fontSize: 9, color: "var(--ln-text-mute)", border: "1px solid var(--ln-border)", borderRadius: 999, padding: "1px 6px" }}>デモ表示</span>
                 </div>
                 <div className="ln-mute" style={{ fontSize: 11 }}>会員番号 {member.memberNo}</div>
               </div>
@@ -110,11 +111,17 @@ export default function QRScanPage() {
               {member.phone && (<><span style={{ margin: "0 4px" }}>·</span><Phone size={12} />{member.phone}</>)}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, paddingTop: 8, borderTop: "1px solid var(--ln-border-soft)" }}>
-              <ActionButton icon={<DoorOpen size={16} />} label="来店処理" color="var(--ln-accent-text)" onClick={() => action("来店処理")} />
-              <ActionButton icon={<Coins size={16} />} label="チップ引出" color="#d97706" onClick={() => action("チップ引出")} />
-              <ActionButton icon={<Sparkles size={16} />} label="マルチケ消化" color="#7c3aed" onClick={() => action("マルチケ消化")} />
-              <ActionButton icon={<CreditCard size={16} />} label="会計登録" color="#2c3e50" onClick={() => action("会計登録")} />
+            <div style={{ paddingTop: 8, borderTop: "1px solid var(--ln-border-soft)" }}>
+              <div className="ln-row" style={{ marginBottom: 6 }}>
+                <Construction size={12} className="ln-mute" />
+                <span className="ln-mute" style={{ fontSize: 10 }}>これらの操作は準備中です。管理画面(iPad/PC)をご利用ください</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <ActionButton icon={<DoorOpen size={16} />} label="来店処理" color="var(--ln-accent-text)" onClick={() => action("来店処理")} />
+                <ActionButton icon={<Coins size={16} />} label="チップ引出" color="#d97706" onClick={() => action("チップ引出")} />
+                <ActionButton icon={<Sparkles size={16} />} label="マルチケ消化" color="#7c3aed" onClick={() => action("マルチケ消化")} />
+                <ActionButton icon={<CreditCard size={16} />} label="会計登録" color="#2c3e50" onClick={() => action("会計登録")} />
+              </div>
             </div>
           </div>
         )}
@@ -146,7 +153,7 @@ function MiniStat({ label, value, color }: { label: string; value: string; color
 
 function ActionButton({ icon, label, color, onClick }: { icon: React.ReactNode; label: string; color: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="ln-btn" style={{ justifyContent: "flex-start", gap: 8, fontSize: 12 }}>
+    <button onClick={onClick} className="ln-btn" style={{ justifyContent: "flex-start", gap: 8, fontSize: 12, opacity: 0.55 }}>
       <span style={{ color }}>{icon}</span>
       {label}
     </button>

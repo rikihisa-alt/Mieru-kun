@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle, Calendar, Clock, Users, AlertTriangle, X } from "lucide-react";
+import { ArrowLeft, Construction, Calendar, Clock, Users, AlertTriangle, X } from "lucide-react";
 
 type TableKind = "tournament" | "ring" | "side" | "any";
 
@@ -58,11 +58,13 @@ export default function MemberReservationPage() {
       <div className="ln-page">
         <div className="ln-stack">
           <div style={{ textAlign: "center", padding: "32px 0 16px" }}>
-            <CheckCircle size={56} style={{ color: "var(--ln-accent)", margin: "0 auto 10px" }} />
-            <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>予約リクエストを送信しました</p>
-            <p className="ln-mute" style={{ fontSize: 12, marginTop: 4 }}>確定次第 LINE で通知します</p>
+            <Construction size={56} style={{ color: "var(--ln-warn)", margin: "0 auto 10px" }} />
+            <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>この機能は準備中です</p>
+            <p className="ln-mute" style={{ fontSize: 12, marginTop: 4, lineHeight: 1.7 }}>
+              お手数ですが、ご予約はお電話または店頭にて承っております。
+            </p>
             <div className="ln-card ln-card-compact" style={{ marginTop: 16, display: "inline-block", textAlign: "left" }}>
-              <p className="ln-mute" style={{ fontSize: 11, margin: 0 }}>予約内容</p>
+              <p className="ln-mute" style={{ fontSize: 11, margin: 0 }}>ご希望の内容</p>
               <p style={{ fontSize: 13, fontWeight: 500, margin: "4px 0 0" }}>{date} {slot}〜</p>
               <p className="ln-sub" style={{ fontSize: 12, margin: 0 }}>{party}名・{KIND_LABEL[kind]}</p>
             </div>
@@ -72,7 +74,7 @@ export default function MemberReservationPage() {
               onClick={() => { setDone(false); setDate(""); setNote(""); setParty(1); setKind("any"); }}
               className="ln-btn ln-btn--full"
             >
-              続けて予約
+              入力に戻る
             </button>
             <Link href="/u3j5ny" className="ln-btn ln-btn--primary ln-btn--full">
               マイページへ
@@ -97,7 +99,10 @@ export default function MemberReservationPage() {
         {/* 予約中の一覧 */}
         {myReservations.length > 0 && (
           <section>
-            <p className="ln-eyebrow" style={{ marginBottom: 6 }}>予約中</p>
+            <div className="ln-row" style={{ marginBottom: 6 }}>
+              <p className="ln-eyebrow" style={{ margin: 0 }}>予約中</p>
+              <span style={{ fontSize: 9, color: "var(--ln-text-mute)", border: "1px solid var(--ln-border)", borderRadius: 999, padding: "1px 6px" }}>デモ表示</span>
+            </div>
             <div className="ln-stack-sm">
               {myReservations.map(r => (
                 <div key={r.id} className="ln-card ln-card-compact" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -227,8 +232,7 @@ export default function MemberReservationPage() {
         <div style={{ display: "flex", alignItems: "flex-start", gap: 6, padding: "0 4px" }}>
           <AlertTriangle size={12} className="ln-mute" style={{ flexShrink: 0, marginTop: 2 }} />
           <p className="ln-mute" style={{ fontSize: 10, lineHeight: 1.6, margin: 0 }}>
-            ご予約はリクエスト送信後、店舗スタッフが確認して確定します。
-            確定 or キャンセル依頼はLINEで通知されます。
+            オンラインでのご予約機能は準備中です。ご予約はお電話または店頭にて承っております。
           </p>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar as CalendarIcon, Users, MapPin, CheckCircle, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, Users, MapPin, CheckCircle, Clock, ChevronLeft, ChevronRight, Construction } from "lucide-react";
 
 interface EventItem {
   id: string;
@@ -52,18 +52,12 @@ export default function MemberSchedulePage() {
     const d = new Date();
     return { y: d.getFullYear(), m: d.getMonth() };
   });
-  const [events, setEvents] = useState(EVENTS);
+  const [events] = useState(EVENTS);
+  const [notice, setNotice] = useState(false);
 
-  function toggleReserve(id: string) {
-    const target = events.find(e => e.id === id);
-    if (target?.myReserved && !confirm("予約をキャンセルしますか？")) return;
-    setEvents(prev => prev.map(e =>
-      e.id === id ? {
-        ...e,
-        myReserved: !e.myReserved,
-        reserved: e.myReserved ? e.reserved - 1 : e.reserved + 1,
-      } : e
-    ));
+  function toggleReserve() {
+    setNotice(true);
+    setTimeout(() => setNotice(false), 2500);
   }
 
   const filtered = events.filter(e => {
@@ -120,7 +114,10 @@ export default function MemberSchedulePage() {
         {/* 予約中のイベント */}
         {myUpcoming.length > 0 && (
           <section>
-            <p className="ln-eyebrow" style={{ marginBottom: 6 }}>予約中のイベント</p>
+            <div className="ln-row" style={{ marginBottom: 6 }}>
+              <p className="ln-eyebrow" style={{ margin: 0 }}>予約中のイベント</p>
+              <span style={{ fontSize: 9, color: "var(--ln-text-mute)", border: "1px solid var(--ln-border)", borderRadius: 999, padding: "1px 6px" }}>デモ表示</span>
+            </div>
             <div className="ln-stack-sm">
               {myUpcoming.map(e => (
                 <div
@@ -291,8 +288,8 @@ export default function MemberSchedulePage() {
                 )}
 
                 <button
-                  onClick={() => toggleReserve(e.id)}
-                  disabled={!e.myReserved && full}
+                  onClick={toggleReserve}
+                  disabled={full}
                   className={
                     e.myReserved
                       ? "ln-btn ln-btn--full"
@@ -321,6 +318,20 @@ export default function MemberSchedulePage() {
           <MapPin size={12} />Come On Casino 開催
         </p>
       </div>
+
+      {notice && (
+        <div
+          style={{
+            position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)",
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "8px 16px", background: "var(--ln-text)", color: "#fff",
+            fontSize: 12, borderRadius: 6, boxShadow: "var(--ln-shadow-lg)", zIndex: 50,
+            whiteSpace: "nowrap",
+          }}
+        >
+          <Construction size={14} />参加受付は準備中です
+        </div>
+      )}
     </div>
   );
 }

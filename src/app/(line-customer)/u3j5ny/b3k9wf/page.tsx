@@ -41,6 +41,9 @@ export default function MemberBalancePage() {
         </div>
 
         <p className="ln-mute" style={{ fontSize: 11, margin: 0 }}>残高に反映されるまで時間がかかる場合があります</p>
+        <p style={{ fontSize: 10, color: "var(--ln-text-mute)", margin: 0 }}>
+          ※ 表示はサンプルです。正式公開時に実データに切り替わります
+        </p>
       </div>
     </div>
   );

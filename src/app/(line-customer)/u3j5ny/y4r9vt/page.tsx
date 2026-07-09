@@ -44,6 +44,10 @@ export default function MemberLiveStatusPage() {
             </div>
           ))}
         </div>
+
+        <p style={{ fontSize: 10, color: "var(--ln-text-mute)", margin: 0, textAlign: "center" }}>
+          ※ 表示はサンプルです。正式公開時に実データに切り替わります
+        </p>
       </div>
     </div>
   );

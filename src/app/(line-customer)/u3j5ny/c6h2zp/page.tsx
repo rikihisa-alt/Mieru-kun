@@ -321,6 +321,9 @@ export default function MemberRankingPage() {
             ? "※ 総合スコアは項目ごとの係数(来店/ポイント/リング純増/トナメ/マルチケ/SNS)から店舗が算出しています"
             : `※ ${PERIOD_LABEL[period]}の${METRIC_LABEL[metric]}集計`}
         </p>
+        <p style={{ fontSize: 10, color: "var(--ln-text-mute)", margin: 0 }}>
+          ※ 表示はサンプルです。正式公開時に実データに切り替わります
+        </p>
       </div>
     </div>
   );
