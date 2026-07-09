@@ -8,7 +8,7 @@ import {
   LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
   Users, UserCog, Clock, TrendingUp, Package, Lock, BarChart3, Coins, History,
   Trophy, Gift, CalendarDays, Image as ImageIcon, Settings, Sparkles,
-  ChevronRight, ChevronsRight, Megaphone,
+  ChevronRight, ChevronsRight, Megaphone, ClipboardList,
 } from "lucide-react";
 import { TopbarNotifications } from "@/components/v2/topbar-notifications";
 import { TopbarStorePill } from "@/components/v2/topbar-store-pill";
@@ -40,6 +40,7 @@ const NAV: NavSection[] = [
     { href: "/v2/reports", label: "集計", icon: BarChart3, hasMenu: true },
     { href: "/v2/chip-flow", label: "チップフロー", icon: Coins },
     { href: "/v2/history", label: "履歴", icon: History },
+    { href: "/v2/handover", label: "引き継ぎ", icon: ClipboardList },
   ]},
   { section: "施策", items: [
     { href: "/v2/ranking", label: "ランキング", icon: Trophy },
