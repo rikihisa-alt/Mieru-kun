@@ -22,8 +22,12 @@ export interface SalesOrder {
   status: "active" | "settled" | "canceled";
   createdAt: string;       // ISO
   settledAt?: string;
-  paymentMethod?: "cash" | "card" | "qr";
+  paymentMethod?: "cash" | "card" | "qr" | "credit"; // credit = 後払い(未払い)
   note?: string;
+  // ---- 後払い(売掛)関連。paymentMethod === "credit" のときに使用 ----
+  unpaid?: boolean;         // true の間は未払い。消し込みで false に
+  paidAt?: string;          // 消し込み(支払完了)日時 ISO
+  paidMethod?: "cash" | "card" | "qr"; // 消し込み時の実際の支払方法
 }
 export const salesOrderStore = createPersistedStore<SalesOrder[]>("v2_sales_orders_v1", []);
 

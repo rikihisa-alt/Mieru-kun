@@ -6,7 +6,7 @@ import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { customerStore, staffStore, reservationStore, productStore } from "@/lib/store/domain-stores";
 import { salesOrderStore } from "@/lib/v2/stores";
 import { PageHeader, Kpis, Kpi, Panel, VStack, HStack, Btn, Chip } from "@/components/v2/ui";
-import { AlertTriangle, DoorOpen, ShoppingBag, Grid3X3, CreditCard, UserPlus, Plus, Clock } from "lucide-react";
+import { AlertTriangle, DoorOpen, ShoppingBag, Grid3X3, CreditCard, UserPlus, Plus, Clock, Wallet, CheckCircle2 } from "lucide-react";
 
 interface CheckinVisit {
   id: string; customerId: string | null; name: string; rank: string; checkedInAt: string; tableId?: string; seatIndex?: number;
@@ -29,6 +29,13 @@ export default function DashboardPage() {
   const lowStock = products.filter(p => p.stock != null && p.minStock != null && p.stock <= p.minStock);
   const todayReservations = reservations.filter(r => r.date === today);
   const activeStaff = staff.filter(s => s.status === "active").length;
+
+  const unpaidOrders = useMemo(
+    () => orders.filter(o => o.status === "settled" && o.paymentMethod === "credit" && o.unpaid)
+      .sort((a, b) => (b.settledAt ?? b.createdAt).localeCompare(a.settledAt ?? a.createdAt)),
+    [orders]
+  );
+  const unpaidTotal = unpaidOrders.reduce((s, o) => s + o.total, 0);
 
   return (
     <VStack gap={20}>
@@ -61,6 +68,42 @@ export default function DashboardPage() {
           </HStack>
         </Panel>
       )}
+
+      {/* 未払い(後払い) */}
+      <Panel
+        title={<HStack gap={6}><Wallet size={15} /> 未払い(後払い)</HStack>}
+        action={<Link href="/v2/sales?tab=unpaid" className="v2-mute" style={{ fontSize: 12 }}>一覧・消し込み →</Link>}
+      >
+        {unpaidOrders.length === 0 ? (
+          <HStack gap={8} className="v2-mute" style={{ fontSize: 13, padding: "8px 0" }}>
+            <CheckCircle2 size={16} /> 未払いはありません
+          </HStack>
+        ) : (
+          <VStack gap={12}>
+            <HStack gap={16}>
+              <div>
+                <div className="v2-mute" style={{ fontSize: 12 }}>件数</div>
+                <div className="v2-num" style={{ fontSize: 20, fontWeight: 600 }}>{unpaidOrders.length}件</div>
+              </div>
+              <div>
+                <div className="v2-mute" style={{ fontSize: 12 }}>合計金額</div>
+                <div className="v2-num" style={{ fontSize: 20, fontWeight: 600, color: "var(--v2-warn)" }}>¥{unpaidTotal.toLocaleString()}</div>
+              </div>
+            </HStack>
+            <VStack gap={0}>
+              {unpaidOrders.slice(0, 5).map(o => (
+                <HStack key={o.id} gap={8} style={{ padding: "8px 0", borderBottom: "1px solid var(--v2-border)" }}>
+                  <div className="v2-grow">
+                    <div>{o.customer}</div>
+                    <div className="v2-mute" style={{ fontSize: 11 }}>{(o.settledAt ?? o.createdAt).slice(0, 10)}</div>
+                  </div>
+                  <span className="v2-num" style={{ fontWeight: 600 }}>¥{o.total.toLocaleString()}</span>
+                </HStack>
+              ))}
+            </VStack>
+          </VStack>
+        )}
+      </Panel>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         {/* 本日予約 */}

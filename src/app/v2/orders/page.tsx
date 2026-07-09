@@ -19,7 +19,7 @@ export default function OrdersPage() {
   const [table, setTable] = useState("");
   const [cart, setCart] = useState<SalesOrderItem[]>([]);
   const [settling, setSettling] = useState<SalesOrder | null>(null);
-  const [method, setMethod] = useState<"cash" | "card" | "qr">("cash");
+  const [method, setMethod] = useState<"cash" | "card" | "qr" | "credit">("cash");
   const [cat, setCat] = useState<string>("all");
 
   const active = orders.filter(o => o.status === "active");
@@ -70,8 +70,15 @@ export default function OrdersPage() {
   function settle() {
     if (!settling) return;
     const s = settling;
+    const isCredit = method === "credit";
     // 1. 注文ステータス
-    setOrders(prev => prev.map(o => o.id === s.id ? { ...o, status: "settled" as const, settledAt: new Date().toISOString(), paymentMethod: method } : o));
+    setOrders(prev => prev.map(o => o.id === s.id ? {
+      ...o,
+      status: "settled" as const,
+      settledAt: new Date().toISOString(),
+      paymentMethod: method,
+      ...(isCredit ? { unpaid: true } : {}),
+    } : o));
     // 2. 在庫減算 + 在庫移動履歴
     const now = new Date().toISOString();
     setProducts(prev => prev.map(p => {
@@ -110,11 +117,15 @@ export default function OrdersPage() {
     setOrders(prev => prev.filter(o => o.id !== id));
   }
 
+  function paymentLabel(m?: string) {
+    return m === "cash" ? "現金" : m === "card" ? "カード" : m === "qr" ? "QR" : m === "credit" ? "後払い" : "—";
+  }
+
   function receipt(o: SalesOrder) {
     const body = kpisHtml([
       { label: "顧客", value: o.customer },
       { label: "卓", value: o.table ?? "—" },
-      { label: "支払", value: o.paymentMethod === "cash" ? "現金" : o.paymentMethod === "card" ? "カード" : o.paymentMethod === "qr" ? "QR" : "—" },
+      { label: "支払", value: paymentLabel(o.paymentMethod) },
       { label: "時刻", value: new Date(o.settledAt ?? o.createdAt).toLocaleString("ja-JP") },
     ]) + tableHtml(["商品", "数量", "単価", "小計"],
       o.items.map(i => [i.name, String(i.qty), `¥${i.price.toLocaleString()}`, `¥${(i.price * i.qty).toLocaleString()}`]),
@@ -165,7 +176,11 @@ export default function OrdersPage() {
                   <td>{o.customer}</td>
                   <td className="v2-sub" style={{ fontSize: 12 }}>{o.items.map(i => `${i.name}×${i.qty}`).join(" / ")}</td>
                   <td className="v2-num-cell">¥{o.total.toLocaleString()}</td>
-                  <td className="v2-sub">{o.paymentMethod === "cash" ? "現金" : o.paymentMethod === "card" ? "カード" : "QR"}</td>
+                  <td className="v2-sub">
+                    {o.paymentMethod === "credit"
+                      ? <Chip variant={o.unpaid ? "warn" : "success"}>{o.unpaid ? "後払い(未払)" : "後払い(消込済)"}</Chip>
+                      : paymentLabel(o.paymentMethod)}
+                  </td>
                   <td className="v2-num v2-sub">{new Date(o.settledAt ?? o.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
                   <td><Btn size="xs" onClick={() => receipt(o)}><FileDown size={11}/> 領収</Btn></td>
                 </tr>
@@ -254,7 +269,7 @@ export default function OrdersPage() {
         open={!!settling}
         onClose={() => setSettling(null)}
         title="精算"
-        footer={<><Btn onClick={() => setSettling(null)}>キャンセル</Btn><Btn variant="primary" onClick={settle}>精算する</Btn></>}
+        footer={<><Btn onClick={() => setSettling(null)}>キャンセル</Btn><Btn variant="primary" onClick={settle}>{method === "credit" ? "後払いで確定" : "精算する"}</Btn></>}
       >
         {settling && (
           <VStack gap={16}>
@@ -267,14 +282,22 @@ export default function OrdersPage() {
               <div className="v2-num" style={{ fontSize: 28, fontWeight: 600 }}>¥{settling.total.toLocaleString()}</div>
             </div>
             <Field label="支払方法">
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
-                {(["cash", "card", "qr"] as const).map(m => (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
+                {(["cash", "card", "qr", "credit"] as const).map(m => (
                   <button key={m} onClick={() => setMethod(m)} className={`v2-btn ${method === m ? "v2-btn-primary" : ""}`}>
-                    {m === "cash" ? "現金" : m === "card" ? "カード" : "QR"}
+                    {m === "cash" ? "現金" : m === "card" ? "カード" : m === "qr" ? "QR" : "後払い"}
                   </button>
                 ))}
               </div>
             </Field>
+            {method === "credit" && !settling.customerId && (
+              <div style={{ padding: 10, background: "var(--v2-warn-bg)", color: "var(--v2-warn)", fontSize: 12, borderRadius: 3 }}>
+                この注文は既存顧客に紐付いていません(ゲスト名: {settling.customer})。後日の消し込みのため、可能であれば顧客登録して紐付けてください。
+              </div>
+            )}
+            {method === "credit" && (
+              <div className="v2-mute" style={{ fontSize: 11 }}>※ 後払いは売掛金として扱われ、現金/カード/QRの売上には計上されません。未払いリスト(売上管理 &gt; 未払い)で管理し、入金時に消し込んでください。</div>
+            )}
             {settling.customerId && (
               <div className="v2-mute" style={{ fontSize: 11 }}>※ 精算後、顧客の累計利用額 / 来店回数を自動で加算します</div>
             )}

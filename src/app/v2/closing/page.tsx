@@ -3,9 +3,9 @@
 import { useState, useMemo } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { salesOrderStore } from "@/lib/v2/stores";
-import { PageHeader, Panel, VStack, Btn, Field, Kpis, Kpi } from "@/components/v2/ui";
+import { PageHeader, Panel, VStack, HStack, Btn, Field, Kpis, Kpi } from "@/components/v2/ui";
 import { printDoc, kpisHtml, tableHtml, sectionHtml } from "@/lib/v2/pdf";
-import { FileDown, Lock, CheckCircle } from "lucide-react";
+import { FileDown, Lock, CheckCircle, Wallet } from "lucide-react";
 
 interface ClosingRecord {
   date: string;
@@ -16,6 +16,8 @@ interface ClosingRecord {
   qr: number;
   count: number;
   closedAt: string;
+  creditCount?: number; // 本日発生の未払い(後払い)件数 ※現金照合の対象外
+  credit?: number;      // 同 金額
 }
 
 export default function ClosingPage() {
@@ -26,10 +28,14 @@ export default function ClosingPage() {
 
   const todayData = useMemo(() => {
     const settled = orders.filter(o => o.status === "settled" && (o.settledAt ?? o.createdAt).startsWith(today));
-    const cash = settled.filter(o => o.paymentMethod === "cash").reduce((s, o) => s + o.total, 0);
-    const card = settled.filter(o => o.paymentMethod === "card").reduce((s, o) => s + o.total, 0);
-    const qr = settled.filter(o => o.paymentMethod === "qr").reduce((s, o) => s + o.total, 0);
-    return { total: cash + card + qr, cash, card, qr, count: settled.length, orders: settled };
+    // 現金/カード/QRのみを現金照合対象の売上として集計する。後払い(売掛)は含めない
+    const paid = settled.filter(o => o.paymentMethod !== "credit");
+    const cash = paid.filter(o => o.paymentMethod === "cash").reduce((s, o) => s + o.total, 0);
+    const card = paid.filter(o => o.paymentMethod === "card").reduce((s, o) => s + o.total, 0);
+    const qr = paid.filter(o => o.paymentMethod === "qr").reduce((s, o) => s + o.total, 0);
+    const creditOrders = settled.filter(o => o.paymentMethod === "credit");
+    const credit = creditOrders.reduce((s, o) => s + o.total, 0);
+    return { total: cash + card + qr, cash, card, qr, count: paid.length, orders: paid, creditCount: creditOrders.length, credit };
   }, [orders, today]);
 
   const alreadyClosed = closings.some(c => c.date === today);
@@ -42,6 +48,7 @@ export default function ClosingPage() {
       date: today, notes,
       total: todayData.total, cash: todayData.cash, card: todayData.card, qr: todayData.qr,
       count: todayData.count, closedAt: new Date().toISOString(),
+      creditCount: todayData.creditCount, credit: todayData.credit,
     };
     setClosings(prev => [record, ...prev]);
     setNotes("");
@@ -62,6 +69,8 @@ export default function ClosingPage() {
           ["QR", `¥${record.qr.toLocaleString()}`],
           ["合計", `¥${record.total.toLocaleString()}`],
         ], { numCols: [1] }))
+    + ((record.creditCount ?? 0) > 0 ? sectionHtml("本日発生の未払い(後払い・現金照合対象外)",
+      tableHtml(["件数", "金額"], [[String(record.creditCount), `¥${(record.credit ?? 0).toLocaleString()}`]], { numCols: [1] })) : "")
     + (record.notes ? sectionHtml("締めメモ", `<div style="padding:8px;border:1px solid #e5e5e5;background:#fafafa">${record.notes}</div>`) : "");
     printDoc({ title: "締め処理レポート", subtitle: record.date, body, storeName: "てんぽみえるくん" });
   }
@@ -76,6 +85,18 @@ export default function ClosingPage() {
         <Kpi label="カード" value={`¥${todayData.card.toLocaleString()}`} />
         <Kpi label="QR" value={`¥${todayData.qr.toLocaleString()}`} />
       </Kpis>
+
+      {todayData.creditCount > 0 && (
+        <Panel>
+          <HStack gap={8} style={{ color: "var(--v2-warn)" }}>
+            <Wallet size={16} />
+            <span>
+              本日発生の未払い(後払い): <strong className="v2-num">{todayData.creditCount}件 ¥{todayData.credit.toLocaleString()}</strong>
+            </span>
+            <span className="v2-mute" style={{ fontSize: 12, marginLeft: "auto" }}>※ 現金照合の対象外です</span>
+          </HStack>
+        </Panel>
+      )}
 
       <Panel title={alreadyClosed ? "本日の締め" : "本日の締めを実行"}>
         {alreadyClosed ? (
