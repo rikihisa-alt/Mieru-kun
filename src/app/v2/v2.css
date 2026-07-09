@@ -45,6 +45,12 @@
   --v2-shadow-md:  0 1px 2px rgba(28, 46, 36, 0.05), 0 8px 24px rgba(28, 46, 36, 0.10);
   --v2-shadow-lg:  0 2px 4px rgba(28, 46, 36, 0.06), 0 16px 40px rgba(28, 46, 36, 0.16);
 
+  /* rank colors (顧客ランク専用の固定色トークン) */
+  --v2-rank-vip:     #7c3aed;
+  --v2-rank-gold:    #d97706;
+  --v2-rank-silver:  #6b7280;
+  --v2-rank-regular: #9ca3af;
+
   /* size — 8/10/14px の3段階に統一 */
   --v2-radius-sm:  8px;
   --v2-radius:     10px;
@@ -596,3 +602,134 @@
 .v2-sub   { color: var(--v2-text-sub); }
 .v2-num-cell { font-family: var(--v2-num); font-variant-numeric: tabular-nums; text-align: right; }
 .v2-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ===== toolbar (検索・フィルタ行) ===== */
+.v2-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ===== filter chip (選択式フィルタピル) ===== */
+.v2-filter-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 28px; padding: 0 12px;
+  font-size: var(--v2-fs-sm);
+  font-weight: 500;
+  border-radius: 999px;
+  border: 1px solid var(--v2-border-strong);
+  background: var(--v2-bg);
+  color: var(--v2-text-sub);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.v2-filter-chip:hover { background: var(--v2-bg-alt); color: var(--v2-text); }
+.v2-filter-chip.is-active {
+  background: var(--v2-accent-soft);
+  color: var(--v2-accent-text);
+  border-color: var(--v2-accent);
+}
+.v2-filter-chip.is-active:hover { background: var(--v2-accent-soft); }
+
+/* ===== toast (右上固定通知) ===== */
+@keyframes v2-toast-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.v2-toast {
+  position: fixed;
+  top: 68px;
+  right: 20px;
+  z-index: 60;
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--v2-radius-sm);
+  border: 1px solid var(--v2-border);
+  box-shadow: var(--v2-shadow-lg);
+  background: var(--v2-success-bg);
+  color: var(--v2-success);
+  font-size: var(--v2-fs);
+  font-weight: 500;
+  animation: v2-toast-in 0.18s ease;
+}
+.v2-toast--danger { background: var(--v2-danger-bg); color: var(--v2-danger); }
+.v2-toast--warn   { background: var(--v2-warn-bg);   color: var(--v2-warn); }
+.v2-toast__close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px;
+  color: inherit; opacity: 0.7;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease;
+}
+.v2-toast__close:hover { opacity: 1; }
+
+/* ===== banner (ページ内警告) ===== */
+.v2-banner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--v2-radius-sm);
+  font-size: var(--v2-fs);
+  background: var(--v2-info-bg);
+  color: var(--v2-info);
+}
+.v2-banner--info    { background: var(--v2-info-bg);    color: var(--v2-info); }
+.v2-banner--warn    { background: var(--v2-warn-bg);    color: var(--v2-warn); }
+.v2-banner--danger  { background: var(--v2-danger-bg);  color: var(--v2-danger); }
+
+/* ===== form grid (2カラムフォーム) ===== */
+.v2-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+@media (max-width: 900px) {
+  .v2-form-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== section label (小さなuppercase中見出し) ===== */
+.v2-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v2-text-mute);
+  margin-bottom: 6px;
+}
+
+/* ===== amount (金額の増減) ===== */
+.v2-amount-pos { color: var(--v2-success); }
+.v2-amount-neg { color: var(--v2-danger); }
+
+/* ===== responsive (基準書 §12) ===== */
+
+/* テーブルの横スクロールコンテナ — ページ全体の横スクロールを防ぐ */
+.v2-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.v2-table-wrap .v2-table { min-width: 560px; }
+
+/* toolbar内の検索ボックス親 — PCではmaxWidth 360、スマホで全幅 */
+.v2-toolbar__search {
+  position: relative;
+  flex: 1 1 auto;
+  max-width: 360px;
+  min-width: 0;
+}
+
+/* モーダル — 縦は85vhに収めて内部スクロール */
+.v2-modal {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  /* KPIはスマホで2カラム固定 (auto-fit minmax(180px)だと1カラムに落ちるため) */
+  .v2-kpis { grid-template-columns: repeat(2, 1fr); }
+
+  /* モーダルは画面幅-32px */
+  .v2-modal { max-width: calc(100vw - 32px); }
+
+  /* 検索ボックスは全幅 */
+  .v2-toolbar__search { max-width: 100%; }
+}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, type ReactNode, type ButtonHTMLAttributes, type HTMLAttributes } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode, type ButtonHTMLAttributes, type HTMLAttributes } from "react";
 import { X } from "lucide-react";
+import type { CustomerRank } from "@/lib/store/domain-stores";
 
 // ============= Button =============
 type BtnVariant = "default" | "primary" | "ghost" | "danger";
@@ -166,4 +167,87 @@ export function VStack({ gap = 16, children, ...rest }: { gap?: number; children
 }
 export function HStack({ gap = 8, children, ...rest }: { gap?: number; children: ReactNode } & HTMLAttributes<HTMLDivElement>) {
   return <div {...rest} style={{ display: "flex", alignItems: "center", gap, ...(rest.style ?? {}) }}>{children}</div>;
+}
+
+// ============= Toast =============
+type ToastVariant = "success" | "danger" | "warn";
+export function Toast({ message, variant = "success", onClose }: { message: ReactNode; variant?: ToastVariant; onClose?: () => void }) {
+  const v = variant === "danger" ? "v2-toast--danger" : variant === "warn" ? "v2-toast--warn" : "";
+  return (
+    <div className={`v2-toast ${v}`}>
+      <span>{message}</span>
+      {onClose && (
+        <button onClick={onClose} className="v2-toast__close" aria-label="閉じる">
+          <X size={14} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function useToast(duration = 3000) {
+  const [toast, setToast] = useState<{ message: ReactNode; variant: ToastVariant } | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const show = useCallback((message: ReactNode, variant: ToastVariant = "success") => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setToast({ message, variant });
+    timerRef.current = setTimeout(() => setToast(null), duration);
+  }, [duration]);
+
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+
+  return { toast, show };
+}
+
+// ============= Banner =============
+type BannerVariant = "info" | "warn" | "danger";
+export function Banner({ variant = "info", icon, children }: { variant?: BannerVariant; icon?: ReactNode; children: ReactNode }) {
+  return (
+    <div className={`v2-banner v2-banner--${variant}`}>
+      {icon}
+      <span>{children}</span>
+    </div>
+  );
+}
+
+// ============= FilterChips =============
+export function FilterChips({ value, onChange, items }: { value: string; onChange: (v: string) => void; items: { value: string; label: ReactNode }[] }) {
+  return (
+    <>
+      {items.map((it) => (
+        <button
+          key={it.value}
+          type="button"
+          className={`v2-filter-chip ${value === it.value ? "is-active" : ""}`}
+          onClick={() => onChange(it.value)}
+        >{it.label}</button>
+      ))}
+    </>
+  );
+}
+
+// ============= SectionLabel =============
+export function SectionLabel({ children }: { children: ReactNode }) {
+  return <div className="v2-section-label">{children}</div>;
+}
+
+// ============= RankBadge =============
+const RANK_META: Record<CustomerRank, { label: string; color: string } | null> = {
+  vip:     { label: "VIP",   color: "var(--v2-rank-vip)" },
+  gold:    { label: "Gold",  color: "var(--v2-rank-gold)" },
+  silver:  { label: "Silver", color: "var(--v2-rank-silver)" },
+  regular: null,
+};
+export function RankBadge({ rank }: { rank: CustomerRank }) {
+  const meta = RANK_META[rank];
+  if (!meta) return null;
+  return (
+    <span
+      className="v2-chip"
+      style={{ color: "#fff", background: meta.color, borderColor: meta.color }}
+    >
+      {meta.label}
+    </span>
+  );
 }
