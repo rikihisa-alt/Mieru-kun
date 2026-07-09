@@ -51,7 +51,7 @@ function MiniKPI({ icon, label, value }: { icon: React.ReactNode; label: string;
         <span className="ln-mute">{icon}</span>
         <span className="ln-mute" style={{ fontSize: 10, fontWeight: 500 }}>{label}</span>
       </div>
-      <p className="ln-num" style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{value}</p>
+      <p className="ln-num" style={{ fontSize: 18, fontWeight: 700, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={value}>{value}</p>
     </div>
   );
 }

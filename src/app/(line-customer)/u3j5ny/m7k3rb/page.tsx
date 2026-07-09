@@ -25,7 +25,7 @@ export default function MultikePage() {
           <span className="ln-balance__label">
             <Sparkles size={14} />現在のマルチケ残高
           </span>
-          <p className="ln-balance__value" style={{ color: "#7c3aed" }}>
+          <p className="ln-balance__value" style={{ color: "var(--ln-rank-vip)" }}>
             {balance.toLocaleString()}
             <span className="ln-balance__value-unit">枚</span>
           </p>
@@ -62,9 +62,7 @@ export default function MultikePage() {
           </div>
         </section>
 
-        <p style={{ fontSize: 10, color: "var(--ln-text-mute)", margin: 0 }}>
-          ※ 表示はサンプルです。正式公開時に実データに切り替わります
-        </p>
+        <p className="ln-demo-note">※ 表示はサンプルです。正式公開時に実データに切り替わります</p>
       </div>
     </div>
   );

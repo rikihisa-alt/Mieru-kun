@@ -174,12 +174,12 @@ export default function SignagePage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "baseline", gap: "1.2vw" }}>
-          <span style={{ fontSize: "3.2vw", fontWeight: 800, letterSpacing: "0.02em", color: "#f0fff6" }}>
+          <span style={{ fontSize: "clamp(24px, 3.2vw, 62px)", fontWeight: 800, letterSpacing: "0.02em", color: "#f0fff6" }}>
             {settings.storeName || "てんぽみえるくん"}
           </span>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: "3.6vw", fontWeight: 800, fontVariantNumeric: "tabular-nums", lineHeight: 1, color: "#ffffff" }}>
+          <div style={{ fontSize: "clamp(28px, 3.6vw, 70px)", fontWeight: 800, fontVariantNumeric: "tabular-nums", lineHeight: 1, color: "#ffffff" }}>
             {timeLabel}
           </div>
           <div style={{ fontSize: "1.1vw", color: "rgba(234,255,241,0.65)", marginTop: "0.3vw" }}>{dateLabel}</div>
@@ -229,7 +229,7 @@ function TableCard({ table, seatedCount }: { table: TableDef; seatedCount: numbe
   const bg = full
     ? "linear-gradient(160deg, rgba(127,29,29,0.55), rgba(69,10,10,0.55))"
     : "linear-gradient(160deg, rgba(6,78,59,0.55), rgba(2,44,34,0.55))";
-  const borderColor = full ? "rgba(248,113,113,0.55)" : empty ? "rgba(52,211,153,0.7)" : "rgba(52,211,153,0.35)";
+  const borderColor = full ? "rgba(248,113,113,0.55)" : empty ? "rgba(110,231,183,0.7)" : "rgba(110,231,183,0.35)";
 
   return (
     <div
@@ -245,7 +245,7 @@ function TableCard({ table, seatedCount }: { table: TableDef; seatedCount: numbe
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontSize: "1.5vw", fontWeight: 800, color: "#fff" }}>{table.name}</span>
+        <span style={{ fontSize: "clamp(14px, 1.5vw, 30px)", fontWeight: 800, color: "#fff" }}>{table.name}</span>
         <span
           style={{
             fontSize: "0.85vw", fontWeight: 700, padding: "0.15vw 0.6vw", borderRadius: "999px",
@@ -257,15 +257,15 @@ function TableCard({ table, seatedCount }: { table: TableDef; seatedCount: numbe
       </div>
       <div
         style={{
-          fontSize: "2.4vw",
+          fontSize: "clamp(20px, 2.4vw, 48px)",
           fontWeight: 800,
           fontVariantNumeric: "tabular-nums",
-          color: full ? "#fca5a5" : empty ? "#6ee7b7" : "#eafff1",
+          color: full ? "#f87171" : empty ? "#6ee7b7" : "#eafff1",
         }}
       >
         {seatedCount} <span style={{ fontSize: "1.3vw", fontWeight: 500, color: "rgba(234,255,241,0.55)" }}>/ {table.maxSeats}席</span>
       </div>
-      <div style={{ fontSize: "0.95vw", fontWeight: 600, color: full ? "#fca5a5" : "#6ee7b7" }}>
+      <div style={{ fontSize: "0.95vw", fontWeight: 600, color: full ? "#f87171" : "#6ee7b7" }}>
         {full ? "満卓" : "空席あり"}
       </div>
     </div>
@@ -291,13 +291,13 @@ function WaitingPanel({ count }: { count: number }) {
       <SectionLabel center>ウェイティング</SectionLabel>
       {count > 0 ? (
         <>
-          <div style={{ fontSize: "3vw", fontWeight: 800, color: "#fbbf24", lineHeight: 1 }}>
+          <div style={{ fontSize: "clamp(24px, 3vw, 58px)", fontWeight: 800, color: "#fbbf24", lineHeight: 1 }}>
             {count}<span style={{ fontSize: "1.3vw", fontWeight: 600 }}>組</span>
           </div>
           <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#fde68a" }}>ただいま{count}組待ちです</div>
         </>
       ) : (
-        <div style={{ fontSize: "1.5vw", fontWeight: 700, color: "#6ee7b7", padding: "1vw 0" }}>
+        <div style={{ fontSize: "clamp(14px, 1.5vw, 30px)", fontWeight: 700, color: "#6ee7b7", padding: "1vw 0" }}>
           すぐにご案内できます
         </div>
       )}
@@ -358,7 +358,7 @@ function TournamentBanner({ tournament }: { tournament: TournamentRecord }) {
         <div style={{ fontSize: "0.95vw", fontWeight: 700, color: "#c4b5fd", textTransform: "uppercase", letterSpacing: "0.1em" }}>
           開催中トーナメント
         </div>
-        <div style={{ fontSize: "2.1vw", fontWeight: 800, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <div style={{ fontSize: "clamp(18px, 2.1vw, 42px)", fontWeight: 800, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {tournament.name}
         </div>
         {isPaused && (
@@ -378,7 +378,7 @@ function TournamentBanner({ tournament }: { tournament: TournamentRecord }) {
         </div>
         <div
           style={{
-            fontSize: "3.4vw", fontWeight: 800, fontVariantNumeric: "tabular-nums", lineHeight: 1,
+            fontSize: "clamp(28px, 3.4vw, 66px)", fontWeight: 800, fontVariantNumeric: "tabular-nums", lineHeight: 1,
             color: warn ? "#f87171" : "#fff",
             animation: warn && !isPaused ? "signage-blink 1s ease-in-out infinite" : undefined,
           }}
@@ -395,7 +395,7 @@ function BlindStat({ label, value }: { label: string; value: number }) {
   return (
     <div style={{ textAlign: "center" }}>
       <div style={{ fontSize: "0.85vw", color: "rgba(234,255,241,0.55)", fontWeight: 600 }}>{label}</div>
-      <div style={{ fontSize: "1.7vw", fontWeight: 800, fontVariantNumeric: "tabular-nums", color: "#fff" }}>
+      <div style={{ fontSize: "clamp(15px, 1.7vw, 34px)", fontWeight: 800, fontVariantNumeric: "tabular-nums", color: "#fff" }}>
         {value.toLocaleString()}
       </div>
     </div>

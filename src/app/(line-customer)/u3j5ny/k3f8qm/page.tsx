@@ -235,6 +235,8 @@ export default function MemberReservationPage() {
             オンラインでのご予約機能は準備中です。ご予約はお電話または店頭にて承っております。
           </p>
         </div>
+
+        <p className="ln-demo-note">※ 表示はサンプルです。正式公開時に実データに切り替わります</p>
       </div>
     </div>
   );
