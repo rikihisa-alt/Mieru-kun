@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { customerStore, type CustomerRank } from "@/lib/store/domain-stores";
+import { grantVisitPoints } from "@/lib/v2/points";
 import { PageHeader, Btn, Panel, Field, Modal, VStack, HStack, Chip, Kpis, Kpi, Empty } from "@/components/v2/ui";
 import { Plus, LogOut, AlertTriangle, ShieldAlert } from "lucide-react";
 
@@ -28,6 +29,7 @@ export default function CheckinPage() {
   const [selectedId, setSelectedId] = useState<string>("");
   const [guestName, setGuestName] = useState("");
   const [guestRank, setGuestRank] = useState<CustomerRank>("regular");
+  const [pointToast, setPointToast] = useState<string | null>(null);
 
   const selectedCustomer = selectedId ? customers.find(x => x.id === selectedId) : undefined;
   const customerById = (id: string | null) => id ? customers.find(x => x.id === id) : undefined;
@@ -45,6 +47,11 @@ export default function CheckinPage() {
       }
       if (c.isBlacklisted && !confirm("本当に入店させますか?")) return;
       setVisits(prev => [{ id: makeVisitId(), customerId: c.id, name: c.nickname || c.name, rank: c.rank, checkedInAt: new Date().toISOString() }, ...prev]);
+      const granted = grantVisitPoints(c.id, "来店チェックイン");
+      if (granted > 0) {
+        setPointToast(`${c.nickname || c.name}さんに${granted}ptを付与しました`);
+        setTimeout(() => setPointToast(null), 3500);
+      }
     } else {
       if (!guestName.trim()) return;
       setVisits(prev => [{ id: makeVisitId(), customerId: null, name: guestName.trim(), rank: guestRank, checkedInAt: new Date().toISOString() }, ...prev]);
@@ -71,6 +78,12 @@ export default function CheckinPage() {
         sub={`来店中 ${visits.length}名`}
         action={<Btn variant="primary" onClick={() => setOpen(true)}><Plus size={14} /> 入店登録</Btn>}
       />
+
+      {pointToast && (
+        <div style={{ padding: "8px 12px", background: "var(--v2-success-bg)", color: "var(--v2-success)", fontSize: 12, borderRadius: 3 }}>
+          {pointToast}
+        </div>
+      )}
 
       <Kpis>
         <Kpi label="来店中" value={visits.length} />

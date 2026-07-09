@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { productStore, customerStore } from "@/lib/store/domain-stores";
 import { salesOrderStore, type SalesOrder, type SalesOrderItem, stockMovementStore } from "@/lib/v2/stores";
+import { grantSpendPoints } from "@/lib/v2/points";
 import { PageHeader, Btn, Panel, Modal, VStack, HStack, Chip, Empty, Field } from "@/components/v2/ui";
 import { Plus, Minus, CreditCard, Trash2, X, FileDown } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
@@ -21,6 +22,7 @@ export default function OrdersPage() {
   const [settling, setSettling] = useState<SalesOrder | null>(null);
   const [method, setMethod] = useState<"cash" | "card" | "qr" | "credit">("cash");
   const [cat, setCat] = useState<string>("all");
+  const [settleResult, setSettleResult] = useState<{ id: string; points: number } | null>(null);
 
   const active = orders.filter(o => o.status === "active");
   const settled = orders.filter(o => o.status === "settled");
@@ -66,7 +68,7 @@ export default function OrdersPage() {
   function resetForm() {
     setCustomer(""); setCustomerId(""); setTable(""); setCart([]); setCat("all");
   }
-  function openSettle(o: SalesOrder) { setSettling(o); setMethod("cash"); }
+  function openSettle(o: SalesOrder) { setSettling(o); setMethod("cash"); setSettleResult(null); }
   function settle() {
     if (!settling) return;
     const s = settling;
@@ -110,6 +112,13 @@ export default function OrdersPage() {
         : c
       ));
     }
+    // 4. 購入ポイント付与 (後払いは消込時ではなく付与なし。既存顧客紐付きのみ)
+    let grantedPoints = 0;
+    if (s.customerId && !isCredit) {
+      grantedPoints = grantSpendPoints(s.customerId, s.total, `注文精算 (${s.id})`);
+    }
+    setSettleResult({ id: s.id, points: grantedPoints });
+    setTimeout(() => setSettleResult(prev => prev?.id === s.id ? null : prev), 4000);
     setSettling(null);
   }
   function remove(id: string) {
@@ -140,6 +149,12 @@ export default function OrdersPage() {
         sub={`未精算 ${active.length} · 精算済 ${settled.length}`}
         action={<Btn variant="primary" onClick={() => setOpen(true)}><Plus size={14} /> 新規注文</Btn>}
       />
+
+      {settleResult && (
+        <div style={{ padding: "8px 12px", background: "var(--v2-success-bg)", color: "var(--v2-success)", fontSize: 12, borderRadius: 3 }}>
+          精算が完了しました{settleResult.points > 0 ? ` (${settleResult.points}ptを付与しました)` : ""}
+        </div>
+      )}
 
       <Panel title="未精算">
         {active.length === 0 ? <Empty>未精算の注文はありません</Empty> : (

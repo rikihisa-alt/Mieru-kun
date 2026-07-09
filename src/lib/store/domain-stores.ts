@@ -79,6 +79,13 @@ export interface PopRecord {
 }
 
 // ===== ポイントルール =====
+/**
+ * kind:
+ *  - "visit" : 来店1回につき points pt を付与
+ *  - "spend" : spendUnit 円ごとに points pt を付与 (利用額に応じて按分)
+ *  - "memo"  : 自由記述のみ。計算には使われない備忘録ルール
+ */
+export type PointRuleKind = "visit" | "spend" | "memo";
 export interface PointRuleRecord {
   id: string;
   name: string;
@@ -89,6 +96,10 @@ export interface PointRuleRecord {
   startsAt?: string;
   endsAt?: string;
   description?: string;
+  /** 構造化ルール種別。未指定(旧データ)は "memo" 扱い */
+  kind?: PointRuleKind;
+  /** kind === "spend" のとき: この金額ごとに points pt を付与 (例: 1000円ごとに1pt) */
+  spendUnit?: number;
 }
 
 // ===== 予約 =====
@@ -173,9 +184,9 @@ export const eventStore = createPersistedStore<EventRecord[]>("tempo_events_v1",
 export const popStore = createPersistedStore<PopRecord[]>("tempo_pops_v1", []);
 
 export const pointRuleStore = createPersistedStore<PointRuleRecord[]>("tempo_point_rules_v1", [
-  { id: "pr1", name: "通常来店", points: 100, conditionText: "来店時", isActive: true, priority: 100 },
-  { id: "pr2", name: "高額利用ボーナス", points: 500, conditionText: "¥10,000利用", isActive: true, priority: 90 },
-  { id: "pr3", name: "イベント参加", points: 200, conditionText: "イベント参加", isActive: true, priority: 80 },
+  { id: "pr1", name: "通常来店", points: 100, conditionText: "来店1回につき100pt", isActive: true, priority: 100, kind: "visit" },
+  { id: "pr2", name: "利用額ボーナス", points: 50, conditionText: "¥1,000利用ごとに50pt", isActive: true, priority: 90, kind: "spend", spendUnit: 1000 },
+  { id: "pr3", name: "イベント参加", points: 200, conditionText: "イベント参加", isActive: true, priority: 80, kind: "memo" },
 ]);
 
 export const reservationStore = createPersistedStore<ReservationRecord[]>("tempo_reservations_v1", []);
