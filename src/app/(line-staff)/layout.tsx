@@ -34,9 +34,8 @@ export default function LineStaffLayout({ children }: { children: React.ReactNod
         </div>
         <button
           onClick={handleLogout}
-          className="ln-btn ln-btn--ghost ln-btn--sm"
+          className="ln-topbar__icon-btn"
           aria-label="ログアウト"
-          style={{ padding: 6, height: 30, color: "var(--ln-text-mute)" }}
         >
           <LogOut size={16} />
         </button>
@@ -45,15 +44,8 @@ export default function LineStaffLayout({ children }: { children: React.ReactNod
       <main style={{ flex: 1, paddingBottom: 64 }}>{children}</main>
 
       {/* ボトムナビ */}
-      <nav
-        style={{
-          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40,
-          background: "var(--ln-card)",
-          borderTop: "1px solid var(--ln-border)",
-          boxShadow: "0 -2px 8px rgba(28, 46, 36, 0.06)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around", height: 56, maxWidth: 480, margin: "0 auto" }}>
+      <nav className="ln-tabbar">
+        <div className="ln-tabbar__inner">
           {NAV.map((item) => {
             const active = pathname === item.href;
             const Icon = item.icon;
@@ -61,12 +53,7 @@ export default function LineStaffLayout({ children }: { children: React.ReactNod
               <Link
                 key={item.href}
                 href={item.href}
-                style={{
-                  display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-                  fontSize: 10, fontWeight: 500, textDecoration: "none",
-                  color: active ? "var(--ln-accent-text)" : "var(--ln-text-mute)",
-                  transition: "color 0.12s",
-                }}
+                className={`ln-tabbar__item${active ? " ln-tabbar__item--active" : ""}`}
               >
                 <Icon size={20} strokeWidth={active ? 2.2 : 1.6} />
                 {item.label}

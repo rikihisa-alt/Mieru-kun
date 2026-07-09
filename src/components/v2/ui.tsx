@@ -61,7 +61,7 @@ export function Field({ label, required, children, hint }: { label: ReactNode; r
     <div className="v2-field">
       <label className={required ? "v2-field-required" : undefined}>{label}</label>
       {children}
-      {hint && <div style={{ fontSize: 11, color: "var(--v2-text-mute)" }}>{hint}</div>}
+      {hint && <div style={{ fontSize: 11, color: "var(--v2-text-mute)", lineHeight: 1.5 }}>{hint}</div>}
     </div>
   );
 }
@@ -140,16 +140,20 @@ export function Tabs({ value, onChange, items }: { value: string; onChange: (v: 
 
 // ============= Empty =============
 export function Empty({ children }: { children: ReactNode }) {
-  return <div className="v2-table-empty">{children}</div>;
+  return (
+    <div className="v2-table-empty" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+      {children}
+    </div>
+  );
 }
 
 // ============= PageHeader =============
 export function PageHeader({ title, sub, action }: { title: ReactNode; sub?: ReactNode; action?: ReactNode }) {
   return (
-    <div className="v2-spread" style={{ marginBottom: 16 }}>
+    <div className="v2-spread" style={{ marginBottom: 20 }}>
       <div>
         <h1 className="v2-h1">{title}</h1>
-        {sub && <div className="v2-mute" style={{ fontSize: 12, marginTop: 2 }}>{sub}</div>}
+        {sub && <div className="v2-mute" style={{ fontSize: 13, marginTop: 4 }}>{sub}</div>}
       </div>
       {action && <div style={{ display: "flex", gap: 8 }}>{action}</div>}
     </div>

@@ -106,7 +106,7 @@ export function V2Shell({ children }: { children: ReactNode }) {
 
       <div className="v2-main">
         <div className="v2-topbar">
-          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--v2-text-sub)", marginLeft: 24 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--v2-text-sub)", marginLeft: 24, letterSpacing: "-0.005em" }}>
             {new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" })}
           </span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
