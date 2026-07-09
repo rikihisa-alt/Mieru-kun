@@ -229,20 +229,20 @@ export default function ReportsPage() {
             </div>
           </Panel>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
             <Panel title="PDF出力" action={<Btn size="sm" onClick={exportMonthPDF}><FileDown size={12}/> 月次</Btn>}>
               <VStack gap={6}>
                 <Btn onClick={exportTodayPDF}><FileDown size={14}/> 本日売上レポート</Btn>
                 <Btn onClick={exportMonthPDF}><FileDown size={14}/> 月次売上レポート</Btn>
-                <Link href="/v2/sales" className="v2-btn"><ArrowRight size={14}/> 売上管理(期間自由)</Link>
+                <Btn><Link href="/v2/sales"><ArrowRight size={14}/> 売上管理(期間自由)</Link></Btn>
               </VStack>
             </Panel>
 
             <Panel title="関連">
               <VStack gap={6}>
-                <Link href="/v2/sales" className="v2-btn">売上管理 詳細</Link>
-                <Link href="/v2/chip-flow" className="v2-btn">チップフロー</Link>
-                <Link href="/v2/closing" className="v2-btn">締め処理</Link>
+                <Btn><Link href="/v2/sales">売上管理 詳細</Link></Btn>
+                <Btn><Link href="/v2/chip-flow">チップフロー</Link></Btn>
+                <Btn><Link href="/v2/closing">締め処理</Link></Btn>
               </VStack>
             </Panel>
           </div>
@@ -268,16 +268,14 @@ export default function ReportsPage() {
             <Kpi label="固定費合計" value={`¥${currentPL.fixedCost.toLocaleString()}`} />
             <Kpi
               label="粗利"
-              value={<span style={{ color: currentPL.grossProfit >= 0 ? "var(--v2-success)" : "var(--v2-danger)" }}>¥{currentPL.grossProfit.toLocaleString()}</span>}
+              value={<span className={currentPL.grossProfit >= 0 ? "v2-amount-pos" : "v2-amount-neg"}>¥{currentPL.grossProfit.toLocaleString()}</span>}
             />
           </Kpis>
 
           <Panel title="営業利益目安 (粗利 − 固定費)">
             <div
-              style={{
-                fontSize: 40, fontWeight: 800, textAlign: "center", padding: "12px 0",
-                color: currentPL.operatingProfit >= 0 ? "var(--v2-success)" : "var(--v2-danger)",
-              }}
+              className={currentPL.operatingProfit >= 0 ? "v2-amount-pos" : "v2-amount-neg"}
+              style={{ fontSize: 40, fontWeight: 800, textAlign: "center", padding: "12px 0" }}
             >
               {currentPL.operatingProfit >= 0 ? "+" : ""}¥{currentPL.operatingProfit.toLocaleString()}
             </div>
@@ -305,15 +303,15 @@ export default function ReportsPage() {
 
           <Panel title="月次内訳 (直近6ヶ月)">
             {last6MonthsPL.every(m => m.sales === 0 && m.cost === 0) ? <Empty>記録がありません</Empty> : (
-              <div style={{ overflowX: "auto" }}>
+              <div className="v2-table-wrap">
                 <table className="v2-table">
                   <thead>
                     <tr>
                       <th>月</th>
-                      <th style={{ textAlign: "right" }}>売上</th>
-                      <th style={{ textAlign: "right" }}>原価</th>
-                      <th style={{ textAlign: "right" }}>固定費</th>
-                      <th style={{ textAlign: "right" }}>営業利益目安</th>
+                      <th className="v2-num-cell">売上</th>
+                      <th className="v2-num-cell">原価</th>
+                      <th className="v2-num-cell">固定費</th>
+                      <th className="v2-num-cell">営業利益目安</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -323,7 +321,7 @@ export default function ReportsPage() {
                         <td className="v2-num-cell">¥{m.sales.toLocaleString()}</td>
                         <td className="v2-num-cell">¥{m.cost.toLocaleString()}</td>
                         <td className="v2-num-cell">¥{m.fixedCost.toLocaleString()}</td>
-                        <td className="v2-num-cell" style={{ color: m.operatingProfit >= 0 ? "var(--v2-success)" : "var(--v2-danger)", fontWeight: 700 }}>
+                        <td className={`v2-num-cell ${m.operatingProfit >= 0 ? "v2-amount-pos" : "v2-amount-neg"}`} style={{ fontWeight: 700 }}>
                           {m.operatingProfit >= 0 ? "+" : ""}¥{m.operatingProfit.toLocaleString()}
                         </td>
                       </tr>

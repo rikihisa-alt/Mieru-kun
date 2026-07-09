@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { salesOrderStore, chipFlowStore } from "@/lib/v2/stores";
 import { productStore, type ProductCategory } from "@/lib/store/domain-stores";
-import { PageHeader, Panel, VStack, HStack, Btn, Field, Kpis, Kpi, Modal } from "@/components/v2/ui";
+import { PageHeader, Panel, VStack, HStack, Btn, Field, Kpis, Kpi, Modal, Banner } from "@/components/v2/ui";
 import { printDoc, kpisHtml, tableHtml, sectionHtml, escapeHtml } from "@/lib/v2/pdf";
 import { FileDown, Lock, CheckCircle, Wallet, FileText, Copy, ClipboardList } from "lucide-react";
 
@@ -369,15 +369,10 @@ export default function ClosingPage() {
       </Kpis>
 
       {todayData.creditCount > 0 && (
-        <Panel>
-          <HStack gap={8} style={{ color: "var(--v2-warn)" }}>
-            <Wallet size={16} />
-            <span>
-              本日発生の未払い(後払い): <strong className="v2-num">{todayData.creditCount}件 ¥{todayData.credit.toLocaleString()}</strong>
-            </span>
-            <span className="v2-mute" style={{ fontSize: 12, marginLeft: "auto" }}>※ 現金照合の対象外です</span>
-          </HStack>
-        </Panel>
+        <Banner variant="warn" icon={<Wallet size={16} />}>
+          本日発生の未払い(後払い): <strong className="v2-num">{todayData.creditCount}件 ¥{todayData.credit.toLocaleString()}</strong>
+          <span className="v2-mute" style={{ fontSize: 12, marginLeft: 8 }}>※ 現金照合の対象外です</span>
+        </Banner>
       )}
 
       <Panel title="レジ金・釣銭管理">
@@ -415,13 +410,11 @@ export default function ClosingPage() {
           </Kpis>
           {hasActualInput && (
             cashDiff === 0 ? (
-              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 10, background: "var(--v2-success-bg)", color: "var(--v2-success)", fontSize: 12, borderRadius: 3 }}>
-                <CheckCircle size={16} /> 過不足なし
-              </div>
+              <Banner variant="info" icon={<CheckCircle size={16} />}>過不足なし</Banner>
             ) : (
-              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 10, background: cashDiff > 0 ? "var(--v2-warn-bg)" : "var(--v2-danger-bg)", color: cashDiff > 0 ? "var(--v2-warn)" : "var(--v2-danger)", fontSize: 12, borderRadius: 3 }}>
-                <Wallet size={16} /> {cashDiff > 0 ? "過剰" : "不足"}: ¥{Math.abs(cashDiff).toLocaleString()}
-              </div>
+              <Banner variant={cashDiff > 0 ? "warn" : "danger"} icon={<Wallet size={16} />}>
+                {cashDiff > 0 ? "過剰" : "不足"}: ¥{Math.abs(cashDiff).toLocaleString()}
+              </Banner>
             )
           )}
         </VStack>
@@ -441,9 +434,7 @@ export default function ClosingPage() {
         ) : (
           <VStack gap={12}>
             {unsettled > 0 && (
-              <div style={{ padding: 10, background: "var(--v2-warn-bg)", color: "var(--v2-warn)", fontSize: 12, borderRadius: 3 }}>
-                未精算の注文が {unsettled} 件あります
-              </div>
+              <Banner variant="warn">未精算の注文が {unsettled} 件あります</Banner>
             )}
             <Field label="締めメモ"><textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="差異 / 特記事項" /></Field>
             <Btn variant="primary" onClick={execute}><Lock size={14}/> 締め処理を実行</Btn>
@@ -453,50 +444,54 @@ export default function ClosingPage() {
 
       {closings.length > 0 && (
         <Panel title="締め履歴">
-          <table className="v2-table">
-            <thead><tr><th>日付</th><th className="v2-num-cell">売上</th><th className="v2-num-cell">件数</th><th className="v2-num-cell">過不足</th><th>締め時刻</th><th></th></tr></thead>
-            <tbody>
-              {closings.slice(0, 30).map(c => (
-                <tr key={c.date}>
-                  <td className="v2-num">{c.date}</td>
-                  <td className="v2-num-cell">¥{c.total.toLocaleString()}</td>
-                  <td className="v2-num-cell">{c.count}</td>
-                  <td className="v2-num-cell" style={c.cashDiff ? { color: c.cashDiff > 0 ? "var(--v2-warn)" : "var(--v2-danger)" } : undefined}>
-                    {c.cashDiff != null ? `${c.cashDiff === 0 ? "±0" : (c.cashDiff > 0 ? "+" : "")}¥${c.cashDiff.toLocaleString()}` : "—"}
-                  </td>
-                  <td className="v2-sub v2-num">{new Date(c.closedAt).toLocaleString("ja-JP", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
-                  <td>
-                    <HStack gap={4}>
-                      <Btn size="xs" onClick={() => exportPDF(c)}><FileDown size={11}/> PDF</Btn>
-                      <Btn size="xs" onClick={() => openReportModal(c.date)}><ClipboardList size={11}/> 日報</Btn>
-                    </HStack>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>日付</th><th className="v2-num-cell">売上</th><th className="v2-num-cell">件数</th><th className="v2-num-cell">過不足</th><th>締め時刻</th><th></th></tr></thead>
+              <tbody>
+                {closings.slice(0, 30).map(c => (
+                  <tr key={c.date}>
+                    <td className="v2-num">{c.date}</td>
+                    <td className="v2-num-cell">¥{c.total.toLocaleString()}</td>
+                    <td className="v2-num-cell">{c.count}</td>
+                    <td className="v2-num-cell" style={c.cashDiff ? { color: c.cashDiff > 0 ? "var(--v2-warn)" : "var(--v2-danger)" } : undefined}>
+                      {c.cashDiff != null ? `${c.cashDiff === 0 ? "±0" : (c.cashDiff > 0 ? "+" : "")}¥${c.cashDiff.toLocaleString()}` : "—"}
+                    </td>
+                    <td className="v2-sub v2-num">{new Date(c.closedAt).toLocaleString("ja-JP", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
+                    <td>
+                      <HStack gap={4}>
+                        <Btn size="xs" onClick={() => exportPDF(c)}><FileDown size={11}/> PDF</Btn>
+                        <Btn size="xs" onClick={() => openReportModal(c.date)}><ClipboardList size={11}/> 日報</Btn>
+                      </HStack>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Panel>
       )}
 
       {reportHistory.length > 0 && (
         <Panel title="日報履歴(直近14日)">
-          <table className="v2-table">
-            <thead><tr><th>日付</th><th className="v2-num-cell">総売上</th><th className="v2-num-cell">組数</th><th className="v2-num-cell">客単価</th><th>状態</th><th></th></tr></thead>
-            <tbody>
-              {reportHistory.map(r => (
-                <tr key={r.date}>
-                  <td className="v2-num">{r.date}({r.weekday})</td>
-                  <td className="v2-num-cell">{fmtYen(r.total)}</td>
-                  <td className="v2-num-cell">{r.count}</td>
-                  <td className="v2-num-cell">{fmtYen(r.perCustomer)}</td>
-                  <td className="v2-sub">{r.fromClosing ? "締め済み" : "未締め"}</td>
-                  <td>
-                    <Btn size="xs" onClick={() => openReportModal(r.date)}><ClipboardList size={11}/> 表示</Btn>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>日付</th><th className="v2-num-cell">総売上</th><th className="v2-num-cell">組数</th><th className="v2-num-cell">客単価</th><th>状態</th><th></th></tr></thead>
+              <tbody>
+                {reportHistory.map(r => (
+                  <tr key={r.date}>
+                    <td className="v2-num">{r.date}({r.weekday})</td>
+                    <td className="v2-num-cell">{fmtYen(r.total)}</td>
+                    <td className="v2-num-cell">{r.count}</td>
+                    <td className="v2-num-cell">{fmtYen(r.perCustomer)}</td>
+                    <td className="v2-sub">{r.fromClosing ? "締め済み" : "未締め"}</td>
+                    <td>
+                      <Btn size="xs" onClick={() => openReportModal(r.date)}><ClipboardList size={11}/> 表示</Btn>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Panel>
       )}
 
@@ -528,34 +523,38 @@ export default function ClosingPage() {
 
             <div>
               <div className="v2-h2" style={{ marginBottom: 8 }}>支払方法別</div>
-              <table className="v2-table">
-                <thead><tr><th>方法</th><th className="v2-num-cell">金額</th></tr></thead>
-                <tbody>
-                  <tr><td>現金</td><td className="v2-num-cell">{fmtYen(previewReport.cash)}</td></tr>
-                  <tr><td>カード</td><td className="v2-num-cell">{fmtYen(previewReport.card)}</td></tr>
-                  <tr><td>QR</td><td className="v2-num-cell">{fmtYen(previewReport.qr)}</td></tr>
-                </tbody>
-              </table>
+              <div className="v2-table-wrap">
+                <table className="v2-table">
+                  <thead><tr><th>方法</th><th className="v2-num-cell">金額</th></tr></thead>
+                  <tbody>
+                    <tr><td>現金</td><td className="v2-num-cell">{fmtYen(previewReport.cash)}</td></tr>
+                    <tr><td>カード</td><td className="v2-num-cell">{fmtYen(previewReport.card)}</td></tr>
+                    <tr><td>QR</td><td className="v2-num-cell">{fmtYen(previewReport.qr)}</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {previewReport.categories.length > 0 && (
               <div>
                 <div className="v2-h2" style={{ marginBottom: 8 }}>カテゴリ別売上</div>
-                <table className="v2-table">
-                  <thead><tr><th>カテゴリ</th><th className="v2-num-cell">金額</th><th className="v2-num-cell">点数</th></tr></thead>
-                  <tbody>
-                    {previewReport.categories.map(c => (
-                      <tr key={c.category}><td>{c.label}</td><td className="v2-num-cell">{fmtYen(c.amount)}</td><td className="v2-num-cell">{c.qty}点</td></tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="v2-table-wrap">
+                  <table className="v2-table">
+                    <thead><tr><th>カテゴリ</th><th className="v2-num-cell">金額</th><th className="v2-num-cell">点数</th></tr></thead>
+                    <tbody>
+                      {previewReport.categories.map(c => (
+                        <tr key={c.category}><td>{c.label}</td><td className="v2-num-cell">{fmtYen(c.amount)}</td><td className="v2-num-cell">{c.qty}点</td></tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
             {previewReport.creditCount > 0 && (
-              <div style={{ padding: 10, background: "var(--v2-warn-bg)", color: "var(--v2-warn)", fontSize: 12, borderRadius: 3 }}>
+              <Banner variant="warn">
                 本日発生の未払い(後払い): {previewReport.creditCount}件 {fmtYen(previewReport.credit)}
-              </div>
+              </Banner>
             )}
 
             {previewReport.hasChipData && (

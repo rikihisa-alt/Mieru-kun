@@ -3,9 +3,9 @@
 import { useMemo, useState } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { visitLogStore, salesOrderStore, stockMovementStore } from "@/lib/v2/stores";
-import { PageHeader, Panel, VStack, HStack, Btn, Empty } from "@/components/v2/ui";
+import { PageHeader, Panel, VStack, Empty, FilterChips } from "@/components/v2/ui";
 import {
-  LogIn, LogOut, ShoppingCart, CreditCard, Banknote, Package, Send, Clock,
+  LogIn, LogOut, ShoppingCart, CreditCard, Banknote, Package, Send, Clock, Search,
 } from "lucide-react";
 
 // =================================================================
@@ -296,35 +296,27 @@ export default function HistoryPage() {
     <VStack gap={16}>
       <PageHeader title="履歴" sub="入退店・注文・精算・在庫・配布・勤怠の時系列" />
 
-      <Panel>
-        <VStack gap={12}>
-          <HStack gap={8} style={{ flexWrap: "wrap" }}>
-            <Btn size="sm" variant={category === "all" ? "primary" : "default"} onClick={() => setCategory("all")}>全て</Btn>
-            {(Object.keys(CATEGORY_LABEL) as EventCategory[]).map(c => (
-              <Btn key={c} size="sm" variant={category === c ? "primary" : "default"} onClick={() => setCategory(c)}>
-                {CATEGORY_LABEL[c]}
-              </Btn>
-            ))}
-            <div style={{ width: 1, alignSelf: "stretch", background: "var(--v2-border)", margin: "0 4px" }} />
-            {RANGE_OPTIONS.map(r => (
-              <Btn key={r.value} size="sm" variant={range === r.value ? "primary" : "default"} onClick={() => setRange(r.value)}>
-                {r.label}
-              </Btn>
-            ))}
-          </HStack>
+      <div className="v2-toolbar">
+        <FilterChips
+          value={category}
+          onChange={(v) => setCategory(v as EventCategory | "all")}
+          items={[{ value: "all", label: "全て" }, ...(Object.keys(CATEGORY_LABEL) as EventCategory[]).map(c => ({ value: c, label: CATEGORY_LABEL[c] }))]}
+        />
+        <FilterChips value={range} onChange={(v) => setRange(v as RangeValue)} items={RANGE_OPTIONS.map(r => ({ value: r.value, label: r.label }))} />
+        <div className="v2-toolbar__search">
+          <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
           <input
             type="text"
             placeholder="顧客名・商品名などで検索"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{ maxWidth: 360 }}
+            style={{ paddingLeft: 30 }}
           />
-        </VStack>
-      </Panel>
-
-      <div className="v2-mute" style={{ fontSize: 12 }}>
-        {filtered.length.toLocaleString()}件
-        {truncated && <span style={{ marginLeft: 6 }}>(最新{MAX_EVENTS}件のみ表示。絞り込みで対象を減らしてください)</span>}
+        </div>
+        <span className="v2-mute" style={{ fontSize: 12, marginLeft: "auto" }}>
+          {filtered.length.toLocaleString()}件
+          {truncated && <span style={{ marginLeft: 6 }}>(最新{MAX_EVENTS}件のみ表示。絞り込みで対象を減らしてください)</span>}
+        </span>
       </div>
 
       {visible.length === 0 ? (

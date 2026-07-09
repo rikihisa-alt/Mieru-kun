@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { chipFlowStore, type ChipFlowEntry, type ChipFlowDirection, type ChipGameType } from "@/lib/v2/stores";
 import { customerStore } from "@/lib/store/domain-stores";
-import { PageHeader, Panel, Field, VStack, HStack, Btn, Kpis, Kpi, Empty, Tabs } from "@/components/v2/ui";
+import { PageHeader, Panel, Field, VStack, HStack, Btn, Kpis, Kpi, Empty, Tabs, Toast, useToast } from "@/components/v2/ui";
 import { Trash2 } from "lucide-react";
 
 // ===== 全角→半角数字変換 + 数字以外を除去 (src/app/v2/tables/page.tsx と同じパターン) =====
@@ -56,7 +56,7 @@ export default function ChipFlowPage() {
   const [direction, setDirection] = useState<ChipFlowDirection>("out");
   const [amountStr, setAmountStr] = useState("");
   const [note, setNote] = useState("");
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const { toast, show } = useToast();
 
   // ---- 推移グラフの期間タブ ----
   const [period, setPeriod] = useState<Period>("day");
@@ -97,9 +97,8 @@ export default function ChipFlowPage() {
       setCustomers(prev => prev.map(c => c.id === customerId ? { ...c, chipBalance: c.chipBalance + signed } : c));
     }
 
-    setFeedback(`${DIRECTION_LABEL[direction]} ${amount.toLocaleString()}枚を記録しました`);
+    show(`${DIRECTION_LABEL[direction]} ${amount.toLocaleString()}枚を記録しました`);
     resetForm();
-    setTimeout(() => setFeedback(null), 3000);
   }
 
   function cancelEntry(entry: ChipFlowEntry) {
@@ -204,6 +203,8 @@ export default function ChipFlowPage() {
     <VStack gap={16}>
       <PageHeader title="チップフロー" sub="客ごとの保有チップ・全体増減の多角的分析" />
 
+      {toast && <Toast message={toast.message} variant={toast.variant} />}
+
       <Kpis>
         <Kpi label="本日 貸出計" value={todayOut.toLocaleString()} sub="枚" />
         <Kpi label="本日 回収計" value={todayIn.toLocaleString()} sub="枚" />
@@ -214,7 +215,7 @@ export default function ChipFlowPage() {
       {/* ===== 記録フォーム ===== */}
       <Panel title="チップ増減を記録">
         <VStack gap={12}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          <div className="v2-form-grid">
             <Field label="既存顧客">
               <select value={customerId} onChange={(e) => pickCustomer(e.target.value)}>
                 <option value="">— 手入力 —</option>
@@ -230,7 +231,7 @@ export default function ChipFlowPage() {
               </select>
             </Field>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr", gap: 12 }}>
+          <div className="v2-form-grid">
             <Field label="増減方向" required>
               <div style={{ display: "flex", gap: 6 }}>
                 {(["out", "in", "adjust"] as ChipFlowDirection[]).map(d => (
@@ -250,7 +251,6 @@ export default function ChipFlowPage() {
             <Field label="メモ"><input value={note} onChange={(e) => setNote(e.target.value)} placeholder="任意" /></Field>
           </div>
           <HStack gap={8} style={{ justifyContent: "flex-end" }}>
-            {feedback && <span className="v2-mute" style={{ fontSize: 12 }}>{feedback}</span>}
             <Btn variant="primary" onClick={submit} disabled={!amountStr || parseInt(amountStr, 10) <= 0}>記録する</Btn>
           </HStack>
         </VStack>
@@ -270,7 +270,7 @@ export default function ChipFlowPage() {
         )}
       </Panel>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="v2-form-grid">
         {/* ===== 曜日別 ===== */}
         <Panel title="曜日別 平均増減">
           {entries.length === 0 ? <Empty>データがありません</Empty> : (
@@ -297,51 +297,55 @@ export default function ChipFlowPage() {
       {/* ===== 保有ランキング ===== */}
       <Panel title="チップ保有ランキング">
         {holdingRanking.length === 0 ? <Empty>チップを保有している顧客がいません</Empty> : (
-          <table className="v2-table">
-            <thead><tr><th style={{ width: 50 }}>順位</th><th>顧客</th><th className="v2-num-cell">保有チップ</th></tr></thead>
-            <tbody>
-              {holdingRanking.map((c, i) => (
-                <tr key={c.id}>
-                  <td className="v2-num">{i + 1}</td>
-                  <td>{c.nickname || c.name}</td>
-                  <td className="v2-num-cell">{c.chipBalance.toLocaleString()}枚</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th style={{ width: 50 }}>順位</th><th>顧客</th><th className="v2-num-cell">保有チップ</th></tr></thead>
+              <tbody>
+                {holdingRanking.map((c, i) => (
+                  <tr key={c.id}>
+                    <td className="v2-num">{i + 1}</td>
+                    <td>{c.nickname || c.name}</td>
+                    <td className="v2-num-cell">{c.chipBalance.toLocaleString()}枚</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
 
       {/* ===== 履歴一覧 ===== */}
       <Panel title={`履歴 (直近${history.length}件)`}>
         {history.length === 0 ? <Empty>まだ記録がありません</Empty> : (
-          <table className="v2-table">
-            <thead>
-              <tr>
-                <th>日時</th><th>顧客</th><th>ゲーム</th><th>方向</th><th className="v2-num-cell">枚数</th><th>メモ</th><th style={{ width: 40 }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map(e => {
-                const dir = e.flowDirection ?? (e.direction === "in" ? "in" : "out");
-                return (
-                  <tr key={e.id}>
-                    <td className="v2-mute" style={{ fontSize: 12 }}>{entryDate(e).toLocaleString("ja-JP")}</td>
-                    <td>{e.customer ?? <span className="v2-mute">(未紐付け)</span>}</td>
-                    <td className="v2-mute">{e.gameType ?? guessGameType(e)}</td>
-                    <td><span style={{ color: DIRECTION_COLOR[dir], fontWeight: 600 }}>{DIRECTION_LABEL[dir]}</span></td>
-                    <td className="v2-num-cell">{e.amount.toLocaleString()}</td>
-                    <td className="v2-mute" style={{ fontSize: 12 }}>{e.note}</td>
-                    <td>
-                      <button className="v2-btn-ghost" onClick={() => cancelEntry(e)} title="取消" style={{ height: 26, width: 26, padding: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                        <Trash2 size={13} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead>
+                <tr>
+                  <th>日時</th><th>顧客</th><th>ゲーム</th><th>方向</th><th className="v2-num-cell">枚数</th><th>メモ</th><th style={{ width: 40 }}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map(e => {
+                  const dir = e.flowDirection ?? (e.direction === "in" ? "in" : "out");
+                  return (
+                    <tr key={e.id}>
+                      <td className="v2-mute" style={{ fontSize: 12 }}>{entryDate(e).toLocaleString("ja-JP")}</td>
+                      <td>{e.customer ?? <span className="v2-mute">(未紐付け)</span>}</td>
+                      <td className="v2-mute">{e.gameType ?? guessGameType(e)}</td>
+                      <td><span style={{ color: DIRECTION_COLOR[dir], fontWeight: 600 }}>{DIRECTION_LABEL[dir]}</span></td>
+                      <td className="v2-num-cell">{e.amount.toLocaleString()}</td>
+                      <td className="v2-mute" style={{ fontSize: 12 }}>{e.note}</td>
+                      <td>
+                        <Btn variant="ghost" size="xs" onClick={() => cancelEntry(e)} title="取消" style={{ height: 26, width: 26, padding: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                          <Trash2 size={13} />
+                        </Btn>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
     </VStack>
