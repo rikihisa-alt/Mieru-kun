@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { usePersisted } from "@/lib/persist/store";
+import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { settingsStore, type EntrancePlan } from "@/lib/store/domain-stores";
+import { toHalfWidthNumber } from "@/lib/v2/points";
 import { PageHeader, Btn, Panel, Field, VStack, HStack } from "@/components/v2/ui";
 import { Plus, X, Check } from "lucide-react";
 
@@ -12,8 +13,37 @@ function sanitizeNonNegativeInt(v: number): number {
   return Math.max(0, Math.trunc(v));
 }
 
+// =================================================================
+// 時間課金 (テーブルチャージ / 時間制プレイ料金)
+// =================================================================
+export interface TimeChargeSettings {
+  enabled: boolean;
+  unitMinutes: 30 | 60;       // 課金方式: 30分単位 or 60分単位
+  unitPrice: number;          // 単価(円/単位)
+  rounding: "ceil" | "floor"; // 端数の扱い: 切り上げ / 切り捨て
+}
+export const DEFAULT_TIME_CHARGE: TimeChargeSettings = {
+  enabled: false,
+  unitMinutes: 30,
+  unitPrice: 500,
+  rounding: "ceil",
+};
+export const TIME_CHARGE_KEY = "settings_time_charge_v1";
+
+/** 滞在分数から時間課金の単位数を算出 (端数処理を適用) */
+export function calcTimeChargeUnits(stayMinutes: number, cfg: TimeChargeSettings): number {
+  const m = Math.max(0, stayMinutes);
+  const raw = m / cfg.unitMinutes;
+  return cfg.rounding === "ceil" ? Math.ceil(raw) : Math.floor(raw);
+}
+/** 滞在分数から時間課金の金額を算出 */
+export function calcTimeChargeAmount(stayMinutes: number, cfg: TimeChargeSettings): number {
+  return calcTimeChargeUnits(stayMinutes, cfg) * cfg.unitPrice;
+}
+
 export default function SettingsPage() {
   const [s, setS] = usePersisted(settingsStore);
+  const [tc, setTc] = usePersistedState<TimeChargeSettings>(TIME_CHARGE_KEY, DEFAULT_TIME_CHARGE);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -24,6 +54,12 @@ export default function SettingsPage() {
   }, []);
 
   function up<K extends keyof typeof s>(k: K, v: typeof s[K]) { setS({ ...s, [k]: v }); showSaved(); }
+  function upTc<K extends keyof TimeChargeSettings>(k: K, v: TimeChargeSettings[K]) { setTc({ ...tc, [k]: v }); showSaved(); }
+  /** 単価入力: 全角数字対応。不正値(負数/NaN)は0以上に丸めて保存 */
+  function upTcUnitPrice(raw: string) {
+    const n = sanitizeNonNegativeInt(toHalfWidthNumber(raw));
+    upTc("unitPrice", n);
+  }
   function addPlan() {
     up("entrancePlans", [...s.entrancePlans, { id: `ep${Date.now()}`, label: "", price: 0 }]);
   }
@@ -126,6 +162,37 @@ export default function SettingsPage() {
                   <Btn size="sm" onClick={addPlan}><Plus size={12} /> プラン追加</Btn>
                 </VStack>
               </div>
+            </>
+          )}
+        </VStack>
+      </Panel>
+
+      <Panel title="時間課金">
+        <VStack gap={12}>
+          <label className="v2-row" style={{ gap: 6 }}>
+            <input type="checkbox" checked={tc.enabled} onChange={(e) => upTc("enabled", e.target.checked)} style={{ width: 14, height: 14 }} />
+            テーブルチャージ(時間制プレイ料金)を有効にする
+          </label>
+          {tc.enabled && (
+            <>
+              <Field label="課金方式">
+                <HStack gap={6}>
+                  <button onClick={() => upTc("unitMinutes", 30)} className={`v2-btn ${tc.unitMinutes === 30 ? "v2-btn-primary" : ""}`}>30分単位</button>
+                  <button onClick={() => upTc("unitMinutes", 60)} className={`v2-btn ${tc.unitMinutes === 60 ? "v2-btn-primary" : ""}`}>60分単位</button>
+                </HStack>
+              </Field>
+              <Field label={`単価(円 / ${tc.unitMinutes}分)`}>
+                <HStack gap={6}>
+                  <span className="v2-mute" style={{ fontSize: 12 }}>¥</span>
+                  <input inputMode="numeric" value={tc.unitPrice} onChange={(e) => upTcUnitPrice(e.target.value)} style={{ width: 120, textAlign: "right" }} />
+                </HStack>
+              </Field>
+              <Field label="端数の扱い" hint="滞在時間が単位に満たない場合の丸め方">
+                <HStack gap={6}>
+                  <button onClick={() => upTc("rounding", "ceil")} className={`v2-btn ${tc.rounding === "ceil" ? "v2-btn-primary" : ""}`}>切り上げ</button>
+                  <button onClick={() => upTc("rounding", "floor")} className={`v2-btn ${tc.rounding === "floor" ? "v2-btn-primary" : ""}`}>切り捨て</button>
+                </HStack>
+              </Field>
             </>
           )}
         </VStack>

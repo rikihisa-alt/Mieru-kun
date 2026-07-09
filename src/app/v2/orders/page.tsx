@@ -1,19 +1,41 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { usePersisted } from "@/lib/persist/store";
-import { productStore, customerStore } from "@/lib/store/domain-stores";
+import { usePersisted, usePersistedState } from "@/lib/persist/store";
+import { productStore, customerStore, type CustomerRank } from "@/lib/store/domain-stores";
 import { salesOrderStore, type SalesOrder, type SalesOrderItem, stockMovementStore } from "@/lib/v2/stores";
 import { grantSpendPoints } from "@/lib/v2/points";
 import { PageHeader, Btn, Panel, Modal, VStack, HStack, Chip, Empty, Field } from "@/components/v2/ui";
-import { Plus, Minus, CreditCard, Trash2, X, FileDown } from "lucide-react";
+import { Plus, Minus, CreditCard, Trash2, X, FileDown, Clock } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
+import { TIME_CHARGE_KEY, DEFAULT_TIME_CHARGE, calcTimeChargeUnits, calcTimeChargeAmount, type TimeChargeSettings } from "@/app/v2/settings/page";
+
+// 入店ページ (checkin) が使用する来店中リストと同じキー・型を参照する
+interface Visit {
+  id: string;
+  customerId: string | null;
+  name: string;
+  rank: CustomerRank;
+  checkedInAt: string;
+  tableId?: string;
+  seatIndex?: number;
+}
+
+/** 滞在分数を「○時間○分」表記に整形 */
+function formatStayDuration(minutes: number): string {
+  const m = Math.max(0, Math.round(minutes));
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  return h > 0 ? `${h}時間${r}分` : `${r}分`;
+}
 
 export default function OrdersPage() {
   const [products, setProducts] = usePersisted(productStore);
   const [customers, setCustomers] = usePersisted(customerStore);
   const [orders, setOrders] = usePersisted(salesOrderStore);
   const [, setMovements] = usePersisted(stockMovementStore);
+  const [visits] = usePersistedState<Visit[]>("v2_visits_v1", []);
+  const [timeCharge] = usePersistedState<TimeChargeSettings>(TIME_CHARGE_KEY, DEFAULT_TIME_CHARGE);
   const [open, setOpen] = useState(false);
   const [customerId, setCustomerId] = useState<string>("");
   const [customer, setCustomer] = useState("");
@@ -31,6 +53,21 @@ export default function OrdersPage() {
   const activeProducts = useMemo(() => products.filter(p => p.active), [products]);
   const cats = useMemo(() => Array.from(new Set(activeProducts.map(p => p.category))), [activeProducts]);
   const filteredProducts = cat === "all" ? activeProducts : activeProducts.filter(p => p.category === cat);
+
+  // 選択中の顧客の来店記録 (最新の checkedInAt を採用)
+  const currentVisit = useMemo(() => {
+    if (!customerId) return undefined;
+    const matches = visits.filter(v => v.customerId === customerId);
+    if (matches.length === 0) return undefined;
+    return matches.reduce((latest, v) => new Date(v.checkedInAt) > new Date(latest.checkedInAt) ? v : latest);
+  }, [visits, customerId]);
+
+  const stayMinutes = currentVisit ? Math.max(0, (Date.now() - new Date(currentVisit.checkedInAt).getTime()) / 60000) : 0;
+  const timeChargeAmount = currentVisit ? calcTimeChargeAmount(stayMinutes, timeCharge) : 0;
+  const timeChargeUnits = currentVisit ? calcTimeChargeUnits(stayMinutes, timeCharge) : 0;
+  const showTimeChargeSuggestion = timeCharge.enabled && !!currentVisit;
+  // カート上に既にテーブルチャージ行があるか (手動削除された場合は再追加できるようにする)
+  const timeChargeInCart = cart.some(i => i.category === "time_charge");
 
   function addToCart(productId: string) {
     const p = activeProducts.find(x => x.id === productId);
@@ -52,6 +89,15 @@ export default function OrdersPage() {
     } else {
       setCustomer("");
     }
+  }
+  /** テーブルチャージ候補をカートへ1行追加する (自動追加はしない。スタッフの確認操作) */
+  function addTimeCharge() {
+    if (!currentVisit || timeChargeInCart) return;
+    const label = `テーブルチャージ(${formatStayDuration(stayMinutes)})`;
+    setCart(prev => [...prev, {
+      productId: `time_charge_${currentVisit.id}_${Date.now()}`,
+      name: label, price: timeChargeAmount, qty: 1, category: "time_charge",
+    }]);
   }
   function createOrder() {
     if (!customer.trim() || cart.length === 0) return;
@@ -246,6 +292,23 @@ export default function OrdersPage() {
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {showTimeChargeSuggestion && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "8px 12px", borderRadius: 3,
+              background: "var(--v2-info-bg, #eef4ff)", color: "var(--v2-text, #1c2e24)",
+            }}>
+              <Clock size={14} style={{ flexShrink: 0 }} />
+              <span style={{ fontSize: 12, flex: 1 }}>
+                テーブルチャージ: 滞在{formatStayDuration(stayMinutes)} → ¥{timeChargeAmount.toLocaleString()}
+                <span className="v2-mute" style={{ marginLeft: 6 }}>({timeChargeUnits}単位 × ¥{timeCharge.unitPrice.toLocaleString()})</span>
+              </span>
+              <Btn size="xs" variant={timeChargeInCart ? undefined : "primary"} disabled={timeChargeInCart} onClick={addTimeCharge}>
+                {timeChargeInCart ? "追加済み" : "追加"}
+              </Btn>
             </div>
           )}
 
