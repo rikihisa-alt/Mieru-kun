@@ -20,6 +20,7 @@ export interface CustomerRecord {
   cautionText?: string;
   isBlacklisted?: boolean;
   isHidden?: boolean;
+  firstVisitChecked?: { ageVerified: boolean; pledgeSigned: boolean; rulesExplained: boolean; checkedAt?: string };
   snsX?: string;
   snsIg?: string;
   snsTikTok?: string;
