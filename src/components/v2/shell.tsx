@@ -19,6 +19,7 @@ const NAV: NavSection[] = [
     { href: "/v2", label: "ダッシュボード", icon: LayoutDashboard },
     { href: "/v2/checkin", label: "入店", icon: LogIn },
     { href: "/v2/tables", label: "卓", icon: Grid3X3, hasMenu: true },
+    { href: "/v2/tournaments", label: "トナメ", icon: Trophy },
     { href: "/v2/orders", label: "注文・精算", icon: ShoppingBag, hasMenu: true },
     { href: "/v2/live", label: "ライブ注文", icon: Bell },
     { href: "/v2/reservations", label: "予約", icon: CalendarCheck, hasMenu: true },
