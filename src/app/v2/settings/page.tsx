@@ -1,14 +1,29 @@
 "use client";
 
+import { useState, useRef, useCallback } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { settingsStore, type EntrancePlan } from "@/lib/store/domain-stores";
 import { PageHeader, Btn, Panel, Field, VStack, HStack } from "@/components/v2/ui";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Check } from "lucide-react";
+
+/** 不正な数値(負数・NaN)を 0以上の整数へ丸める */
+function sanitizeNonNegativeInt(v: number): number {
+  if (!Number.isFinite(v)) return 0;
+  return Math.max(0, Math.trunc(v));
+}
 
 export default function SettingsPage() {
   const [s, setS] = usePersisted(settingsStore);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function up<K extends keyof typeof s>(k: K, v: typeof s[K]) { setS({ ...s, [k]: v }); }
+  const showSaved = useCallback((msg = "保存しました") => {
+    setToastMsg(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMsg(null), 1800);
+  }, []);
+
+  function up<K extends keyof typeof s>(k: K, v: typeof s[K]) { setS({ ...s, [k]: v }); showSaved(); }
   function addPlan() {
     up("entrancePlans", [...s.entrancePlans, { id: `ep${Date.now()}`, label: "", price: 0 }]);
   }
@@ -18,10 +33,34 @@ export default function SettingsPage() {
   function updPlan(id: string, patch: Partial<EntrancePlan>) {
     up("entrancePlans", s.entrancePlans.map(p => p.id === id ? { ...p, ...patch } : p));
   }
+  /** 価格などの数値入力: 不正値(負数/NaN)は0以上に丸めて保存 */
+  function updPlanPrice(id: string, raw: number) {
+    const safe = sanitizeNonNegativeInt(raw);
+    if (safe !== raw) showSaved("負の値は入力できないため0以上に調整しました");
+    updPlan(id, { price: safe });
+  }
 
   return (
     <VStack gap={16}>
       <PageHeader title="店舗設定" />
+
+      {toastMsg && (
+        <div
+          role="status"
+          style={{
+            position: "fixed", top: 16, right: 16, zIndex: 1000,
+            display: "flex", alignItems: "center", gap: 8,
+            padding: "10px 16px", borderRadius: "var(--v2-radius-md, 8px)",
+            background: "var(--v2-text, #1c2e24)", color: "#fff",
+            fontSize: 13, fontWeight: 600,
+            boxShadow: "var(--v2-shadow-lg, 0 8px 24px rgba(0,0,0,0.2))",
+            animation: "v2-fade-in 0.15s ease-out",
+          }}
+        >
+          <Check size={14} />
+          {toastMsg}
+        </div>
+      )}
 
       <Panel title="店舗情報">
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -79,7 +118,7 @@ export default function SettingsPage() {
                     <HStack key={p.id} gap={6}>
                       <input value={p.label} onChange={(e) => updPlan(p.id, { label: e.target.value })} placeholder="プラン名" style={{ flex: 1 }} />
                       <span className="v2-mute" style={{ fontSize: 12 }}>¥</span>
-                      <input type="number" value={p.price} onChange={(e) => updPlan(p.id, { price: parseInt(e.target.value) || 0 })} style={{ width: 100, textAlign: "right" }} />
+                      <input type="number" min={0} value={p.price} onChange={(e) => updPlanPrice(p.id, parseInt(e.target.value) || 0)} style={{ width: 100, textAlign: "right" }} />
                       <input value={p.note ?? ""} onChange={(e) => updPlan(p.id, { note: e.target.value })} placeholder="備考" style={{ width: 160 }} />
                       <Btn size="xs" variant="danger" onClick={() => removePlan(p.id)}><X size={11} /></Btn>
                     </HStack>

@@ -26,8 +26,11 @@ export default function InventoryPage() {
     const p = tracked.find(x => x.id === productId);
     if (!p) return;
     if (qty === 0) return;
+    if (moveType === "waste" && !confirm(`${p.name} を ${qty}個 廃棄します。よろしいですか？`)) return;
     const delta = moveType === "purchase" ? qty : moveType === "waste" ? -qty : qty; // adjust=入力値そのまま
-    const newStock = Math.max(0, (p.stock ?? 0) + delta);
+    const rawStock = (p.stock ?? 0) + delta;
+    const newStock = Math.max(0, rawStock);
+    if (rawStock < 0 && !confirm(`在庫が0を下回るため0に調整します。よろしいですか？ (計算上: ${rawStock})`)) return;
     setProducts(prev => prev.map(x => x.id === p.id ? { ...x, stock: newStock } : x));
     const mv: StockMovement = {
       id: `m${Date.now()}`,

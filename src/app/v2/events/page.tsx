@@ -23,6 +23,10 @@ export default function EventsPage() {
   function save() {
     if (!d.title.trim() || !d.date) return;
     if (editing) {
+      if (d.capacity < editing.reservedCount) {
+        alert(`定員を予約数(${editing.reservedCount}件)未満にはできません`);
+        return;
+      }
       setEvents(prev => prev.map(e => e.id === editing.id ? { ...e, ...d } : e));
       setEditing(null);
     } else {
@@ -31,7 +35,11 @@ export default function EventsPage() {
     }
   }
   function remove(id: string) {
-    if (!confirm("削除しますか？")) return;
+    const e = events.find(ev => ev.id === id);
+    const message = e && e.reservedCount > 0
+      ? `このイベントには予約${e.reservedCount}件があります。\n削除すると予約情報も失われます。\n\n削除しますか？`
+      : "削除しますか？";
+    if (!confirm(message)) return;
     setEvents(prev => prev.filter(e => e.id !== id));
   }
 
@@ -86,7 +94,9 @@ export default function EventsPage() {
             </Field>
             <Field label="日付" required><input type="date" value={d.date} onChange={(e) => setD({ ...d, date: e.target.value })} /></Field>
             <Field label="時間"><input value={d.time} onChange={(e) => setD({ ...d, time: e.target.value })} placeholder="20:00-23:00" /></Field>
-            <Field label="定員"><input type="number" value={d.capacity} onChange={(e) => setD({ ...d, capacity: parseInt(e.target.value) || 0 })} /></Field>
+            <Field label="定員" hint={editing && editing.reservedCount > 0 ? `予約数 ${editing.reservedCount}件未満にはできません` : undefined}>
+              <input type="number" min={editing?.reservedCount ?? 0} value={d.capacity} onChange={(e) => setD({ ...d, capacity: parseInt(e.target.value) || 0 })} />
+            </Field>
             <Field label="参加費"><input type="number" value={d.fee ?? 0} onChange={(e) => setD({ ...d, fee: parseInt(e.target.value) || 0 })} /></Field>
           </div>
           <Field label="備考"><textarea rows={2} value={d.note ?? ""} onChange={(e) => setD({ ...d, note: e.target.value })} /></Field>

@@ -11,18 +11,22 @@ export default function RankingPage() {
   const [customers] = usePersisted(customerStore);
   const [tab, setTab] = useState<Metric>("visits");
 
-  const sorted = [...customers].sort((a, b) => {
+  const rankedAll = [...customers].sort((a, b) => {
     if (tab === "visits") return b.totalVisits - a.totalVisits;
     if (tab === "spent") return b.totalSpent - a.totalSpent;
     return b.chipBalance - a.chipBalance;
-  }).slice(0, 50);
+  });
+  const sorted = rankedAll.slice(0, 50);
 
   const unit = tab === "visits" ? "回" : tab === "spent" ? "" : "枚";
   const fmt = (v: number) => tab === "spent" ? `¥${v.toLocaleString()}` : v.toLocaleString();
 
   return (
     <VStack gap={16}>
-      <PageHeader title="ランキング" />
+      <PageHeader
+        title="ランキング"
+        sub={rankedAll.length > 50 ? `上位50件を表示中 (全${rankedAll.length}名)` : rankedAll.length > 0 ? `全${rankedAll.length}名を表示中` : undefined}
+      />
       <Tabs value={tab} onChange={(v) => setTab(v as Metric)} items={[
         { value: "visits", label: "来店回数" },
         { value: "spent", label: "累計利用額" },

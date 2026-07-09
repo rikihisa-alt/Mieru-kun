@@ -1,35 +1,92 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { usePersisted } from "@/lib/persist/store";
-import { reservationStore, type ReservationRecord, type ReservationStatus } from "@/lib/store/domain-stores";
-import { PageHeader, Btn, Panel, Field, Modal, VStack, HStack, Chip, Empty } from "@/components/v2/ui";
-import { Plus, Trash2 } from "lucide-react";
+import { reservationStore, customerStore, type ReservationRecord, type ReservationStatus } from "@/lib/store/domain-stores";
+import { PageHeader, Btn, Panel, Field, Modal, VStack, Empty } from "@/components/v2/ui";
+import { Plus, Trash2, Pencil, Search } from "lucide-react";
 
 const STATUS_LABEL: Record<ReservationStatus, string> = {
   pending: "未確定", confirmed: "確定", canceled: "キャンセル", no_show: "ノーショー", arrived: "来店済",
 };
+// 変更に確認ダイアログを出す状態
+const CONFIRM_STATUSES: ReservationStatus[] = ["canceled", "no_show"];
+
+const emptyForm = { customerName: "", nickname: "", date: "", time: "19:00", party: 2, note: "", source: "phone" as ReservationRecord["source"] };
 
 export default function ReservationsPage() {
   const [resvs, setResvs] = usePersisted(reservationStore);
+  const [customers] = usePersisted(customerStore);
   const [open, setOpen] = useState(false);
-  const [d, setD] = useState({ customerName: "", nickname: "", date: "", time: "19:00", party: 2, note: "", source: "phone" as ReservationRecord["source"] });
+  const [editing, setEditing] = useState<ReservationRecord | null>(null);
+  const [d, setD] = useState(emptyForm);
+  const [query, setQuery] = useState("");
 
-  function add() {
+  // 顧客名 → 電話番号の逆引き (customerStore は名前/ニックネームに phone を持つ)
+  const phoneByName = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const c of customers) {
+      if (c.phone) {
+        map.set(c.name, c.phone);
+        if (c.nickname) map.set(c.nickname, c.phone);
+      }
+    }
+    return map;
+  }, [customers]);
+  function phoneFor(r: ReservationRecord): string {
+    return phoneByName.get(r.customerName) || (r.nickname ? phoneByName.get(r.nickname) : undefined) || "";
+  }
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return resvs;
+    return resvs.filter(r =>
+      r.customerName.toLowerCase().includes(q) ||
+      (r.nickname ?? "").toLowerCase().includes(q) ||
+      phoneFor(r).replace(/-/g, "").includes(q.replace(/-/g, ""))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resvs, query, phoneByName]);
+
+  function openCreate() {
+    setD(emptyForm);
+    setEditing(null);
+    setOpen(true);
+  }
+  function openEdit(r: ReservationRecord) {
+    setD({ customerName: r.customerName, nickname: r.nickname ?? "", date: r.date, time: r.time, party: r.party, note: r.note ?? "", source: r.source });
+    setEditing(r);
+    setOpen(true);
+  }
+  function save() {
     if (!d.customerName.trim() || !d.date) return;
-    const r: ReservationRecord = {
-      id: `r${Date.now()}`,
-      customerName: d.customerName, nickname: d.nickname || undefined,
-      date: d.date, time: d.time, party: d.party,
-      note: d.note || undefined,
-      status: "pending", source: d.source,
-      createdAt: new Date().toISOString(),
-    };
-    setResvs(prev => [r, ...prev]);
+    if (editing) {
+      setResvs(prev => prev.map(r => r.id === editing.id ? {
+        ...r,
+        customerName: d.customerName, nickname: d.nickname || undefined,
+        date: d.date, time: d.time, party: d.party,
+        note: d.note || undefined, source: d.source,
+      } : r));
+    } else {
+      const r: ReservationRecord = {
+        id: `r${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        customerName: d.customerName, nickname: d.nickname || undefined,
+        date: d.date, time: d.time, party: d.party,
+        note: d.note || undefined,
+        status: "pending", source: d.source,
+        createdAt: new Date().toISOString(),
+      };
+      setResvs(prev => [r, ...prev]);
+    }
     setOpen(false);
-    setD({ customerName: "", nickname: "", date: "", time: "19:00", party: 2, note: "", source: "phone" });
+    setEditing(null);
+    setD(emptyForm);
   }
   function setStatus(id: string, status: ReservationStatus) {
+    if (CONFIRM_STATUSES.includes(status)) {
+      const label = STATUS_LABEL[status];
+      if (!confirm(`ステータスを「${label}」に変更しますか？`)) return;
+    }
     setResvs(prev => prev.map(r => r.id === id ? { ...r, status } : r));
   }
   function remove(id: string) {
@@ -41,16 +98,27 @@ export default function ReservationsPage() {
     <VStack gap={16}>
       <PageHeader
         title="予約"
-        sub={`${resvs.length}件`}
-        action={<Btn variant="primary" onClick={() => setOpen(true)}><Plus size={14} /> 新規予約</Btn>}
+        sub={`${filtered.length}件${query ? ` / 全${resvs.length}件` : ""}`}
+        action={<Btn variant="primary" onClick={openCreate}><Plus size={14} /> 新規予約</Btn>}
       />
 
       <Panel>
-        {resvs.length === 0 ? <Empty>予約はありません</Empty> : (
+        <div style={{ marginBottom: 12 }}>
+          <div className="v2-row" style={{ position: "relative", maxWidth: 320 }}>
+            <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="名前・電話番号で検索"
+              style={{ paddingLeft: 30, width: "100%" }}
+            />
+          </div>
+        </div>
+        {filtered.length === 0 ? <Empty>{query ? "該当する予約がありません" : "予約はありません"}</Empty> : (
           <table className="v2-table">
             <thead><tr><th>日時</th><th>顧客</th><th>人数</th><th>経路</th><th>状態</th><th></th></tr></thead>
             <tbody>
-              {resvs.map(r => (
+              {filtered.map(r => (
                 <tr key={r.id}>
                   <td className="v2-num">{r.date} {r.time}</td>
                   <td>{r.nickname || r.customerName}{r.nickname && <span className="v2-mute" style={{ marginLeft: 6, fontSize: 11 }}>{r.customerName}</span>}</td>
@@ -61,7 +129,10 @@ export default function ReservationsPage() {
                       {(Object.keys(STATUS_LABEL) as ReservationStatus[]).map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
                     </select>
                   </td>
-                  <td><Btn size="xs" variant="danger" onClick={() => remove(r.id)}><Trash2 size={11} /></Btn></td>
+                  <td>
+                    <Btn size="xs" onClick={() => openEdit(r)}><Pencil size={11} /></Btn>{" "}
+                    <Btn size="xs" variant="danger" onClick={() => remove(r.id)}><Trash2 size={11} /></Btn>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -71,9 +142,9 @@ export default function ReservationsPage() {
 
       <Modal
         open={open}
-        onClose={() => setOpen(false)}
-        title="新規予約"
-        footer={<><Btn onClick={() => setOpen(false)}>キャンセル</Btn><Btn variant="primary" onClick={add}>登録</Btn></>}
+        onClose={() => { setOpen(false); setEditing(null); }}
+        title={editing ? "予約編集" : "新規予約"}
+        footer={<><Btn onClick={() => { setOpen(false); setEditing(null); }}>キャンセル</Btn><Btn variant="primary" onClick={save}>{editing ? "保存" : "登録"}</Btn></>}
       >
         <VStack gap={16}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
