@@ -65,6 +65,10 @@ export const visitLogStore = createPersistedStore<VisitLog[]>("v2_visit_logs_v1"
 // =================================================================
 // チップフロー (型のみ。実データ記録は注文側で連動)
 // =================================================================
+/** ゲーム種別 (卓種別に対応。tables/page.tsx の TableDef["type"] と同じ表記) */
+export type ChipGameType = "トナメ" | "リング" | "サイド" | "BJ" | "バカラ";
+/** 増減方向: out=貸出(店→客), in=回収(客→店), adjust=調整(在庫合わせ等) */
+export type ChipFlowDirection = "out" | "in" | "adjust";
 export interface ChipFlowEntry {
   id: string;
   date: string;       // YYYY-MM-DD
@@ -74,5 +78,18 @@ export interface ChipFlowEntry {
   customer?: string;
   table?: string;
   staff?: string;
+  // ---- 以下、チップフロー画面(オーナー確定仕様)で追加使用するフィールド ----
+  /** 記録の作成日時 ISO (day/week/month/year 集計や履歴の並び替えに使用) */
+  createdAt?: string;
+  /** ゲーム種別ごとの増減集計に使用 */
+  gameType?: ChipGameType;
+  /** 貸出/回収/調整。direction (out/in) はこのフィールドとも一致させて登録する */
+  flowDirection?: ChipFlowDirection;
+  /** 紐付けた顧客の customerStore.id (顧客残高を連動更新する場合に使用) */
+  customerId?: string;
+  /** 調整も含めた符号付き枚数 (顧客保有ベース: 貸出=+, 回収/調整減=-) */
+  signedAmount?: number;
+  /** メモ */
+  note?: string;
 }
 export const chipFlowStore = createPersistedStore<ChipFlowEntry[]>("v2_chip_flow_v1", []);
