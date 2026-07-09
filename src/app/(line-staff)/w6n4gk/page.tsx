@@ -24,10 +24,10 @@ const DEMO_MEMBERS: Record<string, MemberSnapshot> = {
 };
 
 const RANK_COLOR: Record<string, string> = {
-  vip: "#7c3aed",
-  gold: "var(--ln-warn)",
-  silver: "#475569",
-  regular: "var(--ln-text-mute)",
+  vip: "var(--ln-rank-vip)",
+  gold: "var(--ln-rank-gold)",
+  silver: "var(--ln-rank-silver)",
+  regular: "var(--ln-rank-regular)",
 };
 const RANK_LABEL: Record<string, string> = { vip: "VIP", gold: "GOLD", silver: "SILVER", regular: "Regular" };
 
@@ -74,11 +74,11 @@ export default function QRScanPage() {
         {member && (
           <div className="ln-card ln-stack-sm">
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 16, fontWeight: 700 }}>{member.nickname}</span>
-                  <span className="ln-mute" style={{ fontSize: 11 }}>{member.realName}</span>
-                  <span style={{ fontSize: 9, color: "var(--ln-text-mute)", border: "1px solid var(--ln-border)", borderRadius: 999, padding: "1px 6px" }}>デモ表示</span>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", minWidth: 0 }}>
+                  <span style={{ fontSize: 16, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 140 }}>{member.nickname}</span>
+                  <span className="ln-mute" style={{ fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 120 }}>{member.realName}</span>
+                  <span className="ln-chip">デモ表示</span>
                 </div>
                 <div className="ln-mute" style={{ fontSize: 11 }}>会員番号 {member.memberNo}</div>
               </div>
@@ -96,14 +96,14 @@ export default function QRScanPage() {
             {member.caution && (
               <div className="ln-row" style={{ padding: "8px 12px", background: "var(--ln-warn-soft)", borderRadius: "var(--ln-radius-sm)", alignItems: "flex-start" }}>
                 <AlertTriangle size={16} style={{ color: "var(--ln-warn)", flexShrink: 0, marginTop: 2 }} />
-                <span style={{ fontSize: 11, color: "#8a5a10" }}>{member.caution}</span>
+                <span style={{ fontSize: 11, color: "var(--ln-warn-text)" }}>{member.caution}</span>
               </div>
             )}
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
               <MiniStat label="リング" value={member.ringBalance.toLocaleString()} color="var(--ln-accent-text)" />
-              <MiniStat label="サイド" value={member.sideBalance.toLocaleString()} color="#d97706" />
-              <MiniStat label="マルチケ" value={member.multikeBalance.toLocaleString()} color="#7c3aed" />
+              <MiniStat label="サイド" value={member.sideBalance.toLocaleString()} color="var(--ln-rank-gold)" />
+              <MiniStat label="マルチケ" value={member.multikeBalance.toLocaleString()} color="var(--ln-rank-vip)" />
             </div>
 
             <div className="ln-row ln-mute" style={{ fontSize: 11 }}>
@@ -118,19 +118,21 @@ export default function QRScanPage() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 <ActionButton icon={<DoorOpen size={16} />} label="来店処理" color="var(--ln-accent-text)" onClick={() => action("来店処理")} />
-                <ActionButton icon={<Coins size={16} />} label="チップ引出" color="#d97706" onClick={() => action("チップ引出")} />
-                <ActionButton icon={<Sparkles size={16} />} label="マルチケ消化" color="#7c3aed" onClick={() => action("マルチケ消化")} />
-                <ActionButton icon={<CreditCard size={16} />} label="会計登録" color="#2c3e50" onClick={() => action("会計登録")} />
+                <ActionButton icon={<Coins size={16} />} label="チップ引出" color="var(--ln-rank-gold)" onClick={() => action("チップ引出")} />
+                <ActionButton icon={<Sparkles size={16} />} label="マルチケ消化" color="var(--ln-rank-vip)" onClick={() => action("マルチケ消化")} />
+                <ActionButton icon={<CreditCard size={16} />} label="会計登録" color="var(--ln-rank-silver)" onClick={() => action("会計登録")} />
               </div>
             </div>
           </div>
         )}
 
+        <p className="ln-demo-note">※ 表示はサンプルです。正式公開時に実データに切り替わります</p>
+
         {toast && (
           <div
             style={{
               position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)",
-              padding: "8px 16px", background: "var(--ln-text)", color: "#fff",
+              padding: "8px 16px", background: "var(--ln-text)", color: "var(--ln-card)",
               fontSize: 12, borderRadius: 6, boxShadow: "var(--ln-shadow-lg)", zIndex: 50,
             }}
           >
@@ -146,7 +148,7 @@ function MiniStat({ label, value, color }: { label: string; value: string; color
   return (
     <div style={{ background: "var(--ln-bg-alt)", borderRadius: 6, padding: 8, textAlign: "center" }}>
       <div className="ln-mute" style={{ fontSize: 10 }}>{label}</div>
-      <div className="ln-num" style={{ fontSize: 14, fontWeight: 700, color }}>{value}</div>
+      <div className="ln-num" style={{ fontSize: 14, fontWeight: 700, color, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value}</div>
     </div>
   );
 }

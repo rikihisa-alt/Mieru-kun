@@ -32,6 +32,12 @@
   --ln-danger-soft:  #fbecec;
   --ln-danger-text:  #a83232;
 
+  /* rank tokens (v2 と同色相) */
+  --ln-rank-vip:     #7c3aed;
+  --ln-rank-gold:    #d97706;
+  --ln-rank-silver:  #6b7280;
+  --ln-rank-regular: #9ca3af;
+
   --ln-shadow-xs:    0 1px 2px rgba(28, 46, 36, 0.05);
   --ln-shadow-sm:    0 1px 3px rgba(28, 46, 36, 0.07);
   --ln-shadow:       0 6px 16px rgba(28, 46, 36, 0.07), 0 1.5px 4px rgba(28, 46, 36, 0.05);
@@ -218,8 +224,10 @@ a.ln-card:active, button.ln-card:active {
 .ln-chip--success { background: var(--ln-accent-soft); color: var(--ln-accent-text); border-color: transparent; }
 .ln-chip--warn    { background: var(--ln-warn-soft);   color: var(--ln-warn-text);  border-color: transparent; }
 .ln-chip--danger  { background: var(--ln-danger-soft); color: var(--ln-danger-text); border-color: transparent; }
-.ln-chip--vip     { background: rgba(124,58,237,0.10); color: #6d28d9; border-color: transparent; }
-.ln-chip--gold    { background: rgba(217,119,6,0.10);  color: #b45309; border-color: transparent; }
+.ln-chip--vip     { background: rgba(124,58,237,0.10); color: var(--ln-rank-vip); border-color: transparent; }
+.ln-chip--gold    { background: rgba(217,119,6,0.10);  color: var(--ln-rank-gold); border-color: transparent; }
+.ln-chip--silver  { background: rgba(107,114,128,0.10); color: var(--ln-rank-silver); border-color: transparent; }
+.ln-chip--regular { background: rgba(156,163,175,0.14); color: var(--ln-rank-regular); border-color: transparent; }
 
 /* ===== back link ===== */
 .ln-back {
@@ -307,6 +315,14 @@ a.ln-list__item:active, button.ln-list__item:active { background: var(--ln-bg-ho
   text-align: center;
   padding: 28px 16px;
   font-size: 12px; color: var(--ln-text-mute);
+}
+
+/* ===== demo note (全ページ共通の「表示はサンプルです」注記) ===== */
+.ln-demo-note {
+  font-size: 10px;
+  color: var(--ln-text-mute);
+  margin: 0;
+  text-align: center;
 }
 
 /* ===== safe area (iOS notch) ===== */

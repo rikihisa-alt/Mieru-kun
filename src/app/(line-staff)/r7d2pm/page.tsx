@@ -15,9 +15,6 @@ export default function TableViewPage() {
         <p className="ln-mute" style={{ fontSize: 12, margin: 0 }}>
           稼働 {tables.filter(t => t.occupied > 0).length} / {tables.length} 卓
         </p>
-        <p style={{ fontSize: 10, color: "var(--ln-text-mute)", margin: 0 }}>
-          ※ デモ表示(実データ連携は準備中)
-        </p>
 
         {tables.map((t) => {
           const active = t.occupied > 0;
@@ -47,6 +44,8 @@ export default function TableViewPage() {
             </div>
           );
         })}
+
+        <p className="ln-demo-note">※ 表示はサンプルです。正式公開時に実データに切り替わります</p>
       </div>
     </div>
   );

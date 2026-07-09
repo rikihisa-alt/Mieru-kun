@@ -36,7 +36,7 @@ function categoryChipClass(c: EventItem["category"]): string {
 
 function categoryDotColor(c: EventItem["category"]): string {
   if (c === "tournament") return "var(--ln-accent)";
-  if (c === "party") return "#7c3aed";
+  if (c === "party") return "var(--ln-rank-vip)";
   return "var(--ln-warn)";
 }
 
@@ -317,6 +317,7 @@ export default function MemberSchedulePage() {
         <p className="ln-mute" style={{ fontSize: 10, margin: 0, display: "inline-flex", alignItems: "center", gap: 4 }}>
           <MapPin size={12} />Come On Casino 開催
         </p>
+        <p className="ln-demo-note">※ 表示はサンプルです。正式公開時に実データに切り替わります</p>
       </div>
 
       {notice && (

@@ -113,7 +113,7 @@ function ActBtn({ onClick, loading, icon, label, variant }: {
     "ln-btn ln-btn--full ln-btn--lg";
   const customStyle =
     variant === "danger"
-      ? { background: "var(--ln-danger)", borderColor: "var(--ln-danger)", color: "#fff" }
+      ? { background: "var(--ln-danger)", borderColor: "var(--ln-danger)", color: "var(--ln-card)" }
       : undefined;
   return (
     <button onClick={onClick} disabled={loading} className={cls} style={{ opacity: loading ? 0.5 : 1, ...customStyle }}>
