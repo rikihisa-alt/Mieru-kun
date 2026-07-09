@@ -66,6 +66,22 @@ interface TableDef {
   posY?: number;
 }
 
+/** ウェイティングリストの希望ゲーム種別 ("指定なし" を含む) */
+type WaitGame = TableDef["type"] | "指定なし";
+/** ウェイティングリストの状態: 待機中 → 呼出済み → 案内済み(削除して履歴に残す) */
+type WaitStatus = "waiting" | "called";
+interface WaitEntry {
+  id: string;
+  name: string;
+  partySize: number;
+  game: WaitGame;
+  registeredAt: string;
+  status: WaitStatus;
+  calledAt?: string;
+  /** 未着席客リストから登録した場合の visit.id (参考用、必須ではない) */
+  visitId?: string;
+}
+
 const RANK_COLOR: Record<CustomerRank, string> = {
   vip: "#7c3aed", gold: "#d97706", silver: "#6b7280", regular: "#9ca3af",
 };
@@ -75,6 +91,13 @@ const RANK_LABEL: Record<CustomerRank, string> = {
 const TYPE_COLOR: Record<TableDef["type"], string> = {
   "トナメ": "#2c9b6a", "リング": "#0e7a55", "サイド": "#6b7280", "BJ": "#1e293b", "バカラ": "#8b5cf6",
 };
+const WAIT_GAME_OPTIONS: WaitGame[] = ["トナメ", "リング", "サイド", "BJ", "バカラ", "指定なし"];
+const WAIT_GAME_COLOR: Record<WaitGame, string> = {
+  ...TYPE_COLOR,
+  "指定なし": "#9ca3af",
+};
+/** 呼出済みからの経過分がこれ以上で警告色 (来ない客の可能性) */
+const CALLED_WARN_MIN = 5;
 
 // ===== 全角→半角数字変換 + 数字以外を除去 =====
 function toHalfWidthDigits(input: string): string {
@@ -89,6 +112,10 @@ export default function TablesPage() {
   const [visits, setVisits] = usePersistedState<Visit[]>("v2_visits_v1", []);
   // ディーラー欄: 待機ディーラーの順番待ち列(先頭が次に入る人)
   const [dealerRun, setDealerRun] = usePersistedState<string[]>("v2_dealer_run_v1", []);
+  // ウェイティングリスト: 満卓時のリング待ち順 (先頭が次の案内)
+  const [waitlist, setWaitlist] = usePersistedState<WaitEntry[]>("v2_waitlist_v1", []);
+  // 待機エリアから登録するときの初期名 (MoveModal から遷移)
+  const [waitlistPrefill, setWaitlistPrefill] = useState<{ name: string; visitId?: string } | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [openAdd, setOpenAdd] = useState(false);
   const [editTable, setEditTable] = useState<TableDef | null>(null);
@@ -115,6 +142,39 @@ export default function TablesPage() {
   const seated = useMemo(() => visits.filter(v => v.tableId), [visits]);
   const activeVisit = activeId ? visits.find(v => v.id === activeId) : null;
   const activeTableId = activeId?.startsWith("table:") ? activeId.slice(6) : null;
+
+  // 各卓の空席数 (卓管理見出し・ウェイティングパネルの連動表示に使用)
+  const openSeatsByTable = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const t of tables) {
+      const occupied = visits.filter(v => v.tableId === t.id).length;
+      map.set(t.id, Math.max(0, t.maxSeats - occupied));
+    }
+    return map;
+  }, [tables, visits]);
+  const totalOpenSeats = useMemo(
+    () => Array.from(openSeatsByTable.values()).reduce((a, b) => a + b, 0),
+    [openSeatsByTable]
+  );
+  // 希望ゲームに空席がある卓が存在するか (指定なしは任意の卓の空席で可)
+  const gameHasOpenSeat = useMemo(() => {
+    const map = new Map<WaitGame, boolean>();
+    for (const g of WAIT_GAME_OPTIONS) {
+      if (g === "指定なし") {
+        map.set(g, totalOpenSeats > 0);
+        continue;
+      }
+      const ok = tables.some(t => t.type === g && (openSeatsByTable.get(t.id) ?? 0) > 0);
+      map.set(g, ok);
+    }
+    return map;
+  }, [tables, openSeatsByTable, totalOpenSeats]);
+  // 待機中(waiting/called)の先頭で、希望ゲームに空席があれば「案内可」対象
+  const readyWaitlistId = useMemo(() => {
+    const first = waitlist.find(w => w.status === "waiting" || w.status === "called");
+    if (!first) return null;
+    return gameHasOpenSeat.get(first.game) ? first.id : null;
+  }, [waitlist, gameHasOpenSeat]);
 
   // 既存データに pos が無い卓は、自動で重ならない初期位置を割り当てて保存する
   useEffect(() => {
@@ -321,6 +381,43 @@ export default function TablesPage() {
     });
   }
 
+  // ===== ウェイティングリスト管理 =====
+  function addToWaitlist(entry: { name: string; partySize: number; game: WaitGame; visitId?: string }) {
+    const trimmed = entry.name.trim();
+    if (!trimmed) return;
+    setWaitlist(prev => [...prev, {
+      id: `w${Date.now()}`,
+      name: trimmed,
+      partySize: entry.partySize,
+      game: entry.game,
+      registeredAt: new Date().toISOString(),
+      status: "waiting",
+      visitId: entry.visitId,
+    }]);
+    setWaitlistPrefill(null);
+  }
+  function callWaitlist(id: string) {
+    setWaitlist(prev => prev.map(w => w.id === id ? { ...w, status: "called", calledAt: new Date().toISOString() } : w));
+  }
+  /** 呼出済みの人を「案内済み」としてリストから外す (=着席へ進んだので削除、簡易的に履歴は残さない) */
+  function completeWaitlist(id: string) {
+    setWaitlist(prev => prev.filter(w => w.id !== id));
+  }
+  function cancelWaitlist(id: string) {
+    setWaitlist(prev => prev.filter(w => w.id !== id));
+  }
+  function moveInWaitlist(id: string, dir: -1 | 1) {
+    setWaitlist(prev => {
+      const i = prev.findIndex(w => w.id === id);
+      if (i < 0) return prev;
+      const j = i + dir;
+      if (j < 0 || j >= prev.length) return prev;
+      const next = [...prev];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  }
+
   // ===== 顧客の席移動 (メニュー経由) =====
   // 移動先に先客がいる場合は入れ替え (移動者の元の場所へ。元が未着席なら先客も未着席へ)
   function moveVisitTo(visitId: string, tableId: string | null, seatIndex?: number) {
@@ -348,7 +445,7 @@ export default function TablesPage() {
       <VStack gap={16}>
         <PageHeader
           title="卓管理"
-          sub={`${tables.length}卓 · 待機 ${waiting.length}名 · 着席 ${seated.length}名`}
+          sub={`${tables.length}卓 · 待機 ${waiting.length}名 · 着席 ${seated.length}名 · ウェイティング ${waitlist.length}組`}
           action={<Btn variant="primary" onClick={openAddModal}><Plus size={14}/> 卓を追加</Btn>}
         />
 
@@ -361,6 +458,21 @@ export default function TablesPage() {
           onAdd={addToRun}
           onRemove={removeFromRun}
           onMove={moveInRun}
+        />
+
+        {/* ===== ウェイティングリスト (満卓時のリング待ち順) ===== */}
+        <WaitlistPanel
+          waitlist={waitlist}
+          waiting={waiting}
+          totalOpenSeats={totalOpenSeats}
+          readyWaitlistId={readyWaitlistId}
+          prefill={waitlistPrefill}
+          onConsumePrefill={() => setWaitlistPrefill(null)}
+          onAdd={addToWaitlist}
+          onCall={callWaitlist}
+          onComplete={completeWaitlist}
+          onCancel={cancelWaitlist}
+          onMove={moveInWaitlist}
         />
 
         {/* ===== フロアマップ ===== */}
@@ -500,8 +612,13 @@ export default function TablesPage() {
             visit={moveTarget}
             tables={tables}
             visits={visits}
+            alreadyWaitlisted={waitlist.some(w => w.visitId === moveTarget.id)}
             onClose={() => setMoveTarget(null)}
             onMove={moveVisitTo}
+            onAddToWaitlist={() => {
+              setWaitlistPrefill({ name: moveTarget.name, visitId: moveTarget.id });
+              setMoveTarget(null);
+            }}
           />
         )}
 
@@ -942,12 +1059,14 @@ function Seat({ tableId, seatIndex, cx, cy, occupant, onClickOccupant, onClickEm
 }
 
 // ===================== 移動メニューモーダル =====================
-function MoveModal({ visit, tables, visits, onClose, onMove }: {
+function MoveModal({ visit, tables, visits, alreadyWaitlisted, onClose, onMove, onAddToWaitlist }: {
   visit: Visit;
   tables: TableDef[];
   visits: Visit[];
+  alreadyWaitlisted?: boolean;
   onClose: () => void;
   onMove: (visitId: string, tableId: string | null, seatIndex?: number) => void;
+  onAddToWaitlist?: () => void;
 }) {
   const currentTable = tables.find(t => t.id === visit.tableId);
   return (
@@ -964,6 +1083,29 @@ function MoveModal({ visit, tables, visits, onClose, onMove }: {
             ? `${currentTable.name} / 席${(visit.seatIndex ?? 0) + 1}`
             : "未着席"}
         </div>
+
+        {/* ウェイティングリストへ追加 (未着席客のみ) */}
+        {!visit.tableId && onAddToWaitlist && (
+          <button
+            onClick={onAddToWaitlist}
+            disabled={alreadyWaitlisted}
+            className="v2-btn-ghost"
+            style={{
+              width: "100%", textAlign: "left",
+              padding: "10px 12px", borderRadius: 8,
+              border: "1px solid var(--v2-accent)",
+              background: alreadyWaitlisted ? "var(--v2-bg-alt)" : "var(--v2-accent-soft)",
+              display: "flex", alignItems: "center", gap: 8,
+              cursor: alreadyWaitlisted ? "not-allowed" : "pointer",
+              opacity: alreadyWaitlisted ? 0.6 : 1,
+            }}
+          >
+            <Clock size={14} style={{ color: "var(--v2-accent-text)" }} />
+            <span style={{ fontWeight: 600, color: "var(--v2-accent-text)" }}>
+              {alreadyWaitlisted ? "ウェイティングリストに登録済み" : "ウェイティングに追加"}
+            </span>
+          </button>
+        )}
 
         {/* 未着席に戻す */}
         {visit.tableId && (
@@ -1352,6 +1494,317 @@ function DealerChangeModal({ table, run, onClose, onChange }: {
             <X size={12} />ディーラーを解除(無人にする)
           </button>
         )}
+      </VStack>
+    </Modal>
+  );
+}
+
+// ===================== ウェイティングリストパネル =====================
+function WaitlistPanel({ waitlist, waiting, totalOpenSeats, readyWaitlistId, prefill, onConsumePrefill, onAdd, onCall, onComplete, onCancel, onMove }: {
+  waitlist: WaitEntry[];
+  waiting: Visit[];
+  totalOpenSeats: number;
+  readyWaitlistId: string | null;
+  prefill: { name: string; visitId?: string } | null;
+  onConsumePrefill: () => void;
+  onAdd: (entry: { name: string; partySize: number; game: WaitGame; visitId?: string }) => void;
+  onCall: (id: string) => void;
+  onComplete: (id: string) => void;
+  onCancel: (id: string) => void;
+  onMove: (id: string, dir: -1 | 1) => void;
+}) {
+  const [open, setOpen] = useState(true);
+  const [openAdd, setOpenAdd] = useState(false);
+
+  // 待機エリアからの導線でモーダルを自動オープン (ユーザー操作起点の prefill セット時のみ)
+  if (prefill && !openAdd) {
+    setOpen(true);
+    setOpenAdd(true);
+  }
+
+  const activeCount = waitlist.filter(w => w.status === "waiting" || w.status === "called").length;
+
+  return (
+    <div
+      style={{
+        background: "var(--v2-card)",
+        borderRadius: "var(--v2-radius-lg)",
+        boxShadow: "var(--v2-shadow-md)",
+        border: "1px solid rgba(28, 46, 36, 0.05)",
+        overflow: "hidden",
+      }}
+    >
+      <button
+        onClick={() => setOpen(v => !v)}
+        style={{
+          width: "100%", padding: "10px 14px",
+          display: "flex", alignItems: "center", gap: 10,
+          background: "transparent", border: 0, cursor: "pointer",
+          textAlign: "left", flexWrap: "wrap",
+        }}
+      >
+        <Clock size={14} style={{ color: "var(--v2-accent-text)" }} />
+        <span style={{ fontSize: 13, fontWeight: 700 }}>ウェイティングリスト</span>
+        <span style={{
+          fontSize: 11, fontWeight: 600, color: "var(--v2-text)",
+          background: "var(--v2-bg-alt)", padding: "1px 8px", borderRadius: 999,
+        }}>空席{totalOpenSeats}席 / 待ち{activeCount}組</span>
+        {waitlist[0] && (
+          <span style={{ fontSize: 11, color: "var(--v2-text-mute)" }}>
+            先頭: <strong style={{ color: "var(--v2-text)", fontWeight: 700 }}>{waitlist[0].name}</strong>
+          </span>
+        )}
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={(e) => { e.stopPropagation(); setOpenAdd(true); }}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setOpenAdd(true); } }}
+          style={{
+            marginLeft: "auto", fontSize: 11, fontWeight: 700, color: "#fff",
+            background: "var(--v2-accent)", padding: "4px 10px", borderRadius: 999,
+            display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer",
+          }}
+        >
+          <Plus size={11} /> 登録
+        </span>
+        <span style={{ fontSize: 11, color: "var(--v2-text-mute)" }}>{open ? "閉じる" : "開く"}</span>
+      </button>
+
+      {open && (
+        <div style={{ padding: "0 14px 14px", borderTop: "1px solid var(--v2-border)" }}>
+          {waitlist.length === 0 ? (
+            <div style={{ fontSize: 12, color: "var(--v2-text-mute)", padding: "10px 0 2px" }}>
+              ウェイティングはいません。満卓時は「登録」から受付できます。
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 10 }}>
+              {waitlist.map((w, i) => (
+                <WaitlistRow
+                  key={w.id}
+                  entry={w}
+                  index={i}
+                  isFirst={i === 0}
+                  isLast={i === waitlist.length - 1}
+                  isReady={w.id === readyWaitlistId}
+                  onCall={() => onCall(w.id)}
+                  onComplete={() => onComplete(w.id)}
+                  onCancel={() => onCancel(w.id)}
+                  onMoveUp={() => onMove(w.id, -1)}
+                  onMoveDown={() => onMove(w.id, 1)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {openAdd && (
+        <WaitlistAddModal
+          waiting={waiting}
+          prefill={prefill}
+          onClose={() => { setOpenAdd(false); onConsumePrefill(); }}
+          onAdd={(entry) => { onAdd(entry); setOpenAdd(false); }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ===================== ウェイティング1行 =====================
+function WaitlistRow({ entry, index, isFirst, isLast, isReady, onCall, onComplete, onCancel, onMoveUp, onMoveDown }: {
+  entry: WaitEntry;
+  index: number;
+  isFirst: boolean;
+  isLast: boolean;
+  isReady: boolean;
+  onCall: () => void;
+  onComplete: () => void;
+  onCancel: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+}) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  const registered = new Date(entry.registeredAt).getTime();
+  const waitMin = Math.max(0, Math.floor((now - registered) / 60000));
+
+  const calledMin = entry.calledAt ? Math.max(0, Math.floor((now - new Date(entry.calledAt).getTime()) / 60000)) : null;
+  const calledWarn = entry.status === "called" && calledMin != null && calledMin >= CALLED_WARN_MIN;
+
+  return (
+    <div
+      style={{
+        display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
+        padding: "8px 10px", borderRadius: 8,
+        border: isFirst ? "1px solid var(--v2-accent)" : "1px solid var(--v2-border)",
+        background: calledWarn ? "var(--v2-danger-soft)" : isFirst ? "var(--v2-accent-soft)" : "#fff",
+      }}
+    >
+      <span style={{
+        width: 20, height: 20, borderRadius: 999, flexShrink: 0,
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        fontSize: 10.5, fontWeight: 700,
+        background: isFirst ? "var(--v2-accent)" : "var(--v2-bg-alt)",
+        color: isFirst ? "#fff" : "var(--v2-text-mute)",
+      }}>{index + 1}</span>
+
+      <span style={{ fontWeight: 700, fontSize: 13 }}>{entry.name}</span>
+      <span style={{ fontSize: 11, color: "var(--v2-text-mute)" }}>{entry.partySize}名</span>
+      <span style={{
+        fontSize: 9.5, fontWeight: 700, padding: "1px 6px", borderRadius: 999,
+        background: `${WAIT_GAME_COLOR[entry.game]}1a`, color: WAIT_GAME_COLOR[entry.game],
+      }}>{entry.game}</span>
+
+      {isReady && entry.status === "waiting" && (
+        <span style={{
+          fontSize: 10, fontWeight: 700, color: "#fff",
+          background: "var(--v2-success)", padding: "2px 8px", borderRadius: 999,
+        }}>案内可</span>
+      )}
+
+      <span style={{ fontSize: 11, color: "var(--v2-text-mute)", fontVariantNumeric: "tabular-nums" }}>
+        待ち {waitMin}分
+      </span>
+
+      {entry.status === "called" && (
+        <span style={{
+          fontSize: 10.5, fontWeight: 700,
+          color: calledWarn ? "var(--v2-danger)" : "var(--v2-accent-text)",
+          display: "inline-flex", alignItems: "center", gap: 3,
+        }}>
+          呼出済 ({calledMin}分経過){calledWarn ? " ⚠" : ""}
+        </span>
+      )}
+
+      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 2 }}>
+        <button
+          onClick={onMoveUp}
+          disabled={isFirst}
+          title="上へ"
+          style={{
+            width: 22, height: 22, border: 0, background: "transparent",
+            cursor: isFirst ? "not-allowed" : "pointer",
+            opacity: isFirst ? 0.3 : 0.7,
+            color: "var(--v2-text-sub)",
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            transform: "rotate(180deg)",
+          }}
+        >
+          <ArrowDown size={12} />
+        </button>
+        <button
+          onClick={onMoveDown}
+          disabled={isLast}
+          title="下へ"
+          style={{
+            width: 22, height: 22, border: 0, background: "transparent",
+            cursor: isLast ? "not-allowed" : "pointer",
+            opacity: isLast ? 0.3 : 0.7,
+            color: "var(--v2-text-sub)",
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          <ArrowDown size={12} />
+        </button>
+
+        {entry.status === "waiting" ? (
+          <Btn onClick={onCall} style={{ fontSize: 11, padding: "4px 10px" }}>呼出</Btn>
+        ) : (
+          <Btn variant="primary" onClick={onComplete} style={{ fontSize: 11, padding: "4px 10px" }}>案内済み</Btn>
+        )}
+        <button
+          onClick={onCancel}
+          title="取消(離脱)"
+          style={{
+            width: 22, height: 22, border: 0, background: "transparent",
+            cursor: "pointer", color: "var(--v2-danger)",
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          <X size={13} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ===================== ウェイティング登録モーダル =====================
+function WaitlistAddModal({ waiting, prefill, onClose, onAdd }: {
+  waiting: Visit[];
+  prefill: { name: string; visitId?: string } | null;
+  onClose: () => void;
+  onAdd: (entry: { name: string; partySize: number; game: WaitGame; visitId?: string }) => void;
+}) {
+  const [name, setName] = useState(prefill?.name ?? "");
+  const [visitId, setVisitId] = useState<string | undefined>(prefill?.visitId);
+  const [partySizeStr, setPartySizeStr] = useState("1");
+  const [game, setGame] = useState<WaitGame>("指定なし");
+
+  function pickVisit(v: Visit) {
+    setName(v.name);
+    setVisitId(v.id);
+  }
+
+  function submit() {
+    const trimmed = name.trim();
+    if (!trimmed) { alert("名前を入力してください"); return; }
+    const partySize = parseInt(partySizeStr, 10);
+    if (!partySize || partySize < 1) { alert("人数は1以上で入力してください"); return; }
+    onAdd({ name: trimmed, partySize, game, visitId });
+  }
+
+  return (
+    <Modal
+      open={true}
+      onClose={onClose}
+      title="ウェイティングに登録"
+      footer={<><Btn onClick={onClose}>キャンセル</Btn><Btn variant="primary" onClick={submit}>登録</Btn></>}
+    >
+      <VStack gap={16}>
+        {waiting.length > 0 && (
+          <Field label="未着席の来店客から選択" hint="タップで名前欄に反映されます">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {waiting.map(v => (
+                <button
+                  key={v.id}
+                  onClick={() => pickVisit(v)}
+                  style={{
+                    background: "transparent", border: 0, padding: 0, cursor: "pointer",
+                    outline: visitId === v.id ? "2px solid var(--v2-accent)" : "none",
+                    borderRadius: 999,
+                  }}
+                >
+                  <VisitChip visit={v} />
+                </button>
+              ))}
+            </div>
+          </Field>
+        )}
+        <Field label="名前" required>
+          <input
+            value={name}
+            onChange={(e) => { setName(e.target.value); setVisitId(undefined); }}
+            placeholder="お客様名を入力 (手入力可)"
+          />
+        </Field>
+        <Field label="人数">
+          <input
+            type="text"
+            inputMode="numeric"
+            value={partySizeStr}
+            onChange={(e) => setPartySizeStr(toHalfWidthDigits(e.target.value))}
+            onFocus={(e) => e.target.select()}
+            placeholder="例: 2"
+          />
+        </Field>
+        <Field label="希望ゲーム">
+          <select value={game} onChange={(e) => setGame(e.target.value as WaitGame)}>
+            {WAIT_GAME_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
+          </select>
+        </Field>
       </VStack>
     </Modal>
   );
