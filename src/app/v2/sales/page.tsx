@@ -6,6 +6,9 @@ import { salesOrderStore, type SalesOrder } from "@/lib/v2/stores";
 import { PageHeader, Panel, VStack, HStack, Kpis, Kpi, Tabs, Empty, Btn, Field, Modal, Chip } from "@/components/v2/ui";
 import { FileDown, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml, sectionHtml } from "@/lib/v2/pdf";
+import { toCsv, downloadCsv } from "@/lib/v2/csv";
+
+const PAY_LABEL: Record<string, string> = { cash: "現金", card: "カード", qr: "QR", credit: "後払い" };
 
 type Range = "today" | "7d" | "month" | "custom";
 type MainTab = "summary" | "unpaid";
@@ -122,12 +125,32 @@ export default function SalesPage() {
     printDoc({ title: "売上レポート", subtitle: `${dateRange.from} 〜 ${dateRange.to}`, body, storeName: "てんぽみえるくん" });
   }
 
+  function exportCsv() {
+    const headers = ["日時", "顧客", "卓", "商品", "数量", "単価", "金額", "支払方法", "未払い"];
+    const csvRows: (string | number)[][] = [];
+    filtered.forEach(o => {
+      const dt = o.settledAt ?? o.createdAt;
+      const payLabel = o.paymentMethod ? PAY_LABEL[o.paymentMethod] ?? o.paymentMethod : "—";
+      const unpaidLabel = o.paymentMethod === "credit" ? (o.unpaid ? "未払い" : "入金済") : "—";
+      o.items.forEach(i => {
+        csvRows.push([dt, o.customer, o.table ?? "", i.name, i.qty, i.price, i.price * i.qty, payLabel, unpaidLabel]);
+      });
+    });
+    const csv = toCsv(headers, csvRows);
+    downloadCsv(`売上明細_${dateRange.from}_${dateRange.to}.csv`, csv);
+  }
+
   return (
     <VStack gap={16}>
       <PageHeader
         title="売上管理"
         sub={mainTab === "summary" ? `${dateRange.from} 〜 ${dateRange.to}` : "後払い(未払い)の一覧と消し込み"}
-        action={mainTab === "summary" ? <Btn onClick={exportPDF}><FileDown size={14}/> PDF出力</Btn> : undefined}
+        action={mainTab === "summary" ? (
+          <>
+            <Btn onClick={exportCsv}><FileDown size={14}/> CSV出力</Btn>
+            <Btn onClick={exportPDF}><FileDown size={14}/> PDF出力</Btn>
+          </>
+        ) : undefined}
       />
 
       <Tabs value={mainTab} onChange={(v) => setMainTab(v as MainTab)} items={[
