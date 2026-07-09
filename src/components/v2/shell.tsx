@@ -8,7 +8,7 @@ import {
   LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
   Users, UserCog, Clock, TrendingUp, Package, Lock, BarChart3, Coins, History,
   Trophy, Gift, CalendarDays, Image as ImageIcon, Settings, Sparkles,
-  ChevronDown, ChevronRight, HelpCircle, ChevronsRight,
+  ChevronDown, ChevronRight, HelpCircle, ChevronsRight, Megaphone,
 } from "lucide-react";
 
 interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; hasMenu?: boolean; }
@@ -39,6 +39,7 @@ const NAV: NavSection[] = [
     { href: "/v2/multike", label: "マルチケ配布", icon: Gift },
     { href: "/v2/events", label: "イベント", icon: CalendarDays, hasMenu: true },
     { href: "/v2/pop", label: "POP", icon: ImageIcon, hasMenu: true },
+    { href: "/v2/sns", label: "SNS運用", icon: Megaphone },
   ]},
   { section: "設定", items: [
     { href: "/v2/products", label: "商品マスタ", icon: Package, hasMenu: true },
