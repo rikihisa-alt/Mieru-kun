@@ -8,8 +8,12 @@ import {
   LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
   Users, UserCog, Clock, TrendingUp, Package, Lock, BarChart3, Coins, History,
   Trophy, Gift, CalendarDays, Image as ImageIcon, Settings, Sparkles,
-  ChevronDown, ChevronRight, HelpCircle, ChevronsRight, Megaphone,
+  ChevronRight, ChevronsRight, Megaphone,
 } from "lucide-react";
+import { TopbarNotifications } from "@/components/v2/topbar-notifications";
+import { TopbarStorePill } from "@/components/v2/topbar-store-pill";
+import { TopbarAccount } from "@/components/v2/topbar-account";
+import { TopbarFaq } from "@/components/v2/topbar-faq";
 
 interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; hasMenu?: boolean; }
 interface NavSection { section: string; items: NavItem[]; }
@@ -23,11 +27,13 @@ const NAV: NavSection[] = [
     { href: "/v2/orders", label: "注文・精算", icon: ShoppingBag, hasMenu: true },
     { href: "/v2/live", label: "ライブ注文", icon: Bell },
     { href: "/v2/reservations", label: "予約", icon: CalendarCheck, hasMenu: true },
+    { href: "/v2/calendar", label: "カレンダー", icon: CalendarDays },
   ]},
   { section: "管理", items: [
     { href: "/v2/customers", label: "顧客", icon: Users, hasMenu: true },
     { href: "/v2/staff", label: "従業員", icon: UserCog, hasMenu: true },
     { href: "/v2/attendance", label: "勤怠", icon: Clock, hasMenu: true },
+    { href: "/v2/shifts", label: "シフト", icon: CalendarCheck },
     { href: "/v2/sales", label: "売上", icon: TrendingUp, hasMenu: true },
     { href: "/v2/inventory", label: "在庫", icon: Package, hasMenu: true },
     { href: "/v2/closing", label: "締め", icon: Lock },
@@ -112,24 +118,10 @@ export function V2Shell({ children }: { children: ReactNode }) {
             {new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" })}
           </span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
-            <button className="v2-icon-btn" aria-label="通知" title="通知">
-              <Bell size={17} />
-              <span className="v2-icon-btn__dot" />
-            </button>
-
-            <button className="v2-store-pill" title="店舗を切替">
-              <span className="v2-store-pill__mark">C</span>
-              <span>Come On Casino</span>
-              <ChevronDown size={12} style={{ color: "var(--v2-text-mute)" }} />
-            </button>
-
-            <button className="v2-icon-btn" aria-label="アカウント" title="アカウント" style={{ width: "auto", padding: "0 4px" }}>
-              <span className="v2-avatar">力</span>
-            </button>
-
-            <button className="v2-icon-btn" aria-label="FAQ・ヘルプ" title="FAQ">
-              <HelpCircle size={17} />
-            </button>
+            <TopbarNotifications />
+            <TopbarStorePill />
+            <TopbarAccount initial="力" />
+            <TopbarFaq />
           </div>
         </div>
         <main className="v2-body">{children}</main>
