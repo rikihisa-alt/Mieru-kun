@@ -8,7 +8,7 @@ import {
   LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
   Users, UserCog, Clock, TrendingUp, Package, Lock, BarChart3, Coins, History,
   Trophy, Gift, CalendarDays, Image as ImageIcon, Settings, Sparkles,
-  ChevronRight, ChevronsRight, Megaphone, ClipboardList,
+  ChevronRight, ChevronsRight, Megaphone, ClipboardList, AlertTriangle, MonitorPlay,
 } from "lucide-react";
 import { TopbarNotifications } from "@/components/v2/topbar-notifications";
 import { TopbarStorePill } from "@/components/v2/topbar-store-pill";
@@ -28,6 +28,7 @@ const NAV: NavSection[] = [
     { href: "/v2/live", label: "ライブ注文", icon: Bell },
     { href: "/v2/reservations", label: "予約", icon: CalendarCheck, hasMenu: true },
     { href: "/v2/calendar", label: "カレンダー", icon: CalendarDays },
+    { href: "/signage", label: "サイネージ", icon: MonitorPlay },
   ]},
   { section: "管理", items: [
     { href: "/v2/customers", label: "顧客", icon: Users, hasMenu: true },
@@ -41,6 +42,7 @@ const NAV: NavSection[] = [
     { href: "/v2/chip-flow", label: "チップフロー", icon: Coins },
     { href: "/v2/history", label: "履歴", icon: History },
     { href: "/v2/handover", label: "引き継ぎ", icon: ClipboardList },
+    { href: "/v2/incidents", label: "インシデント", icon: AlertTriangle },
   ]},
   { section: "施策", items: [
     { href: "/v2/ranking", label: "ランキング", icon: Trophy },
