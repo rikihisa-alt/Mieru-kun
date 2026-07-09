@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Coins, Trophy, History, ChevronRight, Activity, Calendar, CalendarPlus, Sparkles, Bell } from "lucide-react";
+import { Coins, Trophy, History, ChevronRight, Activity, Calendar, CalendarPlus, Sparkles, Bell, Wallet } from "lucide-react";
 
 export default function MyPage() {
   const c = { name: "田中 太郎", nickname: "タロウ", rank: "ゴールド", chips: 5000, points: 1200, visits: 25 };
@@ -12,7 +12,6 @@ export default function MyPage() {
         <div className="ln-card" style={{ textAlign: "center" }}>
           <div className="ln-avatar" style={{ marginBottom: 8 }}>{displayName.charAt(0)}</div>
           <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{displayName}</p>
-          {c.nickname && <p className="ln-mute" style={{ fontSize: 11, margin: "2px 0 0" }}>{c.name}</p>}
           <div style={{ marginTop: 6 }}>
             <span className="ln-chip ln-chip--gold">{c.rank}</span>
           </div>
@@ -50,6 +49,7 @@ export default function MyPage() {
           <MenuLink href="/u3j5ny/k3f8qm" icon={<CalendarPlus size={16} />} label="来店予約" />
           <MenuLink href="/u3j5ny/d7s3xl" icon={<Calendar size={16} />} label="スケジュール" />
           <MenuLink href="/u3j5ny/c6h2zp" icon={<Trophy size={16} />} label="ランキング" />
+          <MenuLink href="/u3j5ny/b3k9wf" icon={<Wallet size={16} />} label="保有残高" />
           <MenuLink href="/u3j5ny/h4n6pw" icon={<Coins size={16} />} label="チップ残高" />
           <MenuLink href="/u3j5ny/q2s9xf" icon={<Trophy size={16} />} label="ポイント" />
           <MenuLink href="/u3j5ny/m7k3rb" icon={<Sparkles size={16} />} label="マルチケ" />

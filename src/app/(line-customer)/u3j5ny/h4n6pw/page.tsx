@@ -32,22 +32,26 @@ export default function ChipsPage() {
         {/* 履歴 */}
         <section>
           <h2 className="ln-h2" style={{ marginBottom: 8 }}>チップ履歴</h2>
-          <div className="ln-list">
-            {chips.map(c => (
-              <div key={c.id} className="ln-list__item" style={{ justifyContent: "space-between" }}>
-                <div>
-                  <span className="ln-mute" style={{ marginRight: 8 }}>{c.date}</span>
-                  <span>{c.reason}</span>
+          {chips.length === 0 ? (
+            <p className="ln-empty">チップ履歴はまだありません</p>
+          ) : (
+            <div className="ln-list">
+              {chips.map(c => (
+                <div key={c.id} className="ln-list__item" style={{ justifyContent: "space-between" }}>
+                  <div>
+                    <span className="ln-mute" style={{ marginRight: 8 }}>{c.date}</span>
+                    <span>{c.reason}</span>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <span className="ln-num" style={{ fontWeight: 700, color: c.change > 0 ? "var(--ln-accent-text)" : "var(--ln-danger)" }}>
+                      {c.change > 0 ? "+" : ""}{c.change.toLocaleString()}
+                    </span>
+                    <span className="ln-mute ln-num" style={{ marginLeft: 8 }}>→{c.balance.toLocaleString()}</span>
+                  </div>
                 </div>
-                <div style={{ textAlign: "right" }}>
-                  <span className="ln-num" style={{ fontWeight: 700, color: c.change > 0 ? "var(--ln-accent-text)" : "var(--ln-danger)" }}>
-                    {c.change > 0 ? "+" : ""}{c.change.toLocaleString()}
-                  </span>
-                  <span className="ln-mute ln-num" style={{ marginLeft: 8 }}>→{c.balance.toLocaleString()}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>

@@ -44,8 +44,6 @@ export default function MemberLiveStatusPage() {
             </div>
           ))}
         </div>
-
-        <p className="ln-mute" style={{ fontSize: 11, margin: 0 }}>データは数分おきに更新されます</p>
       </div>
     </div>
   );

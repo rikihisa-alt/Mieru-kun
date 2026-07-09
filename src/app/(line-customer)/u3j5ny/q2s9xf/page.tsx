@@ -32,20 +32,24 @@ export default function PointsPage() {
         {/* 履歴 */}
         <section>
           <h2 className="ln-h2" style={{ marginBottom: 8 }}>ポイント履歴</h2>
-          <div className="ln-list">
-            {points.map(p => (
-              <div key={p.id} className="ln-list__item" style={{ justifyContent: "space-between" }}>
-                <div>
-                  <span className="ln-mute" style={{ marginRight: 8 }}>{p.date}</span>
-                  <span>{p.reason}</span>
+          {points.length === 0 ? (
+            <p className="ln-empty">ポイント履歴はまだありません</p>
+          ) : (
+            <div className="ln-list">
+              {points.map(p => (
+                <div key={p.id} className="ln-list__item" style={{ justifyContent: "space-between" }}>
+                  <div>
+                    <span className="ln-mute" style={{ marginRight: 8 }}>{p.date}</span>
+                    <span>{p.reason}</span>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <span className="ln-num" style={{ fontWeight: 700, color: "var(--ln-accent-text)" }}>+{p.change.toLocaleString()}</span>
+                    <span className="ln-mute ln-num" style={{ marginLeft: 8 }}>→{p.balance.toLocaleString()}pt</span>
+                  </div>
                 </div>
-                <div style={{ textAlign: "right" }}>
-                  <span className="ln-num" style={{ fontWeight: 700, color: "var(--ln-accent-text)" }}>+{p.change.toLocaleString()}</span>
-                  <span className="ln-mute ln-num" style={{ marginLeft: 8 }}>→{p.balance.toLocaleString()}pt</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>

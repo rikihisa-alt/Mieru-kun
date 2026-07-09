@@ -15,16 +15,20 @@ export default function VisitHistoryPage() {
           <ArrowLeft size={14} />戻る
         </Link>
         <h2 className="ln-h1">来店履歴</h2>
-        <div className="ln-stack-sm">
-          {history.map(h => (
-            <div key={h.id} className="ln-card ln-card-compact">
-              <div className="ln-mute" style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
-                <span>{h.date}</span><span>{h.stay}</span>
+        {history.length === 0 ? (
+          <p className="ln-empty">来店履歴はまだありません</p>
+        ) : (
+          <div className="ln-stack-sm">
+            {history.map(h => (
+              <div key={h.id} className="ln-card ln-card-compact">
+                <div className="ln-mute" style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                  <span>{h.date}</span><span>{h.stay}</span>
+                </div>
+                <p className="ln-num" style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>¥{h.amount.toLocaleString()}</p>
               </div>
-              <p className="ln-num" style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>¥{h.amount.toLocaleString()}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -29,7 +29,7 @@ interface Row {
   delta?: number;
 }
 
-const DATA: Record<Metric, Row[]> = {
+const MONTHLY_DATA: Record<Metric, Row[]> = {
   total: [
     { rank: 1, nickname: "ハナ", value: 8420, delta: 0 },
     { rank: 2, nickname: "タロウ", value: 6830, delta: +1 },
@@ -78,11 +78,115 @@ const DATA: Record<Metric, Row[]> = {
   ],
 };
 
+const SEASON_DATA: Record<Metric, Row[]> = {
+  total: [
+    { rank: 1, nickname: "ユウ", value: 21500, delta: +2 },
+    { rank: 2, nickname: "ハナ", value: 19800, delta: -1 },
+    { rank: 3, nickname: "あなた", value: 14200, self: true, delta: +3 },
+    { rank: 4, nickname: "タロウ", value: 13650, delta: -1 },
+    { rank: 5, nickname: "ケン", value: 9700, delta: 0 },
+    { rank: 6, nickname: "ダイ", value: 6400, delta: -1 },
+    { rank: 7, nickname: "ショウ", value: 5200, delta: 0 },
+  ],
+  visits: [
+    { rank: 1, nickname: "ユウ", value: 74 },
+    { rank: 2, nickname: "ハナ", value: 68 },
+    { rank: 3, nickname: "タロウ", value: 55 },
+    { rank: 4, nickname: "あなた", value: 41, self: true },
+    { rank: 5, nickname: "ケン", value: 30 },
+  ],
+  points: [
+    { rank: 1, nickname: "ハナ", value: 9600 },
+    { rank: 2, nickname: "あなた", value: 7400, self: true },
+    { rank: 3, nickname: "タロウ", value: 7100 },
+    { rank: 4, nickname: "ユウ", value: 6200 },
+    { rank: 5, nickname: "ショウ", value: 4100 },
+  ],
+  ring_net: [
+    { rank: 1, nickname: "タロウ", value: 41000 },
+    { rank: 2, nickname: "ハナ", value: 33500 },
+    { rank: 3, nickname: "あなた", value: 15800, self: true },
+    { rank: 4, nickname: "ユウ", value: 12200 },
+  ],
+  tournaments: [
+    { rank: 1, nickname: "あなた", value: 26, self: true },
+    { rank: 2, nickname: "タロウ", value: 24 },
+    { rank: 3, nickname: "ケン", value: 19 },
+    { rank: 4, nickname: "ハナ", value: 15 },
+  ],
+  multike: [
+    { rank: 1, nickname: "ユウ", value: 96 },
+    { rank: 2, nickname: "ハナ", value: 88 },
+    { rank: 3, nickname: "タロウ", value: 52 },
+    { rank: 4, nickname: "あなた", value: 49, self: true },
+  ],
+  sns: [
+    { rank: 1, nickname: "ハナ", value: 61 },
+    { rank: 2, nickname: "ユウ", value: 40 },
+    { rank: 3, nickname: "あなた", value: 33, self: true },
+  ],
+};
+
+const ALL_TIME_DATA: Record<Metric, Row[]> = {
+  total: [
+    { rank: 1, nickname: "ハナ", value: 68400, delta: 0 },
+    { rank: 2, nickname: "タロウ", value: 55200, delta: 0 },
+    { rank: 3, nickname: "ユウ", value: 49800, delta: +1 },
+    { rank: 4, nickname: "あなた", value: 31200, self: true, delta: +2 },
+    { rank: 5, nickname: "ケン", value: 27600, delta: -1 },
+    { rank: 6, nickname: "ダイ", value: 18300, delta: -1 },
+    { rank: 7, nickname: "ショウ", value: 15100, delta: 0 },
+  ],
+  visits: [
+    { rank: 1, nickname: "ハナ", value: 312 },
+    { rank: 2, nickname: "タロウ", value: 268 },
+    { rank: 3, nickname: "ユウ", value: 201 },
+    { rank: 4, nickname: "あなた", value: 156, self: true },
+    { rank: 5, nickname: "ケン", value: 122 },
+  ],
+  points: [
+    { rank: 1, nickname: "ハナ", value: 42000 },
+    { rank: 2, nickname: "タロウ", value: 33500 },
+    { rank: 3, nickname: "ユウ", value: 28800 },
+    { rank: 4, nickname: "あなた", value: 19600, self: true },
+    { rank: 5, nickname: "ショウ", value: 14200 },
+  ],
+  ring_net: [
+    { rank: 1, nickname: "ハナ", value: 210000 },
+    { rank: 2, nickname: "タロウ", value: 158000 },
+    { rank: 3, nickname: "ユウ", value: 96000 },
+    { rank: 4, nickname: "あなた", value: 44500, self: true },
+  ],
+  tournaments: [
+    { rank: 1, nickname: "タロウ", value: 132 },
+    { rank: 2, nickname: "ケン", value: 98 },
+    { rank: 3, nickname: "あなた", value: 61, self: true },
+    { rank: 4, nickname: "ハナ", value: 57 },
+  ],
+  multike: [
+    { rank: 1, nickname: "ハナ", value: 480 },
+    { rank: 2, nickname: "ユウ", value: 415 },
+    { rank: 3, nickname: "あなた", value: 203, self: true },
+    { rank: 4, nickname: "タロウ", value: 189 },
+  ],
+  sns: [
+    { rank: 1, nickname: "ハナ", value: 205 },
+    { rank: 2, nickname: "あなた", value: 118, self: true },
+    { rank: 3, nickname: "ユウ", value: 110 },
+  ],
+};
+
+const DATA_BY_PERIOD: Record<Period, Record<Metric, Row[]>> = {
+  monthly: MONTHLY_DATA,
+  season: SEASON_DATA,
+  all_time: ALL_TIME_DATA,
+};
+
 export default function MemberRankingPage() {
   const [metric, setMetric] = useState<Metric>("total");
   const [period, setPeriod] = useState<Period>("monthly");
 
-  const rows = DATA[metric];
+  const rows = DATA_BY_PERIOD[period][metric];
   const me = rows.find(r => r.self);
   const top3 = rows.slice(0, 3);
   const rest = rows.slice(3);

@@ -8,7 +8,7 @@ export default function MultikePage() {
 
   const history = [
     { id: "1", date: "04/10", change: +5, reason: "キャンペーン配布: 春の感謝祭", balance: 12, expiresAt: "2026-06-30" },
-    { id: "2", date: "04/05", change: +3, reason: "手動付与", balance: 7, expiresAt: "2026-05-30" },
+    { id: "2", date: "04/05", change: +3, reason: "スタッフ特典", balance: 7, expiresAt: "2026-05-30" },
     { id: "3", date: "04/01", change: -2, reason: "消化", balance: 4, expiresAt: null },
     { id: "4", date: "03/20", change: +6, reason: "来店特典", balance: 6, expiresAt: "2026-05-20" },
   ];

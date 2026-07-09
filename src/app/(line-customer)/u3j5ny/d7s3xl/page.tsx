@@ -49,12 +49,14 @@ function dateLabel(iso: string): string {
 export default function MemberSchedulePage() {
   const [filter, setFilter] = useState<"all" | "mine" | EventItem["category"]>("all");
   const [viewMonth, setViewMonth] = useState(() => {
-    const d = new Date(2026, 3); // 2026/04
+    const d = new Date();
     return { y: d.getFullYear(), m: d.getMonth() };
   });
   const [events, setEvents] = useState(EVENTS);
 
   function toggleReserve(id: string) {
+    const target = events.find(e => e.id === id);
+    if (target?.myReserved && !confirm("予約をキャンセルしますか？")) return;
     setEvents(prev => prev.map(e =>
       e.id === id ? {
         ...e,

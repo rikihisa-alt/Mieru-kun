@@ -36,12 +36,13 @@ export default function LineStaffLayout({ children }: { children: React.ReactNod
           onClick={handleLogout}
           className="ln-topbar__icon-btn"
           aria-label="ログアウト"
+          style={{ width: 44, height: 44 }}
         >
           <LogOut size={16} />
         </button>
       </header>
 
-      <main style={{ flex: 1, paddingBottom: 64 }}>{children}</main>
+      <main style={{ flex: 1, paddingBottom: "calc(72px + env(safe-area-inset-bottom))" }}>{children}</main>
 
       {/* ボトムナビ */}
       <nav className="ln-tabbar">

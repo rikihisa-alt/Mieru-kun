@@ -25,6 +25,7 @@ export default function ClockPage() {
   /* eslint-enable react-hooks/set-state-in-effect */
 
   async function act(action: string) {
+    if (action === "clock_out" && !confirm("退勤しますか？")) return;
     setLoading(true); setMsg("");
     const fd = new FormData(); fd.set("action", action);
     const r = await attendanceAction(fd);

@@ -42,7 +42,7 @@ export default function QRScanPage() {
       setMember(m);
       setScanInput("");
     } else {
-      setToast("会員が見つかりません (デモでは c1..c2 の UUID か 0001/0002 でヒット)");
+      setToast("会員が見つかりません。番号をご確認ください");
       setTimeout(() => setToast(""), 2500);
     }
   }
@@ -68,9 +68,6 @@ export default function QRScanPage() {
               <Search size={16} />
             </button>
           </div>
-          <p className="ln-mute" style={{ marginTop: 8, fontSize: 11 }}>
-            ※ 本番ではカメラQR読取 (zxing) を起動
-          </p>
         </div>
 
         {/* 会員カード */}

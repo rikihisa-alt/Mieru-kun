@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft, CheckCircle, ChevronRight, Coffee, Utensils, Bell, Plus, Minus, X, Edit2,
@@ -224,6 +224,7 @@ function OrderShell({ session }: { session: LiffSession }) {
             color: "#fff",
             border: "none",
             padding: "14px 16px",
+            paddingBottom: "calc(14px + env(safe-area-inset-bottom))",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -825,6 +826,3 @@ function DoneScreen({ onBack }: { onBack: () => void }) {
     </div>
   );
 }
-
-// 未使用警告回避
-void useMemo;
