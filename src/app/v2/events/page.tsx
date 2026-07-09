@@ -52,24 +52,26 @@ export default function EventsPage() {
       />
       <Panel>
         {events.length === 0 ? <Empty>イベントがありません</Empty> : (
-          <table className="v2-table">
-            <thead><tr><th>タイトル</th><th>カテゴリ</th><th>日時</th><th className="v2-num-cell">定員/予約</th><th>状態</th><th></th></tr></thead>
-            <tbody>
-              {events.map(e => (
-                <tr key={e.id}>
-                  <td>{e.title}</td>
-                  <td className="v2-sub">{e.category === "tournament" ? "トナメ" : e.category === "party" ? "パーティ" : "キャンペーン"}</td>
-                  <td className="v2-num">{e.date} {e.time}</td>
-                  <td className="v2-num-cell">{e.reservedCount} / {e.capacity}</td>
-                  <td><Chip variant={e.status === "open" ? "success" : e.status === "closed" ? undefined : "warn"}>{e.status === "draft" ? "下書き" : e.status === "open" ? "公開" : "終了"}</Chip></td>
-                  <td>
-                    <Btn size="xs" onClick={() => openEdit(e)}><Pencil size={11} /></Btn>{" "}
-                    <Btn size="xs" variant="danger" onClick={() => remove(e.id)}><Trash2 size={11} /></Btn>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>タイトル</th><th>カテゴリ</th><th>日時</th><th className="v2-num-cell">定員/予約</th><th>状態</th><th></th></tr></thead>
+              <tbody>
+                {events.map(e => (
+                  <tr key={e.id}>
+                    <td>{e.title}</td>
+                    <td className="v2-sub">{e.category === "tournament" ? "トナメ" : e.category === "party" ? "パーティ" : "キャンペーン"}</td>
+                    <td className="v2-num">{e.date} {e.time}</td>
+                    <td className="v2-num-cell">{e.reservedCount} / {e.capacity}</td>
+                    <td><Chip variant={e.status === "open" ? "success" : e.status === "closed" ? undefined : "warn"}>{e.status === "draft" ? "下書き" : e.status === "open" ? "公開" : "終了"}</Chip></td>
+                    <td>
+                      <Btn size="xs" onClick={() => openEdit(e)}><Pencil size={11} /></Btn>{" "}
+                      <Btn size="xs" variant="danger" onClick={() => remove(e.id)}><Trash2 size={11} /></Btn>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
 
@@ -81,7 +83,7 @@ export default function EventsPage() {
       >
         <VStack gap={16}>
           <Field label="タイトル" required><input value={d.title} onChange={(e) => setD({ ...d, title: e.target.value })} /></Field>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div className="v2-form-grid">
             <Field label="カテゴリ">
               <select value={d.category} onChange={(e) => setD({ ...d, category: e.target.value as EventRecord["category"] })}>
                 <option value="tournament">トナメ</option><option value="party">パーティ</option><option value="campaign">キャンペーン</option>

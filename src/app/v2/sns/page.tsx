@@ -523,7 +523,7 @@ function ImagesTab({ images, setImages }: {
               <Btn size="sm" onClick={() => setPreview(null)}><X size={14} /> 閉じる</Btn>
             </HStack>
             <img src={preview.dataUrl} alt={preview.title} style={{ maxWidth: "100%", maxHeight: "75vh", borderRadius: 8, objectFit: "contain" }} />
-            <div style={{ color: "#fff", fontSize: 13 }}>{preview.title}（{formatBytes(preview.size)}）</div>
+            <div style={{ color: "var(--v2-bg)", fontSize: 13 }}>{preview.title}（{formatBytes(preview.size)}）</div>
           </div>
         </div>
       )}
@@ -558,21 +558,23 @@ function LogsTab({ logs }: { logs: PostLog[] }) {
 
       <Panel title={`投稿履歴（${sorted.length}件）`}>
         {sorted.length === 0 ? <Empty>投稿記録がありません</Empty> : (
-          <table className="v2-table">
-            <thead>
-              <tr><th>日付</th><th>曜日</th><th>媒体</th><th>タイトル</th></tr>
-            </thead>
-            <tbody>
-              {sorted.map(l => (
-                <tr key={l.key}>
-                  <td>{l.dateStr}</td>
-                  <td>{l.weekday}曜日</td>
-                  <td><Chip variant={mediumChipVariant(l.medium)}>{l.medium}</Chip></td>
-                  <td>{l.title}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead>
+                <tr><th>日付</th><th>曜日</th><th>媒体</th><th>タイトル</th></tr>
+              </thead>
+              <tbody>
+                {sorted.map(l => (
+                  <tr key={l.key}>
+                    <td>{l.dateStr}</td>
+                    <td>{l.weekday}曜日</td>
+                    <td><Chip variant={mediumChipVariant(l.medium)}>{l.medium}</Chip></td>
+                    <td>{l.title}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
     </VStack>

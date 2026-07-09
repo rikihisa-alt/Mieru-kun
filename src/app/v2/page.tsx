@@ -38,7 +38,7 @@ export default function DashboardPage() {
   const unpaidTotal = unpaidOrders.reduce((s, o) => s + o.total, 0);
 
   return (
-    <VStack gap={20}>
+    <VStack gap={16}>
       <PageHeader
         title="ダッシュボード"
         action={
@@ -105,7 +105,7 @@ export default function DashboardPage() {
         )}
       </Panel>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
         {/* 本日予約 */}
         <Panel title="本日予約" action={<Link href="/v2/reservations" className="v2-mute" style={{ fontSize: 12 }}>全て →</Link>}>
           {todayReservations.length === 0 ? (
@@ -174,7 +174,7 @@ export default function DashboardPage() {
       </Panel>
 
       {/* 顧客KPI */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
         <Panel title="顧客サマリ">
           <Kpis>
             <Kpi label="登録顧客" value={customers.length} />

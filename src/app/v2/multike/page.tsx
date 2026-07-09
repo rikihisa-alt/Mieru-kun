@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { customerStore, type CustomerRank } from "@/lib/store/domain-stores";
-import { PageHeader, Panel, Field, VStack, Btn, Kpis, Kpi, Empty } from "@/components/v2/ui";
+import { PageHeader, Panel, Field, VStack, Btn, Kpis, Kpi, Empty, FilterChips, RankBadge } from "@/components/v2/ui";
 import { Send } from "lucide-react";
 
 type TargetMode = "all" | "rank" | "individual";
@@ -83,16 +83,18 @@ export default function MultikePage() {
       </Kpis>
 
       <Panel title="配布設定">
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div className="v2-form-grid">
           <Field label="1人あたり枚数"><input type="number" value={amount} onChange={(e) => setAmount(parseInt(e.target.value) || 0)} /></Field>
           <Field label="配布理由" required><input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="春の感謝祭キャンペーン" /></Field>
         </div>
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          <Btn size="sm" variant={mode === "all" ? "primary" : "default"} onClick={() => setMode("all")}>全員 ({customers.length}名)</Btn>
-          <Btn size="sm" variant={mode === "rank" ? "primary" : "default"} onClick={() => setMode("rank")}>ランク別</Btn>
-          <Btn size="sm" variant={mode === "individual" ? "primary" : "default"} onClick={() => setMode("individual")}>個人選択</Btn>
+        <div className="v2-toolbar" style={{ marginTop: 12 }}>
+          <FilterChips value={mode} onChange={(v) => setMode(v as TargetMode)} items={[
+            { value: "all", label: `全員 (${customers.length}名)` },
+            { value: "rank", label: "ランク別" },
+            { value: "individual", label: "個人選択" },
+          ]} />
           {mode === "rank" && (
-            <select value={rank} onChange={(e) => setRank(e.target.value as CustomerRank)} style={{ marginLeft: 8 }}>
+            <select value={rank} onChange={(e) => setRank(e.target.value as CustomerRank)} style={{ marginLeft: 8, width: "auto" }}>
               {(Object.keys(RANK_LABEL) as CustomerRank[]).map(r => (
                 <option key={r} value={r}>{RANK_LABEL[r]} ({customers.filter(c => c.rank === r).length}名)</option>
               ))}
@@ -104,40 +106,44 @@ export default function MultikePage() {
       {mode === "individual" && (
         <Panel title="対象選択">
           {customers.length === 0 ? <Empty>顧客がいません</Empty> : (
-            <table className="v2-table">
-              <thead><tr><th></th><th>名前</th><th>ランク</th><th>マルチケ残高</th></tr></thead>
-              <tbody>
-                {customers.map(c => (
-                  <tr key={c.id}>
-                    <td style={{ width: 30 }}><input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} style={{ width: 14, height: 14 }} /></td>
-                    <td>{c.nickname || c.name}{c.nickname && <span className="v2-mute" style={{ marginLeft: 6, fontSize: 11 }}>{c.name}</span>}</td>
-                    <td className="v2-mute">{RANK_LABEL[c.rank]}</td>
-                    <td className="v2-mute">{(c.multikeBalance ?? 0).toLocaleString()}枚</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="v2-table-wrap">
+              <table className="v2-table">
+                <thead><tr><th></th><th>名前</th><th>ランク</th><th className="v2-num-cell">マルチケ残高</th></tr></thead>
+                <tbody>
+                  {customers.map(c => (
+                    <tr key={c.id}>
+                      <td style={{ width: 30 }}><input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} style={{ width: 14, height: 14 }} /></td>
+                      <td>{c.nickname || c.name}{c.nickname && <span className="v2-mute" style={{ marginLeft: 6, fontSize: 11 }}>{c.name}</span>}</td>
+                      <td>{c.rank === "regular" ? <span className="v2-mute">{RANK_LABEL[c.rank]}</span> : <RankBadge rank={c.rank} />}</td>
+                      <td className="v2-num-cell">{(c.multikeBalance ?? 0).toLocaleString()}枚</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </Panel>
       )}
 
       <Panel title={`配布履歴 (直近${history.length}件)`}>
         {history.length === 0 ? <Empty>配布履歴がありません</Empty> : (
-          <table className="v2-table">
-            <thead><tr><th>日時</th><th>対象</th><th>1人あたり</th><th>対象人数</th><th>合計</th><th>理由</th></tr></thead>
-            <tbody>
-              {history.map(h => (
-                <tr key={h.id}>
-                  <td className="v2-mute" style={{ fontSize: 12 }}>{h.at}</td>
-                  <td>{h.targetLabel}</td>
-                  <td>{h.amount}枚</td>
-                  <td>{h.targetCount}名</td>
-                  <td>{h.totalAmount.toLocaleString()}枚</td>
-                  <td className="v2-mute" style={{ fontSize: 12 }}>{h.reason}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>日時</th><th>対象</th><th className="v2-num-cell">1人あたり</th><th className="v2-num-cell">対象人数</th><th className="v2-num-cell">合計</th><th>理由</th></tr></thead>
+              <tbody>
+                {history.map(h => (
+                  <tr key={h.id}>
+                    <td className="v2-mute" style={{ fontSize: 12 }}>{h.at}</td>
+                    <td>{h.targetLabel}</td>
+                    <td className="v2-num-cell">{h.amount}枚</td>
+                    <td className="v2-num-cell">{h.targetCount}名</td>
+                    <td className="v2-num-cell">{h.totalAmount.toLocaleString()}枚</td>
+                    <td className="v2-mute" style={{ fontSize: 12 }}>{h.reason}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
     </VStack>

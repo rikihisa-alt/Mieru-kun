@@ -59,52 +59,54 @@ export default function ProductsPage() {
         action={<Btn variant="primary" onClick={openCreate}><Plus size={14} /> 追加</Btn>}
       />
 
-      <div className="v2-panel">
-        <table className="v2-table">
-          <thead>
-            <tr>
-              <th>商品名</th>
-              <th>カテゴリ</th>
-              <th className="v2-num-cell">価格</th>
-              <th className="v2-num-cell">原価</th>
-              <th className="v2-num-cell">在庫</th>
-              <th>状態</th>
-              <th style={{ width: 120 }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.length === 0 ? (
-              <tr><td colSpan={7}><Empty>商品がありません</Empty></td></tr>
-            ) : products.map(p => {
-              const lowStock = p.stock != null && p.minStock != null && p.stock <= p.minStock;
-              return (
-                <tr key={p.id}>
-                  <td>{p.name}</td>
-                  <td className="v2-sub">{CATEGORY_LABEL[p.category]}</td>
-                  <td className="v2-num-cell">¥{p.price.toLocaleString()}</td>
-                  <td className="v2-num-cell v2-sub">{p.cost ? `¥${p.cost.toLocaleString()}` : "—"}</td>
-                  <td className="v2-num-cell">
-                    {p.stock == null ? <span className="v2-mute">—</span>
-                     : lowStock ? <Chip variant="danger">{p.stock}</Chip>
-                     : p.stock}
-                  </td>
-                  <td>
-                    <button onClick={() => toggleActive(p.id)} className="v2-btn-ghost" style={{ padding: 0 }}>
-                      <Chip variant={p.active ? "success" : undefined}>{p.active ? "販売中" : "停止"}</Chip>
-                    </button>
-                  </td>
-                  <td>
-                    <HStack gap={4}>
-                      <Btn size="xs" onClick={() => openEdit(p)}><Pencil size={11} /></Btn>
-                      <Btn size="xs" variant="danger" onClick={() => remove(p.id)}><Trash2 size={11} /></Btn>
-                    </HStack>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <Panel>
+        <div className="v2-table-wrap">
+          <table className="v2-table">
+            <thead>
+              <tr>
+                <th>商品名</th>
+                <th>カテゴリ</th>
+                <th className="v2-num-cell">価格</th>
+                <th className="v2-num-cell">原価</th>
+                <th className="v2-num-cell">在庫</th>
+                <th>状態</th>
+                <th style={{ width: 120 }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.length === 0 ? (
+                <tr><td colSpan={7}><Empty>商品がありません</Empty></td></tr>
+              ) : products.map(p => {
+                const lowStock = p.stock != null && p.minStock != null && p.stock <= p.minStock;
+                return (
+                  <tr key={p.id}>
+                    <td>{p.name}</td>
+                    <td className="v2-sub">{CATEGORY_LABEL[p.category]}</td>
+                    <td className="v2-num-cell">¥{p.price.toLocaleString()}</td>
+                    <td className="v2-num-cell v2-sub">{p.cost ? `¥${p.cost.toLocaleString()}` : "—"}</td>
+                    <td className="v2-num-cell">
+                      {p.stock == null ? <span className="v2-mute">—</span>
+                       : lowStock ? <Chip variant="danger">{p.stock}</Chip>
+                       : p.stock}
+                    </td>
+                    <td>
+                      <button onClick={() => toggleActive(p.id)} className="v2-btn-ghost" style={{ padding: 0 }}>
+                        <Chip variant={p.active ? "success" : undefined}>{p.active ? "販売中" : "停止"}</Chip>
+                      </button>
+                    </td>
+                    <td>
+                      <HStack gap={4}>
+                        <Btn size="xs" onClick={() => openEdit(p)}><Pencil size={11} /></Btn>
+                        <Btn size="xs" variant="danger" onClick={() => remove(p.id)}><Trash2 size={11} /></Btn>
+                      </HStack>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
 
       <Modal
         open={modalOpen}
@@ -114,7 +116,7 @@ export default function ProductsPage() {
       >
         <VStack gap={16}>
           <Field label="商品名" required><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /></Field>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          <div className="v2-form-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))" }}>
             <Field label="販売価格"><input type="number" value={draft.price} onChange={(e) => setDraft({ ...draft, price: parseInt(e.target.value) || 0 })} /></Field>
             <Field label="原価"><input type="number" value={draft.cost ?? 0} onChange={(e) => setDraft({ ...draft, cost: parseInt(e.target.value) || 0 })} /></Field>
             <Field label="カテゴリ">
@@ -128,7 +130,7 @@ export default function ProductsPage() {
             在庫を管理する
           </label>
           {trackStock && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="v2-form-grid">
               <Field label="現在の在庫数"><input type="number" value={draft.stock ?? 0} onChange={(e) => setDraft({ ...draft, stock: parseInt(e.target.value) || 0 })} /></Field>
               <Field label="アラート閾値" hint="この数以下で在庫不足アラート"><input type="number" value={draft.minStock ?? 0} onChange={(e) => setDraft({ ...draft, minStock: parseInt(e.target.value) || 0 })} /></Field>
             </div>

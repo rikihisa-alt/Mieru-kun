@@ -46,22 +46,24 @@ export default function PointRulesPage() {
       <PageHeader title="ポイントルール" sub={`${rules.length}件`} action={<Btn variant="primary" onClick={openCreate}><Plus size={14}/> 追加</Btn>} />
       <Panel>
         {rules.length === 0 ? <Empty>ルールがありません</Empty> : (
-          <table className="v2-table">
-            <thead><tr><th>優先度</th><th>ルール</th><th>種別</th><th>条件</th><th className="v2-num-cell">加算</th><th>状態</th><th></th></tr></thead>
-            <tbody>
-              {rules.map(r => (
-                <tr key={r.id}>
-                  <td className="v2-num v2-sub">{r.priority}</td>
-                  <td>{r.name}{r.description && <div className="v2-mute" style={{ fontSize: 11 }}>{r.description}</div>}</td>
-                  <td><Chip variant={(r.kind ?? "memo") === "memo" ? undefined : "success"}>{KIND_LABEL[r.kind ?? "memo"]}</Chip></td>
-                  <td className="v2-sub" style={{ fontFamily: "var(--v2-num)", fontSize: 12 }}>{r.conditionText}</td>
-                  <td className="v2-num-cell">+{r.points}</td>
-                  <td><button onClick={() => toggle(r.id)} className="v2-btn-ghost" style={{ padding: 0 }}><Chip variant={r.isActive ? "success" : undefined}>{r.isActive ? "有効" : "停止"}</Chip></button></td>
-                  <td><Btn size="xs" onClick={() => openEdit(r)}><Pencil size={11}/></Btn>{" "}<Btn size="xs" variant="danger" onClick={() => remove(r.id)}><Trash2 size={11}/></Btn></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>優先度</th><th>ルール</th><th>種別</th><th>条件</th><th className="v2-num-cell">加算</th><th>状態</th><th></th></tr></thead>
+              <tbody>
+                {rules.map(r => (
+                  <tr key={r.id}>
+                    <td className="v2-num v2-sub">{r.priority}</td>
+                    <td>{r.name}{r.description && <div className="v2-mute" style={{ fontSize: 11 }}>{r.description}</div>}</td>
+                    <td><Chip variant={(r.kind ?? "memo") === "memo" ? undefined : "success"}>{KIND_LABEL[r.kind ?? "memo"]}</Chip></td>
+                    <td className="v2-sub" style={{ fontFamily: "var(--v2-num)", fontSize: 12 }}>{r.conditionText}</td>
+                    <td className="v2-num-cell">+{r.points}</td>
+                    <td><button onClick={() => toggle(r.id)} className="v2-btn-ghost" style={{ padding: 0 }}><Chip variant={r.isActive ? "success" : undefined}>{r.isActive ? "有効" : "停止"}</Chip></button></td>
+                    <td><Btn size="xs" onClick={() => openEdit(r)}><Pencil size={11}/></Btn>{" "}<Btn size="xs" variant="danger" onClick={() => remove(r.id)}><Trash2 size={11}/></Btn></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
 
@@ -85,7 +87,7 @@ export default function PointRulesPage() {
           )}
 
           {d.kind === "spend" && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="v2-form-grid">
               <Field label="利用額の単位(円)"><input inputMode="numeric" value={d.spendUnit ?? 0} onChange={(e) => setD({ ...d, spendUnit: toHalfWidthNumber(e.target.value) })} placeholder="例: 1000" /></Field>
               <Field label="単位ごとの加算ポイント"><input inputMode="numeric" value={d.points} onChange={(e) => setD({ ...d, points: toHalfWidthNumber(e.target.value) })} placeholder="例: 50" /></Field>
             </div>

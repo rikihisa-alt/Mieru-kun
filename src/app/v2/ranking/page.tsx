@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { customerStore } from "@/lib/store/domain-stores";
-import { PageHeader, Panel, VStack, Tabs, Empty } from "@/components/v2/ui";
+import { PageHeader, Panel, VStack, Tabs, Empty, RankBadge } from "@/components/v2/ui";
 
 type Metric = "visits" | "spent" | "chip" | "point";
 
@@ -36,19 +36,21 @@ export default function RankingPage() {
       ]} />
       <Panel>
         {sorted.length === 0 ? <Empty>データがありません</Empty> : (
-          <table className="v2-table">
-            <thead><tr><th>順位</th><th>名前</th><th>ランク</th><th className="v2-num-cell">{tab === "visits" ? "来店" : tab === "spent" ? "利用額" : tab === "point" ? "獲得pt" : "チップ"}</th></tr></thead>
-            <tbody>
-              {sorted.map((c, i) => (
-                <tr key={c.id}>
-                  <td className="v2-num" style={{ width: 50 }}>{i + 1}</td>
-                  <td>{c.nickname || c.name}</td>
-                  <td className="v2-mute">{c.rank}</td>
-                  <td className="v2-num-cell">{fmt(tab === "visits" ? c.totalVisits : tab === "spent" ? c.totalSpent : tab === "point" ? c.pointBalance : c.chipBalance)}{unit}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>順位</th><th>名前</th><th>ランク</th><th className="v2-num-cell">{tab === "visits" ? "来店" : tab === "spent" ? "利用額" : tab === "point" ? "獲得pt" : "チップ"}</th></tr></thead>
+              <tbody>
+                {sorted.map((c, i) => (
+                  <tr key={c.id}>
+                    <td className="v2-num" style={{ width: 50 }}>{i + 1}</td>
+                    <td>{c.nickname || c.name}</td>
+                    <td>{c.rank === "regular" ? <span className="v2-mute">レギュラー</span> : <RankBadge rank={c.rank} />}</td>
+                    <td className="v2-num-cell">{fmt(tab === "visits" ? c.totalVisits : tab === "spent" ? c.totalSpent : tab === "point" ? c.pointBalance : c.chipBalance)}{unit}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
     </VStack>
