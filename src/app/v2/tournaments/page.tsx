@@ -301,29 +301,31 @@ function TournamentListView({
         {tournaments.length === 0 ? (
           <Empty>トーナメントがありません</Empty>
         ) : (
-          <table className="v2-table">
-            <thead>
-              <tr>
-                <th>名前</th><th>開催日</th><th className="v2-num-cell">バイイン</th>
-                <th className="v2-num-cell">参加</th><th>状態</th><th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {tournaments.map((t) => (
-                <tr key={t.id} style={{ cursor: "pointer" }} onClick={() => onOpen(t.id)}>
-                  <td>{t.name}</td>
-                  <td className="v2-sub">{t.date}</td>
-                  <td className="v2-num-cell">{fmtMoney(t.buyIn)}</td>
-                  <td className="v2-num-cell">{t.entrants.length} / {t.capacity}</td>
-                  <td><Chip variant={STATUS_VARIANT[t.status]}>{STATUS_LABEL[t.status]}</Chip></td>
-                  <td onClick={(e) => e.stopPropagation()}>
-                    <Btn size="xs" onClick={() => onOpen(t.id)}><ChevronRight size={11} /> 詳細</Btn>{" "}
-                    <Btn size="xs" variant="danger" onClick={() => remove(t.id)}><Trash2 size={11} /></Btn>
-                  </td>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead>
+                <tr>
+                  <th>名前</th><th>開催日</th><th className="v2-num-cell">バイイン</th>
+                  <th className="v2-num-cell">参加</th><th>状態</th><th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {tournaments.map((t) => (
+                  <tr key={t.id} style={{ cursor: "pointer" }} onClick={() => onOpen(t.id)}>
+                    <td>{t.name}</td>
+                    <td className="v2-sub">{t.date}</td>
+                    <td className="v2-num-cell">{fmtMoney(t.buyIn)}</td>
+                    <td className="v2-num-cell">{t.entrants.length} / {t.capacity}</td>
+                    <td><Chip variant={STATUS_VARIANT[t.status]}>{STATUS_LABEL[t.status]}</Chip></td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <Btn size="xs" onClick={() => onOpen(t.id)}><ChevronRight size={11} /> 詳細</Btn>{" "}
+                      <Btn size="xs" variant="danger" onClick={() => remove(t.id)}><Trash2 size={11} /></Btn>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
 
@@ -336,7 +338,7 @@ function TournamentListView({
       >
         <VStack gap={16}>
           <Field label="名前" required><input value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} /></Field>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div className="v2-form-grid">
             <Field label="開催日" required><input type="date" value={d.date} onChange={(e) => setD({ ...d, date: e.target.value })} /></Field>
             <Field label="参加定員"><input type="number" min={1} value={d.capacity} onChange={(e) => setD({ ...d, capacity: parseInt(e.target.value) || 0 })} /></Field>
             <Field label="バイイン(参加費)"><input type="number" min={0} value={d.buyIn} onChange={(e) => setD({ ...d, buyIn: parseInt(e.target.value) || 0 })} /></Field>
@@ -395,7 +397,7 @@ function BlindStructureEditor({ levels, onChange }: { levels: BlindLevel[]; onCh
         ))}
         <Btn size="xs" onClick={addLevel}><Plus size={11} /> レベル追加</Btn>
       </HStack>
-      <div style={{ maxHeight: 280, overflowY: "auto", border: "1px solid var(--v2-border)", borderRadius: 8 }}>
+      <div className="v2-table-wrap" style={{ maxHeight: 280, overflowY: "auto", border: "1px solid var(--v2-border)", borderRadius: 8 }}>
         <table className="v2-table">
           <thead>
             <tr>
@@ -538,7 +540,7 @@ function OverviewTab({ tournament, update }: { tournament: TournamentRecord; upd
 
   return (
     <VStack gap={16}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
         <Panel title="定義">
           <VStack gap={6}>
             <Row label="開催日" value={tournament.date} />
@@ -592,7 +594,7 @@ function OverviewTab({ tournament, update }: { tournament: TournamentRecord; upd
         <VStack gap={12}>
           {tournament.status === "preparing" && (
             <HStack gap={8} style={{ flexWrap: "wrap" }}>
-              <select value={customerId} onChange={(e) => { setCustomerId(e.target.value); setNameInput(""); }} style={{ minWidth: 200 }}>
+              <select value={customerId} onChange={(e) => { setCustomerId(e.target.value); setNameInput(""); }} style={{ flex: "1 1 200px", minWidth: 0 }}>
                 <option value="">-- 顧客を選択 --</option>
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>{c.nickname || c.name}</option>
@@ -603,7 +605,7 @@ function OverviewTab({ tournament, update }: { tournament: TournamentRecord; upd
                 placeholder="名前を直接入力"
                 value={nameInput}
                 onChange={(e) => { setNameInput(e.target.value); setCustomerId(""); }}
-                style={{ width: 180 }}
+                style={{ flex: "1 1 160px", minWidth: 0 }}
               />
               <Btn variant="primary" size="sm" onClick={addEntrant}><Plus size={12} /> 参加登録</Btn>
             </HStack>
@@ -612,28 +614,30 @@ function OverviewTab({ tournament, update }: { tournament: TournamentRecord; upd
           {tournament.entrants.length === 0 ? (
             <Empty>参加者がいません</Empty>
           ) : (
-            <table className="v2-table">
-              <thead>
-                <tr><th style={{ width: 48 }}>No</th><th>名前</th><th className="v2-num-cell">リエントリー</th><th></th></tr>
-              </thead>
-              <tbody>
-                {tournament.entrants.map((e) => (
-                  <tr key={e.id}>
-                    <td className="v2-num">{e.no}</td>
-                    <td>{e.name}{e.customerId && <Users size={11} style={{ marginLeft: 6, verticalAlign: -1, opacity: 0.5 }} />}</td>
-                    <td className="v2-num-cell">{e.reentries}{tournament.reentryAllowed ? ` / ${tournament.reentryMax}` : ""}</td>
-                    <td>
-                      {tournament.status === "preparing" && tournament.reentryAllowed && (
-                        <Btn size="xs" onClick={() => reentry(e.id)} disabled={e.reentries >= tournament.reentryMax}>リエントリー</Btn>
-                      )}{" "}
-                      {tournament.status === "preparing" && (
-                        <Btn size="xs" variant="danger" onClick={() => removeEntrant(e.id)}><Trash2 size={11} /></Btn>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="v2-table-wrap">
+              <table className="v2-table">
+                <thead>
+                  <tr><th style={{ width: 48 }}>No</th><th>名前</th><th className="v2-num-cell">リエントリー</th><th></th></tr>
+                </thead>
+                <tbody>
+                  {tournament.entrants.map((e) => (
+                    <tr key={e.id}>
+                      <td className="v2-num">{e.no}</td>
+                      <td>{e.name}{e.customerId && <Users size={11} style={{ marginLeft: 6, verticalAlign: -1, opacity: 0.5 }} />}</td>
+                      <td className="v2-num-cell">{e.reentries}{tournament.reentryAllowed ? ` / ${tournament.reentryMax}` : ""}</td>
+                      <td>
+                        {tournament.status === "preparing" && tournament.reentryAllowed && (
+                          <Btn size="xs" onClick={() => reentry(e.id)} disabled={e.reentries >= tournament.reentryMax}>リエントリー</Btn>
+                        )}{" "}
+                        {tournament.status === "preparing" && (
+                          <Btn size="xs" variant="danger" onClick={() => removeEntrant(e.id)}><Trash2 size={11} /></Btn>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </VStack>
       </Panel>
@@ -705,24 +709,26 @@ function PrizeSettingsPanel({ tournament, update, prizePool }: { tournament: Tou
           </div>
         </HStack>
 
-        <table className="v2-table">
-          <thead><tr><th style={{ width: 80 }}>順位</th><th className="v2-num-cell">配分(%)</th><th className="v2-num-cell">金額</th></tr></thead>
-          <tbody>
-            {tournament.prize.distribution.sort((a, b) => a.rank - b.rank).map((d) => (
-              <tr key={d.rank}>
-                <td>{d.rank}位</td>
-                <td className="v2-num-cell">
-                  <input
-                    type="number" min={0} max={100} value={d.percent}
-                    onChange={(e) => updatePercent(d.rank, parseFloat(e.target.value) || 0)}
-                    style={{ width: 72, textAlign: "right" }}
-                  />
-                </td>
-                <td className="v2-num-cell">{fmtMoney(Math.round(prizePool * (d.percent / 100)))}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="v2-table-wrap">
+          <table className="v2-table">
+            <thead><tr><th style={{ width: 80 }}>順位</th><th className="v2-num-cell">配分(%)</th><th className="v2-num-cell">金額</th></tr></thead>
+            <tbody>
+              {tournament.prize.distribution.sort((a, b) => a.rank - b.rank).map((d) => (
+                <tr key={d.rank}>
+                  <td>{d.rank}位</td>
+                  <td className="v2-num-cell">
+                    <input
+                      type="number" min={0} max={100} value={d.percent}
+                      onChange={(e) => updatePercent(d.rank, parseFloat(e.target.value) || 0)}
+                      style={{ width: 72, textAlign: "right" }}
+                    />
+                  </td>
+                  <td className="v2-num-cell">{fmtMoney(Math.round(prizePool * (d.percent / 100)))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <div style={{ fontSize: 12 }} className={totalPercent > 100 ? undefined : "v2-mute"}>
           配分合計: <span className="v2-num" style={{ color: totalPercent > 100 ? "var(--v2-danger)" : undefined, fontWeight: 700 }}>{totalPercent}%</span>
           {totalPercent > 100 && " (100%を超えています)"}
@@ -772,19 +778,21 @@ function RecordResultsPanel({
     <Panel title="順位記録" action={tournament.results.length > 0 ? <Btn size="xs" onClick={undoLast}>直近を取消</Btn> : undefined}>
       <VStack gap={12}>
         {tournament.results.length > 0 && (
-          <table className="v2-table">
-            <thead><tr><th style={{ width: 60 }}>順位</th><th>名前</th><th className="v2-num-cell">獲得プライズ</th><th></th></tr></thead>
-            <tbody>
-              {tournament.results.map((r) => (
-                <tr key={r.entrantId}>
-                  <td className="v2-num">{r.rank}</td>
-                  <td>{r.name}</td>
-                  <td className="v2-num-cell">{fmtMoney(r.prize)}</td>
-                  <td>{r.itm && <Chip variant="success">ITM</Chip>}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th style={{ width: 60 }}>順位</th><th>名前</th><th className="v2-num-cell">獲得プライズ</th><th></th></tr></thead>
+              <tbody>
+                {tournament.results.map((r) => (
+                  <tr key={r.entrantId}>
+                    <td className="v2-num">{r.rank}</td>
+                    <td>{r.name}</td>
+                    <td className="v2-num-cell">{fmtMoney(r.prize)}</td>
+                    <td>{r.itm && <Chip variant="success">ITM</Chip>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
         {remaining.length === 0 ? (
           <Empty>全員の順位を記録しました</Empty>
@@ -809,19 +817,21 @@ function ResultsPanel({ tournament }: { tournament: TournamentRecord }) {
       {tournament.results.length === 0 ? (
         <Empty>結果が記録されていません</Empty>
       ) : (
-        <table className="v2-table">
-          <thead><tr><th style={{ width: 60 }}>順位</th><th>名前</th><th className="v2-num-cell">獲得プライズ</th><th></th></tr></thead>
-          <tbody>
-            {tournament.results.map((r) => (
-              <tr key={r.entrantId}>
-                <td className="v2-num">{r.rank}</td>
-                <td>{r.name}</td>
-                <td className="v2-num-cell">{fmtMoney(r.prize)}</td>
-                <td>{r.itm && <Chip variant="success">ITM</Chip>}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="v2-table-wrap">
+          <table className="v2-table">
+            <thead><tr><th style={{ width: 60 }}>順位</th><th>名前</th><th className="v2-num-cell">獲得プライズ</th><th></th></tr></thead>
+            <tbody>
+              {tournament.results.map((r) => (
+                <tr key={r.entrantId}>
+                  <td className="v2-num">{r.rank}</td>
+                  <td>{r.name}</td>
+                  <td className="v2-num-cell">{fmtMoney(r.prize)}</td>
+                  <td>{r.itm && <Chip variant="success">ITM</Chip>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </Panel>
   );

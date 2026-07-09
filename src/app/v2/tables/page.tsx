@@ -83,7 +83,7 @@ interface WaitEntry {
 }
 
 const RANK_COLOR: Record<CustomerRank, string> = {
-  vip: "#7c3aed", gold: "#d97706", silver: "#6b7280", regular: "#9ca3af",
+  vip: "var(--v2-rank-vip)", gold: "var(--v2-rank-gold)", silver: "var(--v2-rank-silver)", regular: "var(--v2-rank-regular)",
 };
 const RANK_LABEL: Record<CustomerRank, string> = {
   vip: "VIP", gold: "Gold", silver: "Silver", regular: "",
@@ -479,14 +479,14 @@ export default function TablesPage() {
         {tables.length === 0 ? (
           <div className="v2-panel"><div className="v2-panel-body"><Empty>卓が登録されていません。「卓を追加」から登録してください。</Empty></div></div>
         ) : (
-          <div style={{ overflow: "auto", borderRadius: "var(--v2-radius-lg)" }}>
+          <div className="v2-table-wrap" style={{ borderRadius: "var(--v2-radius-lg)", overflowY: "auto" }}>
             <div
               ref={floorRef}
               style={{
                 position: "relative",
                 minWidth: 900,
                 height: 680,
-                background: "#fff",
+                background: "var(--v2-bg)",
                 boxShadow: "var(--v2-shadow-md)",
                 borderRadius: "var(--v2-radius-lg)",
                 backgroundImage: "radial-gradient(circle, rgba(28,46,36,0.06) 1px, transparent 1px)",
@@ -722,7 +722,7 @@ function VisitChip({ visit, dragging }: { visit: Visit; dragging?: boolean }) {
       style={{
         display: "inline-flex", alignItems: "center", gap: 6,
         padding: "4px 10px 4px 4px",
-        background: dragging ? "var(--v2-accent-soft)" : "#fff",
+        background: dragging ? "var(--v2-accent-soft)" : "var(--v2-bg)",
         border: dragging ? `1px solid var(--v2-accent)` : "1px solid var(--v2-border)",
         borderRadius: 999,
         fontSize: 12, fontWeight: 500,
@@ -732,7 +732,7 @@ function VisitChip({ visit, dragging }: { visit: Visit; dragging?: boolean }) {
     >
       <span style={{
         width: 22, height: 22, borderRadius: 999,
-        background: RANK_COLOR[visit.rank], color: "#fff",
+        background: RANK_COLOR[visit.rank], color: "var(--v2-bg)",
         display: "inline-flex", alignItems: "center", justifyContent: "center",
         fontSize: 10, fontWeight: 700,
       }}>{initial}</span>
@@ -823,7 +823,7 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
         ref={setDropRef}
         style={{
           opacity: isDragging ? 0.5 : 1,
-          background: "#fff",
+          background: "var(--v2-bg)",
           borderRadius: "var(--v2-radius-lg)",
           boxShadow: "var(--v2-shadow-md)",
           overflow: "hidden",
@@ -1115,7 +1115,7 @@ function MoveModal({ visit, tables, visits, alreadyWaitlisted, onClose, onMove, 
             style={{
               width: "100%", textAlign: "left",
               padding: "10px 12px", borderRadius: 8,
-              border: "1px solid var(--v2-border)", background: "#fff",
+              border: "1px solid var(--v2-border)", background: "var(--v2-bg)",
               display: "flex", alignItems: "center", gap: 8, cursor: "pointer",
             }}
           >
@@ -1135,7 +1135,7 @@ function MoveModal({ visit, tables, visits, alreadyWaitlisted, onClose, onMove, 
                 style={{
                   border: "1px solid var(--v2-border)",
                   borderRadius: 8,
-                  background: "#fff",
+                  background: "var(--v2-bg)",
                 }}
               >
                 <div style={{
@@ -1266,19 +1266,11 @@ function DealerRunPanel({ run, onAdd, onRemove, onMove }: {
   }
 
   return (
-    <div
-      style={{
-        background: "var(--v2-card)",
-        borderRadius: "var(--v2-radius-lg)",
-        boxShadow: "var(--v2-shadow-md)",
-        border: "1px solid rgba(28, 46, 36, 0.05)",
-        overflow: "hidden",
-      }}
-    >
+    <div className="v2-panel" style={{ overflow: "hidden" }}>
       <button
         onClick={() => setOpen(v => !v)}
         style={{
-          width: "100%", padding: "10px 14px",
+          width: "100%", minHeight: 40, padding: "10px 14px",
           display: "flex", alignItems: "center", gap: 10,
           background: "transparent", border: 0, cursor: "pointer",
           textAlign: "left",
@@ -1325,7 +1317,7 @@ function DealerRunPanel({ run, onAdd, onRemove, onMove }: {
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 4,
                     padding: "4px 4px 4px 10px",
-                    background: i === 0 ? "var(--v2-accent-soft)" : "#fff",
+                    background: i === 0 ? "var(--v2-accent-soft)" : "var(--v2-bg)",
                     border: i === 0 ? "1px solid var(--v2-accent)" : "1px solid var(--v2-border)",
                     borderRadius: 999,
                     fontSize: 12,
@@ -1342,8 +1334,9 @@ function DealerRunPanel({ run, onAdd, onRemove, onMove }: {
                     onClick={() => onMove(name, -1)}
                     disabled={i === 0}
                     title="上へ"
+                    className="v2-btn-ghost"
                     style={{
-                      width: 20, height: 20, border: 0, background: "transparent",
+                      width: 24, height: 24, borderRadius: 6,
                       cursor: i === 0 ? "not-allowed" : "pointer",
                       opacity: i === 0 ? 0.3 : 0.7,
                       color: "var(--v2-text-sub)",
@@ -1357,8 +1350,9 @@ function DealerRunPanel({ run, onAdd, onRemove, onMove }: {
                     onClick={() => onMove(name, 1)}
                     disabled={i === run.length - 1}
                     title="下へ"
+                    className="v2-btn-ghost"
                     style={{
-                      width: 20, height: 20, border: 0, background: "transparent",
+                      width: 24, height: 24, borderRadius: 6,
                       cursor: i === run.length - 1 ? "not-allowed" : "pointer",
                       opacity: i === run.length - 1 ? 0.3 : 0.7,
                       color: "var(--v2-text-sub)",
@@ -1370,8 +1364,9 @@ function DealerRunPanel({ run, onAdd, onRemove, onMove }: {
                   <button
                     onClick={() => onRemove(name)}
                     title="欄から外す"
+                    className="v2-btn-ghost"
                     style={{
-                      width: 20, height: 20, border: 0, background: "transparent",
+                      width: 24, height: 24, borderRadius: 6,
                       cursor: "pointer", color: "var(--v2-danger)",
                       display: "inline-flex", alignItems: "center", justifyContent: "center",
                     }}
@@ -1450,7 +1445,7 @@ function DealerChangeModal({ table, run, onClose, onChange }: {
                   style={{
                     padding: "6px 12px", borderRadius: 999,
                     border: "1px solid var(--v2-border)",
-                    background: "#fff", cursor: "pointer",
+                    background: "var(--v2-bg)", cursor: "pointer",
                     fontSize: 12, fontWeight: 600,
                   }}
                 >
@@ -1525,19 +1520,11 @@ function WaitlistPanel({ waitlist, waiting, totalOpenSeats, readyWaitlistId, pre
   const activeCount = waitlist.filter(w => w.status === "waiting" || w.status === "called").length;
 
   return (
-    <div
-      style={{
-        background: "var(--v2-card)",
-        borderRadius: "var(--v2-radius-lg)",
-        boxShadow: "var(--v2-shadow-md)",
-        border: "1px solid rgba(28, 46, 36, 0.05)",
-        overflow: "hidden",
-      }}
-    >
+    <div className="v2-panel" style={{ overflow: "hidden" }}>
       <button
         onClick={() => setOpen(v => !v)}
         style={{
-          width: "100%", padding: "10px 14px",
+          width: "100%", minHeight: 40, padding: "10px 14px",
           display: "flex", alignItems: "center", gap: 10,
           background: "transparent", border: 0, cursor: "pointer",
           textAlign: "left", flexWrap: "wrap",
@@ -1554,19 +1541,14 @@ function WaitlistPanel({ waitlist, waiting, totalOpenSeats, readyWaitlistId, pre
             先頭: <strong style={{ color: "var(--v2-text)", fontWeight: 700 }}>{waitlist[0].name}</strong>
           </span>
         )}
-        <span
-          role="button"
-          tabIndex={0}
+        <Btn
+          variant="primary"
+          size="xs"
           onClick={(e) => { e.stopPropagation(); setOpenAdd(true); }}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setOpenAdd(true); } }}
-          style={{
-            marginLeft: "auto", fontSize: 11, fontWeight: 700, color: "#fff",
-            background: "var(--v2-accent)", padding: "4px 10px", borderRadius: 999,
-            display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer",
-          }}
+          style={{ marginLeft: "auto" }}
         >
           <Plus size={11} /> 登録
-        </span>
+        </Btn>
         <span style={{ fontSize: 11, color: "var(--v2-text-mute)" }}>{open ? "閉じる" : "開く"}</span>
       </button>
 
@@ -1640,7 +1622,7 @@ function WaitlistRow({ entry, index, isFirst, isLast, isReady, onCall, onComplet
         display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
         padding: "8px 10px", borderRadius: 8,
         border: isFirst ? "1px solid var(--v2-accent)" : "1px solid var(--v2-border)",
-        background: calledWarn ? "var(--v2-danger-soft)" : isFirst ? "var(--v2-accent-soft)" : "#fff",
+        background: calledWarn ? "var(--v2-danger-soft)" : isFirst ? "var(--v2-accent-soft)" : "var(--v2-bg)",
       }}
     >
       <span style={{
@@ -1648,7 +1630,7 @@ function WaitlistRow({ entry, index, isFirst, isLast, isReady, onCall, onComplet
         display: "inline-flex", alignItems: "center", justifyContent: "center",
         fontSize: 10.5, fontWeight: 700,
         background: isFirst ? "var(--v2-accent)" : "var(--v2-bg-alt)",
-        color: isFirst ? "#fff" : "var(--v2-text-mute)",
+        color: isFirst ? "var(--v2-bg)" : "var(--v2-text-mute)",
       }}>{index + 1}</span>
 
       <span style={{ fontWeight: 700, fontSize: 13 }}>{entry.name}</span>
@@ -1660,7 +1642,7 @@ function WaitlistRow({ entry, index, isFirst, isLast, isReady, onCall, onComplet
 
       {isReady && entry.status === "waiting" && (
         <span style={{
-          fontSize: 10, fontWeight: 700, color: "#fff",
+          fontSize: 10, fontWeight: 700, color: "var(--v2-bg)",
           background: "var(--v2-success)", padding: "2px 8px", borderRadius: 999,
         }}>案内可</span>
       )}
@@ -1684,8 +1666,9 @@ function WaitlistRow({ entry, index, isFirst, isLast, isReady, onCall, onComplet
           onClick={onMoveUp}
           disabled={isFirst}
           title="上へ"
+          className="v2-btn-ghost"
           style={{
-            width: 22, height: 22, border: 0, background: "transparent",
+            width: 26, height: 26, borderRadius: 6,
             cursor: isFirst ? "not-allowed" : "pointer",
             opacity: isFirst ? 0.3 : 0.7,
             color: "var(--v2-text-sub)",
@@ -1699,8 +1682,9 @@ function WaitlistRow({ entry, index, isFirst, isLast, isReady, onCall, onComplet
           onClick={onMoveDown}
           disabled={isLast}
           title="下へ"
+          className="v2-btn-ghost"
           style={{
-            width: 22, height: 22, border: 0, background: "transparent",
+            width: 26, height: 26, borderRadius: 6,
             cursor: isLast ? "not-allowed" : "pointer",
             opacity: isLast ? 0.3 : 0.7,
             color: "var(--v2-text-sub)",
@@ -1711,15 +1695,16 @@ function WaitlistRow({ entry, index, isFirst, isLast, isReady, onCall, onComplet
         </button>
 
         {entry.status === "waiting" ? (
-          <Btn onClick={onCall} style={{ fontSize: 11, padding: "4px 10px" }}>呼出</Btn>
+          <Btn size="xs" onClick={onCall}>呼出</Btn>
         ) : (
-          <Btn variant="primary" onClick={onComplete} style={{ fontSize: 11, padding: "4px 10px" }}>案内済み</Btn>
+          <Btn size="xs" variant="primary" onClick={onComplete}>案内済み</Btn>
         )}
         <button
           onClick={onCancel}
           title="取消(離脱)"
+          className="v2-btn-ghost"
           style={{
-            width: 22, height: 22, border: 0, background: "transparent",
+            width: 26, height: 26, borderRadius: 6,
             cursor: "pointer", color: "var(--v2-danger)",
             display: "inline-flex", alignItems: "center", justifyContent: "center",
           }}
