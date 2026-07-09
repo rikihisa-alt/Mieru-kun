@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { CheckCircle2, ChevronLeft, ChevronRight, User, Phone, ShieldCheck, PartyPopper } from "lucide-react";
 import { customerStore, type CustomerRecord } from "@/lib/store/domain-stores";
@@ -157,6 +158,10 @@ export default function CustomerSelfRegisterPage() {
           <div className="ln-card" style={{ textAlign: "center" }}>
             <p style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>この画面をスタッフにお見せください</p>
           </div>
+
+          <Link href="/u3j5ny" className="ln-btn ln-btn--primary ln-btn--full" style={{ textDecoration: "none" }}>
+            マイページへすすむ
+          </Link>
 
           <p className="ln-demo-note" style={{ marginTop: 4 }}>
             ※ ご自身のスマートフォンから登録された場合、店舗への反映はシステム連携の準備中です。店頭の端末からの登録は即時反映されます。
