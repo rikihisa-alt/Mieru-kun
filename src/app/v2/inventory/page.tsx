@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { productStore } from "@/lib/store/domain-stores";
 import { stockMovementStore, type StockMovement } from "@/lib/v2/stores";
-import { PageHeader, Btn, Panel, Field, Modal, VStack, Chip, Empty, Kpis, Kpi, HStack, Tabs } from "@/components/v2/ui";
+import { PageHeader, Btn, Panel, Field, Modal, VStack, Chip, Empty, Kpis, Kpi, HStack, Tabs, Banner } from "@/components/v2/ui";
 import { Plus, Minus, FileDown, AlertTriangle, Pencil, Trash2, ClipboardCheck } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml, sectionHtml } from "@/lib/v2/pdf";
 
@@ -232,13 +232,9 @@ export default function InventoryPage() {
       )}
 
       {tab !== "equipment" && lowStock.length > 0 && (
-        <Panel>
-          <HStack gap={8} style={{ color: "var(--v2-danger)" }}>
-            <AlertTriangle size={16} />
-            <strong>在庫不足:</strong>
-            <span>{lowStock.map(p => `${p.name}(${p.stock})`).join(" / ")}</span>
-          </HStack>
-        </Panel>
+        <Banner variant="danger" icon={<AlertTriangle size={16} />}>
+          <strong>在庫不足:</strong> {lowStock.map(p => `${p.name}(${p.stock})`).join(" / ")}
+        </Banner>
       )}
 
       {tab === "equipment" && eqAlerts.length > 0 && (
@@ -269,25 +265,27 @@ export default function InventoryPage() {
       {tab === "stock" && (
         <Panel>
           {tracked.length === 0 ? <Empty>在庫管理対象がありません。商品マスタで「在庫を管理する」をONにしてください</Empty> : (
-            <table className="v2-table">
-              <thead><tr><th>商品</th><th>カテゴリ</th><th className="v2-num-cell">在庫</th><th className="v2-num-cell">閾値</th><th className="v2-num-cell">原価</th><th className="v2-num-cell">在庫評価</th><th>状態</th></tr></thead>
-              <tbody>
-                {tracked.map(p => {
-                  const low = p.minStock != null && (p.stock ?? 0) <= p.minStock;
-                  return (
-                    <tr key={p.id}>
-                      <td>{p.name}</td>
-                      <td className="v2-mute">{p.category}</td>
-                      <td className="v2-num-cell">{p.stock}</td>
-                      <td className="v2-num-cell v2-sub">{p.minStock ?? "—"}</td>
-                      <td className="v2-num-cell v2-sub">¥{(p.cost ?? 0).toLocaleString()}</td>
-                      <td className="v2-num-cell">¥{((p.stock ?? 0) * (p.cost ?? 0)).toLocaleString()}</td>
-                      <td>{low ? <Chip variant="danger">不足</Chip> : <Chip variant="success">充分</Chip>}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div className="v2-table-wrap">
+              <table className="v2-table">
+                <thead><tr><th>商品</th><th>カテゴリ</th><th className="v2-num-cell">在庫</th><th className="v2-num-cell">閾値</th><th className="v2-num-cell">原価</th><th className="v2-num-cell">在庫評価</th><th>状態</th></tr></thead>
+                <tbody>
+                  {tracked.map(p => {
+                    const low = p.minStock != null && (p.stock ?? 0) <= p.minStock;
+                    return (
+                      <tr key={p.id}>
+                        <td>{p.name}</td>
+                        <td className="v2-mute">{p.category}</td>
+                        <td className="v2-num-cell">{p.stock}</td>
+                        <td className="v2-num-cell v2-sub">{p.minStock ?? "—"}</td>
+                        <td className="v2-num-cell v2-sub">¥{(p.cost ?? 0).toLocaleString()}</td>
+                        <td className="v2-num-cell">¥{((p.stock ?? 0) * (p.cost ?? 0)).toLocaleString()}</td>
+                        <td>{low ? <Chip variant="danger">不足</Chip> : <Chip variant="success">充分</Chip>}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </Panel>
       )}
@@ -295,21 +293,23 @@ export default function InventoryPage() {
       {tab === "log" && (
         <Panel>
           {movements.length === 0 ? <Empty>操作履歴はありません</Empty> : (
-            <table className="v2-table">
-              <thead><tr><th>日時</th><th>商品</th><th>種別</th><th className="v2-num-cell">増減</th><th className="v2-num-cell">残</th><th>備考</th></tr></thead>
-              <tbody>
-                {movements.slice(0, 100).map(m => (
-                  <tr key={m.id}>
-                    <td className="v2-num v2-sub">{new Date(m.createdAt).toLocaleString("ja-JP", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
-                    <td>{m.productName}</td>
-                    <td className="v2-mute">{m.reason === "purchase" ? "入庫" : m.reason === "sold" ? "販売" : m.reason === "waste" ? "廃棄" : "調整"}</td>
-                    <td className="v2-num-cell" style={{ color: m.delta >= 0 ? "var(--v2-success)" : "var(--v2-danger)" }}>{m.delta > 0 ? "+" : ""}{m.delta}</td>
-                    <td className="v2-num-cell">{m.balanceAfter}</td>
-                    <td className="v2-sub" style={{ fontSize: 12 }}>{m.reasonNote ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="v2-table-wrap">
+              <table className="v2-table">
+                <thead><tr><th>日時</th><th>商品</th><th>種別</th><th className="v2-num-cell">増減</th><th className="v2-num-cell">残</th><th>備考</th></tr></thead>
+                <tbody>
+                  {movements.slice(0, 100).map(m => (
+                    <tr key={m.id}>
+                      <td className="v2-num v2-sub">{new Date(m.createdAt).toLocaleString("ja-JP", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
+                      <td>{m.productName}</td>
+                      <td className="v2-mute">{m.reason === "purchase" ? "入庫" : m.reason === "sold" ? "販売" : m.reason === "waste" ? "廃棄" : "調整"}</td>
+                      <td className={`v2-num-cell ${m.delta >= 0 ? "v2-amount-pos" : "v2-amount-neg"}`}>{m.delta > 0 ? "+" : ""}{m.delta}</td>
+                      <td className="v2-num-cell">{m.balanceAfter}</td>
+                      <td className="v2-sub" style={{ fontSize: 12 }}>{m.reasonNote ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </Panel>
       )}
@@ -317,46 +317,48 @@ export default function InventoryPage() {
       {tab === "equipment" && (
         <Panel>
           {equipment.length === 0 ? <Empty>登録された備品がありません。「備品登録」から追加してください</Empty> : (
-            <table className="v2-table">
-              <thead>
-                <tr>
-                  <th>名前</th>
-                  <th>カテゴリ</th>
-                  <th className="v2-num-cell">数量</th>
-                  <th>状態</th>
-                  <th>最終点検日</th>
-                  <th className="v2-num-cell">経過日数</th>
-                  <th className="v2-num-cell">交換目安</th>
-                  <th>メモ</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {equipment.map(e => {
-                  const elapsed = daysSince(e.lastCheckedAt);
-                  const overdue = isOverdue(e);
-                  return (
-                    <tr key={e.id}>
-                      <td>{e.name}</td>
-                      <td className="v2-mute">{e.category}</td>
-                      <td className="v2-num-cell">{e.qty}</td>
-                      <td><Chip variant={conditionVariant(e.condition)}>{e.condition}</Chip></td>
-                      <td className="v2-sub">{e.lastCheckedAt}</td>
-                      <td className="v2-num-cell" style={{ color: overdue ? "var(--v2-danger)" : undefined }}>{elapsed}日</td>
-                      <td className="v2-num-cell v2-sub">{e.replaceCycleDays != null ? `${e.replaceCycleDays}日` : "—"}</td>
-                      <td className="v2-sub" style={{ fontSize: 12 }}>{e.note ?? "—"}</td>
-                      <td>
-                        <HStack gap={4}>
-                          <Btn size="xs" onClick={() => openInspect(e)}><ClipboardCheck size={12}/> 点検</Btn>
-                          <Btn size="xs" onClick={() => openEditEq(e)}><Pencil size={12}/></Btn>
-                          <Btn size="xs" variant="danger" onClick={() => deleteEq(e)}><Trash2 size={12}/></Btn>
-                        </HStack>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div className="v2-table-wrap">
+              <table className="v2-table">
+                <thead>
+                  <tr>
+                    <th>名前</th>
+                    <th>カテゴリ</th>
+                    <th className="v2-num-cell">数量</th>
+                    <th>状態</th>
+                    <th>最終点検日</th>
+                    <th className="v2-num-cell">経過日数</th>
+                    <th className="v2-num-cell">交換目安</th>
+                    <th>メモ</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {equipment.map(e => {
+                    const elapsed = daysSince(e.lastCheckedAt);
+                    const overdue = isOverdue(e);
+                    return (
+                      <tr key={e.id}>
+                        <td>{e.name}</td>
+                        <td className="v2-mute">{e.category}</td>
+                        <td className="v2-num-cell">{e.qty}</td>
+                        <td><Chip variant={conditionVariant(e.condition)}>{e.condition}</Chip></td>
+                        <td className="v2-sub">{e.lastCheckedAt}</td>
+                        <td className={`v2-num-cell ${overdue ? "v2-amount-neg" : ""}`}>{elapsed}日</td>
+                        <td className="v2-num-cell v2-sub">{e.replaceCycleDays != null ? `${e.replaceCycleDays}日` : "—"}</td>
+                        <td className="v2-sub" style={{ fontSize: 12 }}>{e.note ?? "—"}</td>
+                        <td>
+                          <HStack gap={4}>
+                            <Btn size="xs" onClick={() => openInspect(e)}><ClipboardCheck size={12}/> 点検</Btn>
+                            <Btn size="xs" onClick={() => openEditEq(e)}><Pencil size={12}/></Btn>
+                            <Btn size="xs" variant="danger" onClick={() => deleteEq(e)}><Trash2 size={12}/></Btn>
+                          </HStack>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </Panel>
       )}
@@ -371,9 +373,9 @@ export default function InventoryPage() {
           <Field label="種別">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
               {(["purchase", "adjust", "waste"] as const).map(t => (
-                <button key={t} onClick={() => setMoveType(t)} className={`v2-btn ${moveType === t ? "v2-btn-primary" : ""}`}>
+                <Btn key={t} onClick={() => setMoveType(t)} variant={moveType === t ? "primary" : "default"}>
                   {t === "purchase" ? "入庫" : t === "adjust" ? "調整" : "廃棄"}
-                </button>
+                </Btn>
               ))}
             </div>
           </Field>
@@ -411,9 +413,9 @@ export default function InventoryPage() {
           <Field label="状態">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
               {EQUIPMENT_CONDITIONS.map(c => (
-                <button key={c} onClick={() => setEqCondition(c)} className={`v2-btn ${eqCondition === c ? "v2-btn-primary" : ""}`}>
+                <Btn key={c} onClick={() => setEqCondition(c)} variant={eqCondition === c ? "primary" : "default"}>
                   {c}
-                </button>
+                </Btn>
               ))}
             </div>
           </Field>
@@ -437,9 +439,9 @@ export default function InventoryPage() {
           <Field label="状態を選択">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
               {EQUIPMENT_CONDITIONS.map(c => (
-                <button key={c} onClick={() => setInspectCondition(c)} className={`v2-btn ${inspectCondition === c ? "v2-btn-primary" : ""}`}>
+                <Btn key={c} onClick={() => setInspectCondition(c)} variant={inspectCondition === c ? "primary" : "default"}>
                   {c}
-                </button>
+                </Btn>
               ))}
             </div>
           </Field>

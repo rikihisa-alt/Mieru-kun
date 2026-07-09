@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { salesOrderStore, type SalesOrder } from "@/lib/v2/stores";
-import { PageHeader, Panel, VStack, HStack, Kpis, Kpi, Tabs, Empty, Btn, Field, Modal, Chip } from "@/components/v2/ui";
+import { PageHeader, Panel, VStack, Kpis, Kpi, Tabs, Empty, Btn, Field, Modal, Chip, Banner } from "@/components/v2/ui";
 import { FileDown, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml, sectionHtml } from "@/lib/v2/pdf";
 import { toCsv, downloadCsv } from "@/lib/v2/csv";
@@ -169,7 +169,7 @@ export default function SalesPage() {
 
           {range === "custom" && (
             <Panel>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="v2-form-grid">
                 <Field label="From"><input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
                 <Field label="To"><input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></Field>
               </div>
@@ -184,61 +184,64 @@ export default function SalesPage() {
           </Kpis>
 
           {creditFiltered.length > 0 && (
-            <Panel>
-              <HStack gap={8} style={{ color: "var(--v2-warn)" }}>
-                <AlertTriangle size={16} />
-                <span>この期間に発生した後払い(売掛): <strong className="v2-num">{creditFiltered.length}件 ¥{creditIssuedTotal.toLocaleString()}</strong>(上記の売上合計には含まれていません)</span>
-                <Btn size="xs" onClick={() => setMainTab("unpaid")} style={{ marginLeft: "auto" }}>未払い一覧へ →</Btn>
-              </HStack>
-            </Panel>
+            <Banner variant="warn" icon={<AlertTriangle size={16} />}>
+              この期間に発生した後払い(売掛): <strong className="v2-num">{creditFiltered.length}件 ¥{creditIssuedTotal.toLocaleString()}</strong>(上記の売上合計には含まれていません)
+              <Btn size="xs" onClick={() => setMainTab("unpaid")} style={{ marginLeft: "auto" }}>未払い一覧へ →</Btn>
+            </Banner>
           )}
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Panel title="支払方法別">
               {total === 0 ? <Empty>データなし</Empty> : (
-                <table className="v2-table">
-                  <tbody>
-                    <tr><td>現金</td><td className="v2-num-cell">¥{cash.toLocaleString()}</td><td className="v2-num-cell v2-sub">{Math.round(cash/total*100)}%</td></tr>
-                    <tr><td>カード</td><td className="v2-num-cell">¥{card.toLocaleString()}</td><td className="v2-num-cell v2-sub">{Math.round(card/total*100)}%</td></tr>
-                    <tr><td>QR</td><td className="v2-num-cell">¥{qr.toLocaleString()}</td><td className="v2-num-cell v2-sub">{Math.round(qr/total*100)}%</td></tr>
-                  </tbody>
-                </table>
+                <div className="v2-table-wrap">
+                  <table className="v2-table">
+                    <tbody>
+                      <tr><td>現金</td><td className="v2-num-cell">¥{cash.toLocaleString()}</td><td className="v2-num-cell v2-sub">{Math.round(cash/total*100)}%</td></tr>
+                      <tr><td>カード</td><td className="v2-num-cell">¥{card.toLocaleString()}</td><td className="v2-num-cell v2-sub">{Math.round(card/total*100)}%</td></tr>
+                      <tr><td>QR</td><td className="v2-num-cell">¥{qr.toLocaleString()}</td><td className="v2-num-cell v2-sub">{Math.round(qr/total*100)}%</td></tr>
+                    </tbody>
+                  </table>
+                </div>
               )}
             </Panel>
 
             <Panel title="商品別 (Top10)">
               {byProduct.length === 0 ? <Empty>データなし</Empty> : (
-                <table className="v2-table">
-                  <thead><tr><th>商品</th><th className="v2-num-cell">数</th><th className="v2-num-cell">売上</th></tr></thead>
-                  <tbody>
-                    {byProduct.slice(0, 10).map(p => (
-                      <tr key={p.name}>
-                        <td>{p.name}</td>
-                        <td className="v2-num-cell">{p.qty}</td>
-                        <td className="v2-num-cell">¥{p.total.toLocaleString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="v2-table-wrap">
+                  <table className="v2-table">
+                    <thead><tr><th>商品</th><th className="v2-num-cell">数</th><th className="v2-num-cell">売上</th></tr></thead>
+                    <tbody>
+                      {byProduct.slice(0, 10).map(p => (
+                        <tr key={p.name}>
+                          <td>{p.name}</td>
+                          <td className="v2-num-cell">{p.qty}</td>
+                          <td className="v2-num-cell">¥{p.total.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </Panel>
           </div>
 
           <Panel title="日次推移">
             {byDate.length === 0 ? <Empty>データなし</Empty> : (
-              <table className="v2-table">
-                <thead><tr><th>日付</th><th className="v2-num-cell">売上</th><th className="v2-num-cell">件数</th><th className="v2-num-cell">客単価</th></tr></thead>
-                <tbody>
-                  {byDate.slice().reverse().map(d => (
-                    <tr key={d.date}>
-                      <td className="v2-num">{d.date}</td>
-                      <td className="v2-num-cell">¥{d.total.toLocaleString()}</td>
-                      <td className="v2-num-cell">{d.count}</td>
-                      <td className="v2-num-cell v2-sub">¥{Math.round(d.total / d.count).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="v2-table-wrap">
+                <table className="v2-table">
+                  <thead><tr><th>日付</th><th className="v2-num-cell">売上</th><th className="v2-num-cell">件数</th><th className="v2-num-cell">客単価</th></tr></thead>
+                  <tbody>
+                    {byDate.slice().reverse().map(d => (
+                      <tr key={d.date}>
+                        <td className="v2-num">{d.date}</td>
+                        <td className="v2-num-cell">¥{d.total.toLocaleString()}</td>
+                        <td className="v2-num-cell">{d.count}</td>
+                        <td className="v2-num-cell v2-sub">¥{Math.round(d.total / d.count).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </Panel>
         </>
@@ -258,39 +261,41 @@ export default function SalesPage() {
                 未払いはありません
               </Empty>
             ) : (
-              <table className="v2-table">
-                <thead>
-                  <tr>
-                    <th>顧客(ポーカーネーム)</th>
-                    <th>卓</th>
-                    <th className="v2-num-cell">金額</th>
-                    <th>発生日</th>
-                    <th className="v2-num-cell">経過日数</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {unpaidOrders.map(o => {
-                    const occurred = o.settledAt ?? o.createdAt;
-                    const days = elapsedDays(occurred);
-                    return (
-                      <tr key={o.id}>
-                        <td>
-                          {o.customer}
-                          {!o.customerId && <Chip variant="warn">ゲスト(顧客未紐付)</Chip>}
-                        </td>
-                        <td>{o.table ?? <span className="v2-mute">—</span>}</td>
-                        <td className="v2-num-cell">¥{o.total.toLocaleString()}</td>
-                        <td className="v2-num v2-sub">{occurred.slice(0, 10)}</td>
-                        <td className="v2-num-cell">
-                          {days >= 14 ? <Chip variant="danger">{days}日</Chip> : days >= 7 ? <Chip variant="warn">{days}日</Chip> : `${days}日`}
-                        </td>
-                        <td><Btn size="xs" variant="primary" onClick={() => openWriteOff(o)}>消し込み</Btn></td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              <div className="v2-table-wrap">
+                <table className="v2-table">
+                  <thead>
+                    <tr>
+                      <th>顧客(ポーカーネーム)</th>
+                      <th>卓</th>
+                      <th className="v2-num-cell">金額</th>
+                      <th>発生日</th>
+                      <th className="v2-num-cell">経過日数</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {unpaidOrders.map(o => {
+                      const occurred = o.settledAt ?? o.createdAt;
+                      const days = elapsedDays(occurred);
+                      return (
+                        <tr key={o.id}>
+                          <td>
+                            {o.customer}
+                            {!o.customerId && <Chip variant="warn">ゲスト(顧客未紐付)</Chip>}
+                          </td>
+                          <td>{o.table ?? <span className="v2-mute">—</span>}</td>
+                          <td className="v2-num-cell">¥{o.total.toLocaleString()}</td>
+                          <td className="v2-num v2-sub">{occurred.slice(0, 10)}</td>
+                          <td className="v2-num-cell">
+                            {days >= 14 ? <Chip variant="danger">{days}日</Chip> : days >= 7 ? <Chip variant="warn">{days}日</Chip> : `${days}日`}
+                          </td>
+                          <td><Btn size="xs" variant="primary" onClick={() => openWriteOff(o)}>消し込み</Btn></td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             )}
           </Panel>
         </>
@@ -316,9 +321,9 @@ export default function SalesPage() {
             <Field label="入金方法">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
                 {(["cash", "card", "qr"] as const).map(m => (
-                  <button key={m} onClick={() => setPayMethod(m)} className={`v2-btn ${payMethod === m ? "v2-btn-primary" : ""}`}>
+                  <Btn key={m} onClick={() => setPayMethod(m)} variant={payMethod === m ? "primary" : "default"}>
                     {m === "cash" ? "現金" : m === "card" ? "カード" : "QR"}
-                  </button>
+                  </Btn>
                 ))}
               </div>
             </Field>
