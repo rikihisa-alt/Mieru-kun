@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { staffStore } from "@/lib/store/domain-stores";
@@ -10,6 +11,7 @@ import { Search, Plus, FileDown } from "lucide-react";
 import { printDoc, tableHtml } from "@/lib/v2/pdf";
 
 export default function StaffPage() {
+  const router = useRouter();
   const [staff] = usePersisted(staffStore);
   const [q, setQ] = useState("");
   const [showRetired, setShowRetired] = useState(false);
@@ -74,7 +76,7 @@ export default function StaffPage() {
               {rows.length === 0 ? (
                 <tr><td colSpan={6}><Empty>該当する従業員がいません</Empty></td></tr>
               ) : rows.map(s => (
-                <tr key={s.id} onClick={() => location.assign(`/v2/staff/${s.id}`)}>
+                <tr key={s.id} onClick={() => router.push(`/v2/staff/${s.id}`)}>
                   <td className="v2-sub">{s.employeeNo}</td>
                   <td>{staffFullName(s)}</td>
                   <td>{s.role}</td>

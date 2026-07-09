@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { customerStore, type CustomerRank, type CustomerRecord } from "@/lib/store/domain-stores";
@@ -36,6 +37,7 @@ function guessMapping(header: string): ImportField {
 const CSV_HEADERS = ["名前", "ポーカーネーム", "電話", "誓約書番号", "ランク", "誕生日", "来店回数", "累計利用", "チップ残高", "ポイント", "メモ"];
 
 export default function CustomersPage() {
+  const router = useRouter();
   const [customers, setCustomers] = usePersisted(customerStore);
   const [q, setQ] = useState("");
 
@@ -209,7 +211,7 @@ export default function CustomersPage() {
               {rows.length === 0 ? (
                 <tr><td colSpan={8}><Empty>該当する顧客がいません</Empty></td></tr>
               ) : rows.map(c => (
-                <tr key={c.id} onClick={() => location.assign(`/v2/customers/${c.id}`)}>
+                <tr key={c.id} onClick={() => router.push(`/v2/customers/${c.id}`)}>
                   <td style={{ maxWidth: 220 }}>
                     <div className="v2-row" style={{ gap: 6, alignItems: "center" }}>
                       <span style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }} title={c.nickname || c.name}>{c.nickname || c.name}</span>

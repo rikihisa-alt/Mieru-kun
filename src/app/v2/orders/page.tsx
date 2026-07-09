@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useMemo } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { productStore, customerStore, type CustomerRank } from "@/lib/store/domain-stores";
@@ -271,7 +272,7 @@ export default function OrdersPage() {
           </div>
 
           {activeProducts.length === 0 ? (
-            <Empty>商品マスタが空です。先に <a href="/v2/products" style={{ textDecoration: "underline" }}>商品マスタ</a> で商品を登録してください。</Empty>
+            <Empty>商品マスタが空です。先に <Link href="/v2/products" style={{ textDecoration: "underline" }}>商品マスタ</Link> で商品を登録してください。</Empty>
           ) : (
             <div>
               <div className="v2-toolbar" style={{ marginBottom: 8 }}>

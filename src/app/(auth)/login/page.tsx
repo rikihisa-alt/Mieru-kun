@@ -27,7 +27,7 @@ export default function LoginPage() {
   function handleDemo() {
     // デモモードcookieを設定してからダッシュボードへ
     document.cookie = "demo_mode=true; path=/; max-age=86400; SameSite=Lax";
-    window.location.href = "/v2";
+    router.push("/v2");
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   ArrowRight, ChevronRight, ChevronDown, Check, Minus,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const router = useRouter();
   // プレビューiframeが /login にリダイレクトされないよう、
   // LP表示時にデモモードcookieをセットしてからiframeを描画する。
   const [previewReady, setPreviewReady] = useState(false);
@@ -21,7 +23,7 @@ export default function Home() {
 
   function handleDemo() {
     document.cookie = "demo_mode=true; path=/; max-age=86400; SameSite=Lax";
-    window.location.href = "/v2";
+    router.push("/v2");
   }
 
   return (
