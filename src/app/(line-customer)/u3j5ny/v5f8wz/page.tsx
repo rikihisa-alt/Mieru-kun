@@ -30,9 +30,7 @@ export default function VisitHistoryPage() {
           </div>
         )}
 
-        <p style={{ fontSize: 10, color: "var(--ln-text-mute)", margin: 0 }}>
-          ※ 表示はサンプルです。正式公開時に実データに切り替わります
-        </p>
+        <p className="ln-demo-note">※ 表示はサンプルです。正式公開時に実データに切り替わります</p>
       </div>
     </div>
   );

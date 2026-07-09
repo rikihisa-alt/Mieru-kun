@@ -10,7 +10,7 @@ import {
   ROLES, DEPARTMENTS,
   type StaffStatus, type StaffFull, type EmploymentType, type Gender, type SalaryType,
 } from "@/lib/staff-data";
-import { PageHeader, Btn, Panel, Field, VStack, HStack, Chip, Kpis, Kpi, Tabs } from "@/components/v2/ui";
+import { PageHeader, Btn, Panel, Field, VStack, HStack, Chip, Kpis, Kpi, Tabs, Banner, Toast, useToast } from "@/components/v2/ui";
 import { ArrowLeft } from "lucide-react";
 
 function age(iso: string): number {
@@ -29,7 +29,7 @@ export default function StaffDetail() {
   const s = allStaff.find(x => x.id === id);
 
   const [editing, setEditing] = useState(false);
-  const [savedMsg, setSavedMsg] = useState("");
+  const { toast, show: showToast } = useToast(3000);
 
   if (!s) {
     return (
@@ -49,8 +49,7 @@ export default function StaffDetail() {
     if (!confirm("退職処理を行いますか？給与・雇用履歴は保持されたまま「退職」扱いになります。")) return;
     const today = new Date().toISOString().slice(0, 10);
     staffStore.set(prev => prev.map(x => x.id === id ? { ...x, status: "retired", retiredAt: today, resignDate: x.resignDate || today } : x));
-    setSavedMsg("退職処理を行いました");
-    setTimeout(() => setSavedMsg(""), 3000);
+    showToast("退職処理を行いました");
   }
 
   // 完全削除は退職者のみ許可。二重確認
@@ -69,8 +68,7 @@ export default function StaffDetail() {
         onCancel={() => setEditing(false)}
         onSaved={() => {
           setEditing(false);
-          setSavedMsg("保存しました");
-          setTimeout(() => setSavedMsg(""), 3000);
+          showToast("保存しました");
         }}
       />
     );
@@ -80,9 +78,7 @@ export default function StaffDetail() {
     <VStack gap={16}>
       <Link href="/v2/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}><ArrowLeft size={12} />一覧へ戻る</Link>
 
-      {savedMsg && (
-        <div style={{ padding: 10, background: "var(--v2-success-bg)", color: "var(--v2-success)", fontSize: 12, borderRadius: 3 }}>{savedMsg}</div>
-      )}
+      {toast && <Toast message={toast.message} variant={toast.variant} />}
 
       <PageHeader
         title={staffFullName(s)}
@@ -112,7 +108,7 @@ export default function StaffDetail() {
         } />
       </Kpis>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="v2-form-grid">
         <Panel title="基本情報">
           <VStack gap={10}>
             <DetailRow label="氏名" value={`${staffFullName(s)} (${staffFullNameKana(s)})`} />
@@ -254,11 +250,11 @@ function StaffEditForm({ staff, onCancel, onSaved }: { staff: StaffFull; onCance
         { value: "social", label: "社会保険・税" },
       ]} />
 
-      {error && <div style={{ padding: 10, background: "var(--v2-danger-bg)", color: "var(--v2-danger)", fontSize: 12, borderRadius: 3 }}>{error}</div>}
+      {error && <Banner variant="danger">{error}</Banner>}
 
       <Panel>
         {tab === "basic" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="姓" required><input value={lastName} onChange={(e) => setLastName(e.target.value)} /></Field>
             <Field label="名" required><input value={firstName} onChange={(e) => setFirstName(e.target.value)} /></Field>
             <Field label="セイ"><input value={lastNameKana} onChange={(e) => setLastNameKana(e.target.value)} /></Field>
@@ -277,7 +273,7 @@ function StaffEditForm({ staff, onCancel, onSaved }: { staff: StaffFull; onCance
         )}
 
         {tab === "employ" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="社員番号"><input value={employeeNo} onChange={(e) => setEmployeeNo(e.target.value)} placeholder="EMP-001" /></Field>
             <Field label="入社日" required><input type="date" value={joinDate} onChange={(e) => setJoinDate(e.target.value)} /></Field>
             <Field label="雇用形態">
@@ -300,7 +296,7 @@ function StaffEditForm({ staff, onCancel, onSaved }: { staff: StaffFull; onCance
         )}
 
         {tab === "salary" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="支給形態">
               <select value={salaryType} onChange={(e) => setSalaryType(e.target.value as SalaryType)}>
                 <option value="monthly">月給</option>
@@ -322,7 +318,7 @@ function StaffEditForm({ staff, onCancel, onSaved }: { staff: StaffFull; onCance
         )}
 
         {tab === "social" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="マイナンバー"><input value={myNumber} onChange={(e) => setMyNumber(e.target.value)} /></Field>
             <Field label="扶養家族数"><input type="number" value={dependents} onChange={(e) => setDependents(parseInt(e.target.value) || 0)} /></Field>
           </div>

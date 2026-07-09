@@ -102,41 +102,45 @@ export default function ReservationsPage() {
         action={<Btn variant="primary" onClick={openCreate}><Plus size={14} /> 新規予約</Btn>}
       />
 
-      <Panel>
-        <div style={{ marginBottom: 12 }}>
-          <div className="v2-row" style={{ position: "relative", maxWidth: 320 }}>
-            <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="名前・電話番号で検索"
-              style={{ paddingLeft: 30, width: "100%" }}
-            />
-          </div>
+      <div className="v2-toolbar">
+        <div className="v2-toolbar__search">
+          <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="名前・電話番号で検索"
+            style={{ paddingLeft: 30 }}
+          />
         </div>
+        <span className="v2-mute" style={{ fontSize: 12, marginLeft: "auto" }}>{filtered.length}件</span>
+      </div>
+
+      <Panel>
         {filtered.length === 0 ? <Empty>{query ? "該当する予約がありません" : "予約はありません"}</Empty> : (
-          <table className="v2-table">
-            <thead><tr><th>日時</th><th>顧客</th><th>人数</th><th>経路</th><th>状態</th><th></th></tr></thead>
-            <tbody>
-              {filtered.map(r => (
-                <tr key={r.id}>
-                  <td className="v2-num">{r.date} {r.time}</td>
-                  <td>{r.nickname || r.customerName}{r.nickname && <span className="v2-mute" style={{ marginLeft: 6, fontSize: 11 }}>{r.customerName}</span>}</td>
-                  <td className="v2-num-cell">{r.party}</td>
-                  <td className="v2-sub">{r.source}</td>
-                  <td>
-                    <select value={r.status} onChange={(e) => setStatus(r.id, e.target.value as ReservationStatus)} style={{ height: 24, fontSize: 12, padding: "0 6px" }}>
-                      {(Object.keys(STATUS_LABEL) as ReservationStatus[]).map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
-                    </select>
-                  </td>
-                  <td>
-                    <Btn size="xs" onClick={() => openEdit(r)}><Pencil size={11} /></Btn>{" "}
-                    <Btn size="xs" variant="danger" onClick={() => remove(r.id)}><Trash2 size={11} /></Btn>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>日時</th><th>顧客</th><th>人数</th><th>経路</th><th>状態</th><th></th></tr></thead>
+              <tbody>
+                {filtered.map(r => (
+                  <tr key={r.id}>
+                    <td className="v2-num">{r.date} {r.time}</td>
+                    <td>{r.nickname || r.customerName}{r.nickname && <span className="v2-mute" style={{ marginLeft: 6, fontSize: 11 }}>{r.customerName}</span>}</td>
+                    <td className="v2-num-cell">{r.party}</td>
+                    <td className="v2-sub">{r.source}</td>
+                    <td>
+                      <select value={r.status} onChange={(e) => setStatus(r.id, e.target.value as ReservationStatus)}>
+                        {(Object.keys(STATUS_LABEL) as ReservationStatus[]).map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
+                      </select>
+                    </td>
+                    <td>
+                      <Btn size="xs" onClick={() => openEdit(r)}><Pencil size={11} /></Btn>{" "}
+                      <Btn size="xs" variant="danger" onClick={() => remove(r.id)}><Trash2 size={11} /></Btn>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
 
@@ -147,7 +151,7 @@ export default function ReservationsPage() {
         footer={<><Btn onClick={() => { setOpen(false); setEditing(null); }}>キャンセル</Btn><Btn variant="primary" onClick={save}>{editing ? "保存" : "登録"}</Btn></>}
       >
         <VStack gap={16}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div className="v2-form-grid">
             <Field label="顧客名" required><input value={d.customerName} onChange={(e) => setD({ ...d, customerName: e.target.value })} /></Field>
             <Field label="ニックネーム"><input value={d.nickname} onChange={(e) => setD({ ...d, nickname: e.target.value })} /></Field>
             <Field label="日付" required><input type="date" value={d.date} onChange={(e) => setD({ ...d, date: e.target.value })} /></Field>

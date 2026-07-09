@@ -84,40 +84,42 @@ export default function AttendancePage() {
 
       <Panel title="本日の勤怠">
         {active.length === 0 ? <Empty>従業員が登録されていません</Empty> : (
-          <table className="v2-table">
-            <thead><tr><th>名前</th><th>役職</th><th>出勤</th><th>退勤</th><th className="v2-num-cell">休憩(分)</th><th>状態</th><th></th></tr></thead>
-            <tbody>
-              {active.map(s => {
-                const r = recordFor(s.id);
-                const status = !r?.clockIn ? "off" : !r.clockOut ? "working" : "finished";
-                return (
-                  <tr key={s.id}>
-                    <td>{staffFullName(s)}</td>
-                    <td className="v2-sub">{s.role}</td>
-                    <td className="v2-num">{r?.clockIn ?? "—"}</td>
-                    <td className="v2-num">{r?.clockOut ?? "—"}</td>
-                    <td className="v2-num-cell">
-                      {r?.clockIn ? (
-                        <input
-                          type="number"
-                          min={0}
-                          value={r.breakMin}
-                          onChange={(e) => setBreakMin(s.id, toHalfWidthDigits(e.target.value) === "" ? 0 : parseInt(toHalfWidthDigits(e.target.value), 10))}
-                          style={{ width: 64, textAlign: "right" }}
-                        />
-                      ) : <span className="v2-mute">—</span>}
-                    </td>
-                    <td><Chip variant={status === "working" ? "success" : status === "finished" ? undefined : undefined}>{status === "working" ? "勤務中" : status === "finished" ? "退勤済" : "未出勤"}</Chip></td>
-                    <td>
-                      {!r?.clockIn ? <Btn size="xs" onClick={() => clockIn(s.id)}>出勤</Btn>
-                       : !r.clockOut ? <Btn size="xs" onClick={() => clockOut(s.id)}>退勤</Btn>
-                       : <Btn size="xs" variant="ghost" onClick={() => undoClockOut(s.id)}>取消</Btn>}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>名前</th><th>役職</th><th>出勤</th><th>退勤</th><th className="v2-num-cell">休憩(分)</th><th>状態</th><th></th></tr></thead>
+              <tbody>
+                {active.map(s => {
+                  const r = recordFor(s.id);
+                  const status = !r?.clockIn ? "off" : !r.clockOut ? "working" : "finished";
+                  return (
+                    <tr key={s.id}>
+                      <td>{staffFullName(s)}</td>
+                      <td className="v2-sub">{s.role}</td>
+                      <td className="v2-num">{r?.clockIn ?? "—"}</td>
+                      <td className="v2-num">{r?.clockOut ?? "—"}</td>
+                      <td className="v2-num-cell">
+                        {r?.clockIn ? (
+                          <input
+                            type="number"
+                            min={0}
+                            value={r.breakMin}
+                            onChange={(e) => setBreakMin(s.id, toHalfWidthDigits(e.target.value) === "" ? 0 : parseInt(toHalfWidthDigits(e.target.value), 10))}
+                            style={{ width: 64, textAlign: "right" }}
+                          />
+                        ) : <span className="v2-mute">—</span>}
+                      </td>
+                      <td><Chip variant={status === "working" ? "success" : status === "finished" ? undefined : undefined}>{status === "working" ? "勤務中" : status === "finished" ? "退勤済" : "未出勤"}</Chip></td>
+                      <td>
+                        {!r?.clockIn ? <Btn size="xs" onClick={() => clockIn(s.id)}>出勤</Btn>
+                         : !r.clockOut ? <Btn size="xs" onClick={() => clockOut(s.id)}>退勤</Btn>
+                         : <Btn size="xs" variant="ghost" onClick={() => undoClockOut(s.id)}>取消</Btn>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
     </VStack>

@@ -264,7 +264,7 @@ export default function ShiftsPage() {
         {active.length === 0 ? (
           <Empty>在籍中の従業員が登録されていません</Empty>
         ) : (
-          <div style={{ overflowX: "auto" }}>
+          <div className="v2-table-wrap">
             <table className="v2-table">
               <thead>
                 <tr>
@@ -273,7 +273,7 @@ export default function ShiftsPage() {
                     const iso = toISODate(d);
                     const isToday = iso === t;
                     return (
-                      <th key={iso} style={isToday ? { color: "var(--v2-accent, #2c9b6a)" } : undefined}>
+                      <th key={iso} style={isToday ? { color: "var(--v2-accent)" } : undefined}>
                         {WEEKDAY_LABEL[i]} {formatMD(d)}
                       </th>
                     );
@@ -301,7 +301,7 @@ export default function ShiftsPage() {
                               <HStack gap={4}>
                                 <Chip>{sh.role}</Chip>
                                 {warn && (
-                                  <span title="シフトはありますが未出勤です" style={{ color: "var(--v2-danger, #dc2626)", display: "inline-flex", alignItems: "center" }}>
+                                  <span title="シフトはありますが未出勤です" style={{ color: "var(--v2-danger)", display: "inline-flex", alignItems: "center" }}>
                                     <AlertTriangle size={12} />
                                   </span>
                                 )}

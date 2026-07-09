@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PageHeader, Panel, VStack, Empty } from "@/components/v2/ui";
+import { PageHeader, Panel, VStack, Empty, Btn } from "@/components/v2/ui";
 import { useOrders, useOrderEvents, orderStore } from "@/lib/orders/store";
 import { STATUS_LABEL, KIND_LABEL, CALL_REASON_LABEL, type OrderStatus } from "@/lib/orders/types";
 import { Bell, BellOff } from "lucide-react";
@@ -97,44 +97,46 @@ export default function LivePage() {
         }
         sub={`${active.length}件 未対応`}
         action={
-          <button
+          <Btn
+            variant="ghost"
+            size="sm"
             onClick={toggleSound}
-            className="v2-btn-ghost"
             title={soundOn ? "通知音をOFFにする" : "通知音をONにする"}
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 6 }}
           >
             {soundOn ? <Bell size={14} /> : <BellOff size={14} />}
-            <span style={{ fontSize: 12 }}>通知音 {soundOn ? "ON" : "OFF"}</span>
-          </button>
+            通知音 {soundOn ? "ON" : "OFF"}
+          </Btn>
         }
       />
       <Panel>
         {active.length === 0 ? <Empty>ライブ注文はありません</Empty> : (
-          <table className="v2-table">
-            <thead><tr><th>時刻</th><th>卓・席</th><th>顧客</th><th>種別</th><th>内容</th><th>状態</th></tr></thead>
-            <tbody>
-              {active.map(o => (
-                <tr key={o.id}>
-                  <td className="v2-num v2-sub">{new Date(o.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
-                  <td>{o.seat.tableNo} <span className="v2-mute">{o.seat.seatNo}</span></td>
-                  <td>{o.customer.displayName}</td>
-                  <td className="v2-mute">{KIND_LABEL[o.kind]}</td>
-                  <td className="v2-sub" style={{ fontSize: 12 }}>
-                    {o.kind === "call" ? (o.call ? CALL_REASON_LABEL[o.call.type] : "") : o.items?.map(i => `${i.name}×${i.qty}`).join(" / ")}
-                  </td>
-                  <td>
-                    <select value={o.status} onChange={(e) => orderStore.updateStatus(o.id, e.target.value as OrderStatus)} style={{ height: 24, fontSize: 11, padding: "0 6px" }}>
-                      <option value="new">{STATUS_LABEL.new}</option>
-                      <option value="preparing">{STATUS_LABEL.preparing}</option>
-                      <option value="served">{STATUS_LABEL.served}</option>
-                      <option value="done">{STATUS_LABEL.done}</option>
-                      <option value="canceled">{STATUS_LABEL.canceled}</option>
-                    </select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>時刻</th><th>卓・席</th><th>顧客</th><th>種別</th><th>内容</th><th>状態</th></tr></thead>
+              <tbody>
+                {active.map(o => (
+                  <tr key={o.id}>
+                    <td className="v2-num v2-sub">{new Date(o.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
+                    <td>{o.seat.tableNo} <span className="v2-mute">{o.seat.seatNo}</span></td>
+                    <td>{o.customer.displayName}</td>
+                    <td className="v2-mute">{KIND_LABEL[o.kind]}</td>
+                    <td className="v2-sub" style={{ fontSize: 12 }}>
+                      {o.kind === "call" ? (o.call ? CALL_REASON_LABEL[o.call.type] : "") : o.items?.map(i => `${i.name}×${i.qty}`).join(" / ")}
+                    </td>
+                    <td>
+                      <select value={o.status} onChange={(e) => orderStore.updateStatus(o.id, e.target.value as OrderStatus)}>
+                        <option value="new">{STATUS_LABEL.new}</option>
+                        <option value="preparing">{STATUS_LABEL.preparing}</option>
+                        <option value="served">{STATUS_LABEL.served}</option>
+                        <option value="done">{STATUS_LABEL.done}</option>
+                        <option value="canceled">{STATUS_LABEL.canceled}</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
       {/* ※ 複数端末間のリアルタイム同期はDB化(Supabase Realtime等)まで対象外。現状はBroadcastChannel/localStorageのみ */}

@@ -16,6 +16,7 @@ const TITLE_BY_PATH: Record<string, string> = {
   "/u3j5ny/m7k3rb": "マルチケ",
   "/u3j5ny/v5f8wz": "来店履歴",
   "/u3j5ny/b3k9wf": "保有残高",
+  "/g8k2mv": "会員登録",
 };
 
 export default function CustomerLayout({ children }: { children: React.ReactNode }) {

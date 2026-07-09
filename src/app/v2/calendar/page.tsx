@@ -4,7 +4,7 @@ import { useMemo, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { eventStore } from "@/lib/store/domain-stores";
-import { PageHeader, Btn, Panel, Field, Modal, VStack, HStack, Kpis, Kpi } from "@/components/v2/ui";
+import { PageHeader, Btn, Panel, Field, Modal, VStack, HStack, Kpis, Kpi, Dot } from "@/components/v2/ui";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 
 // ============= 型 =============
@@ -163,11 +163,10 @@ export default function CalendarPage() {
     });
   }
 
-  function kindDotClass(kind: DayKind) {
-    if (kind === "closed") return "v2-dot";
-    if (kind === "special") return "v2-dot-success";
-    if (kind === "short") return "v2-dot-warn";
-    return "";
+  function kindDotVariant(kind: DayKind): "success" | "warn" | undefined {
+    if (kind === "special") return "success";
+    if (kind === "short") return "warn";
+    return undefined;
   }
 
   function cellStyle(kind: DayKind, inMonth: boolean): CSSProperties {
@@ -245,7 +244,7 @@ export default function CalendarPage() {
                   <span style={{ fontSize: 12, fontWeight: isToday ? 700 : 500, color: isToday ? "var(--v2-accent-text)" : undefined }}>
                     {cell.d}
                   </span>
-                  {kind !== "normal" && <span className={`v2-dot ${kindDotClass(kind)}`} />}
+                  {kind !== "normal" && <Dot variant={kindDotVariant(kind)} />}
                 </HStack>
                 {kind !== "normal" && (
                   <span style={{ fontSize: 10, color: "var(--v2-text-sub)", lineHeight: 1.3 }}>
@@ -264,16 +263,14 @@ export default function CalendarPage() {
                         key={ev.id}
                         href="/v2/events"
                         onClick={(e) => e.stopPropagation()}
+                        title={ev.title}
+                        className="v2-chip v2-chip-info"
                         style={{
-                          fontSize: 10,
-                          padding: "1px 4px",
-                          borderRadius: 4,
-                          background: "var(--v2-info-bg)",
-                          color: "var(--v2-info)",
+                          display: "block",
+                          maxWidth: "100%",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
-                          display: "block",
                         }}
                       >
                         {ev.title}
@@ -291,10 +288,10 @@ export default function CalendarPage() {
 
         {/* 凡例 */}
         <HStack gap={16} style={{ marginTop: 16, flexWrap: "wrap", fontSize: 12, color: "var(--v2-text-sub)" }}>
-          <HStack gap={6}><span className="v2-dot" />通常営業</HStack>
-          <HStack gap={6}><span className="v2-dot" style={{ background: "var(--v2-text-mute)" }} />定休日</HStack>
-          <HStack gap={6}><span className="v2-dot v2-dot-success" />特別営業</HStack>
-          <HStack gap={6}><span className="v2-dot v2-dot-warn" />短縮営業</HStack>
+          <HStack gap={6}><Dot />通常営業</HStack>
+          <HStack gap={6}><Dot />定休日</HStack>
+          <HStack gap={6}><Dot variant="success" />特別営業</HStack>
+          <HStack gap={6}><Dot variant="warn" />短縮営業</HStack>
           <HStack gap={6}><CalendarDays size={12} />イベントあり(クリックで詳細へ)</HStack>
         </HStack>
       </Panel>

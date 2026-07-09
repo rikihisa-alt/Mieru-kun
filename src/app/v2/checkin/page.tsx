@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { customerStore, type CustomerRank } from "@/lib/store/domain-stores";
 import { grantVisitPoints } from "@/lib/v2/points";
-import { PageHeader, Btn, Panel, Field, Modal, VStack, HStack, Chip, Kpis, Kpi, Empty } from "@/components/v2/ui";
+import { PageHeader, Btn, Panel, Field, Modal, VStack, HStack, Chip, Kpis, Kpi, Empty, Banner, Toast, useToast } from "@/components/v2/ui";
 import { Plus, LogOut, AlertTriangle, ShieldAlert } from "lucide-react";
 
 interface Visit {
@@ -30,7 +30,7 @@ export default function CheckinPage() {
   const [selectedId, setSelectedId] = useState<string>("");
   const [guestName, setGuestName] = useState("");
   const [guestRank, setGuestRank] = useState<CustomerRank>("regular");
-  const [pointToast, setPointToast] = useState<string | null>(null);
+  const { toast, show: showToast } = useToast(3500);
   const [ageVerified, setAgeVerified] = useState(false);
   const [pledgeSigned, setPledgeSigned] = useState(false);
   const [rulesExplained, setRulesExplained] = useState(false);
@@ -82,8 +82,7 @@ export default function CheckinPage() {
       setVisits(prev => [{ id: makeVisitId(), customerId: c.id, name: c.nickname || c.name, rank: c.rank, checkedInAt: new Date().toISOString() }, ...prev]);
       const granted = grantVisitPoints(c.id, "来店チェックイン");
       if (granted > 0) {
-        setPointToast(`${c.nickname || c.name}さんに${granted}ptを付与しました`);
-        setTimeout(() => setPointToast(null), 3500);
+        showToast(`${c.nickname || c.name}さんに${granted}ptを付与しました`);
       }
     } else {
       if (!guestName.trim()) return;
@@ -112,11 +111,7 @@ export default function CheckinPage() {
         action={<Btn variant="primary" onClick={() => setOpen(true)}><Plus size={14} /> 入店登録</Btn>}
       />
 
-      {pointToast && (
-        <div style={{ padding: "8px 12px", background: "var(--v2-success-bg)", color: "var(--v2-success)", fontSize: 12, borderRadius: 3 }}>
-          {pointToast}
-        </div>
-      )}
+      {toast && <Toast message={toast.message} variant={toast.variant} />}
 
       <Kpis>
         <Kpi label="来店中" value={visits.length} />
@@ -127,40 +122,42 @@ export default function CheckinPage() {
 
       <Panel title="来店中">
         {visits.length === 0 ? <Empty>来店中のお客様はいません</Empty> : (
-          <table className="v2-table">
-            <thead>
-              <tr><th>名前</th><th>ランク</th><th>入店時刻</th><th>経過</th><th>卓</th><th></th></tr>
-            </thead>
-            <tbody>
-              {visits.map(v => {
-                const c = customerById(v.customerId);
-                return (
-                <tr key={v.id}>
-                  <td>
-                    <HStack gap={6} style={{ alignItems: "center" }}>
-                      <span>{v.name}</span>
-                      {c?.isBlacklisted && (
-                        <span title="⚠ ブラックリスト登録者です" style={{ display: "inline-flex" }}>
-                          <ShieldAlert size={14} color="var(--v2-danger)" />
-                        </span>
-                      )}
-                      {c?.cautionText && (
-                        <span title={c.cautionText} style={{ display: "inline-flex" }}>
-                          <AlertTriangle size={14} color="var(--v2-warn)" />
-                        </span>
-                      )}
-                    </HStack>
-                  </td>
-                  <td className="v2-mute">{RANK_LABEL[v.rank]}</td>
-                  <td className="v2-num">{new Date(v.checkedInAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
-                  <td className="v2-num v2-sub">{elapsed(v.checkedInAt)}</td>
-                  <td>{tableNameOf(v.tableId) ? <Chip>{tableNameOf(v.tableId)}{v.seatIndex != null && ` #${v.seatIndex + 1}`}</Chip> : <span className="v2-mute">—</span>}</td>
-                  <td><Btn size="xs" onClick={() => checkout(v.id)}><LogOut size={11} /> 退店</Btn></td>
-                </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead>
+                <tr><th>名前</th><th>ランク</th><th>入店時刻</th><th>経過</th><th>卓</th><th></th></tr>
+              </thead>
+              <tbody>
+                {visits.map(v => {
+                  const c = customerById(v.customerId);
+                  return (
+                  <tr key={v.id}>
+                    <td>
+                      <HStack gap={6} style={{ alignItems: "center" }}>
+                        <span>{v.name}</span>
+                        {c?.isBlacklisted && (
+                          <span title="⚠ ブラックリスト登録者です" style={{ display: "inline-flex" }}>
+                            <ShieldAlert size={14} color="var(--v2-danger)" />
+                          </span>
+                        )}
+                        {c?.cautionText && (
+                          <span title={c.cautionText} style={{ display: "inline-flex" }}>
+                            <AlertTriangle size={14} color="var(--v2-warn)" />
+                          </span>
+                        )}
+                      </HStack>
+                    </td>
+                    <td className="v2-mute">{RANK_LABEL[v.rank]}</td>
+                    <td className="v2-num">{new Date(v.checkedInAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
+                    <td className="v2-num v2-sub">{elapsed(v.checkedInAt)}</td>
+                    <td>{tableNameOf(v.tableId) ? <Chip>{tableNameOf(v.tableId)}{v.seatIndex != null && ` #${v.seatIndex + 1}`}</Chip> : <span className="v2-mute">—</span>}</td>
+                    <td><Btn size="xs" onClick={() => checkout(v.id)}><LogOut size={11} /> 退店</Btn></td>
+                  </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
 
@@ -190,14 +187,10 @@ export default function CheckinPage() {
             </select>
           </Field>
           {selectedCustomer?.isBlacklisted && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 10, background: "var(--v2-danger-bg)", color: "var(--v2-danger)", fontSize: 12, borderRadius: 3 }}>
-              <ShieldAlert size={16} /> ⚠ ブラックリスト登録者です
-            </div>
+            <Banner variant="danger" icon={<ShieldAlert size={16} />}>ブラックリスト登録者です</Banner>
           )}
           {selectedCustomer?.cautionText && (
-            <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: 10, background: "var(--v2-warn-bg)", color: "var(--v2-warn)", fontSize: 12, borderRadius: 3 }}>
-              <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 1 }} /> <span>{selectedCustomer.cautionText}</span>
-            </div>
+            <Banner variant="warn" icon={<AlertTriangle size={16} />}>{selectedCustomer.cautionText}</Banner>
           )}
           {!selectedId && (
             <>
