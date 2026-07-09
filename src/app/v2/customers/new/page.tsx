@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { customerStore, type CustomerRank, type CustomerRecord } from "@/lib/store/domain-stores";
-import { PageHeader, Btn, Panel, Field, VStack, HStack } from "@/components/v2/ui";
+import { PageHeader, Btn, Panel, Field, VStack, HStack, Banner } from "@/components/v2/ui";
 import { ArrowLeft } from "lucide-react";
 
 export default function NewCustomerPage() {
@@ -45,9 +45,9 @@ export default function NewCustomerPage() {
 
       <Panel>
         <VStack gap={16}>
-          {error && <div style={{ padding: 10, background: "var(--v2-danger-bg)", color: "var(--v2-danger)", fontSize: 12, borderRadius: 3 }}>{error}</div>}
+          {error && <Banner variant="danger">{error}</Banner>}
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="本名" required>
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder="田中 太郎" />
             </Field>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { usePersisted } from "@/lib/persist/store";
 import { customerStore, type CustomerRank, type CustomerRecord } from "@/lib/store/domain-stores";
-import { PageHeader, Btn, Kpis, Kpi, VStack, Empty, Chip, Modal, Field } from "@/components/v2/ui";
+import { PageHeader, Btn, Kpis, Kpi, VStack, Empty, Chip, Modal, Field, Banner, RankBadge } from "@/components/v2/ui";
 import { Search, Plus, FileDown, FileUp } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
 import { toCsv, downloadCsv, parseCsv } from "@/lib/v2/csv";
@@ -169,10 +169,10 @@ export default function CustomersPage() {
       />
 
       {importResult && (
-        <div className="v2-panel" style={{ padding: "10px 14px", fontSize: 13 }}>
+        <Banner variant="info">
           CSV取込結果: <strong>{importResult.added}件追加</strong> / <strong>{importResult.updated}件更新</strong> / <strong>{importResult.skipped}件スキップ</strong>
-          <button className="v2-btn-ghost" style={{ marginLeft: 12, fontSize: 12 }} onClick={() => setImportResult(null)}>閉じる</button>
-        </div>
+          <Btn variant="ghost" size="xs" onClick={() => setImportResult(null)} style={{ marginLeft: "auto" }}>閉じる</Btn>
+        </Banner>
       )}
 
       <Kpis>
@@ -182,8 +182,8 @@ export default function CustomersPage() {
         <Kpi label="今月来店" value={customers.filter(c => (c.lastVisit ?? "") >= monthPrefix).length} />
       </Kpis>
 
-      <div className="v2-row" style={{ gap: 12 }}>
-        <div style={{ position: "relative", flex: 1, maxWidth: 360 }}>
+      <div className="v2-toolbar">
+        <div className="v2-toolbar__search">
           <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="名前・ポーカーネーム・電話・誓約書番号" style={{ paddingLeft: 30 }} />
         </div>
@@ -191,42 +191,44 @@ export default function CustomersPage() {
       </div>
 
       <div className="v2-panel">
-        <table className="v2-table v2-table-clickable">
-          <thead>
-            <tr>
-              <th>名前</th>
-              <th>ランク</th>
-              <th>電話</th>
-              <th className="v2-num-cell">来店</th>
-              <th className="v2-num-cell">累計利用</th>
-              <th className="v2-num-cell">チップ</th>
-              <th className="v2-num-cell">ポイント</th>
-              <th>最終来店</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr><td colSpan={8}><Empty>該当する顧客がいません</Empty></td></tr>
-            ) : rows.map(c => (
-              <tr key={c.id} onClick={() => location.assign(`/v2/customers/${c.id}`)}>
-                <td style={{ maxWidth: 220 }}>
-                  <div className="v2-row" style={{ gap: 6, alignItems: "center" }}>
-                    <span style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }} title={c.nickname || c.name}>{c.nickname || c.name}</span>
-                    {!c.pledgeNo && <Chip variant="warn">誓約書未</Chip>}
-                  </div>
-                  {c.nickname && <div className="v2-mute" style={{ fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={c.name}>{c.name}</div>}
-                </td>
-                <td><span className="v2-mute" style={{ fontSize: 11, letterSpacing: "0.04em", textTransform: "uppercase" }}>{RANK_LABEL[c.rank]}</span></td>
-                <td className="v2-sub">{c.phone || "—"}</td>
-                <td className="v2-num-cell">{c.totalVisits}</td>
-                <td className="v2-num-cell">¥{c.totalSpent.toLocaleString()}</td>
-                <td className="v2-num-cell">{c.chipBalance.toLocaleString()}</td>
-                <td className="v2-num-cell">{c.pointBalance.toLocaleString()}</td>
-                <td className="v2-sub">{c.lastVisit ?? "—"}</td>
+        <div className="v2-table-wrap">
+          <table className="v2-table v2-table-clickable">
+            <thead>
+              <tr>
+                <th>名前</th>
+                <th>ランク</th>
+                <th>電話</th>
+                <th className="v2-num-cell">来店</th>
+                <th className="v2-num-cell">累計利用</th>
+                <th className="v2-num-cell">チップ</th>
+                <th className="v2-num-cell">ポイント</th>
+                <th>最終来店</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.length === 0 ? (
+                <tr><td colSpan={8}><Empty>該当する顧客がいません</Empty></td></tr>
+              ) : rows.map(c => (
+                <tr key={c.id} onClick={() => location.assign(`/v2/customers/${c.id}`)}>
+                  <td style={{ maxWidth: 220 }}>
+                    <div className="v2-row" style={{ gap: 6, alignItems: "center" }}>
+                      <span style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }} title={c.nickname || c.name}>{c.nickname || c.name}</span>
+                      {!c.pledgeNo && <Chip variant="warn">誓約書未</Chip>}
+                    </div>
+                    {c.nickname && <div className="v2-mute" style={{ fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={c.name}>{c.name}</div>}
+                  </td>
+                  <td>{c.rank === "regular" ? <span className="v2-mute" style={{ fontSize: 11, letterSpacing: "0.04em", textTransform: "uppercase" }}>{RANK_LABEL[c.rank]}</span> : <RankBadge rank={c.rank} />}</td>
+                  <td className="v2-sub">{c.phone || "—"}</td>
+                  <td className="v2-num-cell">{c.totalVisits}</td>
+                  <td className="v2-num-cell">¥{c.totalSpent.toLocaleString()}</td>
+                  <td className="v2-num-cell">{c.chipBalance.toLocaleString()}</td>
+                  <td className="v2-num-cell">{c.pointBalance.toLocaleString()}</td>
+                  <td className="v2-sub">{c.lastVisit ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <Modal
@@ -247,7 +249,7 @@ export default function CustomersPage() {
               各列がどの項目に対応するかを選択してください。名前が空の行はスキップされます。
             </div>
 
-            <div style={{ overflowX: "auto" }}>
+            <div className="v2-table-wrap">
               <table className="v2-table">
                 <thead>
                   <tr>
@@ -279,15 +281,13 @@ export default function CustomersPage() {
             <div className="v2-mute" style={{ fontSize: 11 }}>先頭3行のプレビュー(全{importRows.length}行を取込みます)</div>
 
             {!importMapping.includes("name") && (
-              <div style={{ padding: 10, background: "var(--v2-danger-bg)", color: "var(--v2-danger)", fontSize: 12, borderRadius: 3 }}>
-                「名前」に対応する列を選択してください。
-              </div>
+              <Banner variant="danger">「名前」に対応する列を選択してください。</Banner>
             )}
 
             <Field label="電話番号が既存顧客と一致する行の扱い">
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                <button className={`v2-btn ${duplicateAction === "update" ? "v2-btn-primary" : ""}`} onClick={() => setDuplicateAction("update")}>既存顧客を更新</button>
-                <button className={`v2-btn ${duplicateAction === "skip" ? "v2-btn-primary" : ""}`} onClick={() => setDuplicateAction("skip")}>スキップ</button>
+              <div className="v2-form-grid">
+                <Btn variant={duplicateAction === "update" ? "primary" : undefined} onClick={() => setDuplicateAction("update")}>既存顧客を更新</Btn>
+                <Btn variant={duplicateAction === "skip" ? "primary" : undefined} onClick={() => setDuplicateAction("skip")}>スキップ</Btn>
               </div>
             </Field>
           </VStack>

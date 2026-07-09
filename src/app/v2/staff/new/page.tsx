@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { staffStore } from "@/lib/store/domain-stores";
 import { type StaffFull, type EmploymentType, type Gender, type SalaryType, EMPLOYMENT_TYPE_LABEL, GENDER_LABEL, ROLES, DEPARTMENTS } from "@/lib/staff-data";
-import { PageHeader, Btn, Panel, Field, VStack, HStack, Tabs } from "@/components/v2/ui";
+import { PageHeader, Btn, Panel, Field, VStack, HStack, Tabs, Banner } from "@/components/v2/ui";
 import { ArrowLeft } from "lucide-react";
 
 export default function NewStaffPage() {
@@ -94,11 +94,11 @@ export default function NewStaffPage() {
         { value: "social", label: "社会保険・税" },
       ]} />
 
-      {error && <div style={{ padding: 10, background: "var(--v2-danger-bg)", color: "var(--v2-danger)", fontSize: 12, borderRadius: 3 }}>{error}</div>}
+      {error && <Banner variant="danger">{error}</Banner>}
 
       <Panel>
         {tab === "basic" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="姓" required><input value={lastName} onChange={(e) => { setLastName(e.target.value); setError(""); }} /></Field>
             <Field label="名" required><input value={firstName} onChange={(e) => { setFirstName(e.target.value); setError(""); }} /></Field>
             <Field label="セイ"><input value={lastNameKana} onChange={(e) => setLastNameKana(e.target.value)} /></Field>
@@ -117,7 +117,7 @@ export default function NewStaffPage() {
         )}
 
         {tab === "employ" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="社員番号" hint="未入力で自動生成"><input value={employeeNo} onChange={(e) => setEmployeeNo(e.target.value)} placeholder="EMP-001" /></Field>
             <Field label="入社日" required><input type="date" value={joinDate} onChange={(e) => { setJoinDate(e.target.value); setError(""); }} /></Field>
             <Field label="雇用形態">
@@ -140,7 +140,7 @@ export default function NewStaffPage() {
         )}
 
         {tab === "salary" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="支給形態">
               <select value={salaryType} onChange={(e) => setSalaryType(e.target.value as SalaryType)}>
                 <option value="monthly">月給</option>
@@ -162,7 +162,7 @@ export default function NewStaffPage() {
         )}
 
         {tab === "social" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="マイナンバー"><input value={myNumber} onChange={(e) => setMyNumber(e.target.value)} /></Field>
             <Field label="扶養家族数"><input type="number" value={dependents} onChange={(e) => setDependents(parseInt(e.target.value) || 0)} /></Field>
           </div>

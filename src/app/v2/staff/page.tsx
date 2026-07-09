@@ -45,8 +45,8 @@ export default function StaffPage() {
         <Kpi label="退職" value={staff.filter(s => s.status === "retired").length} />
       </Kpis>
 
-      <div className="v2-row" style={{ gap: 12 }}>
-        <div style={{ position: "relative", flex: 1, maxWidth: 360 }}>
+      <div className="v2-toolbar">
+        <div className="v2-toolbar__search">
           <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="名前・役割" style={{ paddingLeft: 30 }} />
         </div>
@@ -58,36 +58,38 @@ export default function StaffPage() {
       </div>
 
       <div className="v2-panel">
-        <table className="v2-table v2-table-clickable">
-          <thead>
-            <tr>
-              <th>社員番号</th>
-              <th>名前</th>
-              <th>役職</th>
-              <th>部署</th>
-              <th>入社</th>
-              <th>状態</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr><td colSpan={6}><Empty>該当する従業員がいません</Empty></td></tr>
-            ) : rows.map(s => (
-              <tr key={s.id} onClick={() => location.assign(`/v2/staff/${s.id}`)}>
-                <td className="v2-sub">{s.employeeNo}</td>
-                <td>{staffFullName(s)}</td>
-                <td>{s.role}</td>
-                <td className="v2-sub">{s.department}</td>
-                <td className="v2-sub">{s.joinDate}</td>
-                <td>
-                  <Chip variant={s.status === "active" ? "success" : s.status === "leave" ? "warn" : undefined}>
-                    {STATUS_LABEL[s.status]}
-                  </Chip>
-                </td>
+        <div className="v2-table-wrap">
+          <table className="v2-table v2-table-clickable">
+            <thead>
+              <tr>
+                <th>社員番号</th>
+                <th>名前</th>
+                <th>役職</th>
+                <th>部署</th>
+                <th>入社</th>
+                <th>状態</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.length === 0 ? (
+                <tr><td colSpan={6}><Empty>該当する従業員がいません</Empty></td></tr>
+              ) : rows.map(s => (
+                <tr key={s.id} onClick={() => location.assign(`/v2/staff/${s.id}`)}>
+                  <td className="v2-sub">{s.employeeNo}</td>
+                  <td>{staffFullName(s)}</td>
+                  <td>{s.role}</td>
+                  <td className="v2-sub">{s.department}</td>
+                  <td className="v2-sub">{s.joinDate}</td>
+                  <td>
+                    <Chip variant={s.status === "active" ? "success" : s.status === "leave" ? "warn" : undefined}>
+                      {STATUS_LABEL[s.status]}
+                    </Chip>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </VStack>
   );

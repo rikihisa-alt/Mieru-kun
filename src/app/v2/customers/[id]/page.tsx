@@ -164,7 +164,7 @@ export default function CustomerDetail() {
 
       {tab === "basic" && (
         <Panel>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="本名"><input value={draft.name} onChange={(e) => update("name", e.target.value)} /></Field>
             <Field label="ポーカーネーム" hint="客同士に見える呼び名(本名は店側のみ)"><input value={draft.nickname} onChange={(e) => update("nickname", e.target.value)} /></Field>
             <Field label="ランク">
@@ -191,7 +191,7 @@ export default function CustomerDetail() {
 
       {tab === "chip" && (
         <Panel>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="v2-form-grid">
             <Field label="チップ残高"><input type="number" value={draft.chipBalance} onChange={(e) => update("chipBalance", parseInt(e.target.value) || 0)} /></Field>
             <Field label="ポイント残高"><input type="number" value={draft.pointBalance} onChange={(e) => update("pointBalance", parseInt(e.target.value) || 0)} /></Field>
           </div>
