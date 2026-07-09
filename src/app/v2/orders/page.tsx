@@ -5,7 +5,7 @@ import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { productStore, customerStore, type CustomerRank } from "@/lib/store/domain-stores";
 import { salesOrderStore, type SalesOrder, type SalesOrderItem, stockMovementStore } from "@/lib/v2/stores";
 import { grantSpendPoints } from "@/lib/v2/points";
-import { PageHeader, Btn, Panel, Modal, VStack, HStack, Chip, Empty, Field } from "@/components/v2/ui";
+import { PageHeader, Btn, Panel, Modal, VStack, HStack, Chip, Empty, Field, Toast, useToast, Banner, FilterChips, SectionLabel } from "@/components/v2/ui";
 import { Plus, Minus, CreditCard, Trash2, X, FileDown, Clock } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
 import { TIME_CHARGE_KEY, DEFAULT_TIME_CHARGE, calcTimeChargeUnits, calcTimeChargeAmount, type TimeChargeSettings } from "@/app/v2/settings/page";
@@ -44,7 +44,7 @@ export default function OrdersPage() {
   const [settling, setSettling] = useState<SalesOrder | null>(null);
   const [method, setMethod] = useState<"cash" | "card" | "qr" | "credit">("cash");
   const [cat, setCat] = useState<string>("all");
-  const [settleResult, setSettleResult] = useState<{ id: string; points: number } | null>(null);
+  const { toast, show: showToast } = useToast(4000);
 
   const active = orders.filter(o => o.status === "active");
   const settled = orders.filter(o => o.status === "settled");
@@ -114,7 +114,7 @@ export default function OrdersPage() {
   function resetForm() {
     setCustomer(""); setCustomerId(""); setTable(""); setCart([]); setCat("all");
   }
-  function openSettle(o: SalesOrder) { setSettling(o); setMethod("cash"); setSettleResult(null); }
+  function openSettle(o: SalesOrder) { setSettling(o); setMethod("cash"); }
   function settle() {
     if (!settling) return;
     const s = settling;
@@ -163,8 +163,7 @@ export default function OrdersPage() {
     if (s.customerId && !isCredit) {
       grantedPoints = grantSpendPoints(s.customerId, s.total, `注文精算 (${s.id})`);
     }
-    setSettleResult({ id: s.id, points: grantedPoints });
-    setTimeout(() => setSettleResult(prev => prev?.id === s.id ? null : prev), 4000);
+    showToast(`精算が完了しました${grantedPoints > 0 ? ` (${grantedPoints}ptを付与しました)` : ""}`);
     setSettling(null);
   }
   function remove(id: string) {
@@ -196,58 +195,58 @@ export default function OrdersPage() {
         action={<Btn variant="primary" onClick={() => setOpen(true)}><Plus size={14} /> 新規注文</Btn>}
       />
 
-      {settleResult && (
-        <div style={{ padding: "8px 12px", background: "var(--v2-success-bg)", color: "var(--v2-success)", fontSize: 12, borderRadius: 3 }}>
-          精算が完了しました{settleResult.points > 0 ? ` (${settleResult.points}ptを付与しました)` : ""}
-        </div>
-      )}
+      {toast && <Toast message={toast.message} variant={toast.variant} />}
 
       <Panel title="未精算">
         {active.length === 0 ? <Empty>未精算の注文はありません</Empty> : (
-          <table className="v2-table">
-            <thead><tr><th>顧客</th><th>卓</th><th>商品</th><th className="v2-num-cell">合計</th><th>時刻</th><th></th></tr></thead>
-            <tbody>
-              {active.map(o => (
-                <tr key={o.id}>
-                  <td>{o.customer}</td>
-                  <td>{o.table ? <Chip>{o.table}</Chip> : <span className="v2-mute">—</span>}</td>
-                  <td className="v2-sub" style={{ fontSize: 12 }}>{o.items.map(i => `${i.name}×${i.qty}`).join(" / ")}</td>
-                  <td className="v2-num-cell">¥{o.total.toLocaleString()}</td>
-                  <td className="v2-num v2-sub">{new Date(o.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
-                  <td>
-                    <HStack gap={4}>
-                      <Btn size="xs" onClick={() => openSettle(o)}><CreditCard size={11} /> 精算</Btn>
-                      <Btn size="xs" variant="danger" onClick={() => remove(o.id)}><Trash2 size={11} /></Btn>
-                    </HStack>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>顧客</th><th>卓</th><th>商品</th><th className="v2-num-cell">合計</th><th>時刻</th><th></th></tr></thead>
+              <tbody>
+                {active.map(o => (
+                  <tr key={o.id}>
+                    <td>{o.customer}</td>
+                    <td>{o.table ? <Chip>{o.table}</Chip> : <span className="v2-mute">—</span>}</td>
+                    <td className="v2-sub" style={{ fontSize: 12, maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={o.items.map(i => `${i.name}×${i.qty}`).join(" / ")}>{o.items.map(i => `${i.name}×${i.qty}`).join(" / ")}</td>
+                    <td className="v2-num-cell">¥{o.total.toLocaleString()}</td>
+                    <td className="v2-num v2-sub">{new Date(o.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
+                    <td>
+                      <HStack gap={4}>
+                        <Btn size="xs" onClick={() => openSettle(o)}><CreditCard size={11} /> 精算</Btn>
+                        <Btn size="xs" variant="danger" onClick={() => remove(o.id)}><Trash2 size={11} /></Btn>
+                      </HStack>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
 
       {settled.length > 0 && (
         <Panel title="精算済み (本日)" action={<span className="v2-mute" style={{ fontSize: 12 }}>{settled.length}件</span>}>
-          <table className="v2-table">
-            <thead><tr><th>顧客</th><th>商品</th><th className="v2-num-cell">合計</th><th>支払</th><th>時刻</th><th></th></tr></thead>
-            <tbody>
-              {settled.slice(0, 20).map(o => (
-                <tr key={o.id}>
-                  <td>{o.customer}</td>
-                  <td className="v2-sub" style={{ fontSize: 12 }}>{o.items.map(i => `${i.name}×${i.qty}`).join(" / ")}</td>
-                  <td className="v2-num-cell">¥{o.total.toLocaleString()}</td>
-                  <td className="v2-sub">
-                    {o.paymentMethod === "credit"
-                      ? <Chip variant={o.unpaid ? "warn" : "success"}>{o.unpaid ? "後払い(未払)" : "後払い(消込済)"}</Chip>
-                      : paymentLabel(o.paymentMethod)}
-                  </td>
-                  <td className="v2-num v2-sub">{new Date(o.settledAt ?? o.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
-                  <td><Btn size="xs" onClick={() => receipt(o)}><FileDown size={11}/> 領収</Btn></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>顧客</th><th>商品</th><th className="v2-num-cell">合計</th><th>支払</th><th>時刻</th><th></th></tr></thead>
+              <tbody>
+                {settled.slice(0, 20).map(o => (
+                  <tr key={o.id}>
+                    <td>{o.customer}</td>
+                    <td className="v2-sub" style={{ fontSize: 12, maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={o.items.map(i => `${i.name}×${i.qty}`).join(" / ")}>{o.items.map(i => `${i.name}×${i.qty}`).join(" / ")}</td>
+                    <td className="v2-num-cell">¥{o.total.toLocaleString()}</td>
+                    <td className="v2-sub">
+                      {o.paymentMethod === "credit"
+                        ? <Chip variant={o.unpaid ? "warn" : "success"}>{o.unpaid ? "後払い(未払)" : "後払い(消込済)"}</Chip>
+                        : paymentLabel(o.paymentMethod)}
+                    </td>
+                    <td className="v2-num v2-sub">{new Date(o.settledAt ?? o.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
+                    <td><Btn size="xs" onClick={() => receipt(o)}><FileDown size={11}/> 領収</Btn></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Panel>
       )}
 
@@ -260,7 +259,7 @@ export default function OrdersPage() {
         footer={<><Btn onClick={() => { setOpen(false); resetForm(); }}>キャンセル</Btn><Btn variant="primary" onClick={createOrder} disabled={!customer.trim() || cart.length === 0}>注文確定 ¥{cartTotal.toLocaleString()}</Btn></>}
       >
         <VStack gap={16}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          <div className="v2-form-grid">
             <Field label="既存顧客">
               <select value={customerId} onChange={(e) => pickCustomer(e.target.value)}>
                 <option value="">— ゲスト —</option>
@@ -272,71 +271,71 @@ export default function OrdersPage() {
           </div>
 
           {activeProducts.length === 0 ? (
-            <div className="v2-mute" style={{ fontSize: 12, padding: 8 }}>商品マスタが空です。先に <a href="/v2/products" style={{ textDecoration: "underline" }}>商品マスタ</a> で商品を登録してください。</div>
+            <Empty>商品マスタが空です。先に <a href="/v2/products" style={{ textDecoration: "underline" }}>商品マスタ</a> で商品を登録してください。</Empty>
           ) : (
             <div>
-              <HStack gap={6} style={{ flexWrap: "wrap", marginBottom: 8 }}>
-                <button onClick={() => setCat("all")} className={`v2-btn ${cat === "all" ? "v2-btn-primary" : ""}`} style={{ height: 26, padding: "0 10px", fontSize: 12 }}>すべて</button>
-                {cats.map(c => (
-                  <button key={c} onClick={() => setCat(c)} className={`v2-btn ${cat === c ? "v2-btn-primary" : ""}`} style={{ height: 26, padding: "0 10px", fontSize: 12 }}>{c}</button>
-                ))}
-              </HStack>
+              <div className="v2-toolbar" style={{ marginBottom: 8 }}>
+                <FilterChips
+                  value={cat}
+                  onChange={setCat}
+                  items={[{ value: "all", label: "すべて" }, ...cats.map(c => ({ value: c, label: c }))]}
+                />
+              </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 6 }}>
                 {filteredProducts.map(p => (
-                  <button key={p.id} onClick={() => addToCart(p.id)} className="v2-btn" style={{ height: 56, flexDirection: "column", padding: 8, alignItems: "flex-start" }}>
+                  <Btn key={p.id} onClick={() => addToCart(p.id)} style={{ height: 56, flexDirection: "column", padding: 8, alignItems: "flex-start" }}>
                     <span style={{ fontSize: 12 }}>{p.name}</span>
                     <HStack gap={4} style={{ width: "100%" }}>
                       <span className="v2-num v2-mute" style={{ fontSize: 11 }}>¥{p.price.toLocaleString()}</span>
                       {p.stock != null && <span className="v2-mute" style={{ fontSize: 10, marginLeft: "auto" }}>在 {p.stock}</span>}
                     </HStack>
-                  </button>
+                  </Btn>
                 ))}
               </div>
             </div>
           )}
 
           {showTimeChargeSuggestion && (
-            <div style={{
-              display: "flex", alignItems: "center", gap: 10,
-              padding: "8px 12px", borderRadius: 3,
-              background: "var(--v2-info-bg, #eef4ff)", color: "var(--v2-text, #1c2e24)",
-            }}>
-              <Clock size={14} style={{ flexShrink: 0 }} />
-              <span style={{ fontSize: 12, flex: 1 }}>
-                テーブルチャージ: 滞在{formatStayDuration(stayMinutes)} → ¥{timeChargeAmount.toLocaleString()}
-                <span className="v2-mute" style={{ marginLeft: 6 }}>({timeChargeUnits}単位 × ¥{timeCharge.unitPrice.toLocaleString()})</span>
-              </span>
-              <Btn size="xs" variant={timeChargeInCart ? undefined : "primary"} disabled={timeChargeInCart} onClick={addTimeCharge}>
-                {timeChargeInCart ? "追加済み" : "追加"}
-              </Btn>
-            </div>
+            <Banner variant="info" icon={<Clock size={14} style={{ flexShrink: 0 }} />}>
+              <HStack gap={10} style={{ width: "100%" }}>
+                <span style={{ fontSize: 12, flex: 1 }}>
+                  テーブルチャージ: 滞在{formatStayDuration(stayMinutes)} → ¥{timeChargeAmount.toLocaleString()}
+                  <span className="v2-mute" style={{ marginLeft: 6 }}>({timeChargeUnits}単位 × ¥{timeCharge.unitPrice.toLocaleString()})</span>
+                </span>
+                <Btn size="xs" variant={timeChargeInCart ? undefined : "primary"} disabled={timeChargeInCart} onClick={addTimeCharge}>
+                  {timeChargeInCart ? "追加済み" : "追加"}
+                </Btn>
+              </HStack>
+            </Banner>
           )}
 
           {cart.length > 0 && (
             <div>
-              <div className="v2-label" style={{ marginBottom: 6 }}>カート</div>
-              <table className="v2-table">
-                <tbody>
-                  {cart.map(i => (
-                    <tr key={i.productId}>
-                      <td>{i.name}</td>
-                      <td className="v2-num-cell" style={{ width: 80 }}>¥{i.price.toLocaleString()}</td>
-                      <td style={{ width: 100 }}>
-                        <HStack gap={4}>
-                          <Btn size="xs" onClick={() => changeQty(i.productId, -1)}><Minus size={11} /></Btn>
-                          <span style={{ width: 24, textAlign: "center", fontFamily: "var(--v2-num)" }}>{i.qty}</span>
-                          <Btn size="xs" onClick={() => changeQty(i.productId, 1)}><Plus size={11} /></Btn>
-                        </HStack>
-                      </td>
-                      <td className="v2-num-cell" style={{ width: 90 }}>¥{(i.price * i.qty).toLocaleString()}</td>
-                      <td style={{ width: 28 }}><Btn size="xs" variant="ghost" onClick={() => changeQty(i.productId, -i.qty)}><X size={11} /></Btn></td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr><td colSpan={3} className="v2-mute" style={{ paddingTop: 8 }}>合計</td><td className="v2-num-cell" style={{ paddingTop: 8, fontSize: 16, fontWeight: 600 }}>¥{cartTotal.toLocaleString()}</td><td></td></tr>
-                </tfoot>
-              </table>
+              <SectionLabel>カート</SectionLabel>
+              <div className="v2-table-wrap">
+                <table className="v2-table">
+                  <tbody>
+                    {cart.map(i => (
+                      <tr key={i.productId}>
+                        <td>{i.name}</td>
+                        <td className="v2-num-cell" style={{ width: 80 }}>¥{i.price.toLocaleString()}</td>
+                        <td style={{ width: 100 }}>
+                          <HStack gap={4}>
+                            <Btn size="xs" onClick={() => changeQty(i.productId, -1)}><Minus size={11} /></Btn>
+                            <span style={{ width: 24, textAlign: "center", fontFamily: "var(--v2-num)" }}>{i.qty}</span>
+                            <Btn size="xs" onClick={() => changeQty(i.productId, 1)}><Plus size={11} /></Btn>
+                          </HStack>
+                        </td>
+                        <td className="v2-num-cell" style={{ width: 90 }}>¥{(i.price * i.qty).toLocaleString()}</td>
+                        <td style={{ width: 28 }}><Btn size="xs" variant="ghost" onClick={() => changeQty(i.productId, -i.qty)}><X size={11} /></Btn></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr><td colSpan={3} className="v2-mute" style={{ paddingTop: 8 }}>合計</td><td className="v2-num-cell" style={{ paddingTop: 8, fontSize: 16, fontWeight: 600 }}>¥{cartTotal.toLocaleString()}</td><td></td></tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           )}
         </VStack>
@@ -362,16 +361,16 @@ export default function OrdersPage() {
             <Field label="支払方法">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
                 {(["cash", "card", "qr", "credit"] as const).map(m => (
-                  <button key={m} onClick={() => setMethod(m)} className={`v2-btn ${method === m ? "v2-btn-primary" : ""}`}>
+                  <Btn key={m} variant={method === m ? "primary" : undefined} onClick={() => setMethod(m)}>
                     {m === "cash" ? "現金" : m === "card" ? "カード" : m === "qr" ? "QR" : "後払い"}
-                  </button>
+                  </Btn>
                 ))}
               </div>
             </Field>
             {method === "credit" && !settling.customerId && (
-              <div style={{ padding: 10, background: "var(--v2-warn-bg)", color: "var(--v2-warn)", fontSize: 12, borderRadius: 3 }}>
+              <Banner variant="warn">
                 この注文は既存顧客に紐付いていません(ゲスト名: {settling.customer})。後日の消し込みのため、可能であれば顧客登録して紐付けてください。
-              </div>
+              </Banner>
             )}
             {method === "credit" && (
               <div className="v2-mute" style={{ fontSize: 11 }}>※ 後払いは売掛金として扱われ、現金/カード/QRの売上には計上されません。未払いリスト(売上管理 &gt; 未払い)で管理し、入金時に消し込んでください。</div>
