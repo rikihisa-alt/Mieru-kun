@@ -27,6 +27,7 @@ export interface CustomerRecord {
   totalSpent: number;
   chipBalance: number;
   pointBalance: number;
+  multikeBalance?: number;
   lastVisit?: string;
   prizeCount: number;
   lastPrize?: string;

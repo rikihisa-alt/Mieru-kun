@@ -67,6 +67,7 @@ export interface StaffFull {
   status: StaffStatus;
   resignDate?: string;
   resignReason?: string;
+  retiredAt?: string; // 退職処理日 (論理削除の目印)
   // 給与
   salaryType: SalaryType;
   baseSalary: number;       // 月給 or 0

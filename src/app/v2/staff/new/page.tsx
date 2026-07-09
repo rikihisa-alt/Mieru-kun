@@ -47,8 +47,16 @@ export default function NewStaffPage() {
   const [error, setError] = useState("");
 
   function submit() {
+    setError("");
     if (!lastName || !firstName) { setTab("basic"); setError("姓名は必須です"); return; }
     if (!joinDate) { setTab("employ"); setError("入社日は必須です"); return; }
+
+    const wageUnset = salaryType === "hourly" ? hourlyWage <= 0 : baseSalary <= 0;
+    if (wageUnset) {
+      const ok = confirm("時給・給与が未設定です。このまま登録しますか？");
+      if (!ok) { setTab("salary"); return; }
+    }
+
     const s: StaffFull = {
       id: `s${Date.now()}`,
       employeeNo: employeeNo || `EMP-${String(Date.now()).slice(-4)}`,
@@ -79,7 +87,7 @@ export default function NewStaffPage() {
       </Link>
       <PageHeader title="従業員 新規登録" />
 
-      <Tabs value={tab} onChange={(v) => setTab(v as typeof tab)} items={[
+      <Tabs value={tab} onChange={(v) => { setTab(v as typeof tab); setError(""); }} items={[
         { value: "basic", label: "基本情報" },
         { value: "employ", label: "雇用" },
         { value: "salary", label: "給与" },
@@ -91,8 +99,8 @@ export default function NewStaffPage() {
       <Panel>
         {tab === "basic" && (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <Field label="姓" required><input value={lastName} onChange={(e) => setLastName(e.target.value)} /></Field>
-            <Field label="名" required><input value={firstName} onChange={(e) => setFirstName(e.target.value)} /></Field>
+            <Field label="姓" required><input value={lastName} onChange={(e) => { setLastName(e.target.value); setError(""); }} /></Field>
+            <Field label="名" required><input value={firstName} onChange={(e) => { setFirstName(e.target.value); setError(""); }} /></Field>
             <Field label="セイ"><input value={lastNameKana} onChange={(e) => setLastNameKana(e.target.value)} /></Field>
             <Field label="メイ"><input value={firstNameKana} onChange={(e) => setFirstNameKana(e.target.value)} /></Field>
             <Field label="性別">
@@ -111,7 +119,7 @@ export default function NewStaffPage() {
         {tab === "employ" && (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <Field label="社員番号" hint="未入力で自動生成"><input value={employeeNo} onChange={(e) => setEmployeeNo(e.target.value)} placeholder="EMP-001" /></Field>
-            <Field label="入社日" required><input type="date" value={joinDate} onChange={(e) => setJoinDate(e.target.value)} /></Field>
+            <Field label="入社日" required><input type="date" value={joinDate} onChange={(e) => { setJoinDate(e.target.value); setError(""); }} /></Field>
             <Field label="雇用形態">
               <select value={employmentType} onChange={(e) => setEmploymentType(e.target.value as EmploymentType)}>
                 {(Object.keys(EMPLOYMENT_TYPE_LABEL) as EmploymentType[]).map(t => <option key={t} value={t}>{EMPLOYMENT_TYPE_LABEL[t]}</option>)}

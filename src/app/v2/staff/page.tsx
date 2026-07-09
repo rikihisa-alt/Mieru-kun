@@ -12,10 +12,12 @@ import { printDoc, tableHtml } from "@/lib/v2/pdf";
 export default function StaffPage() {
   const [staff] = usePersisted(staffStore);
   const [q, setQ] = useState("");
+  const [showRetired, setShowRetired] = useState(false);
   const norm = q.toLowerCase().trim();
+  const visibleStaff = showRetired ? staff : staff.filter(s => s.status !== "retired");
   const rows = norm
-    ? staff.filter(s => `${s.lastName}${s.firstName}${s.role}`.toLowerCase().includes(norm))
-    : staff;
+    ? visibleStaff.filter(s => `${s.lastName}${s.firstName}${s.role}`.toLowerCase().includes(norm))
+    : visibleStaff;
 
   return (
     <VStack gap={16}>
@@ -48,7 +50,11 @@ export default function StaffPage() {
           <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--v2-text-mute)" }} />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="名前・役割" style={{ paddingLeft: 30 }} />
         </div>
-        <span className="v2-mute" style={{ fontSize: 12, marginLeft: "auto" }}>{rows.length}件</span>
+        <label className="v2-row" style={{ gap: 6, fontSize: 12, cursor: "pointer", marginLeft: "auto" }}>
+          <input type="checkbox" checked={showRetired} onChange={(e) => setShowRetired(e.target.checked)} />
+          退職者を表示
+        </label>
+        <span className="v2-mute" style={{ fontSize: 12 }}>{rows.length}件</span>
       </div>
 
       <div className="v2-panel">

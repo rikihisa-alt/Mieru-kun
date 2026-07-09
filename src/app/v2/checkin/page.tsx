@@ -29,20 +29,30 @@ export default function CheckinPage() {
   const [guestName, setGuestName] = useState("");
   const [guestRank, setGuestRank] = useState<CustomerRank>("regular");
 
+  function makeVisitId() {
+    return `v${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  }
   function checkin() {
     if (selectedId) {
       const c = customers.find(x => x.id === selectedId);
       if (!c) return;
-      setVisits(prev => [{ id: `v${Date.now()}`, customerId: c.id, name: c.nickname || c.name, rank: c.rank, checkedInAt: new Date().toISOString() }, ...prev]);
+      if (visits.some(v => v.customerId === c.id)) {
+        alert(`${c.nickname || c.name}さんは既にチェックイン済みです`);
+        return;
+      }
+      setVisits(prev => [{ id: makeVisitId(), customerId: c.id, name: c.nickname || c.name, rank: c.rank, checkedInAt: new Date().toISOString() }, ...prev]);
     } else {
       if (!guestName.trim()) return;
-      setVisits(prev => [{ id: `v${Date.now()}`, customerId: null, name: guestName.trim(), rank: guestRank, checkedInAt: new Date().toISOString() }, ...prev]);
+      setVisits(prev => [{ id: makeVisitId(), customerId: null, name: guestName.trim(), rank: guestRank, checkedInAt: new Date().toISOString() }, ...prev]);
     }
     setOpen(false);
     setSelectedId(""); setGuestName(""); setGuestRank("regular");
   }
   function checkout(id: string) {
-    setVisits(prev => prev.filter(v => v.id !== id));
+    const v = visits.find(x => x.id === id);
+    if (!v) return;
+    if (!confirm(`${v.name}さんを退店にしますか?(滞在 ${elapsed(v.checkedInAt)})`)) return;
+    setVisits(prev => prev.filter(x => x.id !== id));
   }
   function elapsed(iso: string) {
     const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);

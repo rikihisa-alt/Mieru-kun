@@ -1,11 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { usePersisted } from "@/lib/persist/store";
 import { staffStore } from "@/lib/store/domain-stores";
-import { staffFullName, staffFullNameKana, STATUS_LABEL, EMPLOYMENT_TYPE_LABEL, GENDER_LABEL, type StaffStatus } from "@/lib/staff-data";
-import { PageHeader, Btn, Panel, VStack, HStack, Chip, Kpis, Kpi } from "@/components/v2/ui";
+import {
+  staffFullName, staffFullNameKana, STATUS_LABEL, EMPLOYMENT_TYPE_LABEL, GENDER_LABEL,
+  ROLES, DEPARTMENTS,
+  type StaffStatus, type StaffFull, type EmploymentType, type Gender, type SalaryType,
+} from "@/lib/staff-data";
+import { PageHeader, Btn, Panel, Field, VStack, HStack, Chip, Kpis, Kpi, Tabs } from "@/components/v2/ui";
 import { ArrowLeft } from "lucide-react";
 
 function age(iso: string): number {
@@ -23,6 +28,9 @@ export default function StaffDetail() {
   const [allStaff] = usePersisted(staffStore);
   const s = allStaff.find(x => x.id === id);
 
+  const [editing, setEditing] = useState(false);
+  const [savedMsg, setSavedMsg] = useState("");
+
   if (!s) {
     return (
       <VStack gap={16}>
@@ -35,15 +43,46 @@ export default function StaffDetail() {
   function setStatus(status: StaffStatus) {
     staffStore.set(prev => prev.map(x => x.id === id ? { ...x, status } : x));
   }
-  function remove() {
-    if (!confirm("削除しますか？")) return;
+
+  // 退職処理(論理削除): status=retired + retiredAt を記録。物理削除はしない
+  function retire() {
+    if (!confirm("退職処理を行いますか？給与・雇用履歴は保持されたまま「退職」扱いになります。")) return;
+    const today = new Date().toISOString().slice(0, 10);
+    staffStore.set(prev => prev.map(x => x.id === id ? { ...x, status: "retired", retiredAt: today, resignDate: x.resignDate || today } : x));
+    setSavedMsg("退職処理を行いました");
+    setTimeout(() => setSavedMsg(""), 3000);
+  }
+
+  // 完全削除は退職者のみ許可。二重確認
+  function hardDelete() {
+    if (!s || s.status !== "retired") return;
+    if (!confirm("この従業員データを完全に削除します。給与・雇用履歴も含めて復元できません。よろしいですか？")) return;
+    if (!confirm("本当に完全削除しますか？この操作は取り消せません。")) return;
     staffStore.set(prev => prev.filter(x => x.id !== id));
     router.push("/v2/staff");
+  }
+
+  if (editing) {
+    return (
+      <StaffEditForm
+        staff={s}
+        onCancel={() => setEditing(false)}
+        onSaved={() => {
+          setEditing(false);
+          setSavedMsg("保存しました");
+          setTimeout(() => setSavedMsg(""), 3000);
+        }}
+      />
+    );
   }
 
   return (
     <VStack gap={16}>
       <Link href="/v2/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}><ArrowLeft size={12} />一覧へ戻る</Link>
+
+      {savedMsg && (
+        <div style={{ padding: 10, background: "var(--v2-success-bg)", color: "var(--v2-success)", fontSize: 12, borderRadius: 3 }}>{savedMsg}</div>
+      )}
 
       <PageHeader
         title={staffFullName(s)}
@@ -53,10 +92,11 @@ export default function StaffDetail() {
         </>}
         action={
           <>
+            <Btn variant="primary" onClick={() => setEditing(true)}>編集</Btn>
             {s.status !== "active" && <Btn onClick={() => setStatus("active")}>復帰</Btn>}
             {s.status !== "leave" && <Btn onClick={() => setStatus("leave")}>休職</Btn>}
-            {s.status !== "retired" && <Btn variant="danger" onClick={() => setStatus("retired")}>退職</Btn>}
-            <Btn variant="danger" onClick={remove}>削除</Btn>
+            {s.status !== "retired" && <Btn variant="danger" onClick={retire}>退職処理</Btn>}
+            {s.status === "retired" && <Btn variant="danger" onClick={hardDelete}>完全削除</Btn>}
           </>
         }
       />
@@ -93,6 +133,7 @@ export default function StaffDetail() {
             <DetailRow label="勤務地" value={s.workplace || "—"} />
             <DetailRow label="入社日" value={s.joinDate} />
             {s.resignDate && <DetailRow label="退職日" value={s.resignDate} />}
+            {s.retiredAt && <DetailRow label="退職処理日" value={s.retiredAt} />}
           </VStack>
         </Panel>
 
@@ -133,5 +174,165 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       <span className="v2-mute" style={{ fontSize: 12, width: 100 }}>{label}</span>
       <span style={{ fontSize: 13, flex: 1 }}>{value}</span>
     </HStack>
+  );
+}
+
+// ============= 編集フォーム =============
+function StaffEditForm({ staff, onCancel, onSaved }: { staff: StaffFull; onCancel: () => void; onSaved: () => void }) {
+  const [tab, setTab] = useState<"basic" | "employ" | "salary" | "social">("basic");
+
+  // 基本情報
+  const [lastName, setLastName] = useState(staff.lastName);
+  const [firstName, setFirstName] = useState(staff.firstName);
+  const [lastNameKana, setLastNameKana] = useState(staff.lastNameKana);
+  const [firstNameKana, setFirstNameKana] = useState(staff.firstNameKana);
+  const [gender, setGender] = useState<Gender>(staff.gender);
+  const [dateOfBirth, setDateOfBirth] = useState(staff.dateOfBirth);
+  const [postalCode, setPostalCode] = useState(staff.postalCode);
+  const [address, setAddress] = useState(staff.address);
+  const [phone, setPhone] = useState(staff.phone);
+  const [email, setEmail] = useState(staff.email);
+
+  // 雇用
+  const [employeeNo, setEmployeeNo] = useState(staff.employeeNo);
+  const [joinDate, setJoinDate] = useState(staff.joinDate);
+  const [employmentType, setEmploymentType] = useState<EmploymentType>(staff.employmentType);
+  const [department, setDepartment] = useState(staff.department);
+  const [role, setRole] = useState(staff.role);
+  const [workplace, setWorkplace] = useState(staff.workplace);
+
+  // 給与
+  const [salaryType, setSalaryType] = useState<SalaryType>(staff.salaryType);
+  const [baseSalary, setBaseSalary] = useState(staff.baseSalary);
+  const [hourlyWage, setHourlyWage] = useState(staff.hourlyWage);
+  const [commuteAllowance, setCommuteAllowance] = useState(staff.commuteAllowance);
+  const [otherAllowance, setOtherAllowance] = useState(staff.otherAllowance);
+  const [paymentMethod, setPaymentMethod] = useState<"transfer" | "cash">(staff.paymentMethod);
+
+  // 社会保険
+  const [myNumber, setMyNumber] = useState(staff.myNumber);
+  const [dependents, setDependents] = useState(staff.dependents);
+
+  const [error, setError] = useState("");
+
+  function save() {
+    if (!lastName || !firstName) { setError(""); setTab("basic"); setError("姓名は必須です"); return; }
+    if (!joinDate) { setError(""); setTab("employ"); setError("入社日は必須です"); return; }
+
+    const finalHourly = salaryType === "hourly" ? hourlyWage : 0;
+    const finalBase = salaryType === "monthly" ? baseSalary : 0;
+    if ((salaryType === "hourly" && finalHourly <= 0) || (salaryType === "monthly" && finalBase <= 0)) {
+      const ok = confirm("時給・給与が未設定です。このまま保存しますか？");
+      if (!ok) { setTab("salary"); return; }
+    }
+
+    setError("");
+    staffStore.set(prev => prev.map(x => x.id === staff.id ? {
+      ...x,
+      lastName, firstName, lastNameKana, firstNameKana,
+      gender, dateOfBirth,
+      postalCode, address, phone, email,
+      employeeNo, joinDate, employmentType, department, role, workplace,
+      salaryType, baseSalary: finalBase, hourlyWage: finalHourly,
+      commuteAllowance, otherAllowance, paymentMethod,
+      myNumber, dependents,
+    } : x));
+    onSaved();
+  }
+
+  return (
+    <VStack gap={16}>
+      <Link href="/v2/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
+        <ArrowLeft size={12} />一覧へ戻る
+      </Link>
+      <PageHeader title={`${staffFullName(staff)} を編集`} />
+
+      <Tabs value={tab} onChange={(v) => setTab(v as typeof tab)} items={[
+        { value: "basic", label: "基本情報" },
+        { value: "employ", label: "雇用" },
+        { value: "salary", label: "給与" },
+        { value: "social", label: "社会保険・税" },
+      ]} />
+
+      {error && <div style={{ padding: 10, background: "var(--v2-danger-bg)", color: "var(--v2-danger)", fontSize: 12, borderRadius: 3 }}>{error}</div>}
+
+      <Panel>
+        {tab === "basic" && (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <Field label="姓" required><input value={lastName} onChange={(e) => setLastName(e.target.value)} /></Field>
+            <Field label="名" required><input value={firstName} onChange={(e) => setFirstName(e.target.value)} /></Field>
+            <Field label="セイ"><input value={lastNameKana} onChange={(e) => setLastNameKana(e.target.value)} /></Field>
+            <Field label="メイ"><input value={firstNameKana} onChange={(e) => setFirstNameKana(e.target.value)} /></Field>
+            <Field label="性別">
+              <select value={gender} onChange={(e) => setGender(e.target.value as Gender)}>
+                {(Object.keys(GENDER_LABEL) as Gender[]).map(g => <option key={g} value={g}>{GENDER_LABEL[g]}</option>)}
+              </select>
+            </Field>
+            <Field label="生年月日"><input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} /></Field>
+            <Field label="郵便番号"><input value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="000-0000" /></Field>
+            <Field label="住所"><input value={address} onChange={(e) => setAddress(e.target.value)} /></Field>
+            <Field label="電話"><input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="090-0000-0000" /></Field>
+            <Field label="メール"><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
+          </div>
+        )}
+
+        {tab === "employ" && (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <Field label="社員番号"><input value={employeeNo} onChange={(e) => setEmployeeNo(e.target.value)} placeholder="EMP-001" /></Field>
+            <Field label="入社日" required><input type="date" value={joinDate} onChange={(e) => setJoinDate(e.target.value)} /></Field>
+            <Field label="雇用形態">
+              <select value={employmentType} onChange={(e) => setEmploymentType(e.target.value as EmploymentType)}>
+                {(Object.keys(EMPLOYMENT_TYPE_LABEL) as EmploymentType[]).map(t => <option key={t} value={t}>{EMPLOYMENT_TYPE_LABEL[t]}</option>)}
+              </select>
+            </Field>
+            <Field label="部署">
+              <select value={department} onChange={(e) => setDepartment(e.target.value)}>
+                {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
+              </select>
+            </Field>
+            <Field label="役職">
+              <select value={role} onChange={(e) => setRole(e.target.value)}>
+                {ROLES.map(r => <option key={r}>{r}</option>)}
+              </select>
+            </Field>
+            <Field label="勤務地"><input value={workplace} onChange={(e) => setWorkplace(e.target.value)} placeholder="店舗名" /></Field>
+          </div>
+        )}
+
+        {tab === "salary" && (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <Field label="支給形態">
+              <select value={salaryType} onChange={(e) => setSalaryType(e.target.value as SalaryType)}>
+                <option value="monthly">月給</option>
+                <option value="hourly">時給</option>
+              </select>
+            </Field>
+            {salaryType === "monthly"
+              ? <Field label="基本給 (円/月)"><input type="number" value={baseSalary} onChange={(e) => setBaseSalary(parseInt(e.target.value) || 0)} /></Field>
+              : <Field label="時給 (円)"><input type="number" value={hourlyWage} onChange={(e) => setHourlyWage(parseInt(e.target.value) || 0)} /></Field>}
+            <Field label="通勤手当 (円/月)"><input type="number" value={commuteAllowance} onChange={(e) => setCommuteAllowance(parseInt(e.target.value) || 0)} /></Field>
+            <Field label="その他手当 (円/月)"><input type="number" value={otherAllowance} onChange={(e) => setOtherAllowance(parseInt(e.target.value) || 0)} /></Field>
+            <Field label="支給方法">
+              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as "transfer" | "cash")}>
+                <option value="transfer">口座振込</option>
+                <option value="cash">現金支給</option>
+              </select>
+            </Field>
+          </div>
+        )}
+
+        {tab === "social" && (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <Field label="マイナンバー"><input value={myNumber} onChange={(e) => setMyNumber(e.target.value)} /></Field>
+            <Field label="扶養家族数"><input type="number" value={dependents} onChange={(e) => setDependents(parseInt(e.target.value) || 0)} /></Field>
+          </div>
+        )}
+      </Panel>
+
+      <HStack gap={8} style={{ justifyContent: "flex-end" }}>
+        <Btn onClick={onCancel}>キャンセル</Btn>
+        <Btn variant="primary" onClick={save}>保存</Btn>
+      </HStack>
+    </VStack>
   );
 }

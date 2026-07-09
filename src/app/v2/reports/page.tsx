@@ -18,10 +18,12 @@ export default function ReportsPage() {
     const todayOrders = settled.filter(o => (o.settledAt ?? o.createdAt).startsWith(today));
     const monthOrders = settled.filter(o => (o.settledAt ?? o.createdAt).startsWith(monthPrefix));
     const sum = (xs: typeof orders) => xs.reduce((s, o) => s + o.total, 0);
+    const elapsedDays = new Date(today).getDate(); // 当月の経過日数(1日始まり)
     return {
       todayTotal: sum(todayOrders), todayCount: todayOrders.length,
       monthTotal: sum(monthOrders), monthCount: monthOrders.length,
       monthAvg: monthOrders.length > 0 ? Math.round(sum(monthOrders) / monthOrders.length) : 0,
+      dailyAvg: elapsedDays > 0 ? Math.round(sum(monthOrders) / elapsedDays) : 0,
     };
   }, [orders, today, monthPrefix]);
 
@@ -53,7 +55,7 @@ export default function ReportsPage() {
           new Date(o.settledAt ?? o.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" }),
           o.customer,
           o.table ?? "—",
-          o.paymentMethod === "cash" ? "現金" : o.paymentMethod === "card" ? "カード" : "QR",
+          o.paymentMethod === "cash" ? "現金" : o.paymentMethod === "card" ? "カード" : o.paymentMethod === "credit" ? "後払い" : "QR",
           `¥${o.total.toLocaleString()}`,
         ]),
         { numCols: [4] }));
@@ -91,7 +93,7 @@ export default function ReportsPage() {
         <Kpi label="本日売上" value={`¥${totals.todayTotal.toLocaleString()}`} sub={`${totals.todayCount}件`} />
         <Kpi label="今月売上" value={`¥${totals.monthTotal.toLocaleString()}`} sub={`${totals.monthCount}件`} />
         <Kpi label="月次客単価" value={`¥${totals.monthAvg.toLocaleString()}`} />
-        <Kpi label="日次平均" value={`¥${last30.length > 0 ? Math.round(totals.monthTotal / Math.max(1, last30.filter(d => d.total > 0).length)).toLocaleString() : 0}`} />
+        <Kpi label="日次平均" value={`¥${totals.dailyAvg.toLocaleString()}`} />
       </Kpis>
 
       <Panel

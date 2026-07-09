@@ -18,6 +18,7 @@ export default function CustomersPage() {
   const [customers] = usePersisted(customerStore);
   const [q, setQ] = useState("");
 
+  const monthPrefix = new Date().toISOString().slice(0, 7).replace("-", "/");
   const norm = normalize(q.trim());
   const rows = norm
     ? customers.filter(c => normalize(c.name).includes(norm) || normalize(c.nickname).includes(norm) || c.phone.includes(q) || (c.pledgeNo ?? "").includes(q))
@@ -52,7 +53,7 @@ export default function CustomersPage() {
         <Kpi label="登録顧客" value={customers.length} />
         <Kpi label="VIP" value={customers.filter(c => c.rank === "vip").length} />
         <Kpi label="GOLD" value={customers.filter(c => c.rank === "gold").length} />
-        <Kpi label="今月来店" value={customers.filter(c => (c.lastVisit ?? "") >= "2026/04").length} />
+        <Kpi label="今月来店" value={customers.filter(c => (c.lastVisit ?? "") >= monthPrefix).length} />
       </Kpis>
 
       <div className="v2-row" style={{ gap: 12 }}>
@@ -82,12 +83,12 @@ export default function CustomersPage() {
               <tr><td colSpan={8}><Empty>該当する顧客がいません</Empty></td></tr>
             ) : rows.map(c => (
               <tr key={c.id} onClick={() => location.assign(`/v2/customers/${c.id}`)}>
-                <td>
+                <td style={{ maxWidth: 220 }}>
                   <div className="v2-row" style={{ gap: 6, alignItems: "center" }}>
-                    <span style={{ fontWeight: 600 }}>{c.nickname || c.name}</span>
+                    <span style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }} title={c.nickname || c.name}>{c.nickname || c.name}</span>
                     {!c.pledgeNo && <Chip variant="warn">誓約書未</Chip>}
                   </div>
-                  {c.nickname && <div className="v2-mute" style={{ fontSize: 11 }}>{c.name}</div>}
+                  {c.nickname && <div className="v2-mute" style={{ fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={c.name}>{c.name}</div>}
                 </td>
                 <td><span className="v2-mute" style={{ fontSize: 11, letterSpacing: "0.04em", textTransform: "uppercase" }}>{RANK_LABEL[c.rank]}</span></td>
                 <td className="v2-sub">{c.phone || "—"}</td>
