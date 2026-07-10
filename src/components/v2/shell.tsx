@@ -15,46 +15,46 @@ import { TopbarStorePill } from "@/components/v2/topbar-store-pill";
 import { TopbarAccount } from "@/components/v2/topbar-account";
 import { TopbarFaq } from "@/components/v2/topbar-faq";
 
-interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; hasMenu?: boolean; }
+interface NavItem { href: string; label: string; tip?: string; icon: typeof LayoutDashboard; hasMenu?: boolean; }
 interface NavSection { section: string; items: NavItem[]; }
 
 const NAV: NavSection[] = [
   { section: "運営", items: [
     { href: "/k4z8qm3x", label: "ダッシュボード", icon: LayoutDashboard },
-    { href: "/k4z8qm3x/checkin", label: "入店", icon: LogIn },
-    { href: "/k4z8qm3x/tables", label: "卓", icon: Grid3X3, hasMenu: true },
-    { href: "/k4z8qm3x/tournaments", label: "トナメ", icon: Trophy },
-    { href: "/k4z8qm3x/orders", label: "注文・精算", icon: ShoppingBag, hasMenu: true },
-    { href: "/k4z8qm3x/live", label: "ライブ注文", icon: Bell },
-    { href: "/k4z8qm3x/reservations", label: "予約", icon: CalendarCheck, hasMenu: true },
-    { href: "/k4z8qm3x/calendar", label: "カレンダー", icon: CalendarDays },
-    { href: "/sg7x2npq", label: "サイネージ", icon: MonitorPlay },
+    { href: "/k4z8qm3x/checkin", label: "入店", tip: "入店管理", icon: LogIn },
+    { href: "/k4z8qm3x/tables", label: "卓", tip: "卓管理", icon: Grid3X3, hasMenu: true },
+    { href: "/k4z8qm3x/tournaments", label: "トナメ", tip: "トーナメント管理", icon: Trophy },
+    { href: "/k4z8qm3x/orders", label: "注文・精算", tip: "注文・精算", icon: ShoppingBag, hasMenu: true },
+    { href: "/k4z8qm3x/live", label: "ライブ注文", tip: "ライブ注文モニター", icon: Bell },
+    { href: "/k4z8qm3x/reservations", label: "予約", tip: "予約管理", icon: CalendarCheck, hasMenu: true },
+    { href: "/k4z8qm3x/calendar", label: "カレンダー", tip: "営業カレンダー", icon: CalendarDays },
+    { href: "/sg7x2npq", label: "サイネージ", tip: "店内サイネージ表示", icon: MonitorPlay },
   ]},
   { section: "管理", items: [
-    { href: "/k4z8qm3x/customers", label: "顧客", icon: Users, hasMenu: true },
-    { href: "/k4z8qm3x/staff", label: "従業員", icon: UserCog, hasMenu: true },
-    { href: "/k4z8qm3x/attendance", label: "勤怠", icon: Clock, hasMenu: true },
-    { href: "/k4z8qm3x/shifts", label: "シフト", icon: CalendarCheck },
-    { href: "/k4z8qm3x/sales", label: "売上", icon: TrendingUp, hasMenu: true },
-    { href: "/k4z8qm3x/inventory", label: "在庫", icon: Package, hasMenu: true },
-    { href: "/k4z8qm3x/closing", label: "締め", icon: Lock },
-    { href: "/k4z8qm3x/reports", label: "集計", icon: BarChart3, hasMenu: true },
-    { href: "/k4z8qm3x/chip-flow", label: "チップフロー", icon: Coins },
-    { href: "/k4z8qm3x/history", label: "履歴", icon: History },
-    { href: "/k4z8qm3x/handover", label: "引き継ぎ", icon: ClipboardList },
-    { href: "/k4z8qm3x/incidents", label: "インシデント", icon: AlertTriangle },
+    { href: "/k4z8qm3x/customers", label: "顧客", tip: "顧客管理", icon: Users, hasMenu: true },
+    { href: "/k4z8qm3x/staff", label: "従業員", tip: "従業員管理", icon: UserCog, hasMenu: true },
+    { href: "/k4z8qm3x/attendance", label: "勤怠", tip: "勤怠管理", icon: Clock, hasMenu: true },
+    { href: "/k4z8qm3x/shifts", label: "シフト", tip: "シフト管理", icon: CalendarCheck },
+    { href: "/k4z8qm3x/sales", label: "売上", tip: "売上管理", icon: TrendingUp, hasMenu: true },
+    { href: "/k4z8qm3x/inventory", label: "在庫", tip: "在庫・備品管理", icon: Package, hasMenu: true },
+    { href: "/k4z8qm3x/closing", label: "締め", tip: "締め処理・日報", icon: Lock },
+    { href: "/k4z8qm3x/reports", label: "集計", tip: "集計レポート・月次損益", icon: BarChart3, hasMenu: true },
+    { href: "/k4z8qm3x/chip-flow", label: "チップフロー", tip: "チップフロー分析", icon: Coins },
+    { href: "/k4z8qm3x/history", label: "履歴", tip: "操作履歴", icon: History },
+    { href: "/k4z8qm3x/handover", label: "引き継ぎ", tip: "業務引き継ぎノート", icon: ClipboardList },
+    { href: "/k4z8qm3x/incidents", label: "インシデント", tip: "インシデント記録簿", icon: AlertTriangle },
   ]},
   { section: "施策", items: [
-    { href: "/k4z8qm3x/ranking", label: "ランキング", icon: Trophy },
-    { href: "/k4z8qm3x/multike", label: "マルチケ配布", icon: Gift },
-    { href: "/k4z8qm3x/events", label: "イベント", icon: CalendarDays, hasMenu: true },
-    { href: "/k4z8qm3x/pop", label: "POP", icon: ImageIcon, hasMenu: true },
-    { href: "/k4z8qm3x/sns", label: "SNS運用", icon: Megaphone },
+    { href: "/k4z8qm3x/ranking", label: "ランキング", tip: "顧客ランキング", icon: Trophy },
+    { href: "/k4z8qm3x/multike", label: "マルチケ配布", tip: "マルチケ配布", icon: Gift },
+    { href: "/k4z8qm3x/events", label: "イベント", tip: "イベント管理", icon: CalendarDays, hasMenu: true },
+    { href: "/k4z8qm3x/pop", label: "POP", tip: "POP管理", icon: ImageIcon, hasMenu: true },
+    { href: "/k4z8qm3x/sns", label: "SNS運用", tip: "SNS運用管理", icon: Megaphone },
   ]},
   { section: "設定", items: [
-    { href: "/k4z8qm3x/products", label: "商品マスタ", icon: Package, hasMenu: true },
-    { href: "/k4z8qm3x/point-rules", label: "ポイントルール", icon: Sparkles, hasMenu: true },
-    { href: "/k4z8qm3x/settings", label: "店舗設定", icon: Settings, hasMenu: true },
+    { href: "/k4z8qm3x/products", label: "商品マスタ", tip: "商品マスタ管理", icon: Package, hasMenu: true },
+    { href: "/k4z8qm3x/point-rules", label: "ポイントルール", tip: "ポイントルール設定", icon: Sparkles, hasMenu: true },
+    { href: "/k4z8qm3x/settings", label: "店舗設定", tip: "店舗設定", icon: Settings, hasMenu: true },
   ]},
 ];
 
@@ -120,7 +120,7 @@ export function V2Shell({ children }: { children: ReactNode }) {
                     {item.hasMenu && (
                       <span className="v2-nav-item__chevron"><ChevronRight size={14} /></span>
                     )}
-                    <span className="v2-nav-item__tip">{item.label}</span>
+                    <span className="v2-nav-item__tip">{item.tip ?? item.label}</span>
                   </Link>
                 );
               })}
