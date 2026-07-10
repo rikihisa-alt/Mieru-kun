@@ -20,7 +20,16 @@ import type { CustomerRank } from "@/lib/store/domain-stores";
 // ===================== フロアマップ配置定数 =====================
 /** 卓カードの目安サイズ (px)。posX/posY はこのサイズを基準にクランプする */
 const TABLE_W = 440;
-const TABLE_H = 250;
+const TABLE_H = 270;
+/** 席リング(席の中心線)を卓本体エリアの内側に収めるための余白帯 (%)。
+ *  cy は 0/100 ではなくこの内側の値にし、席の円やチップがヘッダー行・カード下端に
+ *  はみ出さないようにする。cx も同様に内側レンジへマップする。 */
+const SEAT_MARGIN_Y_PCT = 10; // 上=10%, 下=90%
+const SEAT_MARGIN_X_PCT = 6; // 左=6%, 右=94% (左右席 および 上下辺席のcxレンジ)
+/** フェルト(角丸長方形)のinset (px)。席リングのさらに内側に収まるよう、
+ *  素の24pxから席帯の分だけ広げてある (上下=52px, 左右=56px)。 */
+const FELT_INSET_Y = 52;
+const FELT_INSET_X = 56;
 /** フロアコンテナの目安サイズ (px)。実サイズは ref から取得するが、初期配置の概算に使う */
 const FLOOR_W = 1150;
 const FLOOR_H = 800;
@@ -762,20 +771,20 @@ function rectSeatPositions(count: number): { cx: number; cy: number }[] {
   const bottomCount = topBottomSeats - topCount;
 
   const positions: { cx: number; cy: number }[] = [];
-  // 上辺
+  // 上辺 (cy を卓本体の内側 = SEAT_MARGIN_Y_PCT に収め、ヘッダー行への食い込みを防ぐ)
   for (let i = 0; i < topCount; i++) {
     const t = topCount === 1 ? 0.5 : (i + 1) / (topCount + 1);
-    positions.push({ cx: 8 + t * 84, cy: 0 });
+    positions.push({ cx: SEAT_MARGIN_X_PCT + t * (100 - SEAT_MARGIN_X_PCT * 2), cy: SEAT_MARGIN_Y_PCT });
   }
-  // 右辺 (使う場合)
-  if (useSides) positions.push({ cx: 100, cy: 50 });
-  // 下辺
+  // 右辺 (使う場合、cx を内側 = 100 - SEAT_MARGIN_X_PCT に収める)
+  if (useSides) positions.push({ cx: 100 - SEAT_MARGIN_X_PCT, cy: 50 });
+  // 下辺 (cy を内側 = 100 - SEAT_MARGIN_Y_PCT に収め、カード下端でのはみ出しを防ぐ)
   for (let i = 0; i < bottomCount; i++) {
     const t = bottomCount === 1 ? 0.5 : (i + 1) / (bottomCount + 1);
-    positions.push({ cx: 8 + t * 84, cy: 100 });
+    positions.push({ cx: SEAT_MARGIN_X_PCT + t * (100 - SEAT_MARGIN_X_PCT * 2), cy: 100 - SEAT_MARGIN_Y_PCT });
   }
   // 左辺 (使う場合)
-  if (useSides) positions.push({ cx: 0, cy: 50 });
+  if (useSides) positions.push({ cx: SEAT_MARGIN_X_PCT, cy: 50 });
 
   return positions;
 }
@@ -898,10 +907,10 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
           transition: "background 0.15s",
           padding: 24,
         }}>
-          {/* フェルト (角丸長方形) */}
+          {/* フェルト (角丸長方形): 席リングのさらに内側に収める */}
           <div style={{
             position: "absolute",
-            left: 24, top: 24, right: 24, bottom: 24,
+            left: FELT_INSET_X, top: FELT_INSET_Y, right: FELT_INSET_X, bottom: FELT_INSET_Y,
             borderRadius: 20,
             background: "linear-gradient(180deg, #246c4a 0%, #1a5538 100%)",
             border: "3px solid #2d7a4f",
