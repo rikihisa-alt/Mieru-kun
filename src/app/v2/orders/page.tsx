@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useState, useMemo } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { productStore, customerStore, type CustomerRank } from "@/lib/store/domain-stores";
-import { salesOrderStore, type SalesOrder, type SalesOrderItem, stockMovementStore } from "@/lib/v2/stores";
+import { salesOrderStore, type SalesOrder, type SalesOrderItem, stockMovementStore, chipFlowStore, type ChipFlowEntry } from "@/lib/v2/stores";
 import { grantSpendPoints } from "@/lib/v2/points";
 import { PageHeader, Btn, Panel, Modal, VStack, HStack, Chip, Empty, Field, Toast, useToast, Banner, FilterChips, SectionLabel } from "@/components/v2/ui";
 import { Plus, Minus, CreditCard, Trash2, X, FileDown, Clock } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
 import { TIME_CHARGE_KEY, DEFAULT_TIME_CHARGE, calcTimeChargeUnits, calcTimeChargeAmount, type TimeChargeSettings } from "@/app/v2/settings/page";
+
+// 締め状況の判定に使う最小限の型 (closing/page.tsx の ClosingRecord と同じキー・date形式 "YYYY-MM-DD")
+interface ClosingRecordLite { date: string }
 
 // 入店ページ (checkin) が使用する来店中リストと同じキー・型を参照する
 interface Visit {
@@ -35,8 +38,10 @@ export default function OrdersPage() {
   const [customers, setCustomers] = usePersisted(customerStore);
   const [orders, setOrders] = usePersisted(salesOrderStore);
   const [, setMovements] = usePersisted(stockMovementStore);
+  const [, setChipFlow] = usePersisted(chipFlowStore);
   const [visits] = usePersistedState<Visit[]>("v2_visits_v1", []);
   const [timeCharge] = usePersistedState<TimeChargeSettings>(TIME_CHARGE_KEY, DEFAULT_TIME_CHARGE);
+  const [closings] = usePersistedState<ClosingRecordLite[]>("v2_closings_v1", []);
   const [open, setOpen] = useState(false);
   const [customerId, setCustomerId] = useState<string>("");
   const [customer, setCustomer] = useState("");
@@ -50,6 +55,8 @@ export default function OrdersPage() {
   const active = orders.filter(o => o.status === "active");
   const settled = orders.filter(o => o.status === "settled");
   const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const todayClosed = closings.some(c => c.date === todayKey);
 
   const activeProducts = useMemo(() => products.filter(p => p.active), [products]);
   const cats = useMemo(() => Array.from(new Set(activeProducts.map(p => p.category))), [activeProducts]);
@@ -164,7 +171,38 @@ export default function OrdersPage() {
     if (s.customerId && !isCredit) {
       grantedPoints = grantSpendPoints(s.customerId, s.total, `注文精算 (${s.id})`);
     }
-    showToast(`精算が完了しました${grantedPoints > 0 ? ` (${grantedPoints}ptを付与しました)` : ""}`);
+    // 5. チップ商品(tip_purchase=貸出/tip_use=回収)の精算 → チップフロー + 顧客チップ残高へ連動
+    //    (発生時=精算確定時のみ計上。後払いの消し込み時には再度加算しない)
+    const chipItems = s.items.filter(i => i.category === "tip_purchase" || i.category === "tip_use");
+    let chipReflected = false;
+    if (chipItems.length > 0) {
+      const newEntries: ChipFlowEntry[] = chipItems.map(item => {
+        const flowDirection: "out" | "in" = item.category === "tip_purchase" ? "out" : "in";
+        const signed = flowDirection === "out" ? item.qty : -item.qty;
+        return {
+          id: `cf${Date.now()}_${item.productId}`,
+          date: now.slice(0, 10),
+          category: "purchase_cash",
+          direction: flowDirection,
+          amount: item.qty,
+          customer: s.customer,
+          customerId: s.customerId,
+          flowDirection,
+          signedAmount: signed,
+          note: "精算連動",
+          createdAt: now,
+        };
+      });
+      setChipFlow(prev => [...newEntries, ...prev]);
+      if (s.customerId) {
+        const totalSigned = newEntries.reduce((sum, e) => sum + (e.signedAmount ?? 0), 0);
+        if (totalSigned !== 0) {
+          setCustomers(prev => prev.map(c => c.id === s.customerId ? { ...c, chipBalance: c.chipBalance + totalSigned } : c));
+        }
+      }
+      chipReflected = true;
+    }
+    showToast(`精算が完了しました${grantedPoints > 0 ? ` (${grantedPoints}ptを付与しました)` : ""}${chipReflected ? " (チップ残高に反映しました)" : ""}`);
     setSettling(null);
   }
   function remove(id: string) {
@@ -197,6 +235,10 @@ export default function OrdersPage() {
       />
 
       {toast && <Toast message={toast.message} variant={toast.variant} />}
+
+      {todayClosed && (
+        <Banner variant="warn">本日の締め処理は完了しています。これ以降の売上は締め集計に含まれません</Banner>
+      )}
 
       <Panel title="未精算">
         {active.length === 0 ? <Empty>未精算の注文はありません</Empty> : (

@@ -18,6 +18,13 @@ interface DayEntry {
 // date key: "YYYY-MM-DD"
 type DayMap = Record<string, DayEntry>;
 
+// トナメ (src/app/v2/tournaments/page.tsx TournamentRecord と同一構造。カレンダー表示に必要な最小限のみ)
+interface TournamentRecordLite {
+  id: string;
+  name: string;
+  date: string;
+}
+
 const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
 
 const KIND_LABELS: Record<DayKind, string> = {
@@ -43,6 +50,7 @@ function todayKey() {
 export default function CalendarPage() {
   const [days, setDays] = usePersistedState<DayMap>("v2_calendar_days_v1", {});
   const [events] = usePersisted(eventStore);
+  const [tournaments] = usePersistedState<TournamentRecordLite[]>("v2_tournaments_v1", []);
 
   const now = new Date();
   const [viewYear, setViewYear] = useState(now.getFullYear());
@@ -95,6 +103,16 @@ export default function CalendarPage() {
     }
     return map;
   }, [events]);
+
+  const tournamentsByDate = useMemo(() => {
+    const map = new Map<string, TournamentRecordLite[]>();
+    for (const t of tournaments) {
+      const arr = map.get(t.date) ?? [];
+      arr.push(t);
+      map.set(t.date, arr);
+    }
+    return map;
+  }, [tournaments]);
 
   // ===== サマリ =====
   const summary = useMemo(() => {
@@ -224,6 +242,7 @@ export default function CalendarPage() {
             const kind = entry?.kind ?? "normal";
             const isToday = cell.key === today;
             const dayEvents = eventsByDate.get(cell.key) ?? [];
+            const dayTournaments = tournamentsByDate.get(cell.key) ?? [];
             return (
               <div
                 key={cell.key}
@@ -255,6 +274,36 @@ export default function CalendarPage() {
                   <span style={{ fontSize: 10, color: "var(--v2-text-mute)", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {entry.note}
                   </span>
+                )}
+                {dayTournaments.length > 0 && (
+                  <VStack gap={2}>
+                    {dayTournaments.slice(0, 2).map((t) => (
+                      <Link
+                        key={t.id}
+                        href="/v2/tournaments"
+                        onClick={(e) => e.stopPropagation()}
+                        title={t.name}
+                        style={{
+                          display: "block",
+                          maxWidth: "100%",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          fontSize: 10,
+                          fontWeight: 600,
+                          padding: "1px 6px",
+                          borderRadius: 999,
+                          background: "var(--v2-accent-soft)",
+                          color: "var(--v2-accent-text)",
+                        }}
+                      >
+                        {t.name}
+                      </Link>
+                    ))}
+                    {dayTournaments.length > 2 && (
+                      <span style={{ fontSize: 10, color: "var(--v2-text-mute)" }}>+{dayTournaments.length - 2}件</span>
+                    )}
+                  </VStack>
                 )}
                 {dayEvents.length > 0 && (
                   <VStack gap={2} style={{ marginTop: "auto" }}>
@@ -293,6 +342,10 @@ export default function CalendarPage() {
           <HStack gap={6}><Dot variant="success" />特別営業</HStack>
           <HStack gap={6}><Dot variant="warn" />短縮営業</HStack>
           <HStack gap={6}><CalendarDays size={12} />イベントあり(クリックで詳細へ)</HStack>
+          <HStack gap={6}>
+            <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 999, background: "var(--v2-accent-soft)", color: "var(--v2-accent-text)" }}>トナメ</span>
+            トナメ開催あり(クリックで一覧へ)
+          </HStack>
         </HStack>
       </Panel>
 

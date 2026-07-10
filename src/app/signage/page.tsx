@@ -268,6 +268,11 @@ function TableCard({ table, seatedCount }: { table: TableDef; seatedCount: numbe
       <div style={{ fontSize: "0.95vw", fontWeight: 600, color: full ? "#f87171" : "#6ee7b7" }}>
         {full ? "満卓" : "空席あり"}
       </div>
+      {table.dealer && (
+        <div style={{ fontSize: "0.75vw", color: "rgba(234,255,241,0.6)", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          D: {table.dealer}
+        </div>
+      )}
     </div>
   );
 }

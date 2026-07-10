@@ -3,10 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
-import { customerStore, type CustomerRank } from "@/lib/store/domain-stores";
+import { customerStore, reservationStore, type CustomerRank, type ReservationRecord } from "@/lib/store/domain-stores";
 import { grantVisitPoints } from "@/lib/v2/points";
 import { PageHeader, Btn, Panel, Field, Modal, VStack, HStack, Chip, Kpis, Kpi, Empty, Banner, Toast, useToast } from "@/components/v2/ui";
-import { Plus, LogOut, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Plus, LogOut, AlertTriangle, ShieldAlert, CalendarCheck } from "lucide-react";
 
 interface Visit {
   id: string;
@@ -25,6 +25,7 @@ export default function CheckinPage() {
   const [customers] = usePersisted(customerStore);
   const [visits, setVisits] = usePersistedState<Visit[]>("v2_visits_v1", []);
   const [tables] = usePersistedState<TableMeta[]>("v2_tables_v2", []);
+  const [reservations, setReservations] = usePersisted(reservationStore);
   const tableNameOf = (id?: string) => id ? (tables.find(t => t.id === id)?.name ?? id) : undefined;
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -35,9 +36,35 @@ export default function CheckinPage() {
   const [pledgeSigned, setPledgeSigned] = useState(false);
   const [rulesExplained, setRulesExplained] = useState(false);
   const [pledgeNoInput, setPledgeNoInput] = useState("");
+  const [pendingReservationId, setPendingReservationId] = useState<string | null>(null);
 
   const selectedCustomer = selectedId ? customers.find(x => x.id === selectedId) : undefined;
   const customerById = (id: string | null) => id ? customers.find(x => x.id === id) : undefined;
+
+  // 本日の予約 (pending/confirmed のみ)
+  function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+  const todayReservations = reservations
+    .filter(r => r.date === todayKey() && (r.status === "pending" || r.status === "confirmed"))
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  /** 予約行の「来店処理」: 顧客名で customerStore を検索(一致すれば紐付け、なければゲスト扱い)して入店モーダルを開く */
+  function startReservationCheckin(r: ReservationRecord) {
+    const match = customers.find(c => c.name === r.customerName || (r.nickname && c.nickname === r.nickname));
+    resetChecklist();
+    setPendingReservationId(r.id);
+    if (match) {
+      setSelectedId(match.id);
+      setGuestName("");
+    } else {
+      setSelectedId("");
+      setGuestName(r.customerName);
+      setGuestRank("regular");
+    }
+    setOpen(true);
+  }
 
   // 初回来店チェックが必要か(既存顧客: 来店0回 or 未チェック済み。新規ゲスト: 常に必要)
   const needsFirstVisitCheck = selectedId
@@ -88,8 +115,11 @@ export default function CheckinPage() {
       if (!guestName.trim()) return;
       setVisits(prev => [{ id: makeVisitId(), customerId: null, name: guestName.trim(), rank: guestRank, checkedInAt: new Date().toISOString() }, ...prev]);
     }
+    if (pendingReservationId) {
+      setReservations(prev => prev.map(r => r.id === pendingReservationId ? { ...r, status: "arrived" } : r));
+    }
     setOpen(false);
-    setSelectedId(""); setGuestName(""); setGuestRank("regular"); resetChecklist();
+    setSelectedId(""); setGuestName(""); setGuestRank("regular"); setPendingReservationId(null); resetChecklist();
   }
   function checkout(id: string) {
     const v = visits.find(x => x.id === id);
@@ -112,6 +142,26 @@ export default function CheckinPage() {
       />
 
       {toast && <Toast message={toast.message} variant={toast.variant} />}
+
+      {todayReservations.length > 0 && (
+        <Panel title={<HStack gap={6}><CalendarCheck size={14} /> 本日の予約</HStack>}>
+          <div className="v2-table-wrap">
+            <table className="v2-table">
+              <thead><tr><th>時刻</th><th>名前</th><th>人数</th><th></th></tr></thead>
+              <tbody>
+                {todayReservations.map(r => (
+                  <tr key={r.id}>
+                    <td className="v2-num">{r.time}</td>
+                    <td>{r.nickname || r.customerName}</td>
+                    <td className="v2-num">{r.party}名</td>
+                    <td><Btn size="xs" variant="primary" onClick={() => startReservationCheckin(r)}>来店処理</Btn></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
+      )}
 
       <Kpis>
         <Kpi label="来店中" value={visits.length} />
@@ -163,12 +213,12 @@ export default function CheckinPage() {
 
       <Modal
         open={open}
-        onClose={() => { setOpen(false); setSelectedId(""); setGuestName(""); setGuestRank("regular"); resetChecklist(); }}
+        onClose={() => { setOpen(false); setSelectedId(""); setGuestName(""); setGuestRank("regular"); setPendingReservationId(null); resetChecklist(); }}
         title="入店登録"
         footer={
           <VStack gap={4} style={{ alignItems: "flex-end" }}>
             <HStack gap={8}>
-              <Btn onClick={() => { setOpen(false); setSelectedId(""); setGuestName(""); setGuestRank("regular"); resetChecklist(); }}>キャンセル</Btn>
+              <Btn onClick={() => { setOpen(false); setSelectedId(""); setGuestName(""); setGuestRank("regular"); setPendingReservationId(null); resetChecklist(); }}>キャンセル</Btn>
               <Btn variant="primary" onClick={checkin} disabled={needsFirstVisitCheck && !firstVisitOk}>入店する</Btn>
             </HStack>
             {needsFirstVisitCheck && firstVisitBlockReason && (

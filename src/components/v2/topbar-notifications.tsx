@@ -30,7 +30,7 @@ export function TopbarNotifications() {
   );
   const todayReservationCount = useMemo(() => {
     const today = todayStr();
-    return reservations.filter((r) => r.date === today).length;
+    return reservations.filter((r) => r.date === today && (r.status === "pending" || r.status === "confirmed")).length;
   }, [reservations]);
 
   const totalCount = unpaidCount + lowStockItems.length + (todayReservationCount > 0 ? 1 : 0);
