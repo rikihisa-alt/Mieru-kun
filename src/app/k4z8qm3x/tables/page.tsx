@@ -19,11 +19,11 @@ import type { CustomerRank } from "@/lib/store/domain-stores";
 
 // ===================== フロアマップ配置定数 =====================
 /** 卓カードの目安サイズ (px)。posX/posY はこのサイズを基準にクランプする */
-const TABLE_W = 300;
-const TABLE_H = 190;
+const TABLE_W = 440;
+const TABLE_H = 250;
 /** フロアコンテナの目安サイズ (px)。実サイズは ref から取得するが、初期配置の概算に使う */
-const FLOOR_W = 900;
-const FLOOR_H = 680;
+const FLOOR_W = 1150;
+const FLOOR_H = 800;
 /** 2列グリッドでの自動初期配置 (%): インデックスに応じて重ならないよう配置する */
 function autoLayoutPos(index: number): { posX: number; posY: number } {
   const cols = 2;
@@ -484,8 +484,8 @@ export default function TablesPage() {
               ref={floorRef}
               style={{
                 position: "relative",
-                minWidth: 900,
-                height: 680,
+                minWidth: 1150,
+                height: 800,
                 background: "var(--v2-bg)",
                 boxShadow: "var(--v2-shadow-md)",
                 borderRadius: "var(--v2-radius-lg)",
@@ -798,8 +798,8 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
 
   const occupancy = seated.length / table.maxSeats;
   const big = table.maxSeats > 8;
-  const width = big ? TABLE_W + 30 : TABLE_W;
-  const height = big ? TABLE_H + 20 : TABLE_H;
+  const width = big ? TABLE_W + 60 : TABLE_W;
+  const height = big ? TABLE_H + 40 : TABLE_H;
   const seatPositions = rectSeatPositions(table.maxSeats);
 
   const posX = table.posX ?? 0;
@@ -831,8 +831,8 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
       >
         {/* ===== コンパクトヘッダー ===== */}
         <div style={{
-          display: "flex", alignItems: "center", gap: 6,
-          padding: "6px 8px",
+          display: "flex", alignItems: "center", gap: 7,
+          padding: "8px 10px",
           borderBottom: "1px solid var(--v2-border)",
           flexWrap: "wrap",
         }}>
@@ -847,15 +847,15 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
             }}
             title="ドラッグでフロア内を移動"
           >
-            <GripVertical size={13} />
+            <GripVertical size={14} />
           </button>
-          <strong style={{ fontSize: 12.5, fontWeight: 700, whiteSpace: "nowrap" }}>{table.name}</strong>
+          <strong style={{ fontSize: 14, fontWeight: 700, whiteSpace: "nowrap" }}>{table.name}</strong>
           <span style={{
-            fontSize: 9, fontWeight: 600, padding: "1px 6px", borderRadius: 999,
+            fontSize: 10, fontWeight: 600, padding: "2px 7px", borderRadius: 999,
             background: `${TYPE_COLOR[table.type]}1a`, color: TYPE_COLOR[table.type], flexShrink: 0,
           }}>{table.type}</span>
           <span style={{
-            fontSize: 11, fontWeight: 600, flexShrink: 0,
+            fontSize: 12, fontWeight: 600, flexShrink: 0,
             color: occupancy >= 1 ? "var(--v2-danger)" : occupancy >= 0.7 ? "var(--v2-warn)" : seated.length > 0 ? "var(--v2-success)" : "var(--v2-text-mute)",
           }}>
             {seated.length}/{table.maxSeats}
@@ -896,13 +896,13 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
           position: "relative", width: "100%", height,
           background: isOverTable ? "var(--v2-accent-soft)" : "transparent",
           transition: "background 0.15s",
-          padding: 18,
+          padding: 24,
         }}>
           {/* フェルト (角丸長方形) */}
           <div style={{
             position: "absolute",
-            left: 18, top: 18, right: 18, bottom: 18,
-            borderRadius: 18,
+            left: 24, top: 24, right: 24, bottom: 24,
+            borderRadius: 20,
             background: "linear-gradient(180deg, #246c4a 0%, #1a5538 100%)",
             border: "3px solid #2d7a4f",
             display: "flex", alignItems: "center", justifyContent: "center",
@@ -913,16 +913,16 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
               title="クリックでディーラー交代"
               style={{
                 textAlign: "center", background: "transparent", border: 0, cursor: "pointer",
-                padding: "8px 14px", borderRadius: 8,
+                padding: "10px 16px", borderRadius: 8,
                 transition: "background 0.12s",
               }}
               onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
-              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.95)" }}>
+              <div style={{ fontSize: 14.5, fontWeight: 600, color: "rgba(255,255,255,0.95)" }}>
                 {table.dealer || "ディーラー未設定"}
               </div>
-              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.16em", marginTop: 2 }}>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.16em", marginTop: 3 }}>
                 DEALER · 交代
               </div>
             </button>
@@ -1041,11 +1041,11 @@ function Seat({ tableId, seatIndex, cx, cy, occupant, onClickOccupant, onClickEm
           onClick={onClickEmpty}
           title={`席${seatIndex + 1}: クリックで待機中のお客様を配置`}
           style={{
-            width: 36, height: 36, borderRadius: "50%",
+            width: 40, height: 40, borderRadius: "50%",
             border: `2px dashed ${isOver ? "var(--v2-accent)" : "var(--v2-border-strong)"}`,
             background: isOver ? "var(--v2-accent-soft)" : "transparent",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 11, fontWeight: 600, cursor: "pointer", padding: 0,
+            fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 0,
             color: isOver ? "var(--v2-accent-text)" : "var(--v2-text-mute)",
             transition: "border-color 0.12s, background 0.12s, transform 0.12s",
             transform: isOver ? "scale(1.1)" : "none",
