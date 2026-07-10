@@ -18,9 +18,15 @@ import {
 import type { CustomerRank } from "@/lib/store/domain-stores";
 
 // ===================== フロアマップ配置定数 =====================
-/** 卓カードの目安サイズ (px)。posX/posY はこのサイズを基準にクランプする */
-const TABLE_W = 440;
+/** 卓カードの目安の高さ (px)。posY はこの値を基準にクランプする。
+ *  幅はフロア横幅の半分 (calc(50% - GAP_PX/2)) に固定し、2枚並べてフロア幅ぴったりに収める。 */
 const TABLE_H = 270;
+/** 卓カード横の見た目上のギャップ (px)。2列の間および右端に生じる隙間はこの値になる。
+ *  カード幅は `calc(50% - GAP_PX / 2)` とすることで、2枚並べた合計幅が
+ *  「フロア幅 - GAP_PX」になり、右端の余白がギャップ分だけになる。 */
+const GAP_PX = 16;
+/** カードの CSS 上の幅 (2列でフロア幅ちょうど+ギャップ分の隙間になる) */
+const TABLE_W_CSS = `calc(50% - ${GAP_PX / 2}px)`;
 /** 席リング(席の中心線)を卓本体エリアの内側に収めるための余白帯 (%)。
  *  cy は 0/100 ではなくこの内側の値にし、席の円やチップがヘッダー行・カード下端に
  *  はみ出さないようにする。cx も同様に内側レンジへマップする。 */
@@ -31,17 +37,16 @@ const SEAT_MARGIN_X_PCT = 6; // 左=6%, 右=94% (左右席 および 上下辺�
 const FELT_INSET_Y = 52;
 const FELT_INSET_X = 56;
 /** フロアコンテナの目安サイズ (px)。実サイズは ref から取得するが、初期配置の概算に使う */
-const FLOOR_W = 1150;
 const FLOOR_H = 800;
+/** カード幅は常にフロア幅の50%なので、X方向のクランプ上限は常に50% (ギャップは card 内マージンで表現済み) */
+const MAX_X_PCT = 50;
 /** 2列グリッドでの自動初期配置 (%): インデックスに応じて重ならないよう配置する */
 function autoLayoutPos(index: number): { posX: number; posY: number } {
   const cols = 2;
   const col = index % cols;
   const row = Math.floor(index / cols);
-  const maxXPct = 100 - (TABLE_W / FLOOR_W) * 100; // 卓幅を引いた右端
-  const cellWPct = maxXPct; // 2列なので 0% と maxXPct% の2箇所
+  const posX = col === 0 ? 0 : MAX_X_PCT;
   const rowStepPct = (TABLE_H / FLOOR_H) * 100 * 1.25; // 行間 (卓高さの125%)
-  const posX = clamp(col * cellWPct, 0, maxXPct);
   const posY = clamp(row * rowStepPct, 0, 1000); // 行が増えてもフロアは縦スクロールしないため後段でクランプ
   return { posX, posY };
 }
@@ -214,7 +219,8 @@ export default function TablesPage() {
       if (rect.width === 0 || rect.height === 0) return;
       const deltaXPct = (e.delta.x / rect.width) * 100;
       const deltaYPct = (e.delta.y / rect.height) * 100;
-      const maxXPct = 100 - (TABLE_W / rect.width) * 100;
+      // カード幅は常にフロア幅の50% (calc(50% - GAP_PX/2)) なので、X方向の上限は固定で50%
+      const maxXPct = MAX_X_PCT;
       const maxYPct = 100 - (TABLE_H / rect.height) * 100;
       setTables(prev => prev.map(t => {
         if (t.id !== tableId) return t;
@@ -761,6 +767,10 @@ function VisitChip({ visit, dragging }: { visit: Visit; dragging?: boolean }) {
  * 席数から長方形の周囲を回る座標(%, 卓の左上を0,0とした相対位置)を算出する。
  * 上辺・下辺に均等に振り分け、9席以上は左右の短辺にも1席ずつ配置する。
  * 厳密な等間隔でなくても見た目が自然であればよい。
+ *
+ * カード幅がフロア幅の50%に固定されたことで、上下辺の席数が少ない卓ほど
+ * cx レンジ (SEAT_MARGIN_X_PCT 基準の 6%〜94%) が横に間延びして見える。
+ * そのため、辺あたりの席数が少ないときは cx レンジ自体を中央寄りに狭める。
  */
 function rectSeatPositions(count: number): { cx: number; cy: number }[] {
   if (count <= 0) return [];
@@ -770,18 +780,26 @@ function rectSeatPositions(count: number): { cx: number; cy: number }[] {
   const topCount = Math.ceil(topBottomSeats / 2);
   const bottomCount = topBottomSeats - topCount;
 
+  // 辺あたりの席数に応じて cx レンジを狭める (幅50%化で間延びしないよう調整)
+  // 1席: 使わない (常に中央50%)。2席: 25〜75%。3席: 15〜85%。4席以上: 通常の 6〜94%。
+  const maxPerSide = Math.max(topCount, bottomCount);
+  const xMargin =
+    maxPerSide <= 2 ? 25 :
+    maxPerSide === 3 ? 15 :
+    SEAT_MARGIN_X_PCT;
+
   const positions: { cx: number; cy: number }[] = [];
   // 上辺 (cy を卓本体の内側 = SEAT_MARGIN_Y_PCT に収め、ヘッダー行への食い込みを防ぐ)
   for (let i = 0; i < topCount; i++) {
     const t = topCount === 1 ? 0.5 : (i + 1) / (topCount + 1);
-    positions.push({ cx: SEAT_MARGIN_X_PCT + t * (100 - SEAT_MARGIN_X_PCT * 2), cy: SEAT_MARGIN_Y_PCT });
+    positions.push({ cx: xMargin + t * (100 - xMargin * 2), cy: SEAT_MARGIN_Y_PCT });
   }
   // 右辺 (使う場合、cx を内側 = 100 - SEAT_MARGIN_X_PCT に収める)
   if (useSides) positions.push({ cx: 100 - SEAT_MARGIN_X_PCT, cy: 50 });
   // 下辺 (cy を内側 = 100 - SEAT_MARGIN_Y_PCT に収め、カード下端でのはみ出しを防ぐ)
   for (let i = 0; i < bottomCount; i++) {
     const t = bottomCount === 1 ? 0.5 : (i + 1) / (bottomCount + 1);
-    positions.push({ cx: SEAT_MARGIN_X_PCT + t * (100 - SEAT_MARGIN_X_PCT * 2), cy: 100 - SEAT_MARGIN_Y_PCT });
+    positions.push({ cx: xMargin + t * (100 - xMargin * 2), cy: 100 - SEAT_MARGIN_Y_PCT });
   }
   // 左辺 (使う場合)
   if (useSides) positions.push({ cx: SEAT_MARGIN_X_PCT, cy: 50 });
@@ -807,7 +825,8 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
 
   const occupancy = seated.length / table.maxSeats;
   const big = table.maxSeats > 8;
-  const width = big ? TABLE_W + 60 : TABLE_W;
+  // 幅は常にフロア幅の50% (calc): big卓も同じ50%幅とし、高さのみ従来通り拡張する
+  const width = TABLE_W_CSS;
   const height = big ? TABLE_H + 40 : TABLE_H;
   const seatPositions = rectSeatPositions(table.maxSeats);
 
