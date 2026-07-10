@@ -5,14 +5,14 @@ import { X } from "lucide-react";
 import type { CustomerRank } from "@/lib/store/domain-stores";
 
 // ============= Button =============
-type BtnVariant = "default" | "primary" | "ghost" | "danger";
+type BtnVariant = "default" | "primary" | "ghost" | "danger" | "selected";
 type BtnSize = "default" | "sm" | "xs";
 interface BtnProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: BtnVariant;
   size?: BtnSize;
 }
 export function Btn({ variant = "default", size = "default", className = "", children, ...rest }: BtnProps) {
-  const v = variant === "primary" ? "v2-btn-primary" : variant === "ghost" ? "v2-btn-ghost" : variant === "danger" ? "v2-btn-danger" : "";
+  const v = variant === "primary" ? "v2-btn-primary" : variant === "ghost" ? "v2-btn-ghost" : variant === "danger" ? "v2-btn-danger" : variant === "selected" ? "v2-btn-selected" : "";
   const s = size === "sm" ? "v2-btn-sm" : size === "xs" ? "v2-btn-xs" : "";
   return <button className={`v2-btn ${v} ${s} ${className}`} {...rest}>{children}</button>;
 }

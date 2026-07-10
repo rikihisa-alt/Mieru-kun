@@ -182,6 +182,15 @@ a.ln-card:active, button.ln-card:active {
 .ln-btn--warn {
   background: var(--ln-warn); color: #fff; border-color: var(--ln-warn);
 }
+/* 選択トグル用 (ベタ塗りprimaryより薄いトーン。カテゴリ選択・注文オプション選択など「状態選択」に使用) */
+.ln-btn--selected {
+  background: var(--ln-accent-soft);
+  color: var(--ln-accent-text);
+  border-color: var(--ln-accent);
+  box-shadow: none;
+}
+.ln-btn--selected:hover { background: #c9e7d3; }
+.ln-btn--selected:active { transform: scale(0.98); }
 .ln-btn--ghost { border-color: transparent; background: transparent; box-shadow: none; }
 .ln-btn--ghost:hover { background: var(--ln-bg-alt); }
 .ln-btn--ghost:active { background: var(--ln-bg-hover); }

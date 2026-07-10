@@ -235,7 +235,7 @@ export default function ChipFlowPage() {
             <Field label="増減方向" required>
               <div style={{ display: "flex", gap: 6 }}>
                 {(["out", "in", "adjust"] as ChipFlowDirection[]).map(d => (
-                  <Btn key={d} size="sm" variant={direction === d ? "primary" : "default"} onClick={() => setDirection(d)} type="button">{DIRECTION_LABEL[d]}</Btn>
+                  <Btn key={d} size="sm" variant={direction === d ? "selected" : "default"} onClick={() => setDirection(d)} type="button">{DIRECTION_LABEL[d]}</Btn>
                 ))}
               </div>
             </Field>

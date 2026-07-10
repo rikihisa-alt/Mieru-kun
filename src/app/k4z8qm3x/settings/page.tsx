@@ -98,7 +98,7 @@ export default function SettingsPage() {
             {["月","火","水","木","金","土","日"].map(d => {
               const active = s.closedDays.includes(d);
               return (
-                <Btn key={d} variant={active ? "primary" : "default"}
+                <Btn key={d} variant={active ? "selected" : "default"}
                   onClick={() => up("closedDays", active ? s.closedDays.filter(x => x !== d) : [...s.closedDays, d])}
                   style={{ width: 36, padding: 0 }}>{d}</Btn>
               );
@@ -125,8 +125,8 @@ export default function SettingsPage() {
             <>
               <Field label="徴収タイミング">
                 <HStack gap={6} style={{ flexWrap: "wrap" }}>
-                  <Btn variant={s.entranceSettlementMode === "prepay" ? "primary" : "default"} onClick={() => up("entranceSettlementMode", "prepay")}>入店時前払い</Btn>
-                  <Btn variant={s.entranceSettlementMode === "on_settlement" ? "primary" : "default"} onClick={() => up("entranceSettlementMode", "on_settlement")}>退店時合算</Btn>
+                  <Btn variant={s.entranceSettlementMode === "prepay" ? "selected" : "default"} onClick={() => up("entranceSettlementMode", "prepay")}>入店時前払い</Btn>
+                  <Btn variant={s.entranceSettlementMode === "on_settlement" ? "selected" : "default"} onClick={() => up("entranceSettlementMode", "on_settlement")}>退店時合算</Btn>
                 </HStack>
               </Field>
               <div>
@@ -159,8 +159,8 @@ export default function SettingsPage() {
             <>
               <Field label="課金方式">
                 <HStack gap={6} style={{ flexWrap: "wrap" }}>
-                  <Btn variant={tc.unitMinutes === 30 ? "primary" : "default"} onClick={() => upTc("unitMinutes", 30)}>30分単位</Btn>
-                  <Btn variant={tc.unitMinutes === 60 ? "primary" : "default"} onClick={() => upTc("unitMinutes", 60)}>60分単位</Btn>
+                  <Btn variant={tc.unitMinutes === 30 ? "selected" : "default"} onClick={() => upTc("unitMinutes", 30)}>30分単位</Btn>
+                  <Btn variant={tc.unitMinutes === 60 ? "selected" : "default"} onClick={() => upTc("unitMinutes", 60)}>60分単位</Btn>
                 </HStack>
               </Field>
               <Field label={`単価(円 / ${tc.unitMinutes}分)`}>
@@ -171,8 +171,8 @@ export default function SettingsPage() {
               </Field>
               <Field label="端数の扱い" hint="滞在時間が単位に満たない場合の丸め方">
                 <HStack gap={6} style={{ flexWrap: "wrap" }}>
-                  <Btn variant={tc.rounding === "ceil" ? "primary" : "default"} onClick={() => upTc("rounding", "ceil")}>切り上げ</Btn>
-                  <Btn variant={tc.rounding === "floor" ? "primary" : "default"} onClick={() => upTc("rounding", "floor")}>切り捨て</Btn>
+                  <Btn variant={tc.rounding === "ceil" ? "selected" : "default"} onClick={() => upTc("rounding", "ceil")}>切り上げ</Btn>
+                  <Btn variant={tc.rounding === "floor" ? "selected" : "default"} onClick={() => upTc("rounding", "floor")}>切り捨て</Btn>
                 </HStack>
               </Field>
             </>

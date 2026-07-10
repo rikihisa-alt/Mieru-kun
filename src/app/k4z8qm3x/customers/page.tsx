@@ -288,8 +288,8 @@ export default function CustomersPage() {
 
             <Field label="電話番号が既存顧客と一致する行の扱い">
               <div className="v2-form-grid">
-                <Btn variant={duplicateAction === "update" ? "primary" : undefined} onClick={() => setDuplicateAction("update")}>既存顧客を更新</Btn>
-                <Btn variant={duplicateAction === "skip" ? "primary" : undefined} onClick={() => setDuplicateAction("skip")}>スキップ</Btn>
+                <Btn variant={duplicateAction === "update" ? "selected" : undefined} onClick={() => setDuplicateAction("update")}>既存顧客を更新</Btn>
+                <Btn variant={duplicateAction === "skip" ? "selected" : undefined} onClick={() => setDuplicateAction("skip")}>スキップ</Btn>
               </div>
             </Field>
           </VStack>

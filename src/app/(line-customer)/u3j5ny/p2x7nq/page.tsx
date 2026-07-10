@@ -269,7 +269,7 @@ function SeatPicker({ initial, onDone }: { initial: Seat | null; onDone: (s: Sea
               <button
                 key={t}
                 onClick={() => { setTableType(t); setTableNo(TABLES_BY_TYPE[t][0]); }}
-                className={active ? "ln-btn ln-btn--primary" : "ln-btn"}
+                className={active ? "ln-btn ln-btn--selected" : "ln-btn"}
                 style={{ height: 44 }}
               >
                 {TABLE_TYPE_LABEL[t]}
@@ -288,7 +288,7 @@ function SeatPicker({ initial, onDone }: { initial: Seat | null; onDone: (s: Sea
               <button
                 key={no}
                 onClick={() => setTableNo(no)}
-                className={active ? "ln-btn ln-btn--primary ln-num" : "ln-btn ln-num"}
+                className={active ? "ln-btn ln-btn--selected ln-num" : "ln-btn ln-num"}
                 style={{ height: 40, fontSize: 13 }}
               >
                 {no}
@@ -307,7 +307,7 @@ function SeatPicker({ initial, onDone }: { initial: Seat | null; onDone: (s: Sea
               <button
                 key={n}
                 onClick={() => setSeatNo(n)}
-                className={active ? "ln-btn ln-btn--primary" : "ln-btn"}
+                className={active ? "ln-btn ln-btn--selected" : "ln-btn"}
                 style={{ aspectRatio: "1 / 1", height: "auto", borderRadius: "50%", padding: 0, fontSize: 14, fontWeight: 700 }}
               >
                 {n}
@@ -447,7 +447,7 @@ function DrinkList({ onPick, onBack }: { onPick: (m: MenuItem) => void; onBack: 
             <button
               key={c}
               onClick={() => setTab(c)}
-              className={active ? "ln-btn ln-btn--primary ln-btn--sm" : "ln-btn ln-btn--sm"}
+              className={active ? "ln-btn ln-btn--selected ln-btn--sm" : "ln-btn ln-btn--sm"}
               style={{ borderRadius: 999, whiteSpace: "nowrap" }}
             >
               {DRINK_CATEGORY_LABEL[c]}{c === "premium" && " ★"}
@@ -645,7 +645,7 @@ function PickToggle({ label, value, options, onChange }: { label: string; value:
             <button
               key={o}
               onClick={() => onChange(o)}
-              className={active ? "ln-btn ln-btn--primary" : "ln-btn"}
+              className={active ? "ln-btn ln-btn--selected" : "ln-btn"}
               style={{ height: 38, fontSize: 13 }}
             >
               {o}
@@ -774,7 +774,7 @@ function CallForm({ onSubmit, onBack }: { onSubmit: (r: { type: CallReasonType; 
             <button
               key={r}
               onClick={() => setType(r)}
-              className={active ? "ln-btn ln-btn--primary ln-btn--full" : "ln-btn ln-btn--full"}
+              className={active ? "ln-btn ln-btn--selected ln-btn--full" : "ln-btn ln-btn--full"}
               style={{ height: 44, fontSize: 14 }}
             >
               {CALL_REASON_LABEL[r]}

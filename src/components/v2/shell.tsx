@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode, type MouseEvent } from "react";
 import {
   LayoutDashboard, LogIn, Grid3X3, ShoppingBag, Bell, CalendarCheck,
   Users, UserCog, Clock, TrendingUp, Package, Lock, BarChart3, Coins, History,
@@ -65,6 +65,16 @@ export function V2Shell({ children }: { children: ReactNode }) {
   // 画面遷移したら自動で折りたたむ
   useEffect(() => { setExpanded(false); }, [pathname]);
 
+  // 折りたたみ時、ホバーしたナビ項目のツールチップを position:fixed で正確な位置に出すための座標計算
+  // (.v2-nav-wrap は overflow-y:auto のため通常の absolute だと画面外にクリップされる)
+  const handleNavItemMouseEnter = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (expanded) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const el = e.currentTarget;
+    el.style.setProperty("--tip-left", `${rect.right + 10}px`);
+    el.style.setProperty("--tip-top", `${rect.top + rect.height / 2}px`);
+  };
+
   return (
     <div className="v2 v2-shell">
       <aside className={`v2-sidebar ${expanded ? "is-expanded" : ""}`}>
@@ -99,7 +109,12 @@ export function V2Shell({ children }: { children: ReactNode }) {
                 const active = item.href === "/k4z8qm3x" ? pathname === "/k4z8qm3x" : pathname === item.href || pathname.startsWith(item.href + "/");
                 const Icon = item.icon;
                 return (
-                  <Link key={item.href} href={item.href} className={`v2-nav-item ${active ? "is-active" : ""}`}>
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`v2-nav-item ${active ? "is-active" : ""}`}
+                    onMouseEnter={handleNavItemMouseEnter}
+                  >
                     <span className="v2-nav-item__icon"><Icon size={18} strokeWidth={1.8} /></span>
                     <span className="v2-nav-item__label">{item.label}</span>
                     {item.hasMenu && (

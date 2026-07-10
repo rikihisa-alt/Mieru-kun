@@ -373,7 +373,7 @@ export default function InventoryPage() {
           <Field label="種別">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
               {(["purchase", "adjust", "waste"] as const).map(t => (
-                <Btn key={t} onClick={() => setMoveType(t)} variant={moveType === t ? "primary" : "default"}>
+                <Btn key={t} onClick={() => setMoveType(t)} variant={moveType === t ? "selected" : "default"}>
                   {t === "purchase" ? "入庫" : t === "adjust" ? "調整" : "廃棄"}
                 </Btn>
               ))}
@@ -413,7 +413,7 @@ export default function InventoryPage() {
           <Field label="状態">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
               {EQUIPMENT_CONDITIONS.map(c => (
-                <Btn key={c} onClick={() => setEqCondition(c)} variant={eqCondition === c ? "primary" : "default"}>
+                <Btn key={c} onClick={() => setEqCondition(c)} variant={eqCondition === c ? "selected" : "default"}>
                   {c}
                 </Btn>
               ))}
@@ -439,7 +439,7 @@ export default function InventoryPage() {
           <Field label="状態を選択">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
               {EQUIPMENT_CONDITIONS.map(c => (
-                <Btn key={c} onClick={() => setInspectCondition(c)} variant={inspectCondition === c ? "primary" : "default"}>
+                <Btn key={c} onClick={() => setInspectCondition(c)} variant={inspectCondition === c ? "selected" : "default"}>
                   {c}
                 </Btn>
               ))}

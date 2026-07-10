@@ -321,7 +321,7 @@ export default function SalesPage() {
             <Field label="入金方法">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
                 {(["cash", "card", "qr"] as const).map(m => (
-                  <Btn key={m} onClick={() => setPayMethod(m)} variant={payMethod === m ? "primary" : "default"}>
+                  <Btn key={m} onClick={() => setPayMethod(m)} variant={payMethod === m ? "selected" : "default"}>
                     {m === "cash" ? "現金" : m === "card" ? "カード" : "QR"}
                   </Btn>
                 ))}

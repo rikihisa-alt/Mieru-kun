@@ -240,6 +240,9 @@
 .v2-sidebar.is-expanded .v2-sidebar-apps { margin: 2px 14px 10px; }
 .v2-sidebar-apps:hover { background: rgba(255,255,255,0.6); }
 
+/* overflow-y:auto を指定すると overflow-x:visible は auto に矯正され、サイドバー外へポップする
+   ツールチップが切れてしまう。ナビ項目数が多く縦スクロールは必須のため、ツールチップは
+   position:fixed 化して JS 側 (shell.tsx) でホバー中のアイコン位置から算出して描画する */
 .v2-nav-wrap { flex: 1; overflow-y: auto; overflow-x: visible; padding-bottom: 8px; }
 .v2-nav-section {
   /* 厳密に固定高さ — 折りたたみ時も同じ高さでアイコンが上下しない */
@@ -302,34 +305,31 @@
 }
 .v2-sidebar.is-expanded .v2-nav-item__chevron { opacity: 1; }
 
-/* サブメニュー風ポップ (折りたたみ時のホバー) */
+/* サブメニュー風ポップ (折りたたみ時のホバー)
+   .v2-nav-wrap が overflow-y:auto のため通常の absolute では画面外にクリップされる。
+   position:fixed にした上で、JS (shell.tsx) がホバー中のアイコンの位置を計算し
+   --tip-top / --tip-left カスタムプロパティ経由で座標を渡す。 */
 .v2-nav-item__tip {
-  position: absolute;
-  left: calc(100% + 10px);
-  top: 50%; transform: translateY(-50%) translateX(-4px);
-  background: #ffffff; color: var(--v2-text);
+  position: fixed;
+  left: var(--tip-left, calc(100% + 10px));
+  top: var(--tip-top, 50%);
+  transform: translateY(-50%) translateX(-4px);
+  background: var(--v2-text); color: #ffffff;
   padding: 8px 14px; border-radius: var(--v2-radius-sm);
   font-size: 13px; font-weight: 500;
   white-space: nowrap;
   opacity: 0; pointer-events: none;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  z-index: 100;
-  border: 1px solid var(--v2-border);
-  box-shadow: 0 1px 2px rgba(28, 46, 36, 0.05), 0 8px 24px rgba(28, 46, 36, 0.12);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 1000;
+  box-shadow: var(--v2-shadow-lg);
 }
 .v2-nav-item__tip::before {
   content: ""; position: absolute;
   left: -6px; top: 50%; transform: translateY(-50%);
   border: 6px solid transparent;
-  border-right-color: var(--v2-border);
+  border-right-color: var(--v2-text);
 }
-.v2-nav-item__tip::after {
-  content: ""; position: absolute;
-  left: -5px; top: 50%; transform: translateY(-50%);
-  border: 6px solid transparent;
-  border-right-color: #ffffff;
-}
-.v2-sidebar:not(.is-expanded) .v2-nav-item:hover .v2-nav-item__tip {
+.v2-nav-item:hover .v2-nav-item__tip {
   opacity: 1;
   transform: translateY(-50%) translateX(0);
 }
@@ -452,6 +452,16 @@
 
 .v2-btn-danger { color: var(--v2-danger); border-color: var(--v2-border-strong); }
 .v2-btn-danger:hover { background: var(--v2-danger-bg); border-color: var(--v2-danger); }
+
+/* 選択トグル用 (ベタ塗りprimaryより薄く、.v2-filter-chip.is-active と同トーン) */
+.v2-btn-selected {
+  background: var(--v2-accent-soft);
+  color: var(--v2-accent-text);
+  border-color: var(--v2-accent);
+  box-shadow: none;
+}
+.v2-btn-selected:hover { background: #c9e7d3; border-color: var(--v2-accent); filter: none; }
+.v2-btn-selected:active { transform: translateY(1px); }
 
 .v2-btn-sm { height: 30px; padding: 0 10px; font-size: var(--v2-fs-sm); }
 .v2-btn-xs { height: 26px; padding: 0 8px; font-size: var(--v2-fs-xs); }

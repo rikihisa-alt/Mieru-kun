@@ -153,7 +153,7 @@ export default function MemberReservationPage() {
                       key={t}
                       type="button"
                       onClick={() => setSlot(t)}
-                      className={active ? "ln-btn ln-btn--primary" : "ln-btn"}
+                      className={active ? "ln-btn ln-btn--selected" : "ln-btn"}
                       style={{ height: "auto", padding: "8px 4px", flexDirection: "column", gap: 2 }}
                     >
                       <div style={{ fontSize: 12, fontWeight: 600 }}>{t}</div>
@@ -197,7 +197,7 @@ export default function MemberReservationPage() {
                       key={k}
                       type="button"
                       onClick={() => setKind(k)}
-                      className={active ? "ln-btn ln-btn--primary" : "ln-btn"}
+                      className={active ? "ln-btn ln-btn--selected" : "ln-btn"}
                       style={{ height: 36, padding: "0 6px", fontSize: 11 }}
                     >
                       {KIND_LABEL[k]}

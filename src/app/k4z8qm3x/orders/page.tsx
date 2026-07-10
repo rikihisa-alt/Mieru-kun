@@ -404,7 +404,7 @@ export default function OrdersPage() {
             <Field label="支払方法">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
                 {(["cash", "card", "qr", "credit"] as const).map(m => (
-                  <Btn key={m} variant={method === m ? "primary" : undefined} onClick={() => setMethod(m)}>
+                  <Btn key={m} variant={method === m ? "selected" : undefined} onClick={() => setMethod(m)}>
                     {m === "cash" ? "現金" : m === "card" ? "カード" : m === "qr" ? "QR" : "後払い"}
                   </Btn>
                 ))}

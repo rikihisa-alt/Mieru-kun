@@ -149,7 +149,7 @@ export default function MobileOrderPage() {
                   <button
                     key={t.id}
                     onClick={() => pickTable(t.id)}
-                    className={`ln-btn ${active ? "ln-btn--primary" : ""}`}
+                    className={`ln-btn ${active ? "ln-btn--selected" : ""}`}
                     style={{ flexDirection: "column", height: 56, gap: 2, padding: "6px 4px" }}
                   >
                     <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.1 }}>{t.name}</span>

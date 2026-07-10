@@ -210,7 +210,7 @@ export default function MemberRankingPage() {
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={active ? "ln-btn ln-btn--primary ln-btn--sm" : "ln-btn ln-btn--sm"}
+                className={active ? "ln-btn ln-btn--selected ln-btn--sm" : "ln-btn ln-btn--sm"}
                 style={{ borderRadius: 999, whiteSpace: "nowrap" }}
               >
                 {PERIOD_LABEL[p]}
@@ -227,7 +227,7 @@ export default function MemberRankingPage() {
               <button
                 key={m}
                 onClick={() => setMetric(m)}
-                className={active ? "ln-btn ln-btn--primary ln-btn--sm" : "ln-btn ln-btn--sm"}
+                className={active ? "ln-btn ln-btn--selected ln-btn--sm" : "ln-btn ln-btn--sm"}
                 style={{ whiteSpace: "nowrap" }}
               >
                 {METRIC_LABEL[m]}

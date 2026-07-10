@@ -223,7 +223,7 @@ export default function MemberSchedulePage() {
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                className={active ? "ln-btn ln-btn--primary ln-btn--sm" : "ln-btn ln-btn--sm"}
+                className={active ? "ln-btn ln-btn--selected ln-btn--sm" : "ln-btn ln-btn--sm"}
                 style={{ borderRadius: 999, whiteSpace: "nowrap" }}
               >
                 {f.label}
