@@ -35,7 +35,7 @@ export default async function StaffHomePage() {
         )}
 
         {/* 管理画面リンク */}
-        <Link href="/v2" className="ln-btn ln-btn--full">
+        <Link href="/k4z8qm3x" className="ln-btn ln-btn--full">
           <Monitor size={16} />
           管理画面を開く
         </Link>

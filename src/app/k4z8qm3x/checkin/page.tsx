@@ -295,7 +295,7 @@ export default function CheckinPage() {
                   <div style={{ fontSize: 12, color: "var(--v2-text-mute)", borderTop: "1px solid var(--v2-border)", paddingTop: 10 }}>
                     顧客登録すると、この確認内容が記録として残ります。
                     {" "}
-                    <Link href="/v2/customers/new" style={{ textDecoration: "underline" }}>顧客登録ページへ</Link>
+                    <Link href="/k4z8qm3x/customers/new" style={{ textDecoration: "underline" }}>顧客登録ページへ</Link>
                   </div>
                 )}
               </VStack>

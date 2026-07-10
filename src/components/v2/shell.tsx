@@ -20,41 +20,41 @@ interface NavSection { section: string; items: NavItem[]; }
 
 const NAV: NavSection[] = [
   { section: "運営", items: [
-    { href: "/v2", label: "ダッシュボード", icon: LayoutDashboard },
-    { href: "/v2/checkin", label: "入店", icon: LogIn },
-    { href: "/v2/tables", label: "卓", icon: Grid3X3, hasMenu: true },
-    { href: "/v2/tournaments", label: "トナメ", icon: Trophy },
-    { href: "/v2/orders", label: "注文・精算", icon: ShoppingBag, hasMenu: true },
-    { href: "/v2/live", label: "ライブ注文", icon: Bell },
-    { href: "/v2/reservations", label: "予約", icon: CalendarCheck, hasMenu: true },
-    { href: "/v2/calendar", label: "カレンダー", icon: CalendarDays },
-    { href: "/signage", label: "サイネージ", icon: MonitorPlay },
+    { href: "/k4z8qm3x", label: "ダッシュボード", icon: LayoutDashboard },
+    { href: "/k4z8qm3x/checkin", label: "入店", icon: LogIn },
+    { href: "/k4z8qm3x/tables", label: "卓", icon: Grid3X3, hasMenu: true },
+    { href: "/k4z8qm3x/tournaments", label: "トナメ", icon: Trophy },
+    { href: "/k4z8qm3x/orders", label: "注文・精算", icon: ShoppingBag, hasMenu: true },
+    { href: "/k4z8qm3x/live", label: "ライブ注文", icon: Bell },
+    { href: "/k4z8qm3x/reservations", label: "予約", icon: CalendarCheck, hasMenu: true },
+    { href: "/k4z8qm3x/calendar", label: "カレンダー", icon: CalendarDays },
+    { href: "/sg7x2npq", label: "サイネージ", icon: MonitorPlay },
   ]},
   { section: "管理", items: [
-    { href: "/v2/customers", label: "顧客", icon: Users, hasMenu: true },
-    { href: "/v2/staff", label: "従業員", icon: UserCog, hasMenu: true },
-    { href: "/v2/attendance", label: "勤怠", icon: Clock, hasMenu: true },
-    { href: "/v2/shifts", label: "シフト", icon: CalendarCheck },
-    { href: "/v2/sales", label: "売上", icon: TrendingUp, hasMenu: true },
-    { href: "/v2/inventory", label: "在庫", icon: Package, hasMenu: true },
-    { href: "/v2/closing", label: "締め", icon: Lock },
-    { href: "/v2/reports", label: "集計", icon: BarChart3, hasMenu: true },
-    { href: "/v2/chip-flow", label: "チップフロー", icon: Coins },
-    { href: "/v2/history", label: "履歴", icon: History },
-    { href: "/v2/handover", label: "引き継ぎ", icon: ClipboardList },
-    { href: "/v2/incidents", label: "インシデント", icon: AlertTriangle },
+    { href: "/k4z8qm3x/customers", label: "顧客", icon: Users, hasMenu: true },
+    { href: "/k4z8qm3x/staff", label: "従業員", icon: UserCog, hasMenu: true },
+    { href: "/k4z8qm3x/attendance", label: "勤怠", icon: Clock, hasMenu: true },
+    { href: "/k4z8qm3x/shifts", label: "シフト", icon: CalendarCheck },
+    { href: "/k4z8qm3x/sales", label: "売上", icon: TrendingUp, hasMenu: true },
+    { href: "/k4z8qm3x/inventory", label: "在庫", icon: Package, hasMenu: true },
+    { href: "/k4z8qm3x/closing", label: "締め", icon: Lock },
+    { href: "/k4z8qm3x/reports", label: "集計", icon: BarChart3, hasMenu: true },
+    { href: "/k4z8qm3x/chip-flow", label: "チップフロー", icon: Coins },
+    { href: "/k4z8qm3x/history", label: "履歴", icon: History },
+    { href: "/k4z8qm3x/handover", label: "引き継ぎ", icon: ClipboardList },
+    { href: "/k4z8qm3x/incidents", label: "インシデント", icon: AlertTriangle },
   ]},
   { section: "施策", items: [
-    { href: "/v2/ranking", label: "ランキング", icon: Trophy },
-    { href: "/v2/multike", label: "マルチケ配布", icon: Gift },
-    { href: "/v2/events", label: "イベント", icon: CalendarDays, hasMenu: true },
-    { href: "/v2/pop", label: "POP", icon: ImageIcon, hasMenu: true },
-    { href: "/v2/sns", label: "SNS運用", icon: Megaphone },
+    { href: "/k4z8qm3x/ranking", label: "ランキング", icon: Trophy },
+    { href: "/k4z8qm3x/multike", label: "マルチケ配布", icon: Gift },
+    { href: "/k4z8qm3x/events", label: "イベント", icon: CalendarDays, hasMenu: true },
+    { href: "/k4z8qm3x/pop", label: "POP", icon: ImageIcon, hasMenu: true },
+    { href: "/k4z8qm3x/sns", label: "SNS運用", icon: Megaphone },
   ]},
   { section: "設定", items: [
-    { href: "/v2/products", label: "商品マスタ", icon: Package, hasMenu: true },
-    { href: "/v2/point-rules", label: "ポイントルール", icon: Sparkles, hasMenu: true },
-    { href: "/v2/settings", label: "店舗設定", icon: Settings, hasMenu: true },
+    { href: "/k4z8qm3x/products", label: "商品マスタ", icon: Package, hasMenu: true },
+    { href: "/k4z8qm3x/point-rules", label: "ポイントルール", icon: Sparkles, hasMenu: true },
+    { href: "/k4z8qm3x/settings", label: "店舗設定", icon: Settings, hasMenu: true },
   ]},
 ];
 
@@ -82,7 +82,7 @@ export function V2Shell({ children }: { children: ReactNode }) {
 
         {/* ===== トップ: ロゴ (展開時はシステム名も) ===== */}
         <div className="v2-sidebar-top">
-          <Link href="/v2" className="v2-sidebar-top__brand" aria-label="ダッシュボードへ">
+          <Link href="/k4z8qm3x" className="v2-sidebar-top__brand" aria-label="ダッシュボードへ">
             <span className="v2-brand-mark">
               <Image src="/logo-icon.png" alt="てんぽみえるくん" width={36} height={36} priority />
             </span>
@@ -96,7 +96,7 @@ export function V2Shell({ children }: { children: ReactNode }) {
             <div key={section.section}>
               <div className="v2-nav-section">{section.section}</div>
               {section.items.map((item) => {
-                const active = item.href === "/v2" ? pathname === "/v2" : pathname === item.href || pathname.startsWith(item.href + "/");
+                const active = item.href === "/k4z8qm3x" ? pathname === "/k4z8qm3x" : pathname === item.href || pathname.startsWith(item.href + "/");
                 const Icon = item.icon;
                 return (
                   <Link key={item.href} href={item.href} className={`v2-nav-item ${active ? "is-active" : ""}`}>

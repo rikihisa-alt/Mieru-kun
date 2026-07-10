@@ -82,7 +82,7 @@ export default function CustomerDetail() {
   if (!initial) {
     return (
       <VStack gap={16}>
-        <Link href="/v2/customers" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
+        <Link href="/k4z8qm3x/customers" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
           <ArrowLeft size={12} />一覧へ戻る
         </Link>
         <Panel><div className="v2-mute" style={{ padding: 32, textAlign: "center" }}>該当する顧客が見つかりません</div></Panel>
@@ -97,7 +97,7 @@ export default function CustomerDetail() {
   function remove() {
     if (!confirm("削除しますか？")) return;
     customerStore.set(prev => prev.filter(c => c.id !== id));
-    router.push("/v2/customers");
+    router.push("/k4z8qm3x/customers");
   }
   function update<K extends keyof CustomerRecord>(key: K, value: CustomerRecord[K]) {
     setDraft(prev => prev ? { ...prev, [key]: value } : prev);
@@ -107,7 +107,7 @@ export default function CustomerDetail() {
 
   return (
     <VStack gap={16}>
-      <Link href="/v2/customers" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
+      <Link href="/k4z8qm3x/customers" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
         <ArrowLeft size={12} />一覧へ戻る
       </Link>
       <PageHeader

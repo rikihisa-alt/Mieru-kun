@@ -21,13 +21,13 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError("メールアドレスまたはパスワードが正しくありません"); setLoading(false); return; }
     } catch { /* demo */ }
-    router.push("/v2");
+    router.push("/k4z8qm3x");
   }
 
   function handleDemo() {
     // デモモードcookieを設定してからダッシュボードへ
     document.cookie = "demo_mode=true; path=/; max-age=86400; SameSite=Lax";
-    router.push("/v2");
+    router.push("/k4z8qm3x");
   }
 
   return (

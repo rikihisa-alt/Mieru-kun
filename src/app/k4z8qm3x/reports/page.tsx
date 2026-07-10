@@ -234,15 +234,15 @@ export default function ReportsPage() {
               <VStack gap={6}>
                 <Btn onClick={exportTodayPDF}><FileDown size={14}/> 本日売上レポート</Btn>
                 <Btn onClick={exportMonthPDF}><FileDown size={14}/> 月次売上レポート</Btn>
-                <Btn><Link href="/v2/sales"><ArrowRight size={14}/> 売上管理(期間自由)</Link></Btn>
+                <Btn><Link href="/k4z8qm3x/sales"><ArrowRight size={14}/> 売上管理(期間自由)</Link></Btn>
               </VStack>
             </Panel>
 
             <Panel title="関連">
               <VStack gap={6}>
-                <Btn><Link href="/v2/sales">売上管理 詳細</Link></Btn>
-                <Btn><Link href="/v2/chip-flow">チップフロー</Link></Btn>
-                <Btn><Link href="/v2/closing">締め処理</Link></Btn>
+                <Btn><Link href="/k4z8qm3x/sales">売上管理 詳細</Link></Btn>
+                <Btn><Link href="/k4z8qm3x/chip-flow">チップフロー</Link></Btn>
+                <Btn><Link href="/k4z8qm3x/closing">締め処理</Link></Btn>
               </VStack>
             </Panel>
           </div>

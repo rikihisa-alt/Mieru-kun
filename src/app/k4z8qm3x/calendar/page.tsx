@@ -18,7 +18,7 @@ interface DayEntry {
 // date key: "YYYY-MM-DD"
 type DayMap = Record<string, DayEntry>;
 
-// トナメ (src/app/v2/tournaments/page.tsx TournamentRecord と同一構造。カレンダー表示に必要な最小限のみ)
+// トナメ (src/app/k4z8qm3x/tournaments/page.tsx TournamentRecord と同一構造。カレンダー表示に必要な最小限のみ)
 interface TournamentRecordLite {
   id: string;
   name: string;
@@ -280,7 +280,7 @@ export default function CalendarPage() {
                     {dayTournaments.slice(0, 2).map((t) => (
                       <Link
                         key={t.id}
-                        href="/v2/tournaments"
+                        href="/k4z8qm3x/tournaments"
                         onClick={(e) => e.stopPropagation()}
                         title={t.name}
                         style={{
@@ -310,7 +310,7 @@ export default function CalendarPage() {
                     {dayEvents.slice(0, 2).map((ev) => (
                       <Link
                         key={ev.id}
-                        href="/v2/events"
+                        href="/k4z8qm3x/events"
                         onClick={(e) => e.stopPropagation()}
                         title={ev.title}
                         className="v2-chip v2-chip-info"

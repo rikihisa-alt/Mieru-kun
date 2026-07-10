@@ -77,12 +77,12 @@ export default function NewStaffPage() {
       notes: "",
     };
     staffStore.set(prev => [s, ...prev]);
-    router.push("/v2/staff");
+    router.push("/k4z8qm3x/staff");
   }
 
   return (
     <VStack gap={16}>
-      <Link href="/v2/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
+      <Link href="/k4z8qm3x/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
         <ArrowLeft size={12} />一覧へ戻る
       </Link>
       <PageHeader title="従業員 新規登録" />
@@ -170,7 +170,7 @@ export default function NewStaffPage() {
       </Panel>
 
       <HStack gap={8} style={{ justifyContent: "flex-end" }}>
-        <Btn onClick={() => router.push("/v2/staff")}>キャンセル</Btn>
+        <Btn onClick={() => router.push("/k4z8qm3x/staff")}>キャンセル</Btn>
         <Btn variant="primary" onClick={submit}>登録</Btn>
       </HStack>
     </VStack>

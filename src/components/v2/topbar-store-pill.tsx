@@ -15,7 +15,7 @@ export function TopbarStorePill() {
     <button
       className="v2-store-pill"
       title="店舗設定を開く"
-      onClick={() => router.push("/v2/settings")}
+      onClick={() => router.push("/k4z8qm3x/settings")}
     >
       <span className="v2-store-pill__mark">{mark}</span>
       <span>{name}</span>

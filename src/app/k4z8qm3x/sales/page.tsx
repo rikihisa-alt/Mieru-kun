@@ -30,7 +30,7 @@ export default function SalesPage() {
   const [settling, setSettling] = useState<SalesOrder | null>(null);
   const [payMethod, setPayMethod] = useState<"cash" | "card" | "qr">("cash");
 
-  // ダッシュボード等から /v2/sales?tab=unpaid で遷移してきた場合、未払いタブを開く
+  // ダッシュボード等から /k4z8qm3x/sales?tab=unpaid で遷移してきた場合、未払いタブを開く
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("tab") === "unpaid") setMainTab("unpaid");

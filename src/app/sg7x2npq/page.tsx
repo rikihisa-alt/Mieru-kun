@@ -6,11 +6,11 @@ import type { CustomerRank } from "@/lib/store/domain-stores";
 
 // =================================================================
 // サイネージモード (店内大画面用フルスクリーン表示)
-// 既存の /v2 管理画面と localStorage + BroadcastChannel で自動同期される。
+// 既存の /k4z8qm3x 管理画面と localStorage + BroadcastChannel で自動同期される。
 // 型定義は各ストアの実データ構造 (v2/tables, v2/tournaments, v2/settings) に合わせている。
 // =================================================================
 
-// ----- 卓管理 (src/app/v2/tables/page.tsx と同一構造) -----
+// ----- 卓管理 (src/app/k4z8qm3x/tables/page.tsx と同一構造) -----
 interface Visit {
   id: string;
   customerId: string | null;
@@ -43,7 +43,7 @@ interface WaitEntry {
   visitId?: string;
 }
 
-// ----- トーナメント (src/app/v2/tournaments/page.tsx と同一構造) -----
+// ----- トーナメント (src/app/k4z8qm3x/tournaments/page.tsx と同一構造) -----
 interface BlindLevel {
   id: string;
   level: number;
@@ -327,7 +327,7 @@ function TournamentBanner({ tournament }: { tournament: TournamentRecord }) {
   const elapsedMs = Math.max(0, effectiveNow - startMs);
 
   // 現在レベルの残り時間を、レベルインデックスとレベル境界の累積時間から算出
-  // (src/app/v2/tournaments/page.tsx TimerTab と同一計算式)
+  // (src/app/k4z8qm3x/tournaments/page.tsx TimerTab と同一計算式)
   let cursorMs = 0;
   let computedIndex = 0;
   for (let i = 0; i < levels.length; i++) {

@@ -43,8 +43,8 @@ export default function DashboardPage() {
         title="ダッシュボード"
         action={
           <>
-            <Btn variant="primary"><Link href="/v2/checkin" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><DoorOpen size={14}/> 入店登録</Link></Btn>
-            <Btn variant="primary"><Link href="/v2/attendance" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Clock size={14}/> 出勤登録</Link></Btn>
+            <Btn variant="primary"><Link href="/k4z8qm3x/checkin" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><DoorOpen size={14}/> 入店登録</Link></Btn>
+            <Btn variant="primary"><Link href="/k4z8qm3x/attendance" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Clock size={14}/> 出勤登録</Link></Btn>
           </>
         }
       />
@@ -64,7 +64,7 @@ export default function DashboardPage() {
             <AlertTriangle size={16} />
             <strong>在庫不足:</strong>
             <span className="v2-grow v2-truncate">{lowStock.map(p => `${p.name}(${p.stock})`).join(" / ")}</span>
-            <Link href="/v2/inventory" className="v2-mute" style={{ fontSize: 12 }}>確認 →</Link>
+            <Link href="/k4z8qm3x/inventory" className="v2-mute" style={{ fontSize: 12 }}>確認 →</Link>
           </HStack>
         </Panel>
       )}
@@ -72,7 +72,7 @@ export default function DashboardPage() {
       {/* 未払い(後払い) */}
       <Panel
         title={<HStack gap={6}><Wallet size={15} /> 未払い(後払い)</HStack>}
-        action={<Link href="/v2/sales?tab=unpaid" className="v2-mute" style={{ fontSize: 12 }}>一覧・消し込み →</Link>}
+        action={<Link href="/k4z8qm3x/sales?tab=unpaid" className="v2-mute" style={{ fontSize: 12 }}>一覧・消し込み →</Link>}
       >
         {unpaidOrders.length === 0 ? (
           <HStack gap={8} className="v2-mute" style={{ fontSize: 13, padding: "8px 0" }}>
@@ -107,7 +107,7 @@ export default function DashboardPage() {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
         {/* 本日予約 */}
-        <Panel title="本日予約" action={<Link href="/v2/reservations" className="v2-mute" style={{ fontSize: 12 }}>全て →</Link>}>
+        <Panel title="本日予約" action={<Link href="/k4z8qm3x/reservations" className="v2-mute" style={{ fontSize: 12 }}>全て →</Link>}>
           {todayReservations.length === 0 ? (
             <div className="v2-mute" style={{ fontSize: 13, padding: "8px 0" }}>予約はありません</div>
           ) : (
@@ -129,7 +129,7 @@ export default function DashboardPage() {
         </Panel>
 
         {/* 来店中 */}
-        <Panel title="来店中" action={<Link href="/v2/checkin" className="v2-mute" style={{ fontSize: 12 }}>全て →</Link>}>
+        <Panel title="来店中" action={<Link href="/k4z8qm3x/checkin" className="v2-mute" style={{ fontSize: 12 }}>全て →</Link>}>
           {visits.length === 0 ? (
             <div className="v2-mute" style={{ fontSize: 13, padding: "8px 0" }}>来店中のお客様はいません</div>
           ) : (
@@ -155,12 +155,12 @@ export default function DashboardPage() {
       <Panel title="クイックアクション">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8 }}>
           {[
-            { href: "/v2/checkin", icon: DoorOpen, label: "入店登録" },
-            { href: "/v2/tables", icon: Grid3X3, label: "卓管理" },
-            { href: "/v2/orders", icon: ShoppingBag, label: "新規注文" },
-            { href: "/v2/customers/new", icon: UserPlus, label: "顧客登録" },
-            { href: "/v2/closing", icon: CreditCard, label: "締め処理" },
-            { href: "/v2/reservations", icon: Plus, label: "予約追加" },
+            { href: "/k4z8qm3x/checkin", icon: DoorOpen, label: "入店登録" },
+            { href: "/k4z8qm3x/tables", icon: Grid3X3, label: "卓管理" },
+            { href: "/k4z8qm3x/orders", icon: ShoppingBag, label: "新規注文" },
+            { href: "/k4z8qm3x/customers/new", icon: UserPlus, label: "顧客登録" },
+            { href: "/k4z8qm3x/closing", icon: CreditCard, label: "締め処理" },
+            { href: "/k4z8qm3x/reservations", icon: Plus, label: "予約追加" },
           ].map(a => {
             const Icon = a.icon;
             return (

@@ -92,7 +92,7 @@ export function TopbarNotifications() {
             <div style={{ display: "flex", flexDirection: "column" }}>
               {unpaidCount > 0 && (
                 <Link
-                  href="/v2/orders"
+                  href="/k4z8qm3x/orders"
                   onClick={() => setOpen(false)}
                   style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", fontSize: 13, color: "var(--v2-text)", borderBottom: "1px solid var(--v2-border)" }}
                 >
@@ -102,7 +102,7 @@ export function TopbarNotifications() {
               )}
               {lowStockItems.length > 0 && (
                 <Link
-                  href="/v2/inventory"
+                  href="/k4z8qm3x/inventory"
                   onClick={() => setOpen(false)}
                   style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", fontSize: 13, color: "var(--v2-text)", borderBottom: "1px solid var(--v2-border)" }}
                 >
@@ -112,7 +112,7 @@ export function TopbarNotifications() {
               )}
               {todayReservationCount > 0 && (
                 <Link
-                  href="/v2/reservations"
+                  href="/k4z8qm3x/reservations"
                   onClick={() => setOpen(false)}
                   style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", fontSize: 13, color: "var(--v2-text)" }}
                 >

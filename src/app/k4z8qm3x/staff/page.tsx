@@ -35,7 +35,7 @@ export default function StaffPage() {
               );
               printDoc({ title: "従業員リスト", body, storeName: "てんぽみえるくん" });
             }}><FileDown size={14}/> PDF</Btn>
-            <Btn variant="primary"><Link href="/v2/staff/new"><Plus size={14} /> 登録</Link></Btn>
+            <Btn variant="primary"><Link href="/k4z8qm3x/staff/new"><Plus size={14} /> 登録</Link></Btn>
           </>
         }
       />
@@ -76,7 +76,7 @@ export default function StaffPage() {
               {rows.length === 0 ? (
                 <tr><td colSpan={6}><Empty>該当する従業員がいません</Empty></td></tr>
               ) : rows.map(s => (
-                <tr key={s.id} onClick={() => router.push(`/v2/staff/${s.id}`)}>
+                <tr key={s.id} onClick={() => router.push(`/k4z8qm3x/staff/${s.id}`)}>
                   <td className="v2-sub">{s.employeeNo}</td>
                   <td>{staffFullName(s)}</td>
                   <td>{s.role}</td>

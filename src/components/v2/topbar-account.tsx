@@ -58,7 +58,7 @@ export function TopbarAccount({ initial }: { initial: string }) {
           }}
         >
           <button
-            onClick={() => { setOpen(false); router.push("/v2/settings"); }}
+            onClick={() => { setOpen(false); router.push("/k4z8qm3x/settings"); }}
             style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", fontSize: 13, color: "var(--v2-text)", borderRadius: "var(--v2-radius-sm)", textAlign: "left" }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "var(--v2-bg-alt)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}

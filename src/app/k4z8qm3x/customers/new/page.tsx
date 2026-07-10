@@ -33,12 +33,12 @@ export default function NewCustomerPage() {
       createdAt: new Date().toISOString(),
     };
     customerStore.set(prev => [c, ...prev]);
-    router.push("/v2/customers");
+    router.push("/k4z8qm3x/customers");
   }
 
   return (
     <VStack gap={16}>
-      <Link href="/v2/customers" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
+      <Link href="/k4z8qm3x/customers" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
         <ArrowLeft size={12} />一覧へ戻る
       </Link>
       <PageHeader title="顧客新規登録" />
@@ -81,7 +81,7 @@ export default function NewCustomerPage() {
           </Field>
 
           <HStack gap={8} style={{ justifyContent: "flex-end" }}>
-            <Btn onClick={() => router.push("/v2/customers")}>キャンセル</Btn>
+            <Btn onClick={() => router.push("/k4z8qm3x/customers")}>キャンセル</Btn>
             <Btn variant="primary" onClick={submit}>登録</Btn>
           </HStack>
         </VStack>

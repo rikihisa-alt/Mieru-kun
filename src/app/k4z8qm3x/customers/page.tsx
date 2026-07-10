@@ -165,7 +165,7 @@ export default function CustomersPage() {
               );
               printDoc({ title: "顧客リスト", body, storeName: "てんぽみえるくん", landscape: true });
             }}><FileDown size={14}/> PDF</Btn>
-            <Btn variant="primary"><Link href="/v2/customers/new"><Plus size={14} /> 登録</Link></Btn>
+            <Btn variant="primary"><Link href="/k4z8qm3x/customers/new"><Plus size={14} /> 登録</Link></Btn>
           </>
         }
       />
@@ -211,7 +211,7 @@ export default function CustomersPage() {
               {rows.length === 0 ? (
                 <tr><td colSpan={8}><Empty>該当する顧客がいません</Empty></td></tr>
               ) : rows.map(c => (
-                <tr key={c.id} onClick={() => router.push(`/v2/customers/${c.id}`)}>
+                <tr key={c.id} onClick={() => router.push(`/k4z8qm3x/customers/${c.id}`)}>
                   <td style={{ maxWidth: 220 }}>
                     <div className="v2-row" style={{ gap: 6, alignItems: "center" }}>
                       <span style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }} title={c.nickname || c.name}>{c.nickname || c.name}</span>

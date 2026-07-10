@@ -26,7 +26,7 @@ interface TimelineEvent {
   amount?: number;
 }
 
-// マルチケ配布履歴の型 (src/app/v2/multike/page.tsx と同一形状)
+// マルチケ配布履歴の型 (src/app/k4z8qm3x/multike/page.tsx と同一形状)
 interface DistributionHistory {
   id: string;
   at: string; // toLocaleString("ja-JP") 済み文字列
@@ -37,7 +37,7 @@ interface DistributionHistory {
   reason: string;
 }
 
-// 勤怠レコードの型 (src/app/v2/attendance/page.tsx と同一形状)
+// 勤怠レコードの型 (src/app/k4z8qm3x/attendance/page.tsx と同一形状)
 interface AttendanceRecord {
   staffId: string;
   date: string;     // YYYY-MM-DD

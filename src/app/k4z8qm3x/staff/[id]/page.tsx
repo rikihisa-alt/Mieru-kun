@@ -34,7 +34,7 @@ export default function StaffDetail() {
   if (!s) {
     return (
       <VStack gap={16}>
-        <Link href="/v2/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}><ArrowLeft size={12} />一覧へ戻る</Link>
+        <Link href="/k4z8qm3x/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}><ArrowLeft size={12} />一覧へ戻る</Link>
         <Panel><div className="v2-mute" style={{ padding: 32, textAlign: "center" }}>該当する従業員が見つかりません</div></Panel>
       </VStack>
     );
@@ -58,7 +58,7 @@ export default function StaffDetail() {
     if (!confirm("この従業員データを完全に削除します。給与・雇用履歴も含めて復元できません。よろしいですか？")) return;
     if (!confirm("本当に完全削除しますか？この操作は取り消せません。")) return;
     staffStore.set(prev => prev.filter(x => x.id !== id));
-    router.push("/v2/staff");
+    router.push("/k4z8qm3x/staff");
   }
 
   if (editing) {
@@ -76,7 +76,7 @@ export default function StaffDetail() {
 
   return (
     <VStack gap={16}>
-      <Link href="/v2/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}><ArrowLeft size={12} />一覧へ戻る</Link>
+      <Link href="/k4z8qm3x/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}><ArrowLeft size={12} />一覧へ戻る</Link>
 
       {toast && <Toast message={toast.message} variant={toast.variant} />}
 
@@ -238,7 +238,7 @@ function StaffEditForm({ staff, onCancel, onSaved }: { staff: StaffFull; onCance
 
   return (
     <VStack gap={16}>
-      <Link href="/v2/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
+      <Link href="/k4z8qm3x/staff" className="v2-mute v2-row" style={{ gap: 4, fontSize: 12 }}>
         <ArrowLeft size={12} />一覧へ戻る
       </Link>
       <PageHeader title={`${staffFullName(staff)} を編集`} />

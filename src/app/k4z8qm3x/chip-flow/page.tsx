@@ -7,7 +7,7 @@ import { customerStore } from "@/lib/store/domain-stores";
 import { PageHeader, Panel, Field, VStack, HStack, Btn, Kpis, Kpi, Empty, Tabs, Toast, useToast } from "@/components/v2/ui";
 import { Trash2 } from "lucide-react";
 
-// ===== 全角→半角数字変換 + 数字以外を除去 (src/app/v2/tables/page.tsx と同じパターン) =====
+// ===== 全角→半角数字変換 + 数字以外を除去 (src/app/k4z8qm3x/tables/page.tsx と同じパターン) =====
 function toHalfWidthDigits(input: string): string {
   return input
     .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))

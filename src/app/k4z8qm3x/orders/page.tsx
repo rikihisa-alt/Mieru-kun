@@ -9,7 +9,7 @@ import { grantSpendPoints } from "@/lib/v2/points";
 import { PageHeader, Btn, Panel, Modal, VStack, HStack, Chip, Empty, Field, Toast, useToast, Banner, FilterChips, SectionLabel } from "@/components/v2/ui";
 import { Plus, Minus, CreditCard, Trash2, X, FileDown, Clock } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
-import { TIME_CHARGE_KEY, DEFAULT_TIME_CHARGE, calcTimeChargeUnits, calcTimeChargeAmount, type TimeChargeSettings } from "@/app/v2/settings/page";
+import { TIME_CHARGE_KEY, DEFAULT_TIME_CHARGE, calcTimeChargeUnits, calcTimeChargeAmount, type TimeChargeSettings } from "@/app/k4z8qm3x/settings/page";
 
 // 締め状況の判定に使う最小限の型 (closing/page.tsx の ClosingRecord と同じキー・date形式 "YYYY-MM-DD")
 interface ClosingRecordLite { date: string }
@@ -314,7 +314,7 @@ export default function OrdersPage() {
           </div>
 
           {activeProducts.length === 0 ? (
-            <Empty>商品マスタが空です。先に <Link href="/v2/products" style={{ textDecoration: "underline" }}>商品マスタ</Link> で商品を登録してください。</Empty>
+            <Empty>商品マスタが空です。先に <Link href="/k4z8qm3x/products" style={{ textDecoration: "underline" }}>商品マスタ</Link> で商品を登録してください。</Empty>
           ) : (
             <div>
               <div className="v2-toolbar" style={{ marginBottom: 8 }}>
