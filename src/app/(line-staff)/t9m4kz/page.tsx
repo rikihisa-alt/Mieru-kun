@@ -10,7 +10,7 @@ import { Minus, Plus, ShoppingCart, X, Check, Grid3X3 } from "lucide-react";
 interface TableDef {
   id: string;
   name: string;
-  type: "トナメ" | "リング" | "サイド" | "BJ" | "バカラ";
+  type: "トナメ" | "トナメ1" | "トナメ2" | "リング" | "サイド" | "BJ" | "バカラ" | "その他";
   maxSeats: number;
 }
 

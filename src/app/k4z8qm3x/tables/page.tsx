@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { usePersistedState } from "@/lib/persist/store";
+import { usePersistedState, usePersisted } from "@/lib/persist/store";
 import { PageHeader, Btn, Field, Modal, VStack, Empty } from "@/components/v2/ui";
 import { Plus, Trash2, Pencil, X, Move, Clock, RefreshCw, Users, ArrowDown } from "lucide-react";
 import {
@@ -15,7 +15,8 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import type { CustomerRank } from "@/lib/store/domain-stores";
+import { staffStore, type CustomerRank } from "@/lib/store/domain-stores";
+import { staffFullName } from "@/lib/staff-data";
 
 // ===================== 卓カードレイアウト定数 =====================
 /** 卓カードの目安の高さ (px)。気持ち小さく調整済み (旧270→250)。 */
@@ -46,7 +47,7 @@ interface Visit {
 interface TableDef {
   id: string;
   name: string;
-  type: "トナメ" | "リング" | "サイド" | "BJ" | "バカラ";
+  type: "トナメ" | "トナメ1" | "トナメ2" | "リング" | "サイド" | "BJ" | "バカラ" | "その他";
   maxSeats: number;
   dealer?: string;
   /** ディーラー持ち時間(分) */
@@ -78,15 +79,27 @@ const RANK_LABEL: Record<CustomerRank, string> = {
   vip: "VIP", gold: "Gold", silver: "Silver", regular: "",
 };
 const TYPE_COLOR: Record<TableDef["type"], string> = {
-  "トナメ": "#2c9b6a", "リング": "#0e7a55", "サイド": "#6b7280", "BJ": "#1e293b", "バカラ": "#8b5cf6",
+  "トナメ": "#2c9b6a", "トナメ1": "#3fae7a", "トナメ2": "#59c08f",
+  "リング": "#0e7a55", "サイド": "#6b7280", "BJ": "#1e293b", "バカラ": "#8b5cf6",
+  "その他": "#6b7280",
 };
-const WAIT_GAME_OPTIONS: WaitGame[] = ["トナメ", "リング", "サイド", "BJ", "バカラ", "指定なし"];
+const TABLE_TYPE_OPTIONS: TableDef["type"][] = ["トナメ", "トナメ1", "トナメ2", "リング", "サイド", "BJ", "バカラ", "その他"];
+const WAIT_GAME_OPTIONS: WaitGame[] = [...TABLE_TYPE_OPTIONS, "指定なし"];
 const WAIT_GAME_COLOR: Record<WaitGame, string> = {
   ...TYPE_COLOR,
   "指定なし": "#9ca3af",
 };
 /** 呼出済みからの経過分がこれ以上で警告色 (来ない客の可能性) */
 const CALLED_WARN_MIN = 5;
+
+/** ディーラー持ち時間(分)のセレクト選択肢。"なし"はタイマー不使用(undefined)を表す */
+const DEALER_DURATION_OPTIONS = [10, 15, 20, 30, 45, 60, 90, 120] as const;
+/** セレクトの value として使う特殊値 (実際の分数と衝突しない文字列) */
+const DEALER_DURATION_NONE = "none";
+/** ディーラーセレクトの特殊選択肢: 直接入力を選んだ場合の value */
+const DEALER_CUSTOM_VALUE = "__custom__";
+/** ディーラーセレクトの特殊選択肢: 未設定 */
+const DEALER_NONE_VALUE = "";
 
 // ===== 全角→半角数字変換 + 数字以外を除去 =====
 function toHalfWidthDigits(input: string): string {
@@ -103,15 +116,22 @@ export default function TablesPage() {
   const [dealerRun, setDealerRun] = usePersistedState<string[]>("v2_dealer_run_v1", []);
   // ウェイティングリスト: 満卓時のリング待ち順 (先頭が次の案内)
   const [waitlist, setWaitlist] = usePersistedState<WaitEntry[]>("v2_waitlist_v1", []);
+  // 在籍中スタッフ (ディーラーセレクトの候補に使用)
+  const [staffList] = usePersisted(staffStore);
   // 待機エリアから登録するときの初期名 (MoveModal から遷移)
   const [waitlistPrefill, setWaitlistPrefill] = useState<{ name: string; visitId?: string } | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [openAdd, setOpenAdd] = useState(false);
   const [editTable, setEditTable] = useState<TableDef | null>(null);
   const [draft, setDraft] = useState<Omit<TableDef, "id">>({ name: "", type: "トナメ", maxSeats: 6, dealer: "", dealerDurationMin: 60 });
-  // ディーラー持ち時間入力用の文字列バッファ (全角入力を許容)
-  const [editDurationStr, setEditDurationStr] = useState("");
-  const [draftDurationStr, setDraftDurationStr] = useState("60");
+  // ディーラー持ち時間セレクト用バッファ ("none" または分数の文字列)
+  const [editDurationStr, setEditDurationStr] = useState<string>("60");
+  const [draftDurationStr, setDraftDurationStr] = useState<string>("60");
+  // ディーラーセレクト用バッファ (値 or "__custom__" で直接入力欄を表示)
+  const [editDealerSel, setEditDealerSel] = useState<string>(DEALER_NONE_VALUE);
+  const [editDealerCustom, setEditDealerCustom] = useState<string>("");
+  const [draftDealerSel, setDraftDealerSel] = useState<string>(DEALER_NONE_VALUE);
+  const [draftDealerCustom, setDraftDealerCustom] = useState<string>("");
 
   // 顧客の席移動メニュー
   const [moveTarget, setMoveTarget] = useState<Visit | null>(null);
@@ -121,6 +141,21 @@ export default function TablesPage() {
   const [seatPick, setSeatPick] = useState<{ table: TableDef; seatIndex: number } | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  // ディーラーセレクトの候補: 「未設定」+ ディーラー欄の待機者 + 在籍中スタッフ(氏名) を重複除去
+  const dealerCandidates = useMemo(() => {
+    const names: string[] = [];
+    const seen = new Set<string>();
+    for (const n of dealerRun) {
+      if (n && !seen.has(n)) { seen.add(n); names.push(n); }
+    }
+    for (const s of staffList) {
+      if (s.status !== "active") continue;
+      const n = staffFullName(s);
+      if (n && !seen.has(n)) { seen.add(n); names.push(n); }
+    }
+    return names;
+  }, [dealerRun, staffList]);
 
   const waiting = useMemo(() => visits.filter(v => !v.tableId), [visits]);
   const seated = useMemo(() => visits.filter(v => v.tableId), [visits]);
@@ -211,15 +246,22 @@ export default function TablesPage() {
   }
 
   // ===== 卓CRUD =====
+  /** ディーラーセレクトの値(+直接入力テキスト)から実際のディーラー名を求める */
+  function resolveDealerName(sel: string, custom: string): string {
+    if (sel === DEALER_CUSTOM_VALUE) return custom.trim();
+    return sel.trim();
+  }
   function openAddModal() {
     setDraft({ name: "", type: "トナメ", maxSeats: 6, dealer: "", dealerDurationMin: 60 });
     setDraftDurationStr("60");
+    setDraftDealerSel(DEALER_NONE_VALUE);
+    setDraftDealerCustom("");
     setOpenAdd(true);
   }
   function addTable() {
-    const duration = parseInt(draftDurationStr, 10);
+    const duration = draftDurationStr === DEALER_DURATION_NONE ? NaN : parseInt(draftDurationStr, 10);
     if (!draft.name.trim()) { alert("卓名を入力してください"); return; }
-    const dealerName = (draft.dealer ?? "").trim();
+    const dealerName = resolveDealerName(draftDealerSel, draftDealerCustom);
     setTables(prev => [...prev, {
       id: `t${Date.now()}`,
       ...draft,
@@ -231,13 +273,25 @@ export default function TablesPage() {
   }
   function openEdit(t: TableDef) {
     setEditTable(t);
-    setEditDurationStr(t.dealerDurationMin != null ? String(t.dealerDurationMin) : "60");
+    setEditDurationStr(t.dealerDurationMin != null ? String(t.dealerDurationMin) : DEALER_DURATION_NONE);
+    const currentDealer = (t.dealer ?? "").trim();
+    if (!currentDealer) {
+      setEditDealerSel(DEALER_NONE_VALUE);
+      setEditDealerCustom("");
+    } else if (dealerCandidates.includes(currentDealer)) {
+      setEditDealerSel(currentDealer);
+      setEditDealerCustom("");
+    } else {
+      // リストにない値 (直接入力で保存されていた等) は「直接入力」を選択させ値を保持
+      setEditDealerSel(DEALER_CUSTOM_VALUE);
+      setEditDealerCustom(currentDealer);
+    }
   }
   function saveEdit() {
     if (!editTable) return;
-    const duration = parseInt(editDurationStr, 10);
+    const duration = editDurationStr === DEALER_DURATION_NONE ? NaN : parseInt(editDurationStr, 10);
     if (!editTable.name.trim()) { alert("卓名を入力してください"); return; }
-    const newDealer = (editTable.dealer ?? "").trim();
+    const newDealer = resolveDealerName(editDealerSel, editDealerCustom);
     setTables(prev => prev.map(t => {
       if (t.id !== editTable.id) return t;
       // ディーラーが新規 or 変更されたらタイマーリセット
@@ -464,7 +518,7 @@ export default function TablesPage() {
             </Field>
             <Field label="種別">
               <select value={draft.type} onChange={(e) => setDraft({ ...draft, type: e.target.value as TableDef["type"] })}>
-                <option>トナメ</option><option>リング</option><option>サイド</option><option>BJ</option><option>バカラ</option>
+                {TABLE_TYPE_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </Field>
             <Field label="席数">
@@ -475,17 +529,26 @@ export default function TablesPage() {
               </select>
             </Field>
             <Field label="ディーラー">
-              <input value={draft.dealer ?? ""} onChange={(e) => setDraft({ ...draft, dealer: e.target.value })} placeholder="ディーラー名(任意)" list="v2-dealer-run-options" />
+              <select value={draftDealerSel} onChange={(e) => setDraftDealerSel(e.target.value)}>
+                <option value={DEALER_NONE_VALUE}>未設定</option>
+                {dealerCandidates.map(name => <option key={name} value={name}>{name}</option>)}
+                <option value={DEALER_CUSTOM_VALUE}>直接入力…</option>
+              </select>
+              {draftDealerSel === DEALER_CUSTOM_VALUE && (
+                <input
+                  value={draftDealerCustom}
+                  onChange={(e) => setDraftDealerCustom(e.target.value)}
+                  placeholder="ディーラー名を入力"
+                  style={{ marginTop: 6 }}
+                  autoFocus
+                />
+              )}
             </Field>
             <Field label="ディーラー持ち時間(分)">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={draftDurationStr}
-                onChange={(e) => setDraftDurationStr(toHalfWidthDigits(e.target.value))}
-                onFocus={(e) => e.target.select()}
-                placeholder="例: 60"
-              />
+              <select value={draftDurationStr} onChange={(e) => setDraftDurationStr(e.target.value)}>
+                <option value={DEALER_DURATION_NONE}>なし(タイマー不使用)</option>
+                {DEALER_DURATION_OPTIONS.map(m => <option key={m} value={m}>{m}分</option>)}
+              </select>
             </Field>
           </VStack>
         </Modal>
@@ -504,7 +567,10 @@ export default function TablesPage() {
               </Field>
               <Field label="種別">
                 <select value={editTable.type} onChange={(e) => setEditTable({ ...editTable, type: e.target.value as TableDef["type"] })}>
-                  <option>トナメ</option><option>リング</option><option>サイド</option><option>BJ</option><option>バカラ</option>
+                  {/* 旧データに現行選択肢にない種別が入っていても表示が消えないよう動的に含める */}
+                  {(TABLE_TYPE_OPTIONS.includes(editTable.type) ? TABLE_TYPE_OPTIONS : [editTable.type, ...TABLE_TYPE_OPTIONS]).map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
                 </select>
               </Field>
               <Field label="席数">
@@ -514,18 +580,30 @@ export default function TablesPage() {
                   ))}
                 </select>
               </Field>
-              <Field label="ディーラー">
-                <input value={editTable.dealer ?? ""} onChange={(e) => setEditTable({ ...editTable, dealer: e.target.value })} placeholder="名前を変更するとタイマーがリセットされます" list="v2-dealer-run-options" />
+              <Field label="ディーラー" hint="名前を変更するとタイマーがリセットされます">
+                <select value={editDealerSel} onChange={(e) => setEditDealerSel(e.target.value)}>
+                  <option value={DEALER_NONE_VALUE}>未設定</option>
+                  {dealerCandidates.map(name => <option key={name} value={name}>{name}</option>)}
+                  <option value={DEALER_CUSTOM_VALUE}>直接入力…</option>
+                </select>
+                {editDealerSel === DEALER_CUSTOM_VALUE && (
+                  <input
+                    value={editDealerCustom}
+                    onChange={(e) => setEditDealerCustom(e.target.value)}
+                    placeholder="ディーラー名を入力"
+                    style={{ marginTop: 6 }}
+                    autoFocus
+                  />
+                )}
               </Field>
               <Field label="ディーラー持ち時間(分)">
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={editDurationStr}
-                  onChange={(e) => setEditDurationStr(toHalfWidthDigits(e.target.value))}
-                  onFocus={(e) => e.target.select()}
-                  placeholder="例: 60"
-                />
+                <select value={editDurationStr} onChange={(e) => setEditDurationStr(e.target.value)}>
+                  <option value={DEALER_DURATION_NONE}>なし(タイマー不使用)</option>
+                  {/* 旧データに現行選択肢にない分数が入っていても表示が消えないよう動的に含める */}
+                  {(DEALER_DURATION_OPTIONS as readonly number[]).includes(Number(editDurationStr)) || editDurationStr === DEALER_DURATION_NONE
+                    ? DEALER_DURATION_OPTIONS.map(m => <option key={m} value={m}>{m}分</option>)
+                    : [Number(editDurationStr), ...DEALER_DURATION_OPTIONS].map(m => <option key={m} value={m}>{m}分</option>)}
+                </select>
               </Field>
             </VStack>
           </Modal>

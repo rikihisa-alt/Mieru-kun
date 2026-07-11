@@ -23,7 +23,7 @@ interface Visit {
 interface TableDef {
   id: string;
   name: string;
-  type: "トナメ" | "リング" | "サイド" | "BJ" | "バカラ";
+  type: "トナメ" | "トナメ1" | "トナメ2" | "リング" | "サイド" | "BJ" | "バカラ" | "その他";
   maxSeats: number;
   dealer?: string;
   dealerDurationMin?: number;
@@ -98,7 +98,9 @@ interface EventRecord {
 }
 
 const TYPE_COLOR: Record<TableDef["type"], string> = {
-  "トナメ": "#34d399", "リング": "#22c55e", "サイド": "#94a3b8", "BJ": "#60a5fa", "バカラ": "#c084fc",
+  "トナメ": "#34d399", "トナメ1": "#4ade80", "トナメ2": "#6ee7b7",
+  "リング": "#22c55e", "サイド": "#94a3b8", "BJ": "#60a5fa", "バカラ": "#c084fc",
+  "その他": "#94a3b8",
 };
 
 function fmtClock(sec: number): string {
