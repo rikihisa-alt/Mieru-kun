@@ -58,7 +58,7 @@ export default function LoginPage() {
               <label className="block text-[13px] font-medium text-text-secondary mb-1.5">パスワード</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" minLength={6} style={{ padding: "10px 12px", fontSize: "14px" }} />
             </div>
-            <button type="submit" disabled={loading} className="w-full py-3 bg-accent text-white text-[15px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors disabled:opacity-50">
+            <button type="submit" disabled={loading} className="w-full py-3 bg-accent text-white text-[15px] font-medium rounded-[var(--radius)] hover:bg-accent-light hover:text-[#157a58] transition-colors disabled:opacity-50">
               {loading ? "ログイン中..." : "ログイン"}
             </button>
           </form>

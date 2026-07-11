@@ -24,6 +24,7 @@
   --ln-accent:       #2c9b6a;
   --ln-accent-2:     #34ab78;
   --ln-accent-soft:  #d8efe2;
+  --ln-accent-pastel:#c9e7d3;   /* ホバー/押し込み用の中間パステル (soft よりわずかに濃い) */
   --ln-accent-text:  #1d7350;
   --ln-warn:         #b8772a;
   --ln-warn-soft:    #fbf2e1;
@@ -177,8 +178,8 @@ a.ln-card:active, button.ln-card:active {
   color: #fff; border-color: var(--ln-accent);
   box-shadow: 0 2px 6px rgba(44, 155, 106, 0.28), var(--ln-shadow-sm);
 }
-.ln-btn--primary:hover { background: linear-gradient(180deg, #3bb383, var(--ln-accent-2)); border-color: var(--ln-accent-2); }
-.ln-btn--primary:active { transform: scale(0.98); box-shadow: 0 1px 3px rgba(44, 155, 106, 0.25); }
+.ln-btn--primary:hover { background: var(--ln-accent-soft); color: var(--ln-accent-text); border-color: var(--ln-accent); }
+.ln-btn--primary:active { background: var(--ln-accent-pastel); color: var(--ln-accent-text); border-color: var(--ln-accent); transform: scale(0.98); box-shadow: 0 1px 3px rgba(44, 155, 106, 0.25); }
 .ln-btn--warn {
   background: var(--ln-warn); color: #fff; border-color: var(--ln-warn);
 }
@@ -189,7 +190,7 @@ a.ln-card:active, button.ln-card:active {
   border-color: var(--ln-accent);
   box-shadow: none;
 }
-.ln-btn--selected:hover { background: #c9e7d3; }
+.ln-btn--selected:hover { background: var(--ln-accent-pastel); }
 .ln-btn--selected:active { transform: scale(0.98); }
 .ln-btn--ghost { border-color: transparent; background: transparent; box-shadow: none; }
 .ln-btn--ghost:hover { background: var(--ln-bg-alt); }

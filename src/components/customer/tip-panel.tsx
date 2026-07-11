@@ -115,7 +115,7 @@ export function TipPanel({ kind, label, balance, entries, onAdd, onTransfer, fro
               className="w-full px-3 py-2 text-[13px]"
             />
           </div>
-          <button onClick={submitTransfer} className="px-3 py-2 text-[12px] bg-accent text-white rounded-[6px] hover:bg-accent-hover">
+          <button onClick={submitTransfer} className="px-3 py-2 text-[12px] bg-accent text-white rounded-[6px] hover:bg-accent-light hover:text-[#157a58]">
             実行
           </button>
           <button onClick={() => setShowTransfer(false)} className="px-3 py-2 text-[12px] text-text-secondary">
@@ -148,7 +148,7 @@ export function TipPanel({ kind, label, balance, entries, onAdd, onTransfer, fro
             onClick={submit}
             disabled={frozen}
             className={`px-4 py-2 text-[13px] font-medium text-white rounded-[6px] whitespace-nowrap ${
-              frozen ? "bg-[#d8d3cc] cursor-not-allowed" : preset.sign > 0 ? "bg-accent hover:bg-accent-hover" : "bg-status-danger hover:bg-[#9e2b1f]"
+              frozen ? "bg-[#d8d3cc] cursor-not-allowed" : preset.sign > 0 ? "bg-accent hover:bg-accent-light hover:text-[#157a58]" : "bg-status-danger hover:bg-[#9e2b1f]"
             }`}
           >
             {preset.sign > 0 ? <><Plus className="w-3 h-3 inline mr-1" />付与</> : <><Minus className="w-3 h-3 inline mr-1" />消費</>}

@@ -127,7 +127,7 @@ export default function SignupPage() {
                   <label htmlFor="confirmPassword" className="block text-[13px] font-medium text-text-secondary mb-1.5">パスワード（確認）</label>
                   <input id="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required minLength={6} placeholder="もう一度入力" style={{ padding: "10px 12px", fontSize: "14px" }} />
                 </div>
-                <button type="submit" disabled={loading} className="w-full py-3 bg-accent text-white text-[15px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors disabled:opacity-50">
+                <button type="submit" disabled={loading} className="w-full py-3 bg-accent text-white text-[15px] font-medium rounded-[var(--radius)] hover:bg-accent-light hover:text-[#157a58] transition-colors disabled:opacity-50">
                   {loading ? "作成中..." : "次へ：店舗情報を入力"}
                 </button>
               </form>
@@ -173,7 +173,7 @@ export default function SignupPage() {
                     <input type="time" value={closeTime} onChange={e => setCloseTime(e.target.value)} style={{ padding: "10px 12px", fontSize: "14px" }} />
                   </div>
                 </div>
-                <button type="submit" disabled={loading} className="w-full py-3 bg-accent text-white text-[15px] font-medium rounded-[var(--radius)] hover:bg-accent-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                <button type="submit" disabled={loading} className="w-full py-3 bg-accent text-white text-[15px] font-medium rounded-[var(--radius)] hover:bg-accent-light hover:text-[#157a58] transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                   {loading ? "保存中..." : (<><Check className="w-4 h-4" />登録を完了してダッシュボードへ</>)}
                 </button>
                 <p className="text-center text-[12px] text-text-tertiary">

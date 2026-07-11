@@ -427,7 +427,7 @@ export default function CustomerDetailPage() {
               <div className="flex items-center gap-3 pt-2">
                 <button
                   onClick={handleSave}
-                  className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-accent hover:bg-accent-hover rounded-[6px] transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-accent hover:bg-accent-light hover:text-[#157a58] rounded-[6px] transition-colors"
                 >
                   <Save className="w-3.5 h-3.5" />
                   保存
@@ -530,7 +530,7 @@ export default function CustomerDetailPage() {
                 {!showPrizeForm && (
                   <button
                     onClick={() => setShowPrizeForm(true)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#ffffff] bg-accent hover:bg-accent-hover rounded-[6px] transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#ffffff] bg-accent hover:bg-accent-light hover:text-[#157a58] rounded-[6px] transition-colors"
                   >
                     <Plus className="w-3 h-3" />
                     プライズ付与
@@ -556,7 +556,7 @@ export default function CustomerDetailPage() {
                   </div>
                   <button
                     onClick={handlePrizeGrant}
-                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-accent hover:bg-accent-hover rounded-[6px] transition-colors whitespace-nowrap"
+                    className="px-4 py-2 text-[13px] font-medium text-[#ffffff] bg-accent hover:bg-accent-light hover:text-[#157a58] rounded-[6px] transition-colors whitespace-nowrap"
                   >
                     付与
                   </button>

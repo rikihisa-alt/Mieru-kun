@@ -163,7 +163,7 @@ export default function OrdersPage() {
                       <button onClick={() => { setOrderModalId(v.id); setCart([]); }} className="px-3 py-[6px] text-[12px] font-medium text-accent bg-accent-light rounded-[6px] hover:bg-[#d0ebe4]">
                         <Plus className="w-3 h-3 inline mr-1" />注文追加
                       </button>
-                      <button onClick={() => setSettleId(v.id)} className="px-3 py-[6px] text-[12px] font-medium text-white bg-accent rounded-[6px] hover:bg-accent-hover">
+                      <button onClick={() => setSettleId(v.id)} className="px-3 py-[6px] text-[12px] font-medium text-white bg-accent rounded-[6px] hover:bg-accent-light hover:text-[#157a58]">
                         <CreditCard className="w-3 h-3 inline mr-1" />精算する
                       </button>
                     </div>
@@ -221,7 +221,7 @@ export default function OrdersPage() {
               {cart.length > 0 && (
                 <div className="px-5 py-3 border-t border-border-light space-y-2">
                   <div className="flex justify-between text-[13px]"><span className="text-text-secondary">追加分</span><span className="font-bold">¥{cartTotal.toLocaleString()}</span></div>
-                  <button onClick={() => confirmOrder(orderModalId)} className="w-full py-2 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">注文を確定</button>
+                  <button onClick={() => confirmOrder(orderModalId)} className="w-full py-2 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58]">注文を確定</button>
                 </div>
               )}
             </div>
@@ -344,7 +344,7 @@ function SettleModalContent({
       </div>
 
       <div className="flex gap-2">
-        <button onClick={onSettle} disabled={diff !== 0} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed">
+        <button onClick={onSettle} disabled={diff !== 0} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58] disabled:opacity-40 disabled:cursor-not-allowed">
           精算を確定
         </button>
         <button onClick={onCancel} className="px-4 py-2.5 border border-border text-[13px] rounded-[6px] hover:bg-bg-hover">

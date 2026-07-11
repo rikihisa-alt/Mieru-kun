@@ -201,7 +201,7 @@ export default function StaffPage() {
               </div>
             </div>
             <div className="flex gap-2 mt-4">
-              <button onClick={saveEdit} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">保存</button>
+              <button onClick={saveEdit} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58]">保存</button>
               <button onClick={() => setEditId(null)} className="px-4 py-2.5 border border-border text-[13px] rounded-[6px] hover:bg-bg-hover">キャンセル</button>
             </div>
           </div>

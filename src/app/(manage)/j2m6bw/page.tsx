@@ -156,7 +156,7 @@ export default function PopManagePage() {
             </div>
 
             <div className="flex gap-2 pt-2">
-              <button onClick={save} disabled={!draft.title.trim()} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover disabled:opacity-50">
+              <button onClick={save} disabled={!draft.title.trim()} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-light hover:text-[#157a58] disabled:opacity-50">
                 {editing ? "更新" : "作成"}
               </button>
               <button onClick={() => { setCreating(false); setEditing(null); }} className="btn btn-secondary">

@@ -155,7 +155,7 @@ export default function ReservationPage() {
             </div>
 
             <div className="flex gap-2 pt-2">
-              <button onClick={addReservation} disabled={!draft.customerName.trim()} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-hover disabled:opacity-50">
+              <button onClick={addReservation} disabled={!draft.customerName.trim()} className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[var(--radius)] hover:bg-accent-light hover:text-[#157a58] disabled:opacity-50">
                 予約を追加
               </button>
               <button onClick={() => setShowForm(false)} className="px-4 py-2.5 border border-border text-[13px] rounded-[var(--radius)] hover:bg-bg-hover">

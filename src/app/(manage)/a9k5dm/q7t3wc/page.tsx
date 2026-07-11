@@ -110,7 +110,7 @@ export default function NewCustomerPage() {
               続けて登録
             </button>
             <button onClick={() => router.push("/a9k5dm")}
-              className="px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">
+              className="px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58]">
               顧客一覧へ
             </button>
           </div>
@@ -206,7 +206,7 @@ export default function NewCustomerPage() {
 
         <div className="flex gap-2 pt-2">
           <button type="submit" disabled={loading}
-            className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover disabled:opacity-50 transition-colors">
+            className="flex-1 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58] disabled:opacity-50 transition-colors">
             {loading ? "登録中..." : "登録する"}
           </button>
           <Link href="/a9k5dm"

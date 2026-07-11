@@ -163,7 +163,7 @@ export default function ProductsPage() {
           <div className="mt-3 flex justify-end">
             <button
               onClick={handleAdd}
-              className="px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors"
+              className="px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58] transition-colors"
             >
               追加
             </button>

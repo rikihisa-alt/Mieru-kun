@@ -381,7 +381,7 @@ export default function FloorPage() {
               </div>
             )}
             <button onClick={() => { handleCheckIn(); setShowCheckinModal(false); }}
-              className="w-full mt-3 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover flex items-center justify-center gap-1.5">
+              className="w-full mt-3 py-2.5 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58] flex items-center justify-center gap-1.5">
               <UserPlus className="w-3.5 h-3.5" />入店する
             </button>
           </div>

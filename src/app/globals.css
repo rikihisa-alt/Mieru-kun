@@ -39,8 +39,8 @@
 
   /* Legacy alias (既存コード互換) */
   --accent:        #209c6e;
-  --accent-hover:  #188058;
-  --accent-light:  rgba(32, 156, 110, 0.12);
+  --accent-hover:  #188058;  /* 旧: ボタンhoverには使用しない (他で参照している可能性があるため変数自体は残置) */
+  --accent-light:  #d8efe2;  /* ホバーは濃色化ではなくパステルグリーン化 (v2/LINEと同トーン)。hover:text-[#157a58] とセットで使うこと */
   --accent-bg:     rgba(32, 156, 110, 0.06);
 
   /* ---- Status (soft translucent) ---- */
@@ -100,10 +100,11 @@
   --color-text-secondary:  var(--text-secondary);
   --color-text-tertiary:   var(--text-tertiary);
   --color-text-inverse:    var(--text-inverse);
-  --color-accent:          var(--accent);
-  --color-accent-hover:    var(--accent-hover);
-  --color-accent-light:    var(--accent-light);
-  --color-accent-bg:       var(--accent-bg);
+  --color-accent:              var(--accent);
+  --color-accent-hover:        var(--accent-hover);
+  --color-accent-light:        var(--accent-light);
+  --color-accent-text:         var(--primary-text);
+  --color-accent-bg:           var(--accent-bg);
   --color-border:          var(--border);
   --color-border-light:    var(--border-light);
   --color-status-success:  var(--status-success);

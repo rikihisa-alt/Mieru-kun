@@ -26,8 +26,9 @@
 
   /* accent (button / focus) */
   --v2-accent:         #2c9b6a;   /* freeeの青の代わりにグリーン */
-  --v2-accent-hover:   #248258;
+  --v2-accent-hover:   #248258;   /* 濃色ホバーは廃止。参照箇所はパステル系へ移行済み (互換のため変数は残置) */
   --v2-accent-soft:    #d8efe2;
+  --v2-accent-pastel:  #c9e7d3;   /* ホバー/押し込み用の中間パステル (soft よりわずかに濃い) */
   --v2-accent-text:    #1d7350;
 
   /* status */
@@ -440,11 +441,11 @@
   box-shadow: 0 1px 2px rgba(28, 46, 36, 0.10), 0 4px 10px rgba(44, 155, 106, 0.18);
 }
 .v2-btn-primary:hover {
-  background: #35a674; border-color: #35a674;
-  box-shadow: 0 1px 2px rgba(28, 46, 36, 0.10), 0 6px 16px rgba(44, 155, 106, 0.28);
-  filter: brightness(1.02);
+  background: var(--v2-accent-soft); color: var(--v2-accent-text); border-color: var(--v2-accent);
+  box-shadow: 0 1px 2px rgba(28, 46, 36, 0.06), 0 4px 10px rgba(44, 155, 106, 0.12);
+  filter: none;
 }
-.v2-btn-primary:active { background: var(--v2-accent-hover); border-color: var(--v2-accent-hover); box-shadow: none; transform: translateY(1px); }
+.v2-btn-primary:active { background: var(--v2-accent-pastel); border-color: var(--v2-accent); color: var(--v2-accent-text); box-shadow: none; transform: translateY(1px); }
 
 .v2-btn-ghost { border-color: transparent; background: transparent; box-shadow: none; }
 .v2-btn-ghost:hover { background: var(--v2-bg-alt); filter: none; }
@@ -460,7 +461,7 @@
   border-color: var(--v2-accent);
   box-shadow: none;
 }
-.v2-btn-selected:hover { background: #c9e7d3; border-color: var(--v2-accent); filter: none; }
+.v2-btn-selected:hover { background: var(--v2-accent-pastel); border-color: var(--v2-accent); filter: none; }
 .v2-btn-selected:active { transform: translateY(1px); }
 
 .v2-btn-sm { height: 30px; padding: 0 10px; font-size: var(--v2-fs-sm); }

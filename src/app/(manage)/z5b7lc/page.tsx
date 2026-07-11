@@ -400,7 +400,7 @@ export default function AttendancePage() {
                 <div><label className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider">修正理由 *</label><input type="text" value={editReason} onChange={e=>setEditReason(e.target.value)} className="mt-1" placeholder="打刻忘れ修正など"/></div>
               </div>
               <div className="flex gap-2">
-                <button onClick={submitModify} disabled={!editReason} className="px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover disabled:opacity-50">修正を申請</button>
+                <button onClick={submitModify} disabled={!editReason} className="px-4 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58] disabled:opacity-50">修正を申請</button>
                 <button onClick={()=>setEditId(null)} className="px-4 py-[7px] border border-border text-[13px] rounded-[6px] hover:bg-bg-hover">キャンセル</button>
               </div>
             </div>
@@ -524,9 +524,9 @@ export default function AttendancePage() {
                         {/* リサイズハンドル */}
                         {tab === "create" && (
                           <>
-                            <div className="w-2 h-full cursor-ew-resize absolute left-0 top-0 rounded-l-[4px] hover:bg-accent-hover z-10"
+                            <div className="w-2 h-full cursor-ew-resize absolute left-0 top-0 rounded-l-[4px] hover:bg-accent-light z-10"
                               onMouseDown={e => { e.stopPropagation(); setResizing({ staffId: s.id, edge: "start", origBar: bar }); }} />
-                            <div className="w-2 h-full cursor-ew-resize absolute right-0 top-0 rounded-r-[4px] hover:bg-accent-hover z-10"
+                            <div className="w-2 h-full cursor-ew-resize absolute right-0 top-0 rounded-r-[4px] hover:bg-accent-light z-10"
                               onMouseDown={e => { e.stopPropagation(); setResizing({ staffId: s.id, edge: "end", origBar: bar }); }} />
                           </>
                         )}

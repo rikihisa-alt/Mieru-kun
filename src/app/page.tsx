@@ -46,7 +46,7 @@ export default function Home() {
             </nav>
             <div className="flex items-center gap-3">
               <Link href="/login" className="px-3 py-[7px] text-[13px] font-medium text-text-secondary hover:text-text-primary">ログイン</Link>
-              <button onClick={handleDemo} className="px-4 py-[7px] text-[13px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-hover">デモを見る</button>
+              <button onClick={handleDemo} className="px-4 py-[7px] text-[13px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-light hover:text-[#157a58]">デモを見る</button>
             </div>
           </div>
         </div>
@@ -72,7 +72,7 @@ export default function Home() {
                 LINEとの連携で、スタッフも顧客もスマホから操作可能。
               </p>
               <div className="flex flex-wrap gap-3 mb-5">
-                <button onClick={handleDemo} className="group flex items-center gap-2 px-6 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-hover shadow-sm">
+                <button onClick={handleDemo} className="group flex items-center gap-2 px-6 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-light hover:text-[#157a58] shadow-sm">
                   無料でデモを体験<ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
                 <a href="#pricing" className="px-5 py-2.5 text-[14px] font-medium border border-[#d1ccc5] text-text-secondary rounded-[6px] hover:bg-white">料金を見る</a>
@@ -266,7 +266,7 @@ export default function Home() {
         <div className="text-center">
           <h3 className="t-heading mb-2">まずは無料で触ってみてください</h3>
           <p className="text-[12px] text-text-secondary mb-4">アカウント登録不要。デモモードで全機能をお試しいただけます</p>
-          <button onClick={handleDemo} className="group inline-flex items-center gap-2 px-6 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-hover">
+          <button onClick={handleDemo} className="group inline-flex items-center gap-2 px-6 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-light hover:text-[#157a58]">
             デモを体験する<ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
@@ -453,7 +453,7 @@ export default function Home() {
           <Image src="/logo-icon.png" alt="みえるくん" width={44} height={44} className="mx-auto mb-3" />
           <h3 className="text-[18px] font-bold text-white mb-2">まずは無料で触ってみてください</h3>
           <p className="text-[13px] text-white/50 mb-6">アカウント登録不要。デモモードで全機能をお試しいただけます</p>
-          <button onClick={handleDemo} className="group inline-flex items-center gap-2 px-7 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-hover">
+          <button onClick={handleDemo} className="group inline-flex items-center gap-2 px-7 py-2.5 text-[14px] font-medium bg-accent text-white rounded-[6px] hover:bg-accent-light hover:text-[#157a58]">
             デモを体験する<ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

@@ -216,7 +216,7 @@ export default function TablesPage() {
             </span>
           </div>
           <button onClick={() => setShowAddTable(true)}
-            className="flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors">
+            className="flex items-center gap-1 px-3 py-[7px] bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58] transition-colors">
             <Plus className="w-3.5 h-3.5" />卓を追加
           </button>
         </div>
@@ -238,7 +238,7 @@ export default function TablesPage() {
               <label className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider">席数</label>
               <input type="number" min={2} max={12} value={newTableSeats} onChange={e => setNewTableSeats(parseInt(e.target.value) || 6)} className="mt-1 text-[13px]" />
             </div>
-            <button onClick={addTable} className="px-4 py-2 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover">追加</button>
+            <button onClick={addTable} className="px-4 py-2 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58]">追加</button>
             <button onClick={() => setShowAddTable(false)} className="px-3 py-2 border border-border text-[13px] rounded-[6px] hover:bg-bg-hover">取消</button>
           </div>
         )}
@@ -418,7 +418,7 @@ function EditModal({ table, onSave, onClose }: {
         </div>
         <div className="flex gap-2 pt-1">
           <button onClick={() => onSave({ name, type, maxSeats, dealer })}
-            className="flex-1 py-2 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-hover transition-colors">
+            className="flex-1 py-2 bg-accent text-white text-[13px] font-medium rounded-[6px] hover:bg-accent-light hover:text-[#157a58] transition-colors">
             保存
           </button>
           <button onClick={onClose}
