@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { usePersistedState } from "@/lib/persist/store";
 import { PageHeader, Btn, Field, Modal, VStack, Empty } from "@/components/v2/ui";
-import { Plus, Trash2, Pencil, GripVertical, X, Move, Clock, RefreshCw, Users, ArrowDown } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Move, Clock, RefreshCw, Users, ArrowDown } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
@@ -17,43 +17,21 @@ import {
 } from "@dnd-kit/core";
 import type { CustomerRank } from "@/lib/store/domain-stores";
 
-// ===================== フロアマップ配置定数 =====================
-/** 卓カードの目安の高さ (px)。posY はこの値を基準にクランプする。
- *  幅はフロア横幅の半分 (calc(50% - GAP_PX/2)) に固定し、2枚並べてフロア幅ぴったりに収める。 */
-const TABLE_H = 270;
-/** 卓カード横の見た目上のギャップ (px)。2列の間および右端に生じる隙間はこの値になる。
- *  カード幅は `calc(50% - GAP_PX / 2)` とすることで、2枚並べた合計幅が
- *  「フロア幅 - GAP_PX」になり、右端の余白がギャップ分だけになる。 */
-const GAP_PX = 16;
-/** カードの CSS 上の幅 (2列でフロア幅ちょうど+ギャップ分の隙間になる) */
-const TABLE_W_CSS = `calc(50% - ${GAP_PX / 2}px)`;
+// ===================== 卓カードレイアウト定数 =====================
+/** 卓カードの目安の高さ (px)。気持ち小さく調整済み (旧270→250)。 */
+const TABLE_H = 250;
 /** 席リング(席の中心線)を卓本体エリアの内側に収めるための余白帯 (%)。
  *  cy は 0/100 ではなくこの内側の値にし、席の円やチップがヘッダー行・カード下端に
  *  はみ出さないようにする。cx も同様に内側レンジへマップする。 */
-const SEAT_MARGIN_Y_PCT = 10; // 上=10%, 下=90%
-const SEAT_MARGIN_X_PCT = 6; // 左=6%, 右=94% (左右席 および 上下辺席のcxレンジ)
+const SEAT_MARGIN_Y_PCT = 12; // 上=12%, 下=88%
+const SEAT_MARGIN_X_PCT = 10; // 左=10%, 右=90% (左右席 および 上下辺席のcxレンジ)
 /** フェルト(角丸長方形)のinset (px)。席リングのさらに内側に収まるよう、
  *  素の24pxから席帯の分だけ広げてある (上下=52px, 左右=56px)。 */
 const FELT_INSET_Y = 52;
 const FELT_INSET_X = 56;
-/** フロアコンテナの目安サイズ (px)。実サイズは ref から取得するが、初期配置の概算に使う */
-const FLOOR_H = 800;
-/** カード幅は常にフロア幅の50%なので、X方向のクランプ上限は常に50% (ギャップは card 内マージンで表現済み) */
-const MAX_X_PCT = 50;
-/** 2列グリッドでの自動初期配置 (%): インデックスに応じて重ならないよう配置する */
-function autoLayoutPos(index: number): { posX: number; posY: number } {
-  const cols = 2;
-  const col = index % cols;
-  const row = Math.floor(index / cols);
-  const posX = col === 0 ? 0 : MAX_X_PCT;
-  const rowStepPct = (TABLE_H / FLOOR_H) * 100 * 1.25; // 行間 (卓高さの125%)
-  const posY = clamp(row * rowStepPct, 0, 1000); // 行が増えてもフロアは縦スクロールしないため後段でクランプ
-  return { posX, posY };
-}
-function clamp(v: number, min: number, max: number): number {
-  if (max < min) return min;
-  return Math.min(max, Math.max(min, v));
-}
+/** 席数が多い卓 (9席以上, 左右辺を使う) は席円をひとまわり小さくして重なりを防ぐ */
+const SEAT_SIZE_NORMAL = 40;
+const SEAT_SIZE_COMPACT = 36;
 
 // ===================== 型定義 =====================
 interface Visit {
@@ -75,9 +53,6 @@ interface TableDef {
   dealerDurationMin?: number;
   /** ディーラーが設置されたISO時刻 (タイマー基準) */
   dealerStartedAt?: string;
-  /** フロアマップ上の位置 (%, 0〜100)。未設定の卓は自動でグリッド配置される */
-  posX?: number;
-  posY?: number;
 }
 
 /** ウェイティングリストの希望ゲーム種別 ("指定なし" を含む) */
@@ -134,9 +109,7 @@ export default function TablesPage() {
   const [openAdd, setOpenAdd] = useState(false);
   const [editTable, setEditTable] = useState<TableDef | null>(null);
   const [draft, setDraft] = useState<Omit<TableDef, "id">>({ name: "", type: "トナメ", maxSeats: 6, dealer: "", dealerDurationMin: 60 });
-  // 席数入力用の文字列バッファ (全角入力や 0 始まりを許容)
-  const [draftSeatsStr, setDraftSeatsStr] = useState("6");
-  const [editSeatsStr, setEditSeatsStr] = useState("");
+  // ディーラー持ち時間入力用の文字列バッファ (全角入力を許容)
   const [editDurationStr, setEditDurationStr] = useState("");
   const [draftDurationStr, setDraftDurationStr] = useState("60");
 
@@ -147,15 +120,11 @@ export default function TablesPage() {
   // 空席クリック → 待機客を選んで配置
   const [seatPick, setSeatPick] = useState<{ table: TableDef; seatIndex: number } | null>(null);
 
-  // フロアマップ (自由配置コンテナ) の実サイズ取得用
-  const floorRef = useRef<HTMLDivElement | null>(null);
-
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   const waiting = useMemo(() => visits.filter(v => !v.tableId), [visits]);
   const seated = useMemo(() => visits.filter(v => v.tableId), [visits]);
   const activeVisit = activeId ? visits.find(v => v.id === activeId) : null;
-  const activeTableId = activeId?.startsWith("table:") ? activeId.slice(6) : null;
 
   // 各卓の空席数 (卓管理見出し・ウェイティングパネルの連動表示に使用)
   const openSeatsByTable = useMemo(() => {
@@ -190,18 +159,6 @@ export default function TablesPage() {
     return gameHasOpenSeat.get(first.game) ? first.id : null;
   }, [waitlist, gameHasOpenSeat]);
 
-  // 既存データに pos が無い卓は、自動で重ならない初期位置を割り当てて保存する
-  useEffect(() => {
-    if (tables.some(t => t.posX == null || t.posY == null)) {
-      setTables(prev => prev.map((t, i) => {
-        if (t.posX != null && t.posY != null) return t;
-        const { posX, posY } = autoLayoutPos(i);
-        return { ...t, posX, posY };
-      }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tables]);
-
   // ===== drag handlers =====
   function onDragStart(e: DragStartEvent) {
     setActiveId(String(e.active.id));
@@ -209,28 +166,6 @@ export default function TablesPage() {
   function onDragEnd(e: DragEndEvent) {
     setActiveId(null);
     const activeId = String(e.active.id);
-
-    // ===== 卓自体のドラッグ: フロア内の自由移動 (delta を % に換算) =====
-    if (activeId.startsWith("table:")) {
-      const tableId = activeId.slice(6);
-      const floorEl = floorRef.current;
-      if (!floorEl) return;
-      const rect = floorEl.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) return;
-      const deltaXPct = (e.delta.x / rect.width) * 100;
-      const deltaYPct = (e.delta.y / rect.height) * 100;
-      // カード幅は常にフロア幅の50% (calc(50% - GAP_PX/2)) なので、X方向の上限は固定で50%
-      const maxXPct = MAX_X_PCT;
-      const maxYPct = 100 - (TABLE_H / rect.height) * 100;
-      setTables(prev => prev.map(t => {
-        if (t.id !== tableId) return t;
-        const base = t.posX != null && t.posY != null ? t : { ...t, ...autoLayoutPos(prev.findIndex(x => x.id === t.id)) };
-        const posX = clamp((base.posX ?? 0) + deltaXPct, 0, Math.max(0, maxXPct));
-        const posY = clamp((base.posY ?? 0) + deltaYPct, 0, Math.max(0, maxYPct));
-        return { ...t, posX, posY };
-      }));
-      return;
-    }
 
     if (!e.over) return;
     const overId = String(e.over.id);
@@ -278,20 +213,16 @@ export default function TablesPage() {
   // ===== 卓CRUD =====
   function openAddModal() {
     setDraft({ name: "", type: "トナメ", maxSeats: 6, dealer: "", dealerDurationMin: 60 });
-    setDraftSeatsStr("6");
     setDraftDurationStr("60");
     setOpenAdd(true);
   }
   function addTable() {
-    const seats = parseInt(draftSeatsStr, 10);
     const duration = parseInt(draftDurationStr, 10);
     if (!draft.name.trim()) { alert("卓名を入力してください"); return; }
-    if (!seats || seats < 1) { alert("席数は1以上で入力してください"); return; }
     const dealerName = (draft.dealer ?? "").trim();
     setTables(prev => [...prev, {
       id: `t${Date.now()}`,
       ...draft,
-      maxSeats: seats,
       dealerDurationMin: duration > 0 ? duration : undefined,
       dealer: dealerName || undefined,
       dealerStartedAt: dealerName ? new Date().toISOString() : undefined,
@@ -300,15 +231,12 @@ export default function TablesPage() {
   }
   function openEdit(t: TableDef) {
     setEditTable(t);
-    setEditSeatsStr(String(t.maxSeats));
     setEditDurationStr(t.dealerDurationMin != null ? String(t.dealerDurationMin) : "60");
   }
   function saveEdit() {
     if (!editTable) return;
-    const seats = parseInt(editSeatsStr, 10);
     const duration = parseInt(editDurationStr, 10);
     if (!editTable.name.trim()) { alert("卓名を入力してください"); return; }
-    if (!seats || seats < 1) { alert("席数は1以上で入力してください"); return; }
     const newDealer = (editTable.dealer ?? "").trim();
     setTables(prev => prev.map(t => {
       if (t.id !== editTable.id) return t;
@@ -316,7 +244,6 @@ export default function TablesPage() {
       const dealerChanged = (t.dealer ?? "") !== newDealer;
       return {
         ...editTable,
-        maxSeats: seats,
         dealer: newDealer || undefined,
         dealerDurationMin: duration > 0 ? duration : undefined,
         dealerStartedAt: newDealer ? (dealerChanged ? new Date().toISOString() : t.dealerStartedAt) : undefined,
@@ -490,43 +417,32 @@ export default function TablesPage() {
           onMove={moveInWaitlist}
         />
 
-        {/* ===== フロアマップ ===== */}
+        {/* ===== 卓一覧 (2列グリッド、横スクロールなし) ===== */}
         {tables.length === 0 ? (
           <div className="v2-panel"><div className="v2-panel-body"><Empty>卓が登録されていません。「卓を追加」から登録してください。</Empty></div></div>
         ) : (
-          <div className="v2-table-wrap" style={{ borderRadius: "var(--v2-radius-lg)", overflowY: "auto" }}>
-            <div
-              ref={floorRef}
-              style={{
-                position: "relative",
-                minWidth: 1150,
-                height: 800,
-                background: "var(--v2-bg)",
-                boxShadow: "var(--v2-shadow-md)",
-                borderRadius: "var(--v2-radius-lg)",
-                backgroundImage: "radial-gradient(circle, rgba(28,46,36,0.06) 1px, transparent 1px)",
-                backgroundSize: "24px 24px",
-              }}
-            >
-              {tables.map((t, i) => {
-                const pos = t.posX != null && t.posY != null ? t : { ...t, ...autoLayoutPos(i) };
-                return (
-                  <PokerTable
-                    key={t.id}
-                    table={pos}
-                    seated={visits.filter(v => v.tableId === t.id)}
-                    isDragging={activeTableId === t.id}
-                    onEdit={() => openEdit(t)}
-                    onDelete={() => removeTable(t.id)}
-                    onClickVisit={(v) => setMoveTarget(v)}
-                    onClickEmptySeat={(seatIndex) => setSeatPick({ table: t, seatIndex })}
-                    onClickDealer={() => setDealerChangeTarget(t)}
-                    onRotateDealer={() => rotateDealer(t.id)}
-                    nextDealer={dealerRun[0]}
-                  />
-                );
-              })}
-            </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 480px), 1fr))",
+              gap: 16,
+              width: "100%",
+            }}
+          >
+            {tables.map((t) => (
+              <PokerTable
+                key={t.id}
+                table={t}
+                seated={visits.filter(v => v.tableId === t.id)}
+                onEdit={() => openEdit(t)}
+                onDelete={() => removeTable(t.id)}
+                onClickVisit={(v) => setMoveTarget(v)}
+                onClickEmptySeat={(seatIndex) => setSeatPick({ table: t, seatIndex })}
+                onClickDealer={() => setDealerChangeTarget(t)}
+                onRotateDealer={() => rotateDealer(t.id)}
+                nextDealer={dealerRun[0]}
+              />
+            ))}
           </div>
         )}
 
@@ -552,14 +468,11 @@ export default function TablesPage() {
               </select>
             </Field>
             <Field label="席数">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={draftSeatsStr}
-                onChange={(e) => setDraftSeatsStr(toHalfWidthDigits(e.target.value))}
-                onFocus={(e) => e.target.select()}
-                placeholder="例: 9"
-              />
+              <select value={draft.maxSeats} onChange={(e) => setDraft({ ...draft, maxSeats: Number(e.target.value) })}>
+                {Array.from({ length: 14 }, (_, i) => i + 1).map(n => (
+                  <option key={n} value={n}>{n}席</option>
+                ))}
+              </select>
             </Field>
             <Field label="ディーラー">
               <input value={draft.dealer ?? ""} onChange={(e) => setDraft({ ...draft, dealer: e.target.value })} placeholder="ディーラー名(任意)" list="v2-dealer-run-options" />
@@ -595,14 +508,11 @@ export default function TablesPage() {
                 </select>
               </Field>
               <Field label="席数">
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={editSeatsStr}
-                  onChange={(e) => setEditSeatsStr(toHalfWidthDigits(e.target.value))}
-                  onFocus={(e) => e.target.select()}
-                  placeholder="例: 9"
-                />
+                <select value={editTable.maxSeats} onChange={(e) => setEditTable({ ...editTable, maxSeats: Number(e.target.value) })}>
+                  {Array.from({ length: 14 }, (_, i) => i + 1).map(n => (
+                    <option key={n} value={n}>{n}席</option>
+                  ))}
+                </select>
               </Field>
               <Field label="ディーラー">
                 <input value={editTable.dealer ?? ""} onChange={(e) => setEditTable({ ...editTable, dealer: e.target.value })} placeholder="名前を変更するとタイマーがリセットされます" list="v2-dealer-run-options" />
@@ -704,7 +614,7 @@ function WaitingArea({ visits, onClickVisit }: { visits: Visit[]; onClickVisit: 
 }
 
 // ===================== ドラッグ可能な顧客チップ =====================
-function DraggableVisit({ visit, onClick }: { visit: Visit; onClick?: () => void }) {
+function DraggableVisit({ visit, onClick, maxWidth }: { visit: Visit; onClick?: () => void; maxWidth?: number }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: visit.id });
   const checkedIn = new Date(visit.checkedInAt);
   const checkedInLabel = isNaN(checkedIn.getTime())
@@ -725,13 +635,37 @@ function DraggableVisit({ visit, onClick }: { visit: Visit; onClick?: () => void
       }}
       style={{ opacity: isDragging ? 0.3 : 1, touchAction: "none", cursor: onClick ? "pointer" : "grab" }}
     >
-      <VisitChip visit={visit} />
+      <VisitChip visit={visit} maxWidth={maxWidth} />
     </div>
   );
 }
 
-function VisitChip({ visit, dragging }: { visit: Visit; dragging?: boolean }) {
+/** この幅を下回る場合、名前ラベルを表示せずイニシャルの丸バッジのみにする (文字が潰れて読めなくなるのを防ぐ) */
+const CHIP_ICON_ONLY_THRESHOLD = 60;
+
+function VisitChip({ visit, dragging, maxWidth }: { visit: Visit; dragging?: boolean; maxWidth?: number }) {
   const initial = visit.name.charAt(0);
+  const iconOnly = maxWidth != null && maxWidth < CHIP_ICON_ONLY_THRESHOLD;
+
+  if (iconOnly) {
+    return (
+      <span
+        title={visit.name}
+        style={{
+          width: 26, height: 26, borderRadius: 999, flexShrink: 0,
+          background: RANK_COLOR[visit.rank], color: "var(--v2-bg)",
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          fontSize: 11, fontWeight: 700,
+          border: dragging ? `2px solid var(--v2-accent)` : "2px solid var(--v2-bg)",
+          boxShadow: dragging ? "var(--v2-shadow-lg)" : "var(--v2-shadow-sm)",
+          userSelect: "none",
+        }}
+      >
+        {initial}
+      </span>
+    );
+  }
+
   return (
     <div
       style={{
@@ -743,19 +677,21 @@ function VisitChip({ visit, dragging }: { visit: Visit; dragging?: boolean }) {
         fontSize: 12, fontWeight: 500,
         boxShadow: dragging ? "var(--v2-shadow-lg)" : "var(--v2-shadow-sm)",
         userSelect: "none",
+        maxWidth,
+        overflow: maxWidth ? "hidden" : undefined,
       }}
     >
       <span style={{
-        width: 22, height: 22, borderRadius: 999,
+        width: 22, height: 22, borderRadius: 999, flexShrink: 0,
         background: RANK_COLOR[visit.rank], color: "var(--v2-bg)",
         display: "inline-flex", alignItems: "center", justifyContent: "center",
         fontSize: 10, fontWeight: 700,
       }}>{initial}</span>
-      <span>{visit.name}</span>
+      <span style={maxWidth ? { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } : undefined}>{visit.name}</span>
       {RANK_LABEL[visit.rank] && (
         <span style={{
           fontSize: 9, fontWeight: 700, letterSpacing: "0.04em",
-          padding: "1px 6px", borderRadius: 4,
+          padding: "1px 6px", borderRadius: 4, flexShrink: 0,
           background: "var(--v2-bg-alt)", color: "var(--v2-text-sub)",
         }}>{RANK_LABEL[visit.rank]}</span>
       )}
@@ -768,9 +704,9 @@ function VisitChip({ visit, dragging }: { visit: Visit; dragging?: boolean }) {
  * 上辺・下辺に均等に振り分け、9席以上は左右の短辺にも1席ずつ配置する。
  * 厳密な等間隔でなくても見た目が自然であればよい。
  *
- * カード幅がフロア幅の50%に固定されたことで、上下辺の席数が少ない卓ほど
- * cx レンジ (SEAT_MARGIN_X_PCT 基準の 6%〜94%) が横に間延びして見える。
- * そのため、辺あたりの席数が少ないときは cx レンジ自体を中央寄りに狭める。
+ * カード幅はグリッドセル任せ(最小480px程度)になるため、上下辺の席数が
+ * 少ない卓ほど cx レンジが横に間延びして見える。そのため、辺あたりの席数が
+ * 少ないときは cx レンジ自体を中央寄りに狭める。
  */
 function rectSeatPositions(count: number): { cx: number; cy: number }[] {
   if (count <= 0) return [];
@@ -807,11 +743,33 @@ function rectSeatPositions(count: number): { cx: number; cy: number }[] {
   return positions;
 }
 
-// ===================== 卓: 角丸長方形 (フロア上に自由配置) =====================
-function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmptySeat, onClickDealer, onRotateDealer, nextDealer, isDragging }: {
+/** 想定最小カード幅 (グリッドの auto-fit しきい値と同じ)。着席チップの最大幅算出に用いる。 */
+const MIN_CARD_W = 480;
+/**
+ * 上辺/下辺で最も席数が多い列の隣接席間隔(px, 最小カード幅基準)から、
+ * 着席中の顧客チップが隣の席とぶつからないよう安全な最大幅を算出する。
+ * 4席以下(間隔が広い)は制限不要 (undefined) とし、通常表示のままにする。
+ */
+function seatChipMaxWidth(count: number): number | undefined {
+  if (count <= 0) return undefined;
+  const useSides = count >= 9;
+  const sideSeats = useSides ? 2 : 0;
+  const topBottomSeats = count - sideSeats;
+  const topCount = Math.ceil(topBottomSeats / 2);
+  const bottomCount = topBottomSeats - topCount;
+  const maxPerSide = Math.max(topCount, bottomCount);
+  if (maxPerSide <= 4) return undefined;
+  const xMargin = SEAT_MARGIN_X_PCT;
+  const stepPct = (100 - xMargin * 2) / (maxPerSide + 1);
+  const stepPx = (stepPct / 100) * MIN_CARD_W;
+  // 席間隔の85%を上限に、極端に小さくなりすぎないよう下限を設ける
+  return Math.max(50, Math.floor(stepPx * 0.85));
+}
+
+// ===================== 卓: 角丸長方形カード (2列グリッド内) =====================
+function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmptySeat, onClickDealer, onRotateDealer, nextDealer }: {
   table: TableDef;
   seated: Visit[];
-  isDragging?: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onClickVisit: (v: Visit) => void;
@@ -821,36 +779,21 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
   nextDealer?: string;
 }) {
   const { setNodeRef: setDropRef, isOver: isOverTable } = useDroppable({ id: `table-drop:${table.id}` });
-  const dragHandle = useDraggable({ id: `table:${table.id}` });
 
   const occupancy = seated.length / table.maxSeats;
   const big = table.maxSeats > 8;
-  // 幅は常にフロア幅の50% (calc): big卓も同じ50%幅とし、高さのみ従来通り拡張する
-  const width = TABLE_W_CSS;
   const height = big ? TABLE_H + 40 : TABLE_H;
   const seatPositions = rectSeatPositions(table.maxSeats);
-
-  const posX = table.posX ?? 0;
-  const posY = table.posY ?? 0;
-  const dragTransform = dragHandle.transform
-    ? `translate3d(${dragHandle.transform.x}px, ${dragHandle.transform.y}px, 0)`
-    : undefined;
+  // 席数が多い卓 (9席以上、左右辺を使う) は席円をひとまわり小さくして重なりを防ぐ
+  const seatSize = table.maxSeats >= 9 ? SEAT_SIZE_COMPACT : SEAT_SIZE_NORMAL;
+  // 辺あたりの席数が多い卓は、着席チップ同士がぶつからないよう最大幅を制限する
+  const chipMaxWidth = seatChipMaxWidth(table.maxSeats);
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: `${posX}%`,
-        top: `${posY}%`,
-        width,
-        zIndex: dragHandle.isDragging ? 20 : 1,
-        transform: dragTransform,
-      }}
-    >
+    <div style={{ width: "100%" }}>
       <div
         ref={setDropRef}
         style={{
-          opacity: isDragging ? 0.5 : 1,
           background: "var(--v2-bg)",
           borderRadius: "var(--v2-radius-lg)",
           boxShadow: "var(--v2-shadow-md)",
@@ -864,19 +807,6 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
           borderBottom: "1px solid var(--v2-border)",
           flexWrap: "wrap",
         }}>
-          {/* ドラッグハンドル (フロア内を自由移動) */}
-          <button
-            ref={dragHandle.setNodeRef}
-            {...dragHandle.listeners}
-            {...dragHandle.attributes}
-            style={{
-              cursor: "grab", padding: 4, color: "var(--v2-text-mute)",
-              background: "transparent", border: 0, touchAction: "none", flexShrink: 0,
-            }}
-            title="ドラッグでフロア内を移動"
-          >
-            <GripVertical size={14} />
-          </button>
           <strong style={{ fontSize: 14, fontWeight: 700, whiteSpace: "nowrap" }}>{table.name}</strong>
           <span style={{
             fontSize: 10, fontWeight: 600, padding: "2px 7px", borderRadius: 999,
@@ -966,6 +896,8 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
                 seatIndex={i}
                 cx={p.cx}
                 cy={p.cy}
+                size={seatSize}
+                chipMaxWidth={chipMaxWidth}
                 occupant={occupant}
                 onClickOccupant={onClickVisit}
                 onClickEmpty={() => onClickEmptySeat(i)}
@@ -1046,8 +978,8 @@ function formatDuration(sec: number, over = false): string {
 }
 
 // ===================== 席 =====================
-function Seat({ tableId, seatIndex, cx, cy, occupant, onClickOccupant, onClickEmpty }: {
-  tableId: string; seatIndex: number; cx: number; cy: number; occupant?: Visit;
+function Seat({ tableId, seatIndex, cx, cy, size, chipMaxWidth, occupant, onClickOccupant, onClickEmpty }: {
+  tableId: string; seatIndex: number; cx: number; cy: number; size: number; chipMaxWidth?: number; occupant?: Visit;
   onClickOccupant: (v: Visit) => void;
   onClickEmpty: () => void;
 }) {
@@ -1063,13 +995,13 @@ function Seat({ tableId, seatIndex, cx, cy, occupant, onClickOccupant, onClickEm
       }}
     >
       {occupant ? (
-        <DraggableVisit visit={occupant} onClick={() => onClickOccupant(occupant)} />
+        <DraggableVisit visit={occupant} onClick={() => onClickOccupant(occupant)} maxWidth={chipMaxWidth} />
       ) : (
         <button
           onClick={onClickEmpty}
           title={`席${seatIndex + 1}: クリックで待機中のお客様を配置`}
           style={{
-            width: 40, height: 40, borderRadius: "50%",
+            width: size, height: size, borderRadius: "50%",
             border: `2px dashed ${isOver ? "var(--v2-accent)" : "var(--v2-border-strong)"}`,
             background: isOver ? "var(--v2-accent-soft)" : "transparent",
             display: "flex", alignItems: "center", justifyContent: "center",
