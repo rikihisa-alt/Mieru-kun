@@ -154,8 +154,8 @@ export default function SignagePage() {
         minHeight: "100vh",
         width: "100%",
         cursor: "none",
-        background: "radial-gradient(circle at 50% 0%, #163326 0%, #0a1712 55%, #050b08 100%)",
-        color: "#eafff1",
+        background: "#f5faf6",
+        color: "#1c2e26",
         fontFamily: "var(--font-noto-jp, 'Noto Sans JP'), sans-serif",
         display: "flex",
         flexDirection: "column",
@@ -171,20 +171,23 @@ export default function SignagePage() {
           display: "flex",
           alignItems: "baseline",
           justifyContent: "space-between",
-          borderBottom: "0.15vw solid rgba(255,255,255,0.12)",
-          paddingBottom: "1vw",
+          background: "#d4e8dc",
+          border: "1px solid #c3dccc",
+          borderRadius: "1vw",
+          padding: "1vw 1.6vw",
+          boxShadow: "0 1px 2px rgba(28,46,36,0.05), 0 8px 24px rgba(28,46,36,0.10)",
         }}
       >
         <div style={{ display: "flex", alignItems: "baseline", gap: "1.2vw" }}>
-          <span style={{ fontSize: "clamp(24px, 3.2vw, 62px)", fontWeight: 800, letterSpacing: "0.02em", color: "#f0fff6" }}>
+          <span style={{ fontSize: "clamp(24px, 3.2vw, 62px)", fontWeight: 800, letterSpacing: "0.02em", color: "#1d7350" }}>
             {settings.storeName || "てんぽみえるくん"}
           </span>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: "clamp(28px, 3.6vw, 70px)", fontWeight: 800, fontVariantNumeric: "tabular-nums", lineHeight: 1, color: "#ffffff" }}>
+          <div style={{ fontSize: "clamp(28px, 3.6vw, 70px)", fontWeight: 800, fontVariantNumeric: "tabular-nums", lineHeight: 1, color: "#1c2e26" }}>
             {timeLabel}
           </div>
-          <div style={{ fontSize: "1.1vw", color: "rgba(234,255,241,0.65)", marginTop: "0.3vw" }}>{dateLabel}</div>
+          <div style={{ fontSize: "1.1vw", color: "#4a5961", marginTop: "0.3vw" }}>{dateLabel}</div>
         </div>
       </header>
 
@@ -196,7 +199,7 @@ export default function SignagePage() {
         <div style={{ flex: 3, minWidth: 0, display: "flex", flexDirection: "column", gap: "1vw" }}>
           <SectionLabel>卓状況</SectionLabel>
           {tables.length === 0 ? (
-            <div style={{ fontSize: "1.4vw", color: "rgba(234,255,241,0.5)" }}>卓が登録されていません</div>
+            <div style={{ fontSize: "1.4vw", color: "#8e9ba3" }}>卓が登録されていません</div>
           ) : (
             <div
               style={{
@@ -228,26 +231,26 @@ export default function SignagePage() {
 function TableCard({ table, seatedCount }: { table: TableDef; seatedCount: number }) {
   const full = seatedCount >= table.maxSeats;
   const empty = seatedCount === 0;
-  const bg = full
-    ? "linear-gradient(160deg, rgba(127,29,29,0.55), rgba(69,10,10,0.55))"
-    : "linear-gradient(160deg, rgba(6,78,59,0.55), rgba(2,44,34,0.55))";
-  const borderColor = full ? "rgba(248,113,113,0.55)" : empty ? "rgba(110,231,183,0.7)" : "rgba(110,231,183,0.35)";
+  // 状態色: 満卓=danger, 空きあり=success (v2トークンと同値)
+  const statusColor = full ? "#c43d3d" : "#1b8a5a";
+  const statusBg = full ? "#fbecec" : "#e6f5ee";
+  const borderColor = full ? "#f0c6c6" : empty ? "#a9dcc0" : "rgba(28,46,36,0.08)";
 
   return (
     <div
       style={{
-        background: bg,
-        border: `0.14vw solid ${borderColor}`,
-        borderRadius: "1vw",
+        background: "#ffffff",
+        border: `1px solid ${borderColor}`,
+        borderRadius: "14px",
         padding: "1.1vw 1.2vw",
         display: "flex",
         flexDirection: "column",
         gap: "0.5vw",
-        boxShadow: "0 0.4vw 1.2vw rgba(0,0,0,0.35)",
+        boxShadow: "0 1px 2px rgba(28,46,36,0.05), 0 8px 24px rgba(28,46,36,0.10)",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontSize: "clamp(14px, 1.5vw, 30px)", fontWeight: 800, color: "#fff" }}>{table.name}</span>
+        <span style={{ fontSize: "clamp(14px, 1.5vw, 30px)", fontWeight: 800, color: "#1c2e26" }}>{table.name}</span>
         <span
           style={{
             fontSize: "0.85vw", fontWeight: 700, padding: "0.15vw 0.6vw", borderRadius: "999px",
@@ -262,16 +265,27 @@ function TableCard({ table, seatedCount }: { table: TableDef; seatedCount: numbe
           fontSize: "clamp(20px, 2.4vw, 48px)",
           fontWeight: 800,
           fontVariantNumeric: "tabular-nums",
-          color: full ? "#f87171" : empty ? "#6ee7b7" : "#eafff1",
+          color: full ? "#c43d3d" : empty ? "#1b8a5a" : "#1c2e26",
         }}
       >
-        {seatedCount} <span style={{ fontSize: "1.3vw", fontWeight: 500, color: "rgba(234,255,241,0.55)" }}>/ {table.maxSeats}席</span>
+        {seatedCount} <span style={{ fontSize: "1.3vw", fontWeight: 500, color: "#8e9ba3" }}>/ {table.maxSeats}席</span>
       </div>
-      <div style={{ fontSize: "0.95vw", fontWeight: 600, color: full ? "#f87171" : "#6ee7b7" }}>
+      <div
+        style={{
+          fontSize: "0.95vw",
+          fontWeight: 700,
+          color: statusColor,
+          background: statusBg,
+          borderRadius: "999px",
+          padding: "0.15vw 0.7vw",
+          display: "inline-block",
+          width: "fit-content",
+        }}
+      >
         {full ? "満卓" : "空席あり"}
       </div>
       {table.dealer && (
-        <div style={{ fontSize: "0.75vw", color: "rgba(234,255,241,0.6)", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div style={{ fontSize: "0.75vw", color: "#4a5961", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           D: {table.dealer}
         </div>
       )}
@@ -284,27 +298,28 @@ function WaitingPanel({ count }: { count: number }) {
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.05)",
-        border: "0.12vw solid rgba(255,255,255,0.12)",
-        borderRadius: "1vw",
+        background: count > 0 ? "#fbf2e1" : "#ffffff",
+        border: count > 0 ? "1px solid #ecd6ab" : "1px solid rgba(28,46,36,0.08)",
+        borderRadius: "14px",
         padding: "1.4vw",
         textAlign: "center",
         display: "flex",
         flexDirection: "column",
         gap: "0.6vw",
         justifyContent: "center",
+        boxShadow: "0 1px 2px rgba(28,46,36,0.05), 0 8px 24px rgba(28,46,36,0.10)",
       }}
     >
       <SectionLabel center>ウェイティング</SectionLabel>
       {count > 0 ? (
         <>
-          <div style={{ fontSize: "clamp(24px, 3vw, 58px)", fontWeight: 800, color: "#fbbf24", lineHeight: 1 }}>
+          <div style={{ fontSize: "clamp(24px, 3vw, 58px)", fontWeight: 800, color: "#b8772a", lineHeight: 1 }}>
             {count}<span style={{ fontSize: "1.3vw", fontWeight: 600 }}>組</span>
           </div>
-          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#fde68a" }}>ただいま{count}組待ちです</div>
+          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#b8772a" }}>ただいま{count}組待ちです</div>
         </>
       ) : (
-        <div style={{ fontSize: "clamp(14px, 1.5vw, 30px)", fontWeight: 700, color: "#6ee7b7", padding: "1vw 0" }}>
+        <div style={{ fontSize: "clamp(14px, 1.5vw, 30px)", fontWeight: 700, color: "#1b8a5a", padding: "1vw 0" }}>
           すぐにご案内できます
         </div>
       )}
@@ -351,25 +366,25 @@ function TournamentBanner({ tournament }: { tournament: TournamentRecord }) {
   return (
     <div
       style={{
-        background: "linear-gradient(120deg, rgba(124,58,237,0.28), rgba(6,78,59,0.35))",
-        border: "0.14vw solid rgba(196,181,253,0.4)",
-        borderRadius: "1vw",
+        background: "#d8efe2",
+        border: "1px solid #a9dcc0",
+        borderRadius: "14px",
         padding: "1vw 1.6vw",
         display: "flex",
         alignItems: "center",
         gap: "2vw",
-        boxShadow: "0 0.4vw 1.4vw rgba(0,0,0,0.35)",
+        boxShadow: "0 1px 2px rgba(28,46,36,0.06), 0 16px 40px rgba(28,46,36,0.16)",
       }}
     >
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: "0.95vw", fontWeight: 700, color: "#c4b5fd", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+        <div style={{ fontSize: "0.95vw", fontWeight: 700, color: "#1d7350", textTransform: "uppercase", letterSpacing: "0.1em" }}>
           開催中トーナメント
         </div>
-        <div style={{ fontSize: "clamp(18px, 2.1vw, 42px)", fontWeight: 800, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <div style={{ fontSize: "clamp(18px, 2.1vw, 42px)", fontWeight: 800, color: "#1c2e26", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {tournament.name}
         </div>
         {isPaused && (
-          <div style={{ fontSize: "1vw", fontWeight: 700, color: "#fbbf24", marginTop: "0.2vw" }}>一時停止中</div>
+          <div style={{ fontSize: "1vw", fontWeight: 700, color: "#b8772a", marginTop: "0.2vw" }}>一時停止中</div>
         )}
       </div>
 
@@ -380,13 +395,13 @@ function TournamentBanner({ tournament }: { tournament: TournamentRecord }) {
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: "0.85vw", color: "rgba(234,255,241,0.6)", fontWeight: 600 }}>
+        <div style={{ fontSize: "0.85vw", color: "#4a5961", fontWeight: 600 }}>
           レベル{currentLevel?.level ?? "-"} 残り
         </div>
         <div
           style={{
             fontSize: "clamp(28px, 3.4vw, 66px)", fontWeight: 800, fontVariantNumeric: "tabular-nums", lineHeight: 1,
-            color: warn ? "#f87171" : "#fff",
+            color: warn ? "#c43d3d" : "#1c2e26",
             animation: warn && !isPaused ? "signage-blink 1s ease-in-out infinite" : undefined,
           }}
         >
@@ -401,8 +416,8 @@ function TournamentBanner({ tournament }: { tournament: TournamentRecord }) {
 function BlindStat({ label, value }: { label: string; value: number }) {
   return (
     <div style={{ textAlign: "center" }}>
-      <div style={{ fontSize: "0.85vw", color: "rgba(234,255,241,0.55)", fontWeight: 600 }}>{label}</div>
-      <div style={{ fontSize: "clamp(15px, 1.7vw, 34px)", fontWeight: 800, fontVariantNumeric: "tabular-nums", color: "#fff" }}>
+      <div style={{ fontSize: "0.85vw", color: "#4a5961", fontWeight: 600 }}>{label}</div>
+      <div style={{ fontSize: "clamp(15px, 1.7vw, 34px)", fontWeight: 800, fontVariantNumeric: "tabular-nums", color: "#1c2e26" }}>
         {value.toLocaleString()}
       </div>
     </div>
@@ -422,7 +437,7 @@ function EventTicker({ events }: { events: EventRecord[] }) {
         display: "flex",
         gap: "1vw",
         overflowX: "auto",
-        borderTop: "0.1vw solid rgba(255,255,255,0.12)",
+        borderTop: "1px solid rgba(28,46,36,0.08)",
         paddingTop: "1vw",
       }}
     >
@@ -432,28 +447,29 @@ function EventTicker({ events }: { events: EventRecord[] }) {
           style={{
             flex: "0 0 auto",
             minWidth: "20vw",
-            background: "rgba(255,255,255,0.06)",
-            border: "0.1vw solid rgba(255,255,255,0.14)",
+            background: "#ffffff",
+            border: "1px solid rgba(28,46,36,0.08)",
             borderRadius: "0.8vw",
             padding: "0.8vw 1.2vw",
             display: "flex",
             alignItems: "center",
             gap: "1vw",
+            boxShadow: "0 1px 2px rgba(28,46,36,0.05), 0 8px 24px rgba(28,46,36,0.10)",
           }}
         >
           <span
             style={{
               fontSize: "0.8vw", fontWeight: 700, padding: "0.2vw 0.7vw", borderRadius: "999px",
-              background: "rgba(52,211,153,0.18)", color: "#6ee7b7", whiteSpace: "nowrap",
+              background: "#d8efe2", color: "#1d7350", whiteSpace: "nowrap",
             }}
           >
             {EVENT_CATEGORY_LABEL[e.category]}
           </span>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: "1.15vw", fontWeight: 800, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <div style={{ fontSize: "1.15vw", fontWeight: 800, color: "#1c2e26", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {e.title}
             </div>
-            <div style={{ fontSize: "0.85vw", color: "rgba(234,255,241,0.6)" }}>
+            <div style={{ fontSize: "0.85vw", color: "#4a5961" }}>
               {e.date} {e.time}
             </div>
           </div>
@@ -472,7 +488,7 @@ function SectionLabel({ children, center }: { children: React.ReactNode; center?
         fontWeight: 700,
         letterSpacing: "0.1em",
         textTransform: "uppercase",
-        color: "rgba(234,255,241,0.5)",
+        color: "#8e9ba3",
         textAlign: center ? "center" : "left",
       }}
     >
