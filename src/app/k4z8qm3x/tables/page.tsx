@@ -1481,8 +1481,11 @@ function WaitlistPanel({ waitlist, waiting, totalOpenSeats, readyWaitlistId, pre
 
   return (
     <div className="v2-panel" style={{ overflow: "hidden" }}>
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setOpen(v => !v)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(v => !v); } }}
         style={{
           width: "100%", minHeight: 40, padding: "10px 14px",
           display: "flex", alignItems: "center", gap: 10,
@@ -1510,7 +1513,7 @@ function WaitlistPanel({ waitlist, waiting, totalOpenSeats, readyWaitlistId, pre
           <Plus size={11} /> 登録
         </Btn>
         <span style={{ fontSize: 11, color: "var(--v2-text-mute)" }}>{open ? "閉じる" : "開く"}</span>
-      </button>
+      </div>
 
       {open && (
         <div style={{ padding: "0 14px 14px", borderTop: "1px solid var(--v2-border)" }}>
