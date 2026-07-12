@@ -26,10 +26,11 @@ const TABLE_H = 250;
  *  はみ出さないようにする。cx も同様に内側レンジへマップする。 */
 const SEAT_MARGIN_Y_PCT = 12; // 上=12%, 下=88%
 const SEAT_MARGIN_X_PCT = 10; // 左=10%, 右=90% (左右席 および 上下辺席のcxレンジ)
-/** フェルト(角丸長方形)のinset (px)。席リングのさらに内側に収まるよう、
- *  素の24pxから席帯の分だけ広げてある (上下=52px, 左右=56px)。 */
-const FELT_INSET_Y = 52;
-const FELT_INSET_X = 56;
+/** フェルト(角丸長方形)のinset (px)。席リング(席円の外周)とフェルト外周の間に
+ *  常時8px以上の隙間ができるよう、席サイズ・席帯マージン・卓の高さ(通常/大)の
+ *  最小ケースから逆算した値。9席以上(コンパクト席・大きい卓高さ)でも成立する。 */
+const FELT_INSET_Y = 62;
+const FELT_INSET_X = 78;
 /** 席数が多い卓 (9席以上, 左右辺を使う) は席円をひとまわり小さくして重なりを防ぐ */
 const SEAT_SIZE_NORMAL = 40;
 const SEAT_SIZE_COMPACT = 36;
@@ -778,45 +779,77 @@ function VisitChip({ visit, dragging, maxWidth }: { visit: Visit; dragging?: boo
 }
 
 /**
- * 席数から長方形の周囲を回る座標(%, 卓の左上を0,0とした相対位置)を算出する。
- * 上辺・下辺に均等に振り分け、9席以上は左右の短辺にも1席ずつ配置する。
- * 厳密な等間隔でなくても見た目が自然であればよい。
+ * 上辺中央(頂点)はディーラー専用枠として空けておき、辺ごとの席数を決める。
+ * ポーカー卓の実配置に合わせ、席1はディーラーの右隣(上辺右側)から時計回りに
+ * 右辺→下辺(右→左)→左辺→上辺左側(ディーラーの左隣で終わる)の順に並ぶ。
  *
- * カード幅はグリッドセル任せ(最小480px程度)になるため、上下辺の席数が
+ * 少人数のときは下辺中心に集め、9席以上になったら初めて左右の短辺を使う
+ * (現行の閾値を踏襲)。上辺は「ディーラー右隣」「ディーラー左隣」の2グループに
+ * 分割し、どちらのグループもディーラー枠の直近から外側へ向かって並ぶ。
+ */
+function seatEdgePlan(count: number) {
+  const useSides = count >= 9;
+  const sideSeats = useSides ? 2 : 0; // 左右に1席ずつ
+  const topBottomSeats = Math.max(0, count - sideSeats);
+  // 下辺優先 (上辺はディーラーがいる分、席を置ける余地が狭いため)
+  const bottomCount = Math.ceil(topBottomSeats / 2);
+  const topCount = topBottomSeats - bottomCount;
+  // 上辺はディーラー枠を挟んで右グループ(席番号が若い方)・左グループに分割
+  const topRightCount = Math.ceil(topCount / 2);
+  const topLeftCount = topCount - topRightCount;
+  return { useSides, sideSeats, topCount, bottomCount, topRightCount, topLeftCount };
+}
+
+/** 辺あたりの席数から cx の可動レンジ (左右マージン%) を決める。少ない席数ほど中央寄りに狭める。 */
+function xMarginForPerSide(maxPerSide: number): number {
+  return maxPerSide <= 2 ? 25 : maxPerSide === 3 ? 15 : SEAT_MARGIN_X_PCT;
+}
+
+/** 上辺でディーラーチップと席が重ならないよう、中央から確保する片側の空き幅(%)。 */
+const DEALER_GAP_HALF_PCT = 13;
+
+/**
+ * 席数から長方形の周囲を回る座標(%, 卓の左上を0,0とした相対位置)を、
+ * 頂点(上辺中央)のディーラーから右回りに算出する。
+ * 戻り値の配列 index = 席番号-1 (座席droppable idの意味と一致)。
+ *
+ * カード幅はグリッドセル任せ(最小480px程度)になるため、辺あたりの席数が
  * 少ない卓ほど cx レンジが横に間延びして見える。そのため、辺あたりの席数が
  * 少ないときは cx レンジ自体を中央寄りに狭める。
  */
 function rectSeatPositions(count: number): { cx: number; cy: number }[] {
   if (count <= 0) return [];
-  const useSides = count >= 9;
-  const sideSeats = useSides ? 2 : 0; // 左右に1席ずつ
-  const topBottomSeats = count - sideSeats;
-  const topCount = Math.ceil(topBottomSeats / 2);
-  const bottomCount = topBottomSeats - topCount;
-
-  // 辺あたりの席数に応じて cx レンジを狭める (幅50%化で間延びしないよう調整)
-  // 1席: 使わない (常に中央50%)。2席: 25〜75%。3席: 15〜85%。4席以上: 通常の 6〜94%。
+  const { useSides, topCount, bottomCount, topRightCount, topLeftCount } = seatEdgePlan(count);
   const maxPerSide = Math.max(topCount, bottomCount);
-  const xMargin =
-    maxPerSide <= 2 ? 25 :
-    maxPerSide === 3 ? 15 :
-    SEAT_MARGIN_X_PCT;
+  const xMargin = xMarginForPerSide(maxPerSide);
 
   const positions: { cx: number; cy: number }[] = [];
-  // 上辺 (cy を卓本体の内側 = SEAT_MARGIN_Y_PCT に収め、ヘッダー行への食い込みを防ぐ)
-  for (let i = 0; i < topCount; i++) {
-    const t = topCount === 1 ? 0.5 : (i + 1) / (topCount + 1);
-    positions.push({ cx: xMargin + t * (100 - xMargin * 2), cy: SEAT_MARGIN_Y_PCT });
+
+  // 上辺右側 (ディーラーのすぐ右隣から外側へ): 席1はここから開始
+  for (let i = 0; i < topRightCount; i++) {
+    const lo = 50 + DEALER_GAP_HALF_PCT;
+    const hi = 100 - xMargin;
+    const cx = topRightCount === 1 ? (lo + hi) / 2 : lo + (i + 0.5) / topRightCount * (hi - lo);
+    positions.push({ cx, cy: SEAT_MARGIN_Y_PCT });
   }
-  // 右辺 (使う場合、cx を内側 = 100 - SEAT_MARGIN_X_PCT に収める)
+  // 右辺 (使う場合)
   if (useSides) positions.push({ cx: 100 - SEAT_MARGIN_X_PCT, cy: 50 });
-  // 下辺 (cy を内側 = 100 - SEAT_MARGIN_Y_PCT に収め、カード下端でのはみ出しを防ぐ)
+  // 下辺 (右→左)
   for (let i = 0; i < bottomCount; i++) {
-    const t = bottomCount === 1 ? 0.5 : (i + 1) / (bottomCount + 1);
-    positions.push({ cx: xMargin + t * (100 - xMargin * 2), cy: 100 - SEAT_MARGIN_Y_PCT });
+    const lo = xMargin;
+    const hi = 100 - xMargin;
+    const t = bottomCount === 1 ? 0.5 : (i + 0.5) / bottomCount;
+    positions.push({ cx: hi - t * (hi - lo), cy: 100 - SEAT_MARGIN_Y_PCT });
   }
   // 左辺 (使う場合)
   if (useSides) positions.push({ cx: SEAT_MARGIN_X_PCT, cy: 50 });
+  // 上辺左側 (左辺から時計回りに、ディーラーのすぐ左隣で終わる)
+  for (let i = 0; i < topLeftCount; i++) {
+    const lo = xMargin;
+    const hi = 50 - DEALER_GAP_HALF_PCT;
+    const cx = topLeftCount === 1 ? (lo + hi) / 2 : lo + (i + 0.5) / topLeftCount * (hi - lo);
+    positions.push({ cx, cy: SEAT_MARGIN_Y_PCT });
+  }
 
   return positions;
 }
@@ -830,11 +863,7 @@ const MIN_CARD_W = 480;
  */
 function seatChipMaxWidth(count: number): number | undefined {
   if (count <= 0) return undefined;
-  const useSides = count >= 9;
-  const sideSeats = useSides ? 2 : 0;
-  const topBottomSeats = count - sideSeats;
-  const topCount = Math.ceil(topBottomSeats / 2);
-  const bottomCount = topBottomSeats - topCount;
+  const { topCount, bottomCount } = seatEdgePlan(count);
   const maxPerSide = Math.max(topCount, bottomCount);
   if (maxPerSide <= 4) return undefined;
   const xMargin = SEAT_MARGIN_X_PCT;
@@ -934,7 +963,7 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
           transition: "background 0.15s",
           padding: 24,
         }}>
-          {/* フェルト (角丸長方形): 席リングのさらに内側に収める */}
+          {/* フェルト (角丸長方形): 席リングのさらに内側に収める。中央は卓種別の薄い透かしのみ */}
           <div style={{
             position: "absolute",
             left: FELT_INSET_X, top: FELT_INSET_Y, right: FELT_INSET_X, bottom: FELT_INSET_Y,
@@ -944,27 +973,18 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
             display: "flex", alignItems: "center", justifyContent: "center",
             boxShadow: "inset 0 4px 12px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.1)",
           }}>
-            <button
-              onClick={onClickDealer}
-              title="クリックでディーラー交代"
-              style={{
-                textAlign: "center", background: "transparent", border: 0, cursor: "pointer",
-                padding: "10px 16px", borderRadius: 8,
-                transition: "background 0.12s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-            >
-              <div style={{ fontSize: 14.5, fontWeight: 600, color: "rgba(255,255,255,0.95)" }}>
-                {table.dealer || "ディーラー未設定"}
-              </div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.16em", marginTop: 3 }}>
-                DEALER · 交代
-              </div>
-            </button>
+            <div style={{
+              fontSize: 13, fontWeight: 700, letterSpacing: "0.2em",
+              color: "rgba(255,255,255,0.14)", textTransform: "uppercase", userSelect: "none",
+            }}>
+              {table.type}
+            </div>
           </div>
 
-          {/* 席を長方形の周囲に配置 */}
+          {/* ディーラー: 頂点(上辺中央)の席リング上に配置。クリックでディーラー交代 */}
+          <DealerChip cx={50} cy={SEAT_MARGIN_Y_PCT} dealer={table.dealer} onClick={onClickDealer} />
+
+          {/* 席を長方形の周囲に配置 (席1=ディーラー右隣から時計回り) */}
           {seatPositions.map((p, i) => {
             const occupant = seated.find(v => v.seatIndex === i);
             return (
@@ -1053,6 +1073,60 @@ function formatDuration(sec: number, over = false): string {
   if (h > 0) return `${prefix}${h}時間${String(m).padStart(2, "0")}分${String(s).padStart(2, "0")}秒`;
   if (m > 0) return `${prefix}${m}分${String(s).padStart(2, "0")}秒`;
   return `${prefix}${s}秒`;
+}
+
+// ===================== ディーラーチップ (頂点=上辺中央の席リング上) =====================
+/** ディーラーチップの左右がすぐ隣の席(ディーラー右隣/左隣)にぶつからないよう、
+ *  最も詰まる配置(9〜14席)でも8px以上の隙間が残る最大幅に制限する。 */
+const DEALER_CHIP_MAX_WIDTH = 112;
+
+function DealerChip({ cx, cy, dealer, onClick }: {
+  cx: number; cy: number; dealer?: string;
+  onClick: () => void;
+}) {
+  const hasDealer = !!dealer;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: `${cx}%`, top: `${cy}%`,
+        transform: "translate(-50%, -50%)",
+        zIndex: 1,
+      }}
+    >
+      <button
+        onClick={onClick}
+        title={hasDealer ? `ディーラー: ${dealer} (クリックで交代)` : "ディーラー未設定 (クリックで設定)"}
+        style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          maxWidth: DEALER_CHIP_MAX_WIDTH,
+          overflow: "hidden",
+          padding: "5px 10px 5px 5px",
+          borderRadius: 999,
+          border: hasDealer ? "1px solid #1a5538" : "1px dashed var(--v2-border-strong)",
+          background: hasDealer ? "#1a5538" : "var(--v2-bg)",
+          boxShadow: "var(--v2-shadow-sm)",
+          cursor: "pointer",
+          userSelect: "none",
+        }}
+      >
+        <span style={{
+          width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          fontSize: 10, fontWeight: 800,
+          background: hasDealer ? "rgba(255,255,255,0.16)" : "var(--v2-bg-alt)",
+          color: hasDealer ? "#fff" : "var(--v2-text-mute)",
+        }}>D</span>
+        <span style={{
+          fontSize: 11.5, fontWeight: 700, minWidth: 0,
+          color: hasDealer ? "#fff" : "var(--v2-text-mute)",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        }}>
+          {hasDealer ? dealer : "未設定"}
+        </span>
+      </button>
+    </div>
+  );
 }
 
 // ===================== 席 =====================
