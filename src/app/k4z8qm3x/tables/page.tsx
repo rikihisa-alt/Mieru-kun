@@ -22,27 +22,24 @@ import { staffFullName } from "@/lib/staff-data";
 /** 卓カードの高さ (px)。席数に関わらず全卓固定 (旧: 9席以上のみ+40していたが、
  *  縦方向の余白は席数に依存しないため不要だった。高さを揃えるため撤廃)。 */
 const TABLE_H = 250;
-/** 席リング(席の中心線)を卓本体エリアの内側に収めるための余白帯 (%)。
- *  cy は 0/100 ではなくこの内側の値にし、席の円やチップがヘッダー行・カード下端に
- *  はみ出さないようにする。cx も同様に内側レンジへマップする。 */
-const SEAT_MARGIN_Y_PCT = 12; // 上=12%, 下=88%
-/** 左右短辺の席(cy=50%)のcx (%)。上下辺の内側マージンより広めに確保する。
- *  注意: この% は卓本体エリア(position:relative; padding:24 の div)の
- *  「パディングを含む」全幅を基準に解決される (絶対配置要素の left/top% は
- *  containing block のpadding boxを基準にするCSS仕様のため、内容幅ではない)。 */
-const SIDE_SEAT_X_PCT = 16;
-/** フェルト(角丸長方形)の垂直inset (px)。卓の高さ(TABLE_H)は席数に関わらず固定なので、
- *  px指定のままで常に同じ相対位置になり問題ない。 */
-const FELT_INSET_Y = 62;
 /**
- * フェルトの水平inset。旧実装は固定px (78px) だったが、席のcxは%指定のため、
- * カード幅が変わると「席位置(%で広がる)」と「フェルト端(pxで固定)」の間隔が
- * 一定にならず、カード幅が小さい/大きいどちらの極端でも重なりが生じていた
- * (実機で左右短辺の席とフェルトの重なりを確認して特定)。
- * 両者を同じ%単位にして常に一定の相対余白を保つよう、フェルトのinsetも%指定にする。
- * SIDE_SEAT_X_PCT(16%) 側の席との間隔が最小カード幅(480px)でも8px以上空くよう
- * 逆算した値 (詳細は rectSeatPositions 側コメント参照)。 */
-const FELT_INSET_X_PCT = 24;
+ * フェルト(角丸長方形)の垂直inset (px)。卓の高さ(TABLE_H)は席数に関わらず固定なので、
+ * px指定のままで常に同じ相対位置になり問題ない。
+ * 座席は「フェルト外周をオフセットした経路」上に配置するため (rectSeatPositions 参照)、
+ * このinsetは「フェルトの縁」の位置を決めるだけで、席自体はさらに外側 (d = seatRadius+4 px)
+ * にオフセットされたリング上に来る。ヘッダー行・カード下端と席円が重ならないよう、
+ * 席サイズ(最大40px)・チップ高さを踏まえて旧来の62pxから調整。
+ */
+const FELT_INSET_Y = 58;
+/**
+ * フェルトの水平inset (px)。座標系をpx化 (ResizeObserverでカード実測幅を取得) したことで、
+ * 席位置・フェルト位置とも同じpx基準で計算できるようになったため、旧実装(%指定, 重なり回避のための
+ * 逆算値)から素直なpx固定値に戻せる。カード幅が変わっても「フェルト外周からのオフセットd」で
+ * 席を配置するため、常に一定の隙間が保たれる。
+ */
+const FELT_INSET_X = 76;
+/** フェルトの角丸半径 (px)。下記 borderRadius と一致させる。 */
+const FELT_R = 20;
 /** 席数が多い卓 (9席以上, 左右辺を使う) は席円をひとまわり小さくして重なりを防ぐ */
 const SEAT_SIZE_NORMAL = 40;
 const SEAT_SIZE_COMPACT = 36;
@@ -50,6 +47,13 @@ const SEAT_SIZE_COMPACT = 36;
  *  着席チップを常にアイコンのみ(丸バッジ)表示にし、横幅が読めない分フェルトと
  *  重ならないようにする (上下辺席用の SEAT_CHIP_MAX_WIDTH とは独立)。 */
 const SIDE_SEAT_CHIP_MAX_WIDTH = 40;
+/** SSR/初回描画時 (ResizeObserver実測前) に使うカード本体の想定幅 (px)。
+ *  グリッドの auto-fit しきい値 (480px) と同じにして、実測後との差を最小化する。 */
+const MIN_CARD_W = 480;
+/** テーブル本体div (position:relative; padding:24) のCSS上のpaddingサイズ (px)。
+ *  ResizeObserverはこのdivの content box幅を返すため、px座標系(0..width)は
+ *  contentBoxRect基準になる (paddingは既にCSSのpaddingとして外側に付与されている)。 */
+const TABLE_BODY_PADDING = 24;
 
 // ===================== 型定義 =====================
 interface Visit {
@@ -795,98 +799,150 @@ function VisitChip({ visit, dragging, maxWidth }: { visit: Visit; dragging?: boo
 }
 
 /**
- * 上辺中央(頂点)はディーラー専用枠として空けておき、辺ごとの席数を決める。
- * ポーカー卓の実配置に合わせ、席1はディーラーの右隣(上辺右側)から時計回りに
- * 右辺→下辺(右→左)→左辺→上辺左側(ディーラーの左隣で終わる)の順に並ぶ。
- *
- * 少人数のときは下辺中心に集め、9席以上になったら初めて左右の短辺を使う
- * (現行の閾値を踏襲)。上辺は「ディーラー右隣」「ディーラー左隣」の2グループに
- * 分割し、どちらのグループもディーラー枠の直近から外側へ向かって並ぶ。
- */
-function seatEdgePlan(count: number) {
-  const useSides = count >= 9;
-  const sideSeats = useSides ? 2 : 0; // 左右に1席ずつ
-  const topBottomSeats = Math.max(0, count - sideSeats);
-  // 下辺優先 (上辺はディーラーがいる分、席を置ける余地が狭いため)
-  const bottomCount = Math.ceil(topBottomSeats / 2);
-  const topCount = topBottomSeats - bottomCount;
-  // 上辺はディーラー枠を挟んで右グループ(席番号が若い方)・左グループに分割
-  const topRightCount = Math.ceil(topCount / 2);
-  const topLeftCount = topCount - topRightCount;
-  return { useSides, sideSeats, topCount, bottomCount, topRightCount, topLeftCount };
+ * ディーラー席1つ分として頂点(上辺中央, s=0)の両側に確保する弧長の枠 (px)。
+ * 経路の周長から DEALER_ARC を引いた残りを全席で等分するため、この枠が
+ * 「ディーラーと席1・席Nの間隔」を決める。ディーラーチップ幅もこの枠に収める。 */
+const DEALER_ARC = 96;
+
+/** 角丸長方形の経路 (周長・弧長パラメータ化) を表す型。 */
+interface RoundedRectPath {
+  total: number;
+  /** 上辺の直線区間半分の長さ (頂点からTR/TLコーナーの手前まで)。 */
+  halfTopStraight: number;
+  /** コーナーの1/4円弧の長さ。 */
+  cornerArc: number;
+  /** 短辺(左右)の直線長さ。 */
+  sideStraight: number;
+  /** 弧長 s (0 <= s < total, 頂点=上辺中央から時計回り) から座標を求める。 */
+  pointAtArcLength(s: number): { x: number; y: number };
 }
 
 /**
- * 席と席の中心間隔 (cx %, カード幅に対する割合)。全卓でこの値を固定することで、
- * カード幅が同じである限り「見た目の間隔」が席数によらず揃う (旧実装は各辺の
- * 席を辺幅いっぱいに均等分配していたため、少席数の卓ほど間延びしていた)。
- *
- * 値の決め方: 14席(上下6席ずつ + 左右1席ずつ)でも cx が 6%〜94% に収まる
- * 最大値から逆算。上辺はディーラー枠 (DEALER_GAP_HALF_PCT) を挟む分だけ
- * 可動域が狭く、14席時の上辺片側グループ(3席)が最も厳しい制約になる
- * (50 + DEALER_GAP_HALF_PCT + PITCH*(3-1) <= 94 → PITCH <= 15.5)。
- * 下辺(14席時は6席)の制約は 50 + PITCH*(6-1)/2 <= 94 → PITCH <= 17.6 で
- * 上辺よりゆるいため、上辺基準の 15.5 が全卓共通ピッチとして使える。
+ * 角丸長方形 (左上 (l,t) - 右下 (r,b), 角丸半径 rad) の外周を、
+ * 上辺中央を起点 (s=0) に時計回りへ弧長パラメータ化する。
+ * セグメント順序: 上辺右半分(直線) → 右上角(弧) → 右辺(直線) → 右下角(弧)
+ *   → 下辺(直線) → 左下角(弧) → 左辺(直線) → 左上角(弧) → 上辺左半分(直線)。
  */
-const SEAT_PITCH_PCT = 15.5;
+function makeRoundedRectPath(l: number, t: number, r: number, b: number, rad: number): RoundedRectPath {
+  const halfW = (r - l) / 2;
+  const halfH = (b - t) / 2;
+  // 極端に狭い/低いカードでも破綻しないよう、半径を半幅・半高でclamp
+  const rr = Math.max(0, Math.min(rad, halfW, halfH));
+  const halfTopStraight = Math.max(0, halfW - rr);
+  const cornerArc = rr * (Math.PI / 2);
+  const sideStraight = Math.max(0, (b - t) - 2 * rr);
+  const cx = (l + r) / 2; // 上辺中央 x
 
-/** 上辺でディーラーチップと席が重ならないよう、中央から確保する片側の空き幅(%)。
- *  SEAT_PITCH_PCT はこの値を踏まえて「14席で上辺グループが94%に収まる」逆算値のため、
- *  両者は連動している (DEALER_GAP_HALF_PCT を変えたら SEAT_PITCH_PCT も再計算が必要)。 */
-const DEALER_GAP_HALF_PCT = 13;
+  const bottomStraight = Math.max(0, (r - l) - 2 * rr);
+  const segments = [halfTopStraight, cornerArc, sideStraight, cornerArc, bottomStraight, cornerArc, sideStraight, cornerArc, halfTopStraight];
+  const total = segments.reduce((a, b2) => a + b2, 0);
+
+  function pointAtArcLength(sIn: number): { x: number; y: number } {
+    let s = ((sIn % total) + total) % total; // 0 <= s < total に正規化
+
+    // 1) 上辺右半分: (cx,t) -> (r-rr, t)
+    if (s <= segments[0]) {
+      return { x: cx + s, y: t };
+    }
+    s -= segments[0];
+    // 2) 右上角の1/4円弧: 中心 (r-rr, t+rr), 角度 -90deg -> 0deg
+    if (s <= segments[1]) {
+      const ang = -Math.PI / 2 + (s / rr);
+      return { x: r - rr + rr * Math.cos(ang), y: t + rr + rr * Math.sin(ang) };
+    }
+    s -= segments[1];
+    // 3) 右辺: (r, t+rr) -> (r, b-rr)
+    if (s <= segments[2]) {
+      return { x: r, y: t + rr + s };
+    }
+    s -= segments[2];
+    // 4) 右下角: 中心 (r-rr, b-rr), 角度 0 -> 90deg
+    if (s <= segments[3]) {
+      const ang = 0 + (s / rr);
+      return { x: r - rr + rr * Math.cos(ang), y: b - rr + rr * Math.sin(ang) };
+    }
+    s -= segments[3];
+    // 5) 下辺: (r-rr, b) -> (l+rr, b) (右から左へ)
+    if (s <= segments[4]) {
+      return { x: r - rr - s, y: b };
+    }
+    s -= segments[4];
+    // 6) 左下角: 中心 (l+rr, b-rr), 角度 90 -> 180deg
+    if (s <= segments[5]) {
+      const ang = Math.PI / 2 + (s / rr);
+      return { x: l + rr + rr * Math.cos(ang), y: b - rr + rr * Math.sin(ang) };
+    }
+    s -= segments[5];
+    // 7) 左辺: (l, b-rr) -> (l, t+rr) (下から上へ)
+    if (s <= segments[6]) {
+      return { x: l, y: b - rr - s };
+    }
+    s -= segments[6];
+    // 8) 左上角: 中心 (l+rr, t+rr), 角度 180 -> 270deg
+    if (s <= segments[7]) {
+      const ang = Math.PI + (s / rr);
+      return { x: l + rr + rr * Math.cos(ang), y: t + rr + rr * Math.sin(ang) };
+    }
+    s -= segments[7];
+    // 9) 上辺左半分: (l+rr, t) -> (cx, t)
+    return { x: l + rr + s, y: t };
+  }
+
+  return { total, halfTopStraight, cornerArc, sideStraight, pointAtArcLength };
+}
 
 /**
- * 席数から長方形の周囲を回る座標(%, 卓の左上を0,0とした相対位置)を、
+ * 席数から「フェルト外周をオフセットした経路」上の座標 (px, テーブル本体div基準) を、
  * 頂点(上辺中央)のディーラーから右回りに算出する。
  * 戻り値の配列 index = 席番号-1 (座席droppable idの意味と一致)。
- * isSide=true は左右短辺の席 (cy=50%): 縦一列で横幅の余裕が最も少ないため、
+ * isSide=true は経路の左右垂直辺上にある席 (縦一列で横幅の余裕が最も少ない):
  * 呼び出し側で着席チップの幅を常にアイコンのみに絞る目印として使う。
  *
- * 固定ピッチ・中央寄せ方式: 各辺の席グループを辺の中央に寄せ、隣接席は
- * 常に SEAT_PITCH_PCT だけ離す (旧実装の「辺幅いっぱいに均等分配」だと
- * 席数が少ない卓ほど間隔が間延びしていたため撤廃)。
+ * 等間隔配置: ディーラー枠 (DEALER_ARC) を除いた周長を席数で等分し、各席をその
+ * スロット中央に置く。席数が変わっても隣接席・ディーラーとの隙間が均一になり、
+ * どの席も常にフェルト外周から一定距離 (d) で密着する。
+ *
+ * @param width テーブル本体div の実測幅 (px, ResizeObserver。padding は 0)
+ * @param seatSize 席円の直径 (px)。オフセット量 d = seatSize/2 + 4 の算出に使う。
  */
-function rectSeatPositions(count: number): { cx: number; cy: number; isSide: boolean }[] {
+function rectSeatPositions(count: number, width: number, seatSize: number): { cx: number; cy: number; isSide: boolean }[] {
   if (count <= 0) return [];
-  const { useSides, bottomCount, topRightCount, topLeftCount } = seatEdgePlan(count);
 
+  // フェルト矩形 (px, テーブル本体div基準)
+  const feltL = FELT_INSET_X;
+  const feltT = FELT_INSET_Y;
+  const feltR = width - FELT_INSET_X;
+  const feltB = TABLE_H - FELT_INSET_Y;
+
+  // 席リング = フェルト外周を d だけ外側にオフセットした角丸長方形
+  const d = seatSize / 2 + 4;
+  const path = makeRoundedRectPath(feltL - d, feltT - d, feltR + d, feltB + d, FELT_R + d);
+  const { total } = path;
+  // 席リングの左右辺の x 位置 (isSide 判定用)
+  const rectL = feltL - d, rectR = feltR + d;
+
+  // ===== ディーラー + 全席 を経路上に等間隔配置 =====
+  // 頂点(s=0)にディーラーを置き、その両側に DEALER_ARC ぶんの枠を確保。
+  // 残り周長 (total - DEALER_ARC) を count 等分し、各席をその中央に置くことで、
+  // 席同士・ディーラーとの隙間がほぼ均一になり、席数が変わっても間隔が自然に決まる。
+  // 時計回り: 席1(k=0)=ディーラー右隣 → 右辺 → 下辺 → 左辺 → ディーラー左隣。
+  const avail = total - DEALER_ARC;
+  const slot = avail / count;
   const positions: { cx: number; cy: number; isSide: boolean }[] = [];
-
-  // 上辺右側 (ディーラーのすぐ右隣から外側へ): 席1はここから開始
-  for (let i = 0; i < topRightCount; i++) {
-    const cx = 50 + DEALER_GAP_HALF_PCT + SEAT_PITCH_PCT * i;
-    positions.push({ cx, cy: SEAT_MARGIN_Y_PCT, isSide: false });
-  }
-  // 右辺 (使う場合)
-  if (useSides) positions.push({ cx: 100 - SIDE_SEAT_X_PCT, cy: 50, isSide: true });
-  // 下辺 (右→左、50%中心に左右対称。i=0が最も右)
-  for (let i = 0; i < bottomCount; i++) {
-    const cx = 50 + SEAT_PITCH_PCT * ((bottomCount - 1) / 2 - i);
-    positions.push({ cx, cy: 100 - SEAT_MARGIN_Y_PCT, isSide: false });
-  }
-  // 左辺 (使う場合)
-  if (useSides) positions.push({ cx: SIDE_SEAT_X_PCT, cy: 50, isSide: true });
-  // 上辺左側 (左辺から時計回りに、ディーラーのすぐ左隣で終わる)
-  for (let i = 0; i < topLeftCount; i++) {
-    const cx = 50 - DEALER_GAP_HALF_PCT - SEAT_PITCH_PCT * i;
-    positions.push({ cx, cy: SEAT_MARGIN_Y_PCT, isSide: false });
+  for (let k = 0; k < count; k++) {
+    const s = DEALER_ARC / 2 + (k + 0.5) * slot;
+    const { x, y } = path.pointAtArcLength(s);
+    // 経路の左右垂直辺上にある席は縦一列で横幅の余裕が少ないため isSide フラグを立てる
+    const isSide = Math.abs(x - rectL) < 1.5 || Math.abs(x - rectR) < 1.5;
+    positions.push({ cx: x, cy: y, isSide });
   }
 
   return positions;
 }
 
-/** 想定最小カード幅 (グリッドの auto-fit しきい値と同じ)。着席チップの最大幅算出に用いる。 */
-const MIN_CARD_W = 480;
-/**
- * 着席チップ(名前入り)の最大幅 (px)。固定ピッチ (SEAT_PITCH_PCT) を
- * 最小カード幅基準の px に換算し、その85%を上限とすることで、隣接席の
- * チップ同士が重ならないことを保証する (74.4px × 0.85 → 63px)。
- * ピッチが席数によらず一定になったため席数に依存しない定数でよい。
- * 旧実装は「辺あたり4席以下は間隔が広いので無制限」としていたが、
- * カード幅が最小(480px弱)まで縮むと4席卓でもチップ同士が重なったため、
- * 全席数で一律にこの上限を適用する (重なりゼロを優先)。
- */
-const SEAT_CHIP_MAX_WIDTH = Math.floor((SEAT_PITCH_PCT / 100) * MIN_CARD_W * 0.85);
+/** 着席チップ(名前入り)の最大幅 (px)。等間隔配置の最小スロット(狭幅×多席)でも
+ *  隣接チップが重ならない控えめな値。これを超える名前は ellipsis で省略される。 */
+const SEAT_CHIP_MAX_WIDTH = 56;
 
 // ===================== 卓: 角丸長方形カード (2列グリッド内) =====================
 function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmptySeat, onClickDealer, onRotateDealer, nextDealer }: {
@@ -904,11 +960,29 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
 
   const occupancy = seated.length / table.maxSeats;
   const height = TABLE_H;
-  const seatPositions = rectSeatPositions(table.maxSeats);
   // 席数が多い卓 (9席以上、左右辺を使う) は席円をひとまわり小さくして重なりを防ぐ
   const seatSize = table.maxSeats >= 9 ? SEAT_SIZE_COMPACT : SEAT_SIZE_NORMAL;
   // 着席チップ同士がぶつからないよう、全席数で固定ピッチ基準の最大幅を適用する
   const chipMaxWidth = SEAT_CHIP_MAX_WIDTH;
+
+  // ===== テーブル本体divの実測幅 (ResizeObserver) =====
+  // 座標系(フェルト矩形・席リング)はこの実測content box幅(px)を基準に計算する。
+  // SSR/初回描画はMIN_CARD_W相当を仮の幅として使い、観測後に実測値へ切り替える。
+  const [bodyEl, setBodyEl] = useState<HTMLDivElement | null>(null);
+  const [bodyWidth, setBodyWidth] = useState<number>(MIN_CARD_W);
+  useEffect(() => {
+    if (!bodyEl) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const w = entry.contentBoxSize?.[0]?.inlineSize ?? entry.contentRect.width;
+        if (w > 0) setBodyWidth(w);
+      }
+    });
+    ro.observe(bodyEl);
+    return () => ro.disconnect();
+  }, [bodyEl]);
+
+  const seatPositions = rectSeatPositions(table.maxSeats, bodyWidth, seatSize);
 
   return (
     <div style={{ width: "100%" }}>
@@ -971,19 +1045,26 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
         </div>
 
         {/* ===== テーブル本体: 角丸長方形フェルト ===== */}
-        <div style={{
-          position: "relative", width: "100%", height,
-          background: isOverTable ? "var(--v2-accent-soft)" : "transparent",
-          transition: "background 0.15s",
-          padding: 24,
-        }}>
+        <div
+          ref={setBodyEl}
+          style={{
+            position: "relative", width: "100%", height,
+            background: isOverTable ? "var(--v2-accent-soft)" : "transparent",
+            transition: "background 0.15s",
+            // padding は 0。ResizeObserver は content box 幅を返すため、席・フェルトの
+            // 絶対配置(padding box基準)と座標系を一致させるにはパディングを設けない。
+            // 席がカード縁に触れないための余白は FELT_INSET_X/Y と席リングのオフセットで確保する。
+            padding: 0,
+          }}
+        >
           {/* フェルト (角丸長方形): 席リングのさらに内側に収める。中央は卓種別の薄い透かしのみ。
-              水平方向は席のcxと同じ%単位のinsetにして、カード幅が変わっても
-              席とフェルトの相対間隔が一定になるようにする (px指定だと幅依存で重なる)。 */}
+              座標系をpx化したため、フェルトのinsetも席位置と同じpx基準 (FELT_INSET_X/Y) で
+              指定でき、カード幅が変わっても「フェルト外周から席リングまでの距離」が
+              常に一定 (d = seatSize/2+4 px) に保たれる。 */}
           <div style={{
             position: "absolute",
-            left: `${FELT_INSET_X_PCT}%`, top: FELT_INSET_Y, right: `${FELT_INSET_X_PCT}%`, bottom: FELT_INSET_Y,
-            borderRadius: 20,
+            left: FELT_INSET_X, top: FELT_INSET_Y, right: FELT_INSET_X, bottom: FELT_INSET_Y,
+            borderRadius: FELT_R,
             background: "linear-gradient(180deg, #246c4a 0%, #1a5538 100%)",
             border: "3px solid #2d7a4f",
             display: "flex", alignItems: "center", justifyContent: "center",
@@ -997,8 +1078,8 @@ function PokerTable({ table, seated, onEdit, onDelete, onClickVisit, onClickEmpt
             </div>
           </div>
 
-          {/* ディーラー: 頂点(上辺中央)の席リング上に配置。クリックでディーラー交代 */}
-          <DealerChip cx={50} cy={SEAT_MARGIN_Y_PCT} dealer={table.dealer} onClick={onClickDealer} />
+          {/* ディーラー: 頂点(上辺中央, s=0)の席リング上に配置。クリックでディーラー交代 */}
+          <DealerChip cx={bodyWidth / 2} cy={FELT_INSET_Y - (SEAT_SIZE_NORMAL / 2 + 4)} dealer={table.dealer} onClick={onClickDealer} />
 
           {/* 席を長方形の周囲に配置 (席1=ディーラー右隣から時計回り) */}
           {seatPositions.map((p, i) => {
@@ -1095,20 +1176,14 @@ function formatDuration(sec: number, over = false): string {
 }
 
 // ===================== ディーラーチップ (頂点=上辺中央の席リング上) =====================
-/** ディーラーチップの絶対上限幅 (px)。カードが十分広いときの見た目上限。 */
-const DEALER_CHIP_MAX_WIDTH = 112;
 /** ディーラーチップと隣接席チップの間に最低限確保する隙間 (px, 片側)。 */
 const DEALER_SEAT_GAP_PX = 8;
 /**
- * ディーラーチップが使える幅の上限 (カード幅連動)。
- * 隣接席の中心はディーラー中心から DEALER_GAP_HALF_PCT% の位置にあり、
- * 席チップは最大 SEAT_CHIP_MAX_WIDTH px なので、重ならないためには
- *   ディーラー幅 <= 2 × (DEALER_GAP_HALF_PCT% − SEAT_CHIP_MAX_WIDTH/2 − 隙間)
- * である必要がある。% と px の混在は CSS calc() で表現する
- * (固定112pxだけだと、カード幅が縮んだとき(468px等)に隣接席チップと重なる)。
+ * ディーラーチップの上限幅 (px)。席1・席Nはディーラー枠 (DEALER_ARC) の外側に
+ * 置かれるため、チップを DEALER_ARC 内 (両側に隙間) に収めれば隣接席と重ならない。
+ *   幅 <= DEALER_ARC − 2 × 隙間
  */
-const DEALER_CHIP_WIDTH_CALC =
-  `calc(${DEALER_GAP_HALF_PCT * 2}% - ${SEAT_CHIP_MAX_WIDTH + DEALER_SEAT_GAP_PX * 2}px)`;
+const DEALER_CHIP_WIDTH_CALC_PX = DEALER_ARC - 2 * DEALER_SEAT_GAP_PX;
 
 function DealerChip({ cx, cy, dealer, onClick }: {
   cx: number; cy: number; dealer?: string;
@@ -1119,13 +1194,13 @@ function DealerChip({ cx, cy, dealer, onClick }: {
     <div
       style={{
         position: "absolute",
-        left: `${cx}%`, top: `${cy}%`,
+        left: cx, top: cy,
         transform: "translate(-50%, -50%)",
         zIndex: 1,
-        // % はカード本体(padding box)基準で解決され、席の cx% と同じ座標系になる。
+        // px はテーブル本体div基準で解決され、席の cx/cy(px) と同じ座標系になる。
         // ボタン(shrink-to-fit)はこの枠内で中央寄せされ、枠を超えない。
-        width: DEALER_CHIP_WIDTH_CALC,
-        maxWidth: DEALER_CHIP_MAX_WIDTH,
+        width: DEALER_CHIP_WIDTH_CALC_PX,
+        maxWidth: DEALER_CHIP_WIDTH_CALC_PX,
         display: "flex", justifyContent: "center",
       }}
     >
@@ -1176,7 +1251,7 @@ function Seat({ tableId, seatIndex, cx, cy, size, chipMaxWidth, occupant, onClic
       ref={setNodeRef}
       style={{
         position: "absolute",
-        left: `${cx}%`, top: `${cy}%`,
+        left: cx, top: cy,
         transform: "translate(-50%, -50%)",
         transition: "transform 0.15s",
       }}
