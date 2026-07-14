@@ -197,7 +197,7 @@ a.ln-card:active, button.ln-card:active {
 .ln-btn--ghost:active { background: var(--ln-bg-hover); }
 .ln-btn--full { width: 100%; }
 .ln-btn--lg { height: 48px; font-size: 15px; }
-.ln-btn--sm { height: 36px; font-size: 12px; padding: 0 16px; }
+.ln-btn--sm { height: 36px; font-size: 12px; padding: 0 20px; }
 
 /* ===== inputs ===== */
 .ln input, .ln select, .ln textarea {

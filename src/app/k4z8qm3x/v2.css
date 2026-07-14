@@ -464,8 +464,8 @@
 .v2-btn-selected:hover { background: var(--v2-accent-pastel); border-color: var(--v2-accent); filter: none; }
 .v2-btn-selected:active { transform: translateY(1px); }
 
-.v2-btn-sm { height: 30px; padding: 0 18px; font-size: var(--v2-fs-sm); }
-.v2-btn-xs { height: 26px; padding: 0 15px; font-size: var(--v2-fs-xs); }
+.v2-btn-sm { height: 30px; padding: 0 22px; font-size: var(--v2-fs-sm); }
+.v2-btn-xs { height: 26px; padding: 0 20px; font-size: var(--v2-fs-xs); }
 
 /* ===== panel (card) ===== */
 .v2-panel {
