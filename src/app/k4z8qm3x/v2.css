@@ -466,6 +466,12 @@
 
 .v2-btn-sm { height: 30px; padding: 0 22px; font-size: var(--v2-fs-sm); }
 .v2-btn-xs { height: 26px; padding: 0 20px; font-size: var(--v2-fs-xs); }
+/* 重要: `.v2 button { padding: 0 }` のリセットは単一クラスの .v2-btn より詳細度が高く、
+   ボタンの左右余白を打ち消していた。`.v2 .v2-btn` (クラス2つ) で詳細度を上げて確実に効かせる。
+   (「＋の左・文字の右に余白がない」の根本原因はこの詳細度負けだった) */
+.v2 .v2-btn { padding: 0 26px; }
+.v2 .v2-btn-sm { padding: 0 22px; }
+.v2 .v2-btn-xs { padding: 0 20px; }
 
 /* ===== panel (card) ===== */
 .v2-panel {
