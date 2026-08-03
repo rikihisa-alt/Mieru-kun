@@ -2,10 +2,14 @@
 
 import { useCallback } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
-import { settingsStore, type EntrancePlan } from "@/lib/store/domain-stores";
+import { settingsStore, type EntrancePlan, type CustomerRank } from "@/lib/store/domain-stores";
 import { toHalfWidthNumber } from "@/lib/v2/points";
+import { RANK_RULES_KEY, DEFAULT_RANK_RULES, type RankRules, type RankTierRule } from "@/lib/v2/rank";
 import { PageHeader, Btn, Panel, Field, VStack, HStack, Toast, useToast } from "@/components/v2/ui";
 import { Plus, X } from "lucide-react";
+
+const RANK_TIER_LABEL: Record<Exclude<CustomerRank, "regular">, string> = { silver: "Silver", gold: "Gold", vip: "VIP" };
+const RANK_TIER_KEYS: Exclude<CustomerRank, "regular">[] = ["silver", "gold", "vip"];
 
 /** 不正な数値(負数・NaN)を 0以上の整数へ丸める */
 function sanitizeNonNegativeInt(v: number): number {
@@ -44,6 +48,7 @@ export function calcTimeChargeAmount(stayMinutes: number, cfg: TimeChargeSetting
 export default function SettingsPage() {
   const [s, setS] = usePersisted(settingsStore);
   const [tc, setTc] = usePersistedState<TimeChargeSettings>(TIME_CHARGE_KEY, DEFAULT_TIME_CHARGE);
+  const [rankRules, setRankRules] = usePersistedState<RankRules>(RANK_RULES_KEY, DEFAULT_RANK_RULES);
   const { toast, show: showToast } = useToast(1800);
 
   const showSaved = useCallback((msg = "保存しました") => {
@@ -56,6 +61,10 @@ export default function SettingsPage() {
   function upTcUnitPrice(raw: string) {
     const n = sanitizeNonNegativeInt(toHalfWidthNumber(raw));
     upTc("unitPrice", n);
+  }
+  function upRankTier<K extends keyof RankTierRule>(tier: Exclude<CustomerRank, "regular">, k: K, v: RankTierRule[K]) {
+    setRankRules({ ...rankRules, [tier]: { ...rankRules[tier], [k]: v } });
+    showSaved();
   }
   function addPlan() {
     up("entrancePlans", [...s.entrancePlans, { id: `ep${Date.now()}`, label: "", price: 0 }]);
@@ -185,6 +194,50 @@ export default function SettingsPage() {
           <Field label="呼び方"><input value={s.pointLabel} onChange={(e) => up("pointLabel", e.target.value)} /></Field>
           <Field label="単位"><input value={s.pointUnit} onChange={(e) => up("pointUnit", e.target.value)} /></Field>
         </div>
+      </Panel>
+
+      <Panel title="会員ランク自動判定">
+        <VStack gap={16}>
+          <div className="v2-mute" style={{ fontSize: 11, lineHeight: 1.6 }}>
+            来店回数・累計利用額がしきい値を満たした顧客を対象ランクへ自動昇格させます(顧客一覧の「ランク自動判定」から実行)。降格はしません。手動でランクを上げた顧客が下がることもありません。
+          </div>
+          {RANK_TIER_KEYS.map(tier => {
+            const r = rankRules[tier];
+            return (
+              <div key={tier} className="v2-panel" style={{ background: "var(--v2-accent-soft)", borderStyle: "dashed" }}>
+                <div className="v2-panel-body">
+                  <VStack gap={10}>
+                    <HStack gap={16}>
+                      <span className="v2-h2" style={{ fontSize: 14 }}>{RANK_TIER_LABEL[tier]}</span>
+                      <label className="v2-row" style={{ gap: 6, marginLeft: "auto" }}>
+                        <input type="checkbox" checked={r.isActive} onChange={(e) => upRankTier(tier, "isActive", e.target.checked)} style={{ width: 14, height: 14 }} />
+                        有効
+                      </label>
+                    </HStack>
+                    {r.isActive && (
+                      <>
+                        <div className="v2-form-grid">
+                          <Field label="来店回数(回以上)" hint="0で条件なし">
+                            <input inputMode="numeric" value={r.minVisits} onChange={(e) => upRankTier(tier, "minVisits", toHalfWidthNumber(e.target.value))} placeholder="例: 5" />
+                          </Field>
+                          <Field label="累計利用額(円以上)" hint="0で条件なし">
+                            <input inputMode="numeric" value={r.minSpent} onChange={(e) => upRankTier(tier, "minSpent", toHalfWidthNumber(e.target.value))} placeholder="例: 30000" />
+                          </Field>
+                        </div>
+                        <Field label="条件の組み合わせ" hint="両方の条件を設定した場合の判定方法">
+                          <HStack gap={6} style={{ flexWrap: "wrap" }}>
+                            <Btn variant={r.combinator === "or" ? "selected" : "default"} onClick={() => upRankTier(tier, "combinator", "or")}>どちらか満たす</Btn>
+                            <Btn variant={r.combinator === "and" ? "selected" : "default"} onClick={() => upRankTier(tier, "combinator", "and")}>両方満たす</Btn>
+                          </HStack>
+                        </Field>
+                      </>
+                    )}
+                  </VStack>
+                </div>
+              </div>
+            );
+          })}
+        </VStack>
       </Panel>
     </VStack>
   );

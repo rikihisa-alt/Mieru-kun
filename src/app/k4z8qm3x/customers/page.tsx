@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { usePersisted } from "@/lib/persist/store";
+import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { customerStore, type CustomerRank, type CustomerRecord } from "@/lib/store/domain-stores";
-import { PageHeader, Btn, Kpis, Kpi, VStack, Empty, Chip, Modal, Field, Banner, RankBadge } from "@/components/v2/ui";
-import { Search, Plus, FileDown, FileUp } from "lucide-react";
+import { PageHeader, Btn, Kpis, Kpi, VStack, Empty, Chip, Modal, Field, Banner, RankBadge, Toast, useToast } from "@/components/v2/ui";
+import { Search, Plus, FileDown, FileUp, Sparkles } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
 import { toCsv, downloadCsv, parseCsv } from "@/lib/v2/csv";
+import { computeRank, RANK_RULES_KEY, DEFAULT_RANK_RULES, type RankRules } from "@/lib/v2/rank";
 
 const RANK_LABEL: Record<CustomerRank, string> = { regular: "Regular", silver: "Silver", gold: "Gold", vip: "VIP" };
 
@@ -39,7 +40,10 @@ const CSV_HEADERS = ["名前", "ポーカーネーム", "電話", "誓約書番�
 export default function CustomersPage() {
   const router = useRouter();
   const [customers, setCustomers] = usePersisted(customerStore);
+  const [rankRules] = usePersistedState<RankRules>(RANK_RULES_KEY, DEFAULT_RANK_RULES);
   const [q, setQ] = useState("");
+  const [rankPreview, setRankPreview] = useState<{ id: string; label: string; from: CustomerRank; to: CustomerRank }[] | null>(null);
+  const { toast, show: showToast } = useToast(2200);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [importRows, setImportRows] = useState<string[][] | null>(null);
@@ -142,14 +146,31 @@ export default function CustomersPage() {
     setImportMapping([]);
   }
 
+  // ===== ランク自動判定 (昇格のみ) =====
+  function openRankJudge() {
+    const changes = customers
+      .map(c => ({ id: c.id, label: c.nickname || c.name, from: c.rank, to: computeRank(c, rankRules) }))
+      .filter(c => c.to !== c.from);
+    setRankPreview(changes);
+  }
+  function applyRankJudge() {
+    if (!rankPreview || rankPreview.length === 0) { setRankPreview(null); return; }
+    const changeMap = new Map(rankPreview.map(c => [c.id, c.to]));
+    setCustomers(prev => prev.map(c => changeMap.has(c.id) ? { ...c, rank: changeMap.get(c.id)! } : c));
+    showToast(`${rankPreview.length}名のランクを更新しました`);
+    setRankPreview(null);
+  }
+
   return (
     <VStack gap={16}>
+      {toast && <Toast message={toast.message} variant={toast.variant} />}
       <PageHeader
         title="顧客"
         sub={`${customers.length}名`}
         action={
           <>
             <input ref={fileInputRef} type="file" accept=".csv,text/csv" style={{ display: "none" }} onChange={onPickFile} />
+            <Btn onClick={openRankJudge}><Sparkles size={14} /> ランク自動判定</Btn>
             <Btn onClick={() => fileInputRef.current?.click()}><FileUp size={14} /> CSV取込</Btn>
             <Btn onClick={exportCsv}><FileDown size={14} /> CSV出力</Btn>
             <Btn onClick={() => {
@@ -219,7 +240,15 @@ export default function CustomersPage() {
                     </div>
                     {c.nickname && <div className="v2-mute" style={{ fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={c.name}>{c.name}</div>}
                   </td>
-                  <td>{c.rank === "regular" ? <span className="v2-mute" style={{ fontSize: 11, letterSpacing: "0.04em", textTransform: "uppercase" }}>{RANK_LABEL[c.rank]}</span> : <RankBadge rank={c.rank} />}</td>
+                  <td>
+                    {c.rank === "regular" ? <span className="v2-mute" style={{ fontSize: 11, letterSpacing: "0.04em", textTransform: "uppercase" }}>{RANK_LABEL[c.rank]}</span> : <RankBadge rank={c.rank} />}
+                    {(() => {
+                      const judged = computeRank(c, rankRules);
+                      return judged !== c.rank ? (
+                        <div className="v2-mute" style={{ fontSize: 10, marginTop: 2 }}>判定後: {RANK_LABEL[judged]}</div>
+                      ) : null;
+                    })()}
+                  </td>
                   <td className="v2-sub">{c.phone || "—"}</td>
                   <td className="v2-num-cell">{c.totalVisits}</td>
                   <td className="v2-num-cell">¥{c.totalSpent.toLocaleString()}</td>
@@ -293,6 +322,44 @@ export default function CustomersPage() {
               </div>
             </Field>
           </VStack>
+        )}
+      </Modal>
+
+      <Modal
+        open={rankPreview !== null}
+        onClose={() => setRankPreview(null)}
+        title="ランク自動判定"
+        footer={
+          <>
+            <Btn onClick={() => setRankPreview(null)}>キャンセル</Btn>
+            <Btn variant="primary" onClick={applyRankJudge} disabled={!rankPreview || rankPreview.length === 0}>この内容で更新する</Btn>
+          </>
+        }
+      >
+        {rankPreview && (
+          rankPreview.length === 0 ? (
+            <Empty>ランクが変わる顧客はいません</Empty>
+          ) : (
+            <VStack gap={12}>
+              <div className="v2-mute" style={{ fontSize: 12 }}>
+                来店回数・累計利用額の設定条件(店舗設定 &gt; 会員ランク自動判定)にもとづき、<strong>{rankPreview.length}名</strong>のランクが上がります。降格はありません。
+              </div>
+              <div className="v2-table-wrap" style={{ maxHeight: 320, overflowY: "auto" }}>
+                <table className="v2-table">
+                  <thead><tr><th>顧客</th><th>現ランク</th><th>判定後</th></tr></thead>
+                  <tbody>
+                    {rankPreview.map(c => (
+                      <tr key={c.id}>
+                        <td>{c.label}</td>
+                        <td>{RANK_LABEL[c.from]}</td>
+                        <td><strong>{RANK_LABEL[c.to]}</strong></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </VStack>
+          )
         )}
       </Modal>
     </VStack>
