@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
-import { productStore, customerStore, type CustomerRank } from "@/lib/store/domain-stores";
+import { productStore, customerStore, settingsStore, type CustomerRank } from "@/lib/store/domain-stores";
 import { salesOrderStore, type SalesOrder, type SalesOrderItem, stockMovementStore, chipFlowStore, type ChipFlowEntry } from "@/lib/v2/stores";
 import { grantSpendPoints } from "@/lib/v2/points";
 import { PageHeader, Btn, Panel, Modal, VStack, HStack, Chip, Empty, Field, Toast, useToast, Banner, FilterChips, SectionLabel } from "@/components/v2/ui";
-import { Plus, Minus, CreditCard, Trash2, X, FileDown, Clock } from "lucide-react";
-import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
+import { Plus, Minus, CreditCard, Trash2, X, Printer, Receipt as ReceiptIcon, Clock } from "lucide-react";
+import { printReceipt } from "@/lib/v2/pdf";
 import { TIME_CHARGE_KEY, DEFAULT_TIME_CHARGE, calcTimeChargeUnits, calcTimeChargeAmount, type TimeChargeSettings } from "@/app/k4z8qm3x/settings/page";
 
 // 締め状況の判定に使う最小限の型 (closing/page.tsx の ClosingRecord と同じキー・date形式 "YYYY-MM-DD")
@@ -36,6 +36,7 @@ function formatStayDuration(minutes: number): string {
 export default function OrdersPage() {
   const [products, setProducts] = usePersisted(productStore);
   const [customers, setCustomers] = usePersisted(customerStore);
+  const [settings] = usePersisted(settingsStore);
   const [orders, setOrders] = usePersisted(salesOrderStore);
   const [, setMovements] = usePersisted(stockMovementStore);
   const [, setChipFlow] = usePersisted(chipFlowStore);
@@ -48,6 +49,7 @@ export default function OrdersPage() {
   const [table, setTable] = useState("");
   const [cart, setCart] = useState<SalesOrderItem[]>([]);
   const [settling, setSettling] = useState<SalesOrder | null>(null);
+  const [justSettled, setJustSettled] = useState<SalesOrder | null>(null);
   const [method, setMethod] = useState<"cash" | "card" | "qr" | "credit">("cash");
   const [cat, setCat] = useState<string>("all");
   const { toast, show: showToast } = useToast(4000);
@@ -127,16 +129,17 @@ export default function OrdersPage() {
     if (!settling) return;
     const s = settling;
     const isCredit = method === "credit";
+    const now = new Date().toISOString();
     // 1. 注文ステータス
-    setOrders(prev => prev.map(o => o.id === s.id ? {
-      ...o,
+    const settledOrder: SalesOrder = {
+      ...s,
       status: "settled" as const,
-      settledAt: new Date().toISOString(),
+      settledAt: now,
       paymentMethod: method,
       ...(isCredit ? { unpaid: true } : {}),
-    } : o));
+    };
+    setOrders(prev => prev.map(o => o.id === s.id ? settledOrder : o));
     // 2. 在庫減算 + 在庫移動履歴
-    const now = new Date().toISOString();
     setProducts(prev => prev.map(p => {
       const item = s.items.find(i => i.productId === p.id);
       if (!item || p.stock == null) return p;
@@ -204,6 +207,7 @@ export default function OrdersPage() {
     }
     showToast(`精算が完了しました${grantedPoints > 0 ? ` (${grantedPoints}ptを付与しました)` : ""}${chipReflected ? " (チップ残高に反映しました)" : ""}`);
     setSettling(null);
+    setJustSettled(settledOrder);
   }
   function remove(id: string) {
     if (!confirm("削除しますか？")) return;
@@ -214,16 +218,24 @@ export default function OrdersPage() {
     return m === "cash" ? "現金" : m === "card" ? "カード" : m === "qr" ? "QR" : m === "credit" ? "後払い" : "—";
   }
 
-  function receipt(o: SalesOrder) {
-    const body = kpisHtml([
-      { label: "顧客", value: o.customer },
-      { label: "卓", value: o.table ?? "—" },
-      { label: "支払", value: paymentLabel(o.paymentMethod) },
-      { label: "時刻", value: new Date(o.settledAt ?? o.createdAt).toLocaleString("ja-JP") },
-    ]) + tableHtml(["商品", "数量", "単価", "小計"],
-      o.items.map(i => [i.name, String(i.qty), `¥${i.price.toLocaleString()}`, `¥${(i.price * i.qty).toLocaleString()}`]),
-      { numCols: [1, 2, 3] }) + `<h2 class="pdf-h2">合計</h2><div style="text-align:right;font-size:22px;font-weight:700">¥${o.total.toLocaleString()}</div>`;
-    printDoc({ title: "レシート", subtitle: o.id, body });
+  /** サーマルレシート幅相当の縦長レシート/領収書を別窓で印刷 (任意操作。自動印刷はしない) */
+  function printOrderReceipt(o: SalesOrder, mode: "receipt" | "invoice") {
+    printReceipt(
+      {
+        id: o.id,
+        customer: o.customer,
+        table: o.table,
+        items: o.items.map(i => ({ name: i.name, price: i.price, qty: i.qty })),
+        total: o.total,
+        createdAt: o.createdAt,
+        settledAt: o.settledAt,
+      },
+      {
+        storeName: settings.storeName || "Come On Casino",
+        mode,
+        paymentLabel: o.paymentMethod ? paymentLabel(o.paymentMethod) : undefined,
+      }
+    );
   }
 
   return (
@@ -284,7 +296,12 @@ export default function OrdersPage() {
                         : paymentLabel(o.paymentMethod)}
                     </td>
                     <td className="v2-num v2-sub">{new Date(o.settledAt ?? o.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</td>
-                    <td><Btn size="xs" onClick={() => receipt(o)}><FileDown size={11}/> 領収</Btn></td>
+                    <td>
+                      <HStack gap={4}>
+                        <Btn size="xs" onClick={() => printOrderReceipt(o, "receipt")}><Printer size={11} /> レシート</Btn>
+                        <Btn size="xs" variant="ghost" onClick={() => printOrderReceipt(o, "invoice")}><ReceiptIcon size={11} /> 領収書</Btn>
+                      </HStack>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -421,6 +438,28 @@ export default function OrdersPage() {
             {settling.customerId && (
               <div className="v2-mute" style={{ fontSize: 11 }}>※ 精算後、顧客の累計利用額 / 来店回数を自動で加算します</div>
             )}
+          </VStack>
+        )}
+      </Modal>
+
+      {/* 精算完了後: レシート/領収書印刷の導線 (任意操作。自動印刷はしない) */}
+      <Modal
+        open={!!justSettled}
+        onClose={() => setJustSettled(null)}
+        title="精算が完了しました"
+        footer={<Btn onClick={() => setJustSettled(null)}>閉じる</Btn>}
+      >
+        {justSettled && (
+          <VStack gap={16}>
+            <div>
+              <div className="v2-mute" style={{ fontSize: 12 }}>{justSettled.customer}</div>
+              <div className="v2-num" style={{ fontSize: 24, fontWeight: 600 }}>¥{justSettled.total.toLocaleString()}</div>
+            </div>
+            <div className="v2-mute" style={{ fontSize: 12 }}>必要であればレシート・領収書を印刷してください</div>
+            <HStack gap={8}>
+              <Btn onClick={() => printOrderReceipt(justSettled, "receipt")}><Printer size={14} /> レシートを印刷</Btn>
+              <Btn onClick={() => printOrderReceipt(justSettled, "invoice")}><ReceiptIcon size={14} /> 領収書を印刷</Btn>
+            </HStack>
           </VStack>
         )}
       </Modal>
