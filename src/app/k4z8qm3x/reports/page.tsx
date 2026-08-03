@@ -6,7 +6,7 @@ import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { salesOrderStore } from "@/lib/v2/stores";
 import { productStore } from "@/lib/store/domain-stores";
 import { toHalfWidthNumber } from "@/lib/v2/points";
-import { PageHeader, Panel, VStack, HStack, Kpis, Kpi, Empty, Btn, Tabs, Field } from "@/components/v2/ui";
+import { PageHeader, Panel, VStack, HStack, Kpis, Kpi, Empty, Btn, Tabs, Field, Chip, Banner } from "@/components/v2/ui";
 import { FileDown, ArrowRight, Plus, X } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml, sectionHtml } from "@/lib/v2/pdf";
 
@@ -32,8 +32,10 @@ function sanitizeAmount(n: number): number {
   return Math.max(0, Math.trunc(n));
 }
 
+type RevenueOrderLike = { status: string; settledAt?: string; createdAt: string; paymentMethod?: string; unpaid?: boolean; paidAt?: string };
+
 /** 注文が入金済みとして計上されるべきか判定し、計上月(YYYY-MM)を返す。未入金/未精算は null */
-function getRevenueMonth(o: { status: string; settledAt?: string; createdAt: string; paymentMethod?: string; unpaid?: boolean; paidAt?: string }): string | null {
+function getRevenueMonth(o: RevenueOrderLike): string | null {
   if (o.status !== "settled") return null;
   if (o.paymentMethod === "credit") {
     // 後払い: 消し込み(paidAt)が無い、または未払いフラグが立っている間は売上に計上しない
@@ -41,6 +43,16 @@ function getRevenueMonth(o: { status: string; settledAt?: string; createdAt: str
     return o.paidAt.slice(0, 7);
   }
   return (o.settledAt ?? o.createdAt).slice(0, 7);
+}
+
+/** 注文が入金済みとして計上されるべきか判定し、計上日(YYYY-MM-DD)を返す。未入金/未精算は null */
+function getRevenueDate(o: RevenueOrderLike): string | null {
+  if (o.status !== "settled") return null;
+  if (o.paymentMethod === "credit") {
+    if (o.unpaid || !o.paidAt) return null;
+    return o.paidAt.slice(0, 10);
+  }
+  return (o.settledAt ?? o.createdAt).slice(0, 10);
 }
 
 function addMonths(ym: string, delta: number): string {
@@ -52,13 +64,53 @@ function formatMonthLabel(ym: string): string {
   const [y, m] = ym.split("-").map(Number);
   return `${y}年${m}月`;
 }
+function daysInMonth(ym: string): number {
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(y, m, 0).getDate();
+}
+
+// =================================================================
+// 売上目標・予実管理
+// =================================================================
+interface SalesTarget {
+  monthlyTarget: number; // 月間売上目標(円)
+  dailyTarget: number;   // 日商目標(円)
+}
+type SalesTargetMap = Record<string, SalesTarget>; // key = YYYY-MM
+const SALES_TARGETS_KEY = "v2_sales_targets_v1";
+const DEFAULT_SALES_TARGETS: SalesTargetMap = {};
+const EMPTY_TARGET: SalesTarget = { monthlyTarget: 0, dailyTarget: 0 };
+
+/** 達成率(0〜)から色分け区分を判定 */
+function rateVariant(rate: number): "success" | "warn" | "danger" {
+  if (rate >= 1) return "success";
+  if (rate >= 0.7) return "warn";
+  return "danger";
+}
+
+function RateChip({ rate }: { rate: number }) {
+  return <Chip variant={rateVariant(rate)}>{Math.round(rate * 100)}%</Chip>;
+}
+
+function RateBar({ rate }: { rate: number }) {
+  const v = rateVariant(rate);
+  const color = v === "success" ? "var(--v2-success)" : v === "warn" ? "var(--v2-warn)" : "var(--v2-danger)";
+  const pct = Math.max(0, Math.min(rate * 100, 100));
+  return (
+    <div style={{ background: "var(--v2-border)", borderRadius: 4, height: 8, overflow: "hidden" }}>
+      <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 4 }} />
+    </div>
+  );
+}
 
 export default function ReportsPage() {
-  const [tab, setTab] = useState<"sales" | "pl">("sales");
+  const [tab, setTab] = useState<"sales" | "pl" | "target">("sales");
   const [orders] = usePersisted(salesOrderStore);
   const [products] = usePersisted(productStore);
   const [fixedCosts, setFixedCosts] = usePersistedState<FixedCostItem[]>(FIXED_COSTS_KEY, DEFAULT_FIXED_COSTS);
+  const [salesTargets, setSalesTargets] = usePersistedState<SalesTargetMap>(SALES_TARGETS_KEY, DEFAULT_SALES_TARGETS);
   const [plMonth, setPlMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  const [targetEditMonth, setTargetEditMonth] = useState(() => new Date().toISOString().slice(0, 7));
   const today = new Date().toISOString().slice(0, 10);
   const monthPrefix = today.slice(0, 7);
 
@@ -131,6 +183,47 @@ export default function ReportsPage() {
     return months.map(ym => ({ month: ym, ...calcMonthPL(ym) }));
   }, [plMonth, calcMonthPL]);
 
+  // 対象月(targetEditMonth)の目標。未設定は0扱い
+  const editingTarget = salesTargets[targetEditMonth] ?? EMPTY_TARGET;
+
+  function updateTarget(ym: string, patch: Partial<SalesTarget>) {
+    setSalesTargets(prev => ({ ...prev, [ym]: { ...(prev[ym] ?? EMPTY_TARGET), ...patch } }));
+  }
+  function updateTargetMonthly(raw: string) {
+    updateTarget(targetEditMonth, { monthlyTarget: sanitizeAmount(toHalfWidthNumber(raw)) });
+  }
+  function updateTargetDaily(raw: string) {
+    updateTarget(targetEditMonth, { dailyTarget: sanitizeAmount(toHalfWidthNumber(raw)) });
+  }
+
+  // 予実(当月・本日): 入金済み売上ベース(後払い未収は除外)
+  const salesTargetStatus = useMemo(() => {
+    const monthTarget = salesTargets[monthPrefix]?.monthlyTarget ?? 0;
+    const dayTarget = salesTargets[monthPrefix]?.dailyTarget ?? 0;
+    const monthActual = calcMonthPL(monthPrefix).sales;
+    const todayActual = orders.reduce((s, o) => (getRevenueDate(o) === today ? s + o.total : s), 0);
+    const elapsedDays = new Date(today).getDate();
+    const totalDays = daysInMonth(monthPrefix);
+    const dailyAvgActual = elapsedDays > 0 ? monthActual / elapsedDays : 0;
+    const projectedTotal = Math.round(dailyAvgActual * totalDays);
+    const monthRate = monthTarget > 0 ? monthActual / monthTarget : 0;
+    const dayRate = dayTarget > 0 ? todayActual / dayTarget : 0;
+    const remaining = Math.max(monthTarget - monthActual, 0);
+    return { monthTarget, dayTarget, monthActual, todayActual, elapsedDays, totalDays, projectedTotal, monthRate, dayRate, remaining };
+  }, [salesTargets, monthPrefix, orders, today, calcMonthPL]);
+
+  // 達成率推移(直近6ヶ月)
+  const salesTargetTrend = useMemo(() => {
+    const months: string[] = [];
+    for (let i = 5; i >= 0; i--) months.push(addMonths(monthPrefix, -i));
+    return months.map(ym => {
+      const target = salesTargets[ym]?.monthlyTarget ?? 0;
+      const actual = calcMonthPL(ym).sales;
+      const rate = target > 0 ? actual / target : null;
+      return { month: ym, target, actual, rate };
+    });
+  }, [monthPrefix, salesTargets, calcMonthPL]);
+
   function addFixedCost() {
     setFixedCosts([...fixedCosts, { id: `fc${Date.now()}`, name: "", amount: 0 }]);
   }
@@ -194,10 +287,11 @@ export default function ReportsPage() {
 
       <Tabs
         value={tab}
-        onChange={(v) => setTab(v as "sales" | "pl")}
+        onChange={(v) => setTab(v as "sales" | "pl" | "target")}
         items={[
           { value: "sales", label: "売上集計" },
           { value: "pl", label: "月次損益" },
+          { value: "target", label: "売上目標" },
         ]}
       />
 
@@ -365,6 +459,109 @@ export default function ReportsPage() {
           <div className="v2-mute" style={{ fontSize: 11, textAlign: "center" }}>
             ※あくまで簡易計算です(人件費実績・税は含みません)
           </div>
+        </VStack>
+      )}
+
+      {tab === "target" && (
+        <VStack gap={16}>
+          <Banner variant="info">
+            達成率・実績はすべて入金済み売上ベースです。後払い(売掛)の未回収分は実績に含みません。
+          </Banner>
+
+          <Panel title="今月の予実">
+            <Kpis>
+              <Kpi label="月間目標" value={`¥${salesTargetStatus.monthTarget.toLocaleString()}`} />
+              <Kpi label="実績(月初〜本日)" value={`¥${salesTargetStatus.monthActual.toLocaleString()}`} />
+              <Kpi
+                label="達成率"
+                value={salesTargetStatus.monthTarget > 0 ? <RateChip rate={salesTargetStatus.monthRate} /> : "目標未設定"}
+              />
+              <Kpi label="残り必要額" value={`¥${salesTargetStatus.remaining.toLocaleString()}`} />
+            </Kpis>
+            {salesTargetStatus.monthTarget > 0 && (
+              <div style={{ marginTop: 12 }}>
+                <RateBar rate={salesTargetStatus.monthRate} />
+              </div>
+            )}
+            <div className="v2-mute" style={{ fontSize: 11, marginTop: 10 }}>
+              このペースでの着地見込み: ¥{salesTargetStatus.projectedTotal.toLocaleString()}
+              (日商平均 ¥{Math.round(salesTargetStatus.elapsedDays > 0 ? salesTargetStatus.monthActual / salesTargetStatus.elapsedDays : 0).toLocaleString()} × {salesTargetStatus.totalDays}日)
+            </div>
+          </Panel>
+
+          <Panel title="本日の予実">
+            <Kpis>
+              <Kpi label="日商目標" value={`¥${salesTargetStatus.dayTarget.toLocaleString()}`} />
+              <Kpi label="本日実績" value={`¥${salesTargetStatus.todayActual.toLocaleString()}`} />
+              <Kpi
+                label="達成率"
+                value={salesTargetStatus.dayTarget > 0 ? <RateChip rate={salesTargetStatus.dayRate} /> : "目標未設定"}
+              />
+            </Kpis>
+            {salesTargetStatus.dayTarget > 0 && (
+              <div style={{ marginTop: 12 }}>
+                <RateBar rate={salesTargetStatus.dayRate} />
+              </div>
+            )}
+          </Panel>
+
+          <Panel title="目標設定">
+            <VStack gap={12}>
+              <HStack gap={12}>
+                <Btn size="sm" onClick={() => setTargetEditMonth(m => addMonths(m, -1))}>← 前月</Btn>
+                <div className="v2-h2" style={{ minWidth: 100, textAlign: "center" }}>{formatMonthLabel(targetEditMonth)}</div>
+                <Btn size="sm" onClick={() => setTargetEditMonth(m => addMonths(m, 1))}>次月 →</Btn>
+                {targetEditMonth !== new Date().toISOString().slice(0, 7) && (
+                  <Btn size="xs" variant="ghost" onClick={() => setTargetEditMonth(new Date().toISOString().slice(0, 7))}>今月に戻す</Btn>
+                )}
+              </HStack>
+              <HStack gap={16} style={{ flexWrap: "wrap" }}>
+                <Field label="月間売上目標(円)">
+                  <input
+                    inputMode="numeric"
+                    value={editingTarget.monthlyTarget}
+                    onChange={(e) => updateTargetMonthly(e.target.value)}
+                    style={{ width: 160, textAlign: "right" }}
+                  />
+                </Field>
+                <Field label="日商目標(円)">
+                  <input
+                    inputMode="numeric"
+                    value={editingTarget.dailyTarget}
+                    onChange={(e) => updateTargetDaily(e.target.value)}
+                    style={{ width: 160, textAlign: "right" }}
+                  />
+                </Field>
+              </HStack>
+            </VStack>
+          </Panel>
+
+          <Panel title="達成率推移 (直近6ヶ月)">
+            {salesTargetTrend.every(m => m.target === 0 && m.actual === 0) ? <Empty>記録がありません</Empty> : (
+              <div className="v2-table-wrap">
+                <table className="v2-table">
+                  <thead>
+                    <tr>
+                      <th>月</th>
+                      <th className="v2-num-cell">目標</th>
+                      <th className="v2-num-cell">実績</th>
+                      <th className="v2-num-cell">達成率</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {salesTargetTrend.map(m => (
+                      <tr key={m.month}>
+                        <td>{formatMonthLabel(m.month)}</td>
+                        <td className="v2-num-cell">¥{m.target.toLocaleString()}</td>
+                        <td className="v2-num-cell">¥{m.actual.toLocaleString()}</td>
+                        <td className="v2-num-cell">{m.rate !== null ? <RateChip rate={m.rate} /> : <span className="v2-mute">—</span>}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Panel>
         </VStack>
       )}
     </VStack>
