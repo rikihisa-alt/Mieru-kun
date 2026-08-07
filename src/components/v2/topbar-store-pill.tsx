@@ -2,12 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
-import { usePersisted } from "@/lib/persist/store";
-import { settingsStore } from "@/lib/store/domain-stores";
+import { useStoreSettings } from "@/lib/store/settings";
 
 export function TopbarStorePill() {
   const router = useRouter();
-  const [settings] = usePersisted(settingsStore);
+  const settings = useStoreSettings();
   const name = settings.storeName || "店舗未設定";
   const mark = name.trim().charAt(0) || "?";
 

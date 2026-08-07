@@ -1,5 +1,7 @@
 "use client";
 
+import { DEFAULT_STORE_NAME } from "@/lib/store/settings";
+
 // =================================================================
 // PDF出力ユーティリティ (印刷ウィンドウ方式 — ライブラリ依存ゼロ)
 // 呼び出し: printDoc({ title, body, subtitle, landscape })
@@ -184,7 +186,7 @@ export function printReceipt(order: ReceiptOrder, opts?: PrintReceiptOpts) {
   if (typeof window === "undefined") return;
   const width = opts?.width ?? 80;
   const mode = opts?.mode ?? "receipt";
-  const store = opts?.storeName || "Come On Casino";
+  const store = opts?.storeName || DEFAULT_STORE_NAME;
   const w = window.open("", "_blank", "width=420,height=700");
   if (!w) {
     alert("ポップアップがブロックされています。許可してから再実行してください。");

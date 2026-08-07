@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
-import { productStore, customerStore, settingsStore, type CustomerRank } from "@/lib/store/domain-stores";
+import { productStore, customerStore, type CustomerRank } from "@/lib/store/domain-stores";
+import { useStoreSettings, DEFAULT_STORE_NAME } from "@/lib/store/settings";
 import { salesOrderStore, type SalesOrder, type SalesOrderItem, stockMovementStore, chipFlowStore, type ChipFlowEntry } from "@/lib/v2/stores";
 import { grantSpendPoints } from "@/lib/v2/points";
 import { PageHeader, Btn, Panel, Modal, VStack, HStack, Chip, Empty, Field, Toast, useToast, Banner, FilterChips, SectionLabel } from "@/components/v2/ui";
@@ -36,7 +37,7 @@ function formatStayDuration(minutes: number): string {
 export default function OrdersPage() {
   const [products, setProducts] = usePersisted(productStore);
   const [customers, setCustomers] = usePersisted(customerStore);
-  const [settings] = usePersisted(settingsStore);
+  const settings = useStoreSettings();
   const [orders, setOrders] = usePersisted(salesOrderStore);
   const [, setMovements] = usePersisted(stockMovementStore);
   const [, setChipFlow] = usePersisted(chipFlowStore);
@@ -231,7 +232,7 @@ export default function OrdersPage() {
         settledAt: o.settledAt,
       },
       {
-        storeName: settings.storeName || "Come On Casino",
+        storeName: settings.storeName || DEFAULT_STORE_NAME,
         mode,
         paymentLabel: o.paymentMethod ? paymentLabel(o.paymentMethod) : undefined,
       }

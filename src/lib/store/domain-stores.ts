@@ -192,7 +192,8 @@ export const pointRuleStore = createPersistedStore<PointRuleRecord[]>("tempo_poi
 
 export const reservationStore = createPersistedStore<ReservationRecord[]>("tempo_reservations_v1", []);
 
-const DEFAULT_SETTINGS: StoreSettings = {
+// 他モジュールから既定値(フォールバック用の店名など)を re-export したい場合に参照する。
+export const DEFAULT_SETTINGS: StoreSettings = {
   storeName: "Come On Casino",
   displayName: "カモンカジノ",
   address: "",
