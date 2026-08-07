@@ -2,7 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Publishable Key を優先。互換で旧 ANON_KEY もフォールバック。
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 function isSupabaseReady(): boolean {
   return !!(
@@ -14,6 +17,17 @@ function isSupabaseReady(): boolean {
   );
 }
 
+/**
+ * 認証ゲート(未ログイン→/login)を有効にするか。
+ * 【重要】Supabase「接続」と認証「強制」を分離する。実キーを設定して接続しても、
+ * このフラグを true にするまでは全ルートを通す(＝現在の挙動を完全維持)。
+ * 認証フェーズで NEXT_PUBLIC_AUTH_ENFORCED=true を設定して初めてゲートが働く。
+ * これにより「接続基盤だけ作る/既存を壊さない」を担保する。
+ */
+function isAuthEnforced(): boolean {
+  return process.env.NEXT_PUBLIC_AUTH_ENFORCED === "true";
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -22,8 +36,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Supabase未接続 → 全ルートを通す
-  if (!isSupabaseReady()) {
+  // Supabase未接続、または認証強制OFF(既定) → 全ルートを通す(現在の挙動を維持)。
+  // Supabaseに接続しても、認証フェーズで明示的に有効化するまで認証ゲートは働かない。
+  if (!isSupabaseReady() || !isAuthEnforced()) {
     return NextResponse.next();
   }
 
