@@ -1,15 +1,59 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
 import { customerStore, staffStore, reservationStore, productStore } from "@/lib/store/domain-stores";
 import { salesOrderStore } from "@/lib/v2/stores";
+import { useOrders } from "@/lib/orders/store";
 import { PageHeader, Kpis, Kpi, Panel, VStack, HStack, Btn, Chip } from "@/components/v2/ui";
-import { AlertTriangle, DoorOpen, ShoppingBag, Grid3X3, CreditCard, UserPlus, Plus, Clock, Wallet, CheckCircle2 } from "lucide-react";
+import {
+  AlertTriangle, DoorOpen, ShoppingBag, Grid3X3, CreditCard, UserPlus, Plus, Clock, Wallet, CheckCircle2,
+  Bell, Receipt, Armchair, Hourglass, AlarmClockOff, CalendarClock, PackageX, Lock, ClipboardList, ChevronRight,
+  type LucideIcon,
+} from "lucide-react";
 
 interface CheckinVisit {
   id: string; customerId: string | null; name: string; rank: string; checkedInAt: string; tableId?: string; seatIndex?: number;
+}
+
+// ===== 「今日やること」Action Center 用の最小型定義 =====
+// 各storeの完全な型は該当ページ (tables/shifts/closing) に定義済み。ここでは判定に必要なフィールドのみ再定義する。
+interface ActionWaitEntry { id: string; status: "waiting" | "called"; }
+interface ActionShiftEntry { staffId: string; date: string; }
+interface ActionAttendanceRecord { staffId: string; date: string; clockIn?: string; }
+interface ActionClosingRecord { date: string; }
+
+/** Action Center の1行。行全体がクリック可能なリンクで、遷移先へ飛ぶ。 */
+function ActionRow({ href, icon: Icon, label, count, unit, tone }: {
+  href: string; icon: LucideIcon; label: string; count: number; unit: string; tone: "danger" | "warn" | "info" | "accent";
+}) {
+  const [hover, setHover] = useState(false);
+  const toneVar = `var(--v2-${tone})`;
+  return (
+    <Link
+      href={href}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "10px 12px",
+        borderLeft: `3px solid ${toneVar}`,
+        borderRadius: 6,
+        background: hover ? "var(--v2-bg-alt)" : "transparent",
+        textDecoration: "none",
+        color: "inherit",
+      }}
+    >
+      <Icon size={16} color={toneVar} style={{ flexShrink: 0 }} />
+      <span className="v2-grow" style={{ fontSize: 13 }}>
+        {label} <span className="v2-num" style={{ fontWeight: 600 }}>{count}{unit}</span>
+      </span>
+      <ChevronRight size={16} className="v2-mute" style={{ flexShrink: 0 }} />
+    </Link>
+  );
 }
 
 export default function DashboardPage() {
@@ -19,6 +63,13 @@ export default function DashboardPage() {
   const [products] = usePersisted(productStore);
   const [orders] = usePersisted(salesOrderStore);
   const [visits] = usePersistedState<CheckinVisit[]>("v2_visits_v1", []);
+
+  // ===== Action Center 用データ (すべて既存storeの読み取りのみ。新規persistキーは作らない) =====
+  const liveOrders = useOrders();
+  const [waitlist] = usePersistedState<ActionWaitEntry[]>("v2_waitlist_v1", []);
+  const [shifts] = usePersistedState<ActionShiftEntry[]>("v2_shifts_v1", []);
+  const [attendance] = usePersistedState<ActionAttendanceRecord[]>("v2_attendance_v1", []);
+  const [closings] = usePersistedState<ActionClosingRecord[]>("v2_closings_v1", []);
 
   const today = new Date().toISOString().slice(0, 10);
   const todaySales = useMemo(() => {
@@ -37,6 +88,40 @@ export default function DashboardPage() {
   );
   const unpaidTotal = unpaidOrders.reduce((s, o) => s + o.total, 0);
 
+  // ===== Action Center: 「今日やること」件数計算 =====
+  const activeOrderCount = liveOrders.filter(o => o.status !== "done" && o.status !== "canceled").length;
+  const activeSalesOrderCount = orders.filter(o => o.status === "active").length;
+  const unseatedVisitCount = visits.filter(v => !v.tableId).length;
+  const waitingCount = waitlist.filter(w => w.status === "waiting" || w.status === "called").length;
+  // 出勤予定だが未打刻: 本日シフトがある在籍中(active)スタッフのうち、本日のclockInが無い人数 (shifts/page.tsx の isNoShowWarning と同じロジック)
+  const noShowCount = useMemo(() => {
+    const activeStaffIds = new Set(staff.filter(s => s.status === "active").map(s => s.id));
+    const todayStaffIds = new Set(shifts.filter(s => s.date === today && activeStaffIds.has(s.staffId)).map(s => s.staffId));
+    let count = 0;
+    todayStaffIds.forEach(staffId => {
+      const att = attendance.find(a => a.staffId === staffId && a.date === today);
+      if (!att?.clockIn) count++;
+    });
+    return count;
+  }, [staff, shifts, attendance, today]);
+  const pendingReservationCount = todayReservations.filter(r => r.status === "pending" || r.status === "confirmed").length;
+  // 締め未完了: 目障りにならないよう、営業終盤 (22時以降) かつ本日の締めレコードが無い場合のみ表示
+  const isLateHour = new Date().getHours() >= 22;
+  const closingMissing = isLateHour && !closings.some(c => c.date === today);
+
+  type ActionItem = { key: string; href: string; icon: LucideIcon; label: string; count: number; unit: string; tone: "danger" | "warn" | "info" | "accent" };
+  const allActionItems: ActionItem[] = [
+    { key: "orders", href: "/k4z8qm3x/live", icon: Bell, label: "未対応注文", count: activeOrderCount, unit: "件", tone: "danger" },
+    { key: "unsettled", href: "/k4z8qm3x/orders", icon: Receipt, label: "未精算", count: activeSalesOrderCount, unit: "件", tone: "danger" },
+    { key: "unseated", href: "/k4z8qm3x/tables", icon: Armchair, label: "未着席", count: unseatedVisitCount, unit: "名", tone: "warn" },
+    { key: "waiting", href: "/k4z8qm3x/tables", icon: Hourglass, label: "ウェイティング", count: waitingCount, unit: "組", tone: "warn" },
+    { key: "noshow", href: "/k4z8qm3x/attendance", icon: AlarmClockOff, label: "出勤予定だが未打刻", count: noShowCount, unit: "名", tone: "warn" },
+    { key: "reservations", href: "/k4z8qm3x/reservations", icon: CalendarClock, label: "本日の予約(未対応)", count: pendingReservationCount, unit: "件", tone: "info" },
+    { key: "lowstock", href: "/k4z8qm3x/inventory", icon: PackageX, label: "在庫注意", count: lowStock.length, unit: "品目", tone: "info" },
+    { key: "closing", href: "/k4z8qm3x/closing", icon: Lock, label: "締め未完了", count: closingMissing ? 1 : 0, unit: "", tone: "accent" },
+  ];
+  const actionItems = allActionItems.filter(item => item.count > 0);
+
   return (
     <VStack gap={16}>
       <PageHeader
@@ -48,6 +133,21 @@ export default function DashboardPage() {
           </>
         }
       />
+
+      {/* 今日やること (Action Center): 営業中に対応が必要な項目を優先度順に表示し、クリックで該当画面へ遷移 */}
+      <Panel title={<HStack gap={6}><ClipboardList size={15} /> 今日やること</HStack>}>
+        {actionItems.length === 0 ? (
+          <HStack gap={8} className="v2-mute" style={{ fontSize: 13, padding: "8px 0" }}>
+            <CheckCircle2 size={16} /> 対応が必要なことはありません。順調です 👍
+          </HStack>
+        ) : (
+          <VStack gap={4}>
+            {actionItems.map(item => (
+              <ActionRow key={item.key} href={item.href} icon={item.icon} label={item.label} count={item.count} unit={item.unit} tone={item.tone} />
+            ))}
+          </VStack>
+        )}
+      </Panel>
 
       {/* 主要KPI */}
       <Kpis>
