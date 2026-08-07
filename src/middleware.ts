@@ -63,7 +63,9 @@ export async function middleware(request: NextRequest) {
 
     if (user && (pathname === "/login" || pathname === "/signup")) {
       const url = request.nextUrl.clone();
-      url.pathname = "/h7p2kx";
+      // 新管理画面のベースへ。旧 /h7p2kx (旧ダッシュボード) は next.config の
+      // redirects で /k4z8qm3x へ飛ぶが、ログイン後の行き先は直接新ベースを指す。
+      url.pathname = "/k4z8qm3x";
       return NextResponse.redirect(url);
     }
   } catch {
