@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { usePersisted, usePersistedState } from "@/lib/persist/store";
-import { customerStore, type CustomerRank, type CustomerRecord } from "@/lib/store/domain-stores";
+import { usePersistedState } from "@/lib/persist/store";
+import { type CustomerRank, type CustomerRecord } from "@/lib/store/domain-stores";
+import { useCustomers } from "@/lib/repositories/use-customers";
 import { PageHeader, Btn, Kpis, Kpi, VStack, Empty, Chip, Modal, Field, Banner, RankBadge, Toast, useToast } from "@/components/v2/ui";
 import { Search, Plus, FileDown, FileUp, Sparkles } from "lucide-react";
 import { printDoc, tableHtml, kpisHtml } from "@/lib/v2/pdf";
@@ -39,7 +40,7 @@ const CSV_HEADERS = ["名前", "ポーカーネーム", "電話", "誓約書番�
 
 export default function CustomersPage() {
   const router = useRouter();
-  const [customers, setCustomers] = usePersisted(customerStore);
+  const { customers, bulkUpsert } = useCustomers();
   const [rankRules] = usePersistedState<RankRules>(RANK_RULES_KEY, DEFAULT_RANK_RULES);
   const [q, setQ] = useState("");
   const [rankPreview, setRankPreview] = useState<{ id: string; label: string; from: CustomerRank; to: CustomerRank }[] | null>(null);
@@ -85,7 +86,7 @@ export default function CustomersPage() {
     reader.readAsText(file, "utf-8");
   }
 
-  function runImport() {
+  async function runImport() {
     if (!importRows) return;
     const nameIdx = importMapping.indexOf("name");
     if (nameIdx === -1) return;
@@ -96,46 +97,40 @@ export default function CustomersPage() {
     const notesIdx = importMapping.indexOf("notes");
 
     let added = 0, updated = 0, skipped = 0;
-    setCustomers(prev => {
-      const next = [...prev];
-      for (const row of importRows) {
-        const name = (row[nameIdx] ?? "").trim();
-        if (!name) { skipped++; continue; }
-        const phone = phoneIdx !== -1 ? (row[phoneIdx] ?? "").trim() : "";
-        const existingIdx = phone ? next.findIndex(c => c.phone && c.phone === phone) : -1;
+    const items: (Partial<CustomerRecord> & { id?: string })[] = [];
+    for (const row of importRows) {
+      const name = (row[nameIdx] ?? "").trim();
+      if (!name) { skipped++; continue; }
+      const phone = phoneIdx !== -1 ? (row[phoneIdx] ?? "").trim() : "";
+      const existing = phone ? customers.find(c => c.phone && c.phone === phone) : undefined;
 
-        if (existingIdx !== -1) {
-          if (duplicateAction === "skip") { skipped++; continue; }
-          const existing = next[existingIdx];
-          next[existingIdx] = {
-            ...existing,
-            name,
-            nickname: nicknameIdx !== -1 ? (row[nicknameIdx] ?? "").trim() : existing.nickname,
-            pledgeNo: pledgeIdx !== -1 ? ((row[pledgeIdx] ?? "").trim() || undefined) : existing.pledgeNo,
-            dateOfBirth: dobIdx !== -1 ? ((row[dobIdx] ?? "").trim() || undefined) : existing.dateOfBirth,
-            notes: notesIdx !== -1 ? ((row[notesIdx] ?? "").trim() || undefined) : existing.notes,
-          };
-          updated++;
-        } else {
-          const c: CustomerRecord = {
-            id: Math.random().toString(36).slice(2, 10),
-            name,
-            nickname: nicknameIdx !== -1 ? (row[nicknameIdx] ?? "").trim() : "",
-            rank: "regular",
-            phone,
-            pledgeNo: pledgeIdx !== -1 ? ((row[pledgeIdx] ?? "").trim() || undefined) : undefined,
-            dateOfBirth: dobIdx !== -1 ? ((row[dobIdx] ?? "").trim() || undefined) : undefined,
-            notes: notesIdx !== -1 ? ((row[notesIdx] ?? "").trim() || undefined) : undefined,
-            totalVisits: 0, totalSpent: 0, chipBalance: 0, pointBalance: 0,
-            prizeCount: 0,
-            createdAt: new Date().toISOString(),
-          };
-          next.push(c);
-          added++;
-        }
+      if (existing) {
+        if (duplicateAction === "skip") { skipped++; continue; }
+        items.push({
+          id: existing.id,
+          name,
+          nickname: nicknameIdx !== -1 ? (row[nicknameIdx] ?? "").trim() : existing.nickname,
+          pledgeNo: pledgeIdx !== -1 ? ((row[pledgeIdx] ?? "").trim() || undefined) : existing.pledgeNo,
+          dateOfBirth: dobIdx !== -1 ? ((row[dobIdx] ?? "").trim() || undefined) : existing.dateOfBirth,
+          notes: notesIdx !== -1 ? ((row[notesIdx] ?? "").trim() || undefined) : existing.notes,
+        });
+        updated++;
+      } else {
+        items.push({
+          name,
+          nickname: nicknameIdx !== -1 ? (row[nicknameIdx] ?? "").trim() : "",
+          rank: "regular",
+          phone,
+          pledgeNo: pledgeIdx !== -1 ? ((row[pledgeIdx] ?? "").trim() || undefined) : undefined,
+          dateOfBirth: dobIdx !== -1 ? ((row[dobIdx] ?? "").trim() || undefined) : undefined,
+          notes: notesIdx !== -1 ? ((row[notesIdx] ?? "").trim() || undefined) : undefined,
+          totalVisits: 0, totalSpent: 0, chipBalance: 0, pointBalance: 0,
+          prizeCount: 0,
+        });
+        added++;
       }
-      return next;
-    });
+    }
+    await bulkUpsert(items);
     setImportResult({ added, updated, skipped });
     setImportRows(null);
   }
@@ -153,10 +148,9 @@ export default function CustomersPage() {
       .filter(c => c.to !== c.from);
     setRankPreview(changes);
   }
-  function applyRankJudge() {
+  async function applyRankJudge() {
     if (!rankPreview || rankPreview.length === 0) { setRankPreview(null); return; }
-    const changeMap = new Map(rankPreview.map(c => [c.id, c.to]));
-    setCustomers(prev => prev.map(c => changeMap.has(c.id) ? { ...c, rank: changeMap.get(c.id)! } : c));
+    await bulkUpsert(rankPreview.map(c => ({ id: c.id, rank: c.to })));
     showToast(`${rankPreview.length}名のランクを更新しました`);
     setRankPreview(null);
   }

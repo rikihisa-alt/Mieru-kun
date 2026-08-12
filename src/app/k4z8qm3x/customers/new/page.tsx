@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { customerStore, type CustomerRank, type CustomerRecord } from "@/lib/store/domain-stores";
+import { type CustomerRank } from "@/lib/store/domain-stores";
+import { useCustomers } from "@/lib/repositories/use-customers";
 import { PageHeader, Btn, Panel, Field, VStack, HStack, Banner } from "@/components/v2/ui";
 import { ArrowLeft } from "lucide-react";
 
 export default function NewCustomerPage() {
   const router = useRouter();
+  const { createCustomer } = useCustomers();
   const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
   const [phone, setPhone] = useState("");
@@ -19,20 +21,15 @@ export default function NewCustomerPage() {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
 
-  function submit() {
+  async function submit() {
     if (!name.trim()) { setError("本名は必須です"); return; }
-    const c: CustomerRecord = {
-      id: Math.random().toString(36).slice(2, 10),
+    await createCustomer({
       name: name.trim(), nickname: nickname.trim(),
       rank, phone: phone.trim(), pledgeNo: pledgeNo.trim() || undefined,
       email: email.trim() || undefined,
       dateOfBirth: dateOfBirth || undefined,
       notes: notes.trim() || undefined,
-      totalVisits: 0, totalSpent: 0, chipBalance: 0, pointBalance: 0,
-      prizeCount: 0,
-      createdAt: new Date().toISOString(),
-    };
-    customerStore.set(prev => [c, ...prev]);
+    });
     router.push("/k4z8qm3x/customers");
   }
 

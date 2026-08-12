@@ -3,27 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePersisted, usePersistedState } from "@/lib/persist/store";
-import { customerStore, reservationStore, type CustomerRank, type ReservationRecord } from "@/lib/store/domain-stores";
+import { reservationStore, type CustomerRank, type ReservationRecord } from "@/lib/store/domain-stores";
+import { useCustomers } from "@/lib/repositories/use-customers";
+import { useInStoreVisits } from "@/lib/repositories/use-visits";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { grantVisitPoints } from "@/lib/v2/points";
 import { PageHeader, Btn, Panel, Field, Modal, VStack, HStack, Chip, Kpis, Kpi, Empty, Banner, Toast, useToast } from "@/components/v2/ui";
 import { Plus, LogOut, AlertTriangle, ShieldAlert, CalendarCheck } from "lucide-react";
 
-interface Visit {
-  id: string;
-  customerId: string | null;
-  name: string;
-  rank: CustomerRank;
-  checkedInAt: string;
-  tableId?: string;
-  seatIndex?: number;
-}
 interface TableMeta { id: string; name: string }
 
 const RANK_LABEL: Record<CustomerRank, string> = { regular: "Regular", silver: "Silver", gold: "Gold", vip: "VIP" };
 
 export default function CheckinPage() {
-  const [customers] = usePersisted(customerStore);
-  const [visits, setVisits] = usePersistedState<Visit[]>("v2_visits_v1", []);
+  const { customers, updateCustomer } = useCustomers();
+  const { visits, checkIn: checkInVisit, checkOut: checkOutVisit } = useInStoreVisits();
   const [tables] = usePersistedState<TableMeta[]>("v2_tables_v2", []);
   const [reservations, setReservations] = usePersisted(reservationStore);
   const tableNameOf = (id?: string) => id ? (tables.find(t => t.id === id)?.name ?? id) : undefined;
@@ -85,10 +79,7 @@ export default function CheckinPage() {
     setAgeVerified(false); setPledgeSigned(false); setRulesExplained(false); setPledgeNoInput("");
   }
 
-  function makeVisitId() {
-    return `v${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-  }
-  function checkin() {
+  async function checkin() {
     if (needsFirstVisitCheck && !firstVisitOk) return;
     if (selectedId) {
       const c = customers.find(x => x.id === selectedId);
@@ -100,20 +91,24 @@ export default function CheckinPage() {
       if (c.isBlacklisted && !confirm("本当に入店させますか?")) return;
       if (needsFirstVisitCheck) {
         const nowIso = new Date().toISOString();
-        customerStore.set(prev => prev.map(x => x.id === c.id ? {
-          ...x,
-          pledgeNo: x.pledgeNo || pledgeNoInput.trim() || x.pledgeNo,
+        await updateCustomer(c.id, {
+          pledgeNo: c.pledgeNo || pledgeNoInput.trim() || c.pledgeNo,
           firstVisitChecked: { ageVerified: true, pledgeSigned: true, rulesExplained: true, checkedAt: nowIso },
-        } : x));
+        });
       }
-      setVisits(prev => [{ id: makeVisitId(), customerId: c.id, name: c.nickname || c.name, rank: c.rank, checkedInAt: new Date().toISOString() }, ...prev]);
+      await checkInVisit({ customerId: c.id, name: c.nickname || c.name, rank: c.rank });
       const granted = grantVisitPoints(c.id, "来店チェックイン");
       if (granted > 0) {
         showToast(`${c.nickname || c.name}さんに${granted}ptを付与しました`);
+        // grantVisitPoints は customerStore(tempo_customers_v1) の pointBalance を直接更新するため、
+        // Supabase接続時のみ、その増分をSupabase側にも反映して整合させる(未接続時は二重加算になるため行わない)。
+        if (isSupabaseConfigured()) {
+          await updateCustomer(c.id, { pointBalance: c.pointBalance + granted });
+        }
       }
     } else {
       if (!guestName.trim()) return;
-      setVisits(prev => [{ id: makeVisitId(), customerId: null, name: guestName.trim(), rank: guestRank, checkedInAt: new Date().toISOString() }, ...prev]);
+      await checkInVisit({ customerId: null, name: guestName.trim(), rank: guestRank });
     }
     if (pendingReservationId) {
       setReservations(prev => prev.map(r => r.id === pendingReservationId ? { ...r, status: "arrived" } : r));
@@ -121,11 +116,11 @@ export default function CheckinPage() {
     setOpen(false);
     setSelectedId(""); setGuestName(""); setGuestRank("regular"); setPendingReservationId(null); resetChecklist();
   }
-  function checkout(id: string) {
+  async function checkout(id: string) {
     const v = visits.find(x => x.id === id);
     if (!v) return;
     if (!confirm(`${v.name}さんを退店にしますか?(滞在 ${elapsed(v.checkedInAt)})`)) return;
-    setVisits(prev => prev.filter(x => x.id !== id));
+    await checkOutVisit(id);
   }
   function elapsed(iso: string) {
     const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);

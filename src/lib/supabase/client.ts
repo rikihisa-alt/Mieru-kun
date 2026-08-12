@@ -11,3 +11,19 @@ const supabaseKey =
 export function createClient() {
   return createBrowserClient(supabaseUrl, supabaseKey);
 }
+
+/**
+ * Supabaseが実接続可能か(クライアント/ブラウザ側の判定)。
+ * URL/KEYが実値で、URLがplaceholderを含まない場合のみ true。
+ * server.ts の isSupabaseConfigured と同等ロジック(用途別に複製)。
+ */
+export function isSupabaseConfigured(): boolean {
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  return !!(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    key &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
+  );
+}

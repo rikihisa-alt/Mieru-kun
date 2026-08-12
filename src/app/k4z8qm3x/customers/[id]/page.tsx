@@ -4,9 +4,13 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
-import { usePersisted } from "@/lib/persist/store";
-import { customerStore, type CustomerRecord, type CustomerRank } from "@/lib/store/domain-stores";
-import { PageHeader, Btn, Panel, Field, Kpis, Kpi, VStack, HStack, Tabs, Chip, Modal } from "@/components/v2/ui";
+import { usePersistedState } from "@/lib/persist/store";
+import { type CustomerRecord, type CustomerRank } from "@/lib/store/domain-stores";
+import { useCustomers } from "@/lib/repositories/use-customers";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { listHistoryByCustomer, type VisitHistoryEntry } from "@/lib/repositories/visit-repo";
+import type { AppVisit } from "@/lib/repositories/mappers";
+import { PageHeader, Btn, Panel, Field, Kpis, Kpi, VStack, HStack, Tabs, Chip, Modal, Empty } from "@/components/v2/ui";
 import { escapeHtml } from "@/lib/v2/pdf";
 import { ArrowLeft, QrCode } from "lucide-react";
 
@@ -18,12 +22,28 @@ export default function CustomerDetail() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : "";
-  const [customers] = usePersisted(customerStore);
+  const { customers, updateCustomer, deleteCustomer } = useCustomers();
   const initial = customers.find(c => c.id === id);
 
   const [tab, setTab] = useState<"basic" | "history" | "chip" | "memo">("basic");
   const [draft, setDraft] = useState<CustomerRecord | null>(null);
   useEffect(() => { if (initial) setDraft(initial); }, [initial?.id]); // eslint-disable-line
+
+  // ===== 来店履歴 =====
+  // 未接続時: v2_visits_v1(在店中のみ保持)から該当customerId分を表示。
+  // 接続時: visits テーブルの本人分を全件(降順)取得。
+  const connected = isSupabaseConfigured();
+  const [localVisits] = usePersistedState<AppVisit[]>("v2_visits_v1", []);
+  const [remoteHistory, setRemoteHistory] = useState<VisitHistoryEntry[] | null>(null);
+  useEffect(() => {
+    if (!connected || !id) return;
+    let active = true;
+    listHistoryByCustomer(id).then(list => { if (active) setRemoteHistory(list); }).catch(() => { if (active) setRemoteHistory([]); });
+    return () => { active = false; };
+  }, [connected, id]);
+  const visitHistory: VisitHistoryEntry[] = connected
+    ? (remoteHistory ?? [])
+    : localVisits.filter(v => v.customerId === id).map(v => ({ id: v.id, checkedInAt: v.checkedInAt, status: "in_store" as const }));
 
   const [qrOpen, setQrOpen] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
@@ -92,12 +112,11 @@ export default function CustomerDetail() {
 
   function save() {
     if (!draft) return;
-    customerStore.set(prev => prev.map(c => c.id === id ? draft : c));
+    updateCustomer(id, draft);
   }
   function remove() {
     if (!confirm("削除しますか？")) return;
-    customerStore.set(prev => prev.filter(c => c.id !== id));
-    router.push("/k4z8qm3x/customers");
+    deleteCustomer(id).then(() => router.push("/k4z8qm3x/customers"));
   }
   function update<K extends keyof CustomerRecord>(key: K, value: CustomerRecord[K]) {
     setDraft(prev => prev ? { ...prev, [key]: value } : prev);
@@ -186,7 +205,26 @@ export default function CustomerDetail() {
       )}
 
       {tab === "history" && (
-        <Panel><div className="v2-mute" style={{ padding: 32, textAlign: "center" }}>履歴データなし</div></Panel>
+        <Panel title="来店履歴">
+          {visitHistory.length === 0 ? (
+            <Empty>来店履歴はありません</Empty>
+          ) : (
+            <VStack gap={6}>
+              {visitHistory.map(v => (
+                <HStack key={v.id} gap={12} style={{ fontSize: 12, padding: "6px 2px", borderBottom: "1px solid var(--v2-border)" }}>
+                  <span className="v2-sub" style={{ minWidth: 130 }}>
+                    {new Date(v.checkedInAt).toLocaleString("ja-JP", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                  <span className="v2-mute">
+                    {v.checkedOutAt
+                      ? `〜 ${new Date(v.checkedOutAt).toLocaleString("ja-JP", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}`
+                      : "在店中"}
+                  </span>
+                </HStack>
+              ))}
+            </VStack>
+          )}
+        </Panel>
       )}
 
       {tab === "chip" && (
